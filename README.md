@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ReviewStand.dk
 
-## Getting Started
+SaaS-platform hvor en fysisk NFC-/QR-stander indsamler anmeldelser, privat
+feedback og kundedata. Dette er **Sprint 1 (MVP)**.
 
-First, run the development server:
+## Teknologi
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Next.js 16 (App Router) · TypeScript · Tailwind CSS v4
+- Supabase (Postgres, Auth, Storage) med Row Level Security
+- `qrcode` til QR-generering
+- Klar til Vercel-deployment
+- Forberedt til Sprint 2: Stripe (betaling) og Resend (e-mail)
+
+## Kom i gang
+
+### 1. Opret et Supabase-projekt
+
+På [supabase.com](https://supabase.com) → nyt projekt. Find derefter:
+
+- Project URL og `anon` key under **Project Settings → API**
+- `service_role` key samme sted (hemmelig — kun server)
+
+### 2. Miljøvariabler
+
+Kopiér `.env.local.example` til `.env.local` og udfyld:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Kør database-migrationerne
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Åbn **SQL Editor** i Supabase og kør i rækkefølge:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. `supabase/migrations/0001_init.sql` — tabeller, enums, RLS, triggers
+2. `supabase/migrations/0002_storage.sql` — `logos` storage-bucket
 
-## Learn More
+Trigger `on_auth_user_created` opretter automatisk en `public.users`-række med
+rollen `customer`, når nogen registrerer sig.
 
-To learn more about Next.js, take a look at the following resources:
+### 4. Gør en bruger til admin
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Registrér en konto via `/signup`, og kør derefter i SQL Editor:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```sql
+update public.users set role = 'admin' where email = 'dig@eksempel.dk';
+```
 
-## Deploy on Vercel
+### 5. Start udviklingsserveren
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm install
+npm run dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Åbn [http://localhost:3000](http://localhost:3000).
+
+## Struktur
+
+```
+src/
+  app/
+    (auth)/            Login, signup, auth-actions
+    dashboard/         Kunde: oversigt, standere, feedback, profil
+    admin/             Admin: oversigt, virksomheder, ordrer, feedback
+    r/[slug]/          Offentligt review-flow (scan + rating + feedback)
+    bestil/            Webshop-oversigt (Stripe-checkout kommer i Sprint 2)
+  components/          UI-bibliotek + delte komponenter
+  lib/
+    supabase/          Browser-, server-, admin- og proxy-klienter
+    types/database.ts  Typede tabeldefinitioner (spejler migrationen)
+  proxy.ts             Auth-session-refresh + route-beskyttelse
+supabase/migrations/   SQL-schema
+```
+
+## Review-flow
+
+`/r/[slug]` registrerer et scan, viser virksomhedens logo/navn og beder om
+1–5 stjerner:
+
+- **4–5 stjerner:** primær knap → offentlig anmeldelse, sekundær → privat feedback
+- **1–3 stjerner:** primær knap → privat feedback, sekundær → offentlig anmeldelse
+
+Negative kunder blokeres aldrig fra at skrive en offentlig anmeldelse.
+
+## Roller
+
+- **Admin:** ser alle virksomheder, ordrer, standere, feedback; opretter/redigerer
+  virksomheder; ændrer kundens links; markerer ordrestatus.
+- **Kunde:** ser egen virksomhed, uploader logo, sætter review-links, ser
+  scanninger/klik/feedback og ændrer stander-destination.
+
+## Næste sprint
+
+Stripe-checkout på `/bestil`, ordre-oprettelse via webhook, og Resend-mail
+("Færdiggør din stander" → onboarding). Datamodellen (`orders`,
+`subscriptions`) er allerede på plads.
