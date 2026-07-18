@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getSiteUrl } from "@/lib/site";
 import { PRODUCTS } from "@/lib/constants";
+import { POSTS } from "@/lib/blog";
 
 /**
  * Sitemap over offentlige sider. Private områder (dashboard, admin) og
@@ -15,6 +16,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: `${base}/produkter`,
       changeFrequency: "weekly",
+      priority: 0.9,
+      lastModified,
+    },
+    {
+      url: `${base}/blog`,
+      changeFrequency: "weekly",
+      priority: 0.7,
+      lastModified,
+    },
+    {
+      url: `${base}/reviewstander`,
+      changeFrequency: "monthly",
       priority: 0.9,
       lastModified,
     },
@@ -39,5 +52,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified,
   }));
 
-  return [...staticRoutes, ...productRoutes];
+  const blogRoutes: MetadataRoute.Sitemap = POSTS.map((p) => ({
+    url: `${base}/blog/${p.slug}`,
+    changeFrequency: "monthly",
+    priority: 0.7,
+    lastModified: new Date(p.date),
+  }));
+
+  return [...staticRoutes, ...productRoutes, ...blogRoutes];
 }

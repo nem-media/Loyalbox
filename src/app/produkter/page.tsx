@@ -4,12 +4,12 @@ import { SiteFooter } from "@/components/site-footer";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { PRODUCTS } from "@/lib/constants";
-import { formatCurrency } from "@/lib/utils";
+import { ProductPrice } from "@/components/product-price";
 
 export const metadata = {
   title: "Review standere & Google review skilt",
   description:
-    "Vælg din review stander: Basic, Premium eller Pro. Google review skilt med QR + NFC — få flere anmeldelser fra dine kunder og styrk din lokale forretning.",
+    "Vælg din review stander — Google, Trustpilot, Tripadvisor, Facebook eller alt-i-én. QR + NFC, klar med dit logo. Fås også komplet med LoyalBox-platformen.",
   alternates: { canonical: "/produkter" },
 };
 
@@ -24,9 +24,10 @@ export default function ProductsPage() {
             Review standere til Google-anmeldelser
           </h1>
           <p className="mx-auto mt-2 max-w-xl text-muted">
-            Et elegant Google review skilt med QR og NFC til bordet eller kassen.
-            Vælg det niveau af branding og indsigt der passer til din forretning.
+            Et elegant review skilt med QR og NFC til bordet eller kassen. Vælg
+            platform — eller gå komplet med LoyalBox-platformen oveni.
           </p>
+          <p className="mt-2 text-xs text-muted">Alle priser er ex moms.</p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
@@ -36,7 +37,7 @@ export default function ProductsPage() {
               href={`/produkter/${p.slug}`}
               className="group box-shape flex flex-col overflow-hidden border border-border bg-card transition-shadow hover:shadow-[0_20px_40px_-24px_rgba(0,0,0,0.4)]"
             >
-              <div className="relative aspect-[4/5] overflow-hidden bg-dark">
+              <div className="relative aspect-[4/5] overflow-hidden bg-[#e9ebee]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={p.image}
@@ -47,18 +48,17 @@ export default function ProductsPage() {
                   <div className="absolute left-3 top-3">
                     <Badge tone="accent">Mest populær</Badge>
                   </div>
+                ) : p.includesLoyalbox ? (
+                  <div className="absolute left-3 top-3">
+                    <Badge tone="neutral">Komplet</Badge>
+                  </div>
                 ) : null}
               </div>
               <div className="flex flex-1 flex-col p-5">
                 <h2 className="font-bold tracking-tight">{p.name}</h2>
                 <p className="mt-1 text-sm text-muted">{p.tagline}</p>
-                <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-2xl font-bold tracking-tight">
-                    {formatCurrency(p.price)}
-                  </span>
-                  <span className="text-sm text-muted">
-                    {p.interval === "month" ? "/md" : "engangs"}
-                  </span>
+                <div className="mt-4">
+                  <ProductPrice product={p} />
                 </div>
                 <span className="mt-4 text-sm font-medium text-accent">
                   Se produkt →

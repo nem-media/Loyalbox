@@ -8,6 +8,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { PRODUCTS, getProduct } from "@/lib/constants";
 import { toProductJsonLd } from "@/lib/commerce";
 import { formatCurrency } from "@/lib/utils";
+import { ProductPrice } from "@/components/product-price";
 
 export function generateStaticParams() {
   return PRODUCTS.map((p) => ({ slug: p.slug }));
@@ -22,7 +23,7 @@ export async function generateMetadata({
   const product = getProduct(slug);
   if (!product) return { title: "Produkt" };
   return {
-    title: `${product.name} – review stander med QR & NFC`,
+    title: product.metaTitle ?? product.name,
     description: product.description,
     alternates: { canonical: `/produkter/${product.slug}` },
     openGraph: {
@@ -76,14 +77,12 @@ export default async function ProductPage({
             Produkter
           </Link>
           <span className="mx-2">/</span>
-          <span className="text-foreground">
-            {product.name.replace("ReviewStand ", "")}
-          </span>
+          <span className="text-foreground">{product.name}</span>
         </nav>
 
         <div className="grid gap-10 lg:grid-cols-2">
           {/* Billede */}
-          <div className="box-shape overflow-hidden border border-border bg-dark">
+          <div className="box-shape overflow-hidden border border-border bg-[#e9ebee]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={product.image}
@@ -106,13 +105,8 @@ export default async function ProductPage({
             </h1>
             <p className="mt-2 text-lg text-muted">{product.tagline}</p>
 
-            <div className="mt-6 flex items-baseline gap-1">
-              <span className="text-4xl font-bold tracking-tight">
-                {formatCurrency(product.price)}
-              </span>
-              <span className="text-muted">
-                {product.interval === "month" ? "/md" : "engangs"}
-              </span>
+            <div className="mt-6">
+              <ProductPrice product={product} size="lg" />
             </div>
 
             <p className="mt-6 text-muted">{product.description}</p>
@@ -132,7 +126,7 @@ export default async function ProductPage({
                 size="lg"
                 className="flex-1"
               >
-                Bestil {product.name.replace("ReviewStand ", "")}
+                Bestil {product.name}
               </ButtonLink>
               <ButtonLink href="/produkter" variant="outline" size="lg">
                 Se alle produkter
@@ -143,8 +137,46 @@ export default async function ProductPage({
               Fri fragt i Danmark · Klar til brug ud af kassen ·{" "}
               {product.interval === "month"
                 ? "Ingen binding ud over løbende måned"
-                : "Ingen binding"}
+                : "Ingen binding"}{" "}
+              · Alle priser ex moms
             </div>
+
+            {/* LoyalBox: inkluderet (komplet) eller tilkøb (standalone) */}
+            {product.includesLoyalbox ? (
+              <div className="mt-4 box-shape border border-accent/30 bg-accent/5 p-5">
+                <div className="flex items-center gap-2">
+                  <span className="grid h-6 w-6 place-items-center rounded-md bg-accent text-accent-fg text-xs font-bold">
+                    L
+                  </span>
+                  <h2 className="font-bold">LoyalBox er inkluderet</h2>
+                </div>
+                <p className="mt-2 text-sm text-muted">
+                  Denne komplet-pakke indeholder hele LoyalBox-platformen: fuldt
+                  dashboard, realtidsstatistik, dynamiske links og privat
+                  feedback — sat op og klar til brug.
+                </p>
+              </div>
+            ) : (
+              <div className="mt-4 box-shape border border-border bg-card p-5">
+                <div className="flex items-center gap-2">
+                  <span className="grid h-6 w-6 place-items-center rounded-md bg-accent text-accent-fg text-xs font-bold">
+                    L
+                  </span>
+                  <h2 className="font-bold">Vil du have det hele?</h2>
+                </div>
+                <p className="mt-2 text-sm text-muted">
+                  Standeren virker helt uden abonnement. Vil du have fuldt
+                  dashboard, statistik, dynamiske links og privat feedback, så
+                  vælg komplet-pakken med LoyalBox-platformen oveni.
+                </p>
+                <Link
+                  href={`/produkter/${product.slug}-komplet`}
+                  className="mt-3 inline-block text-sm font-medium text-accent"
+                >
+                  Se komplet-pakken →
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </main>

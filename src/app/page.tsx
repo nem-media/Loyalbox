@@ -87,7 +87,7 @@ export default function LandingPage() {
                 <span className="text-secondary">forstå dine kunder</span>
               </h1>
               <p className="mt-5 max-w-lg text-lg text-white/70">
-                ReviewStand gør det nemt at samle anmeldelser, fange privat
+                LoyalBox gør det nemt at samle anmeldelser, fange privat
                 feedback og styrke din lokale forretning — med én fysisk
                 stander.
               </p>

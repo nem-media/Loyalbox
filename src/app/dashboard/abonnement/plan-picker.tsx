@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import {
-  PRODUCTS,
+  getPlan,
   TIER_LABELS,
   TIER_ORDER,
   type Tier,
@@ -40,7 +40,7 @@ export function PlanPicker({ currentPlan }: { currentPlan: Tier }) {
     <form action={action}>
       <div className="grid gap-6 md:grid-cols-3">
         {TIER_ORDER.map((tier) => {
-          const product = PRODUCTS.find((p) => p.tier === tier)!;
+          const plan = getPlan(tier);
           const isCurrent = tier === currentPlan;
           const currentIndex = TIER_ORDER.indexOf(currentPlan);
           const tierIndex = TIER_ORDER.indexOf(tier);
@@ -60,17 +60,23 @@ export function PlanPicker({ currentPlan }: { currentPlan: Tier }) {
                 <h3 className="text-lg font-semibold tracking-tight">
                   {TIER_LABELS[tier]}
                 </h3>
-                <p className="mt-1 text-sm text-muted">{product.tagline}</p>
+                <p className="mt-1 text-sm text-muted">{plan.tagline}</p>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-3xl font-semibold tracking-tight">
-                    {formatCurrency(product.price)}
-                  </span>
-                  <span className="text-sm text-muted">
-                    {product.interval === "month" ? "/md" : "engangs"}
-                  </span>
+                  {plan.price === 0 ? (
+                    <span className="text-3xl font-semibold tracking-tight">
+                      Gratis
+                    </span>
+                  ) : (
+                    <>
+                      <span className="text-3xl font-semibold tracking-tight">
+                        {formatCurrency(plan.price)}
+                      </span>
+                      <span className="text-sm text-muted">/md ex moms</span>
+                    </>
+                  )}
                 </div>
                 <ul className="mt-6 space-y-2 text-sm">
-                  {product.features.map((f) => (
+                  {plan.features.map((f) => (
                     <li key={f} className="flex gap-2">
                       <CheckIcon />
                       <span>{f}</span>

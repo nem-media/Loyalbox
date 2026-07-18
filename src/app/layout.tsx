@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 const SITE_DESCRIPTION =
-  "ReviewStand er en review stander / Google review skilt med QR og NFC. Få flere Google-anmeldelser, fang privat feedback og styrk din lokale forretning.";
+  "LoyalBox er en review stander / Google review skilt med QR og NFC. Få flere Google-anmeldelser, fang privat feedback og styrk din lokale forretning.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),

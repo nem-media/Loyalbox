@@ -1,5 +1,10 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { SITE_NAME } from "@/lib/constants";
+
+const dotIndex = SITE_NAME.indexOf(".");
+const brandBase = dotIndex === -1 ? SITE_NAME : SITE_NAME.slice(0, dotIndex);
+const brandTld = dotIndex === -1 ? "" : SITE_NAME.slice(dotIndex);
 
 export function Logo({
   className,
@@ -23,18 +28,19 @@ export function Logo({
               ? "/reviewstand-logo-dark.png"
               : "/reviewstand-logo.png"
           }
-          alt="ReviewStand.dk"
-          width={1600}
+          alt={SITE_NAME}
+          width={1450}
           height={340}
           className="h-11 w-auto"
         />
       ) : (
         <>
           <span className="grid h-7 w-7 place-items-center rounded-md bg-accent text-accent-fg text-sm font-bold">
-            R
+            {brandBase[0]}
           </span>
           <span className="tracking-tight">
-            ReviewStand<span className="text-accent">.dk</span>
+            {brandBase}
+            <span className="text-accent">{brandTld}</span>
           </span>
         </>
       )}

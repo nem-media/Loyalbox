@@ -1,5 +1,5 @@
 import { Logo } from "@/components/brand";
-import { SITE_TAGLINE } from "@/lib/constants";
+import { SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 
 export function SiteFooter() {
   return (
@@ -9,7 +9,7 @@ export function SiteFooter() {
           <Logo image="dark" />
           <p className="max-w-xs">{SITE_TAGLINE}</p>
         </div>
-        <p>© {new Date().getFullYear()} ReviewStand.dk</p>
+        <p>© {new Date().getFullYear()} {SITE_NAME}</p>
       </div>
     </footer>
   );

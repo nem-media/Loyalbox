@@ -21,6 +21,9 @@ export async function SiteHeader() {
           <Link href="/#priser" className="hover:text-white">
             Priser
           </Link>
+          <Link href="/blog" className="hover:text-white">
+            Blog
+          </Link>
         </nav>
         <div className="flex items-center gap-2">
           {user ? (

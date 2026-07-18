@@ -104,7 +104,7 @@ export default async function StandDetailPage({
               </ButtonLink>
               <a
                 href={qr}
-                download={`reviewstand-${stand.slug}.png`}
+                download={`loyalbox-${stand.slug}.png`}
                 className="text-center text-xs text-accent"
               >
                 Download QR (PNG)

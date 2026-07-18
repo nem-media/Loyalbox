@@ -1,4 +1,4 @@
-export const SITE_NAME = "ReviewStand.dk";
+export const SITE_NAME = "LoyalBox.dk";
 export const SITE_TAGLINE =
   "Få flere anmeldelser, forstå dine kunder og styrk din lokale forretning.";
 
@@ -61,12 +61,27 @@ export function tierCan(tier: Tier | null | undefined, cap: Capability): boolean
   return TIER_CAPABILITIES[tier ?? "basic"]?.[cap] ?? false;
 }
 
+export type Platform =
+  | "google"
+  | "trustpilot"
+  | "tripadvisor"
+  | "facebook"
+  | "multi";
+
 export interface Product {
   slug: string;
-  tier: Tier;
+  platform: Platform;
   name: string;
-  price: number; // DKK
+  /** Primært SEO-søgeord for produktets side. */
+  keyword: string;
+  /** Valgfri override til <title>; ellers bruges name. */
+  metaTitle?: string;
+  price: number; // DKK ex moms (månedspris hvis interval = "month")
   interval: "one_time" | "month";
+  /** Engangs-opsætningsgebyr (DKK ex moms) for komplet/abonnement-pakker. */
+  setupPrice?: number;
+  /** True hvis produktet inkluderer hele LoyalBox-platformen (komplet pakke). */
+  includesLoyalbox?: boolean;
   tagline: string;
   description: string;
   image: string;
@@ -86,7 +101,7 @@ export interface Product {
   mpn?: string;
   /** Stregkode (EAN/UPC), hvis produktet får en. Ellers udeladt. */
   gtin?: string;
-  /** Vises som product_type i feedet, fx "ReviewStand > Standere > Basic". */
+  /** Vises som product_type i feedet, fx "LoyalBox > Standere > Basic". */
   productType?: string;
   /** Ekstra produktbilleder (additional_image_link). Stier under /public. */
   additionalImages?: string[];
@@ -97,7 +112,7 @@ export interface Product {
  * Google Shopping-feed. Ét sted, så vi ikke gentager dem pr. produkt.
  */
 export const COMMERCE = {
-  brand: SITE_NAME.replace(".dk", ""), // "ReviewStand"
+  brand: SITE_NAME.replace(".dk", ""), // "LoyalBox"
   currency: "DKK",
   /** Google Shopping: alle standere er nye. */
   condition: "new",
@@ -110,64 +125,210 @@ export const COMMERCE = {
   googleProductCategory: "Business & Industrial > Retail > Retail Display Props",
 } as const;
 
-export const PRODUCTS: Product[] = [
+/** Fælles data pr. platform. Hver base bliver til to produkter: standalone + komplet. */
+interface ProductBase {
+  key: string;
+  platform: Platform;
+  slug: string;
+  name: string;
+  label: string;
+  keyword: string;
+  metaTitle: string;
+  tagline: string;
+  description: string;
+  features: string[];
+  mpn: string;
+  standalonePrice: number;
+}
+
+const PRODUCT_BASES: ProductBase[] = [
   {
-    slug: "basic",
-    tier: "basic",
-    name: "ReviewStand Basic",
-    price: 299,
-    interval: "one_time",
-    tagline: "Kom i gang med anmeldelser",
+    key: "google",
+    platform: "google",
+    slug: "google-review-stander",
+    name: "Google Review Stander",
+    label: "Google",
+    keyword: "google review stander",
+    metaTitle: "Google Review Stander med QR & NFC",
+    tagline: "Flere Google-anmeldelser",
     description:
-      "Den enkle vej til flere anmeldelser. En elegant bordstander i sort akryl med QR-kode og NFC, klar til at stå ved kassen eller på bordet. Gæsten scanner eller tapper og bliver sendt direkte til din Google-anmeldelse.",
-    image: "/produkt-basic.png",
-    features: ["1 stander", "QR + NFC", "Standard design"],
-    shoppable: true,
-    mpn: "RS-BASIC",
-    productType: "ReviewStand > Standere > Basic",
+      "Elegant bordstander i sort akryl, der sender dine kunder direkte til din Google-anmeldelse. Gæsten scanner QR-koden eller tapper med NFC — du indsætter blot dit link og logo, og standeren er klar til kassen eller bordet.",
+    features: ["Sender direkte til Google", "QR + NFC", "Dit logo & link", "Klar til brug"],
+    mpn: "LB-GOOGLE",
+    standalonePrice: 399,
   },
   {
-    slug: "premium",
-    tier: "premium",
-    name: "ReviewStand Premium",
-    price: 499,
-    interval: "one_time",
-    tagline: "Din egen branding",
+    key: "trustpilot",
+    platform: "trustpilot",
+    slug: "trustpilot-stander",
+    name: "Trustpilot Stander",
+    label: "Trustpilot",
+    keyword: "trustpilot stander",
+    metaTitle: "Trustpilot Stander med QR & NFC",
+    tagline: "Flere Trustpilot-anmeldelser",
     description:
-      "Samme robuste stander — nu med dit eget logo og et design tilpasset din forretning. Skil dig ud på bordet og gør oplevelsen til din egen, mens du samler flere anmeldelser.",
-    image: "/produkt-basic.png",
-    features: ["1 stander", "QR + NFC", "Dit logo", "Tilpasset design"],
-    featured: true,
-    shoppable: true,
-    mpn: "RS-PREMIUM",
-    productType: "ReviewStand > Standere > Premium",
+      "Saml flere Trustpilot-anmeldelser med en stilren stander i sort akryl. Kunden scanner eller tapper og sendes direkte til din Trustpilot-side — du indsætter blot dit link og logo.",
+    features: ["Sender direkte til Trustpilot", "QR + NFC", "Dit logo & link", "Klar til brug"],
+    mpn: "LB-TRUSTPILOT",
+    standalonePrice: 399,
   },
   {
-    slug: "pro",
-    tier: "pro",
-    name: "ReviewStand Pro",
-    price: 149,
-    interval: "month",
-    tagline: "Fuld indsigt og fleksibilitet",
+    key: "tripadvisor",
+    platform: "tripadvisor",
+    slug: "tripadvisor-stander",
+    name: "Tripadvisor Stander",
+    label: "Tripadvisor",
+    keyword: "tripadvisor stander",
+    metaTitle: "Tripadvisor Stander med QR & NFC",
+    tagline: "Flere Tripadvisor-anmeldelser",
     description:
-      "Alt i Premium plus et abonnement med fuldt dashboard, realtidsstatistik og dynamiske links, du kan ændre når som helst — uden at genoptrykke standeren. Til dig der vil forstå dine kunder for alvor.",
-    image: "/produkt-basic.png",
+      "Perfekt til restauranter, caféer og hoteller. Standeren sender dine gæster direkte til din Tripadvisor-side med et scan eller tap — du indsætter blot dit link og logo.",
+    features: ["Sender direkte til Tripadvisor", "QR + NFC", "Dit logo & link", "Klar til brug"],
+    mpn: "LB-TRIPADVISOR",
+    standalonePrice: 399,
+  },
+  {
+    key: "facebook",
+    platform: "facebook",
+    slug: "facebook-stander",
+    name: "Facebook Stander",
+    label: "Facebook",
+    keyword: "facebook anmeldelser stander",
+    metaTitle: "Facebook Stander med QR & NFC",
+    tagline: "Flere Facebook-anbefalinger",
+    description:
+      "Få flere anbefalinger på din Facebook-side. Standeren i sort akryl sender kunden direkte til Facebook med et scan eller tap — du indsætter blot dit link og logo.",
+    features: ["Sender direkte til Facebook", "QR + NFC", "Dit logo & link", "Klar til brug"],
+    mpn: "LB-FACEBOOK",
+    standalonePrice: 399,
+  },
+  {
+    key: "alt-i-en",
+    platform: "multi",
+    slug: "alt-i-en-stander",
+    name: "Alt-i-én Stander",
+    label: "Alt-i-én",
+    keyword: "review stander",
+    metaTitle: "Alt-i-én Review Stander — Google, Trustpilot & Facebook",
+    tagline: "Alle platforme på ét kort",
+    description:
+      "Lad kunden selv vælge platform. Denne stander viser Google, Trustpilot og Facebook på ét kort — så alle kan anmelde dig, hvor de foretrækker. Sort akryl med QR og NFC, klar med dit logo og dine links.",
     features: [
-      "Stander",
-      "Dashboard",
-      "Statistik",
-      "Dynamisk link",
-      "Abonnement",
+      "Google, Trustpilot & Facebook",
+      "QR + NFC",
+      "Dit logo & links",
+      "Kunden vælger selv",
     ],
-    // Abonnement (ikke et fysisk engangsprodukt) — ikke med i Shopping-feedet.
-    shoppable: false,
-    mpn: "RS-PRO",
-    productType: "ReviewStand > Abonnement > Pro",
+    mpn: "LB-MULTI",
+    standalonePrice: 499,
   },
 ];
 
+/** Komplet-pakkens pris: månedspris (ex moms) + engangs opsætning (ex moms). */
+export const KOMPLET_MONTHLY = 399;
+export const KOMPLET_SETUP = 895;
+
+/** Alle priser i shoppen vises ex moms. */
+export const PRICES_EX_VAT = true;
+
+const KOMPLET_FEATURES = [
+  "Standeren inkl. alt",
+  "Fuldt LoyalBox-dashboard",
+  "Realtidsstatistik",
+  "Dynamiske links",
+  "Privat feedback-indbakke",
+];
+
+export const PRODUCTS: Product[] = PRODUCT_BASES.flatMap((b): Product[] => [
+  {
+    slug: b.slug,
+    platform: b.platform,
+    name: b.name,
+    keyword: b.keyword,
+    metaTitle: b.metaTitle,
+    price: b.standalonePrice,
+    interval: "one_time",
+    includesLoyalbox: false,
+    tagline: b.tagline,
+    description: b.description,
+    image: `/mockups/stander-${b.key}.svg`,
+    features: b.features,
+    shoppable: true,
+    mpn: b.mpn,
+    productType: `LoyalBox > Standere > ${b.label}`,
+  },
+  {
+    slug: `${b.slug}-komplet`,
+    platform: b.platform,
+    name: `${b.name} – Komplet`,
+    keyword: `${b.keyword} inkl. loyalbox`,
+    metaTitle: `${b.name} inkl. LoyalBox — komplet pakke`,
+    price: KOMPLET_MONTHLY,
+    interval: "month",
+    setupPrice: KOMPLET_SETUP,
+    includesLoyalbox: true,
+    featured: b.key === "alt-i-en",
+    tagline: "Komplet pakke med LoyalBox",
+    description: `${b.description} Komplet-pakken inkluderer hele LoyalBox-platformen: fuldt dashboard, realtidsstatistik, dynamiske links du kan ændre når som helst, og privat feedback — sat op og klar til brug.`,
+    image: `/mockups/stander-${b.key}-komplet.svg`,
+    features: KOMPLET_FEATURES,
+    shoppable: false,
+    mpn: `${b.mpn}-K`,
+    productType: `LoyalBox > Komplet > ${b.label}`,
+  },
+]);
+
 export function getProduct(slug: string): Product | undefined {
   return PRODUCTS.find((p) => p.slug === slug);
+}
+
+/**
+ * LoyalBox-abonnementet (tilkøb til standeren). Adskilt fra de fysiske produkter:
+ * standeren virker standalone, men LoyalBox låser dashboard, statistik og
+ * dynamiske links op. Driver plan-vælgeren og prissektionen.
+ */
+export interface Plan {
+  tier: Tier;
+  name: string;
+  price: number; // DKK pr. måned; 0 = gratis
+  tagline: string;
+  features: string[];
+  featured?: boolean;
+}
+
+export const LOYALBOX_PLANS: Plan[] = [
+  {
+    tier: "basic",
+    name: "Basic",
+    price: 0,
+    tagline: "Standeren virker standalone",
+    features: ["Link til din anmeldelsesside", "QR + NFC", "Intet abonnement"],
+  },
+  {
+    tier: "premium",
+    name: "Premium",
+    price: 79,
+    tagline: "Din egen branding",
+    features: ["Alt i Basic", "Eget logo & design", "Prioriteret support"],
+    featured: true,
+  },
+  {
+    tier: "pro",
+    name: "Pro",
+    price: 149,
+    tagline: "Fuld indsigt & fleksibilitet",
+    features: [
+      "Alt i Premium",
+      "Fuldt dashboard",
+      "Realtidsstatistik",
+      "Dynamiske links",
+      "Privat feedback-indbakke",
+    ],
+  },
+];
+
+export function getPlan(tier: Tier): Plan {
+  return LOYALBOX_PLANS.find((p) => p.tier === tier) ?? LOYALBOX_PLANS[0];
 }
 
 export const DESTINATION_LABELS: Record<string, string> = {
