@@ -23,8 +23,7 @@ export async function login(
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
-    // MIDLERTIDIG DEBUG — viser den rigtige Supabase-fejl. Skal fjernes igen.
-    return { error: `DEBUG: ${error.message}` };
+    return { error: "Forkert e-mail eller adgangskode." };
   }
 
   revalidatePath("/", "layout");
