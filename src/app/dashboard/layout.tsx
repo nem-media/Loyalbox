@@ -17,6 +17,7 @@ export default async function DashboardLayout({
   const nav: NavItem[] = [
     { href: "/dashboard", label: "Oversigt" },
     { href: "/dashboard/standere", label: "Standere" },
+    { href: "/dashboard/loyalitet", label: "Stempelkort" },
     ...(tierCan(plan, "feedbackInbox")
       ? [{ href: "/dashboard/feedback", label: "Feedback" }]
       : []),

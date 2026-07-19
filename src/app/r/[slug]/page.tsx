@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { resolvePublicDestination } from "@/lib/stands";
 import { deviceTypeFromUA } from "@/lib/utils";
 import { ReviewFlow } from "./review-flow";
+import { StandLanding } from "./stand-landing";
 import { Logo } from "@/components/brand";
 
 export const dynamic = "force-dynamic";
@@ -62,6 +63,16 @@ export default async function ReviewPage({
 
   const destination = resolvePublicDestination(stand);
 
+  // Har virksomheden et aktivt stempelkort? Så vises "Hvad vil du?"-landingen.
+  const { data: loyaltyProgram } = await supabase
+    .from("loyalty_programs")
+    .select("id")
+    .eq("company_id", company.id)
+    .eq("status", "active")
+    .limit(1)
+    .maybeSingle();
+  const hasLoyalty = Boolean(loyaltyProgram);
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-dark px-4 py-10">
       <div className="box-shape w-full max-w-md border border-border bg-card p-6 shadow-[0_30px_60px_-25px_rgba(0,0,0,0.5)] sm:p-8">
@@ -82,15 +93,27 @@ export default async function ReviewPage({
           <h1 className="text-xl font-semibold tracking-tight">
             {company.name}
           </h1>
-          <p className="mt-1 text-sm text-muted">Del din oplevelse med os</p>
+          {!hasLoyalty ? (
+            <p className="mt-1 text-sm text-muted">Del din oplevelse med os</p>
+          ) : null}
         </div>
 
-        <ReviewFlow
-          standId={stand.id}
-          companyId={company.id}
-          publicUrl={destination.url}
-          publicLabel={destination.label}
-        />
+        {hasLoyalty ? (
+          <StandLanding
+            enrollHref={`/kort/tilmeld/${slug}`}
+            standId={stand.id}
+            companyId={company.id}
+            publicUrl={destination.url}
+            publicLabel={destination.label}
+          />
+        ) : (
+          <ReviewFlow
+            standId={stand.id}
+            companyId={company.id}
+            publicUrl={destination.url}
+            publicLabel={destination.label}
+          />
+        )}
       </div>
 
       <div className="mt-8">
