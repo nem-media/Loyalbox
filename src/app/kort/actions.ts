@@ -169,21 +169,29 @@ export async function stampByToken(
   const admin = createAdminClient();
 
   // Token → medlem. Kortet skal tilhøre personalets egen virksomhed.
-  const { data: member } = await admin
+  // En netværks-/DB-fejl giver også data=null, så vi skelner den fra "findes
+  // ikke" og beder om et nyt forsøg i stedet for at melde kortet ukendt.
+  const { data: member, error: memberErr } = await admin
     .from("loyalty_members")
     .select("id, company_id")
     .eq("public_token", token)
     .maybeSingle();
+  if (memberErr) {
+    return { error: "Kunne ikke hente kortet lige nu. Tjek forbindelsen og prøv igen." };
+  }
   if (!member || member.company_id !== access.companyId) {
     return { error: "Kortet blev ikke fundet." };
   }
 
   // Medlemskabet skal høre til netop dette medlem.
-  const { data: membership } = await admin
+  const { data: membership, error: membershipErr } = await admin
     .from("loyalty_memberships")
     .select("id, member_id")
     .eq("id", membershipId)
     .maybeSingle();
+  if (membershipErr) {
+    return { error: "Kunne ikke hente kortet lige nu. Tjek forbindelsen og prøv igen." };
+  }
   if (!membership || membership.member_id !== member.id) {
     return { error: "Stempelkortet passer ikke til denne kunde." };
   }
