@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCompanyAccess } from "@/lib/loyalty/access";
 import { qrDataUrl } from "@/lib/qr";
 import { getSiteUrl } from "@/lib/site";
 import { StampCardPreview } from "@/components/loyalty/stamp-card-preview";
+import { StaffStampPanel } from "./staff-stamp-panel";
 import { stampProgress, progressLabel } from "@/lib/loyalty/balance";
 import { TXN_TYPE_LABELS } from "@/lib/loyalty/constants";
 import { Logo } from "@/components/brand";
@@ -24,6 +26,14 @@ export default async function CardPage({
     .eq("public_token", token)
     .maybeSingle();
   if (!member) notFound();
+
+  // Personale-tilstand: er den besøgende logget ind som personale for netop
+  // dette korts virksomhed (med canStamp)? Så vises scan-til-stempel-knapper.
+  // Kunder og anonyme får det uændrede, skrivebeskyttede kort.
+  const access = await getCompanyAccess();
+  const canStampHere = Boolean(
+    access && access.companyId === member.company_id && access.permissions.canStamp,
+  );
 
   const { data: company } = await admin
     .from("companies")
@@ -95,6 +105,12 @@ export default async function CardPage({
           </div>
         </div>
 
+        {canStampHere ? (
+          <div className="box-shape border border-accent/40 bg-accent/5 p-3 text-center text-sm font-medium text-accent">
+            Personale-tilstand — du kan give stempler på {member.name ?? "kundens"} kort nedenfor.
+          </div>
+        ) : null}
+
         {/* Kort */}
         {(memberships ?? []).map((ms) => {
           const program = programById.get(ms.program_id);
@@ -120,6 +136,9 @@ export default async function CardPage({
               ) : (
                 <p className="text-center text-sm text-muted">{progressLabel(p)}</p>
               )}
+              {canStampHere ? (
+                <StaffStampPanel token={token} membershipId={ms.id} />
+              ) : null}
             </div>
           );
         })}
