@@ -105,11 +105,16 @@ export async function giveStamp(params: GiveStampParams): Promise<StampResult> {
 
   const admin = createAdminClient();
 
-  const { data: membership } = await admin
+  const { data: membership, error: membershipErr } = await admin
     .from("loyalty_memberships")
     .select("*")
     .eq("id", membershipId)
     .maybeSingle();
+  // Skeln netværks-/DB-fejl fra "findes ikke": en timeout giver også data=null,
+  // men må ikke fejlrapporteres som at kortet ikke findes.
+  if (membershipErr) {
+    return { ok: false, error: "Kunne ikke hente stempelkortet lige nu. Tjek forbindelsen og prøv igen." };
+  }
   if (!membership || membership.company_id !== access.companyId) {
     return { ok: false, error: "Medlemskabet blev ikke fundet." };
   }
@@ -117,11 +122,14 @@ export async function giveStamp(params: GiveStampParams): Promise<StampResult> {
     return { ok: false, error: "Stempelkortet er ikke aktivt." };
   }
 
-  const { data: program } = await admin
+  const { data: program, error: programErr } = await admin
     .from("loyalty_programs")
     .select("*")
     .eq("id", membership.program_id)
     .maybeSingle();
+  if (programErr) {
+    return { ok: false, error: "Kunne ikke hente stempelkortet lige nu. Tjek forbindelsen og prøv igen." };
+  }
   if (!program || program.company_id !== access.companyId) {
     return { ok: false, error: "Programmet blev ikke fundet." };
   }
