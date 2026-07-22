@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 import {
   CATEGORY_LABELS,
@@ -12,6 +12,22 @@ import {
 import type { OpslagReview } from "./page";
 
 const CATEGORIES: PostCategory[] = ["testimonial", "milestone", "generic"];
+
+// Klient-detektion af Web Share (med filer). Cachet + via useSyncExternalStore,
+// så SSR giver false og der ikke opstår hydration-mismatch.
+const subscribeNoop = () => () => {};
+let shareSupport: boolean | null = null;
+function canShareFiles(): boolean {
+  if (shareSupport === null) {
+    try {
+      const probe = new File([new Blob()], "opslag.png", { type: "image/png" });
+      shareSupport = Boolean(navigator.canShare?.({ files: [probe] }));
+    } catch {
+      shareSupport = false;
+    }
+  }
+  return shareSupport;
+}
 
 export function Composer({
   companyName,
@@ -36,6 +52,9 @@ export function Composer({
   const [emojis, setEmojis] = useState(true);
   const [showName, setShowName] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [sharing, setSharing] = useState(false);
+  // Web Share med filer virker primært på mobil — vis kun knappen hvor det kan.
+  const canShare = useSyncExternalStore(subscribeNoop, canShareFiles, () => false);
 
   const selectedReview = reviews.find((r) => r.id === reviewId) ?? null;
   const template =
@@ -76,6 +95,22 @@ export function Composer({
       setTimeout(() => setCopied(false), 1800);
     } catch {
       setCopied(false);
+    }
+  }
+
+  // Del billedet direkte via telefonens del-ark (Facebook, Instagram, Messenger…).
+  async function share() {
+    setSharing(true);
+    try {
+      const blob = await fetch(imageUrl).then((r) => r.blob());
+      const file = new File([blob], "opslag.png", { type: "image/png" });
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], text: caption });
+      }
+    } catch {
+      // Bruger annullerede, eller deling mislykkedes — stilhed er fint.
+    } finally {
+      setSharing(false);
     }
   }
 
@@ -231,17 +266,28 @@ export function Composer({
             />
           </div>
 
-          <div className="mt-3 flex gap-2">
-            <a
-              href={imageUrl}
-              download="opslag.png"
-              className="btn-shape inline-flex h-11 flex-1 items-center justify-center gap-2 bg-accent px-5 text-sm font-medium text-accent-fg transition-colors hover:bg-accent-hover"
-            >
-              Download billede
-            </a>
-            <Button variant="outline" onClick={copyText} className="flex-1">
-              {copied ? "Kopieret!" : "Kopiér tekst"}
-            </Button>
+          <div className="mt-3 space-y-2">
+            {canShare ? (
+              <Button onClick={share} disabled={sharing} size="lg" className="w-full">
+                {sharing ? "Åbner deling…" : "Del opslag"}
+              </Button>
+            ) : null}
+            <div className="flex gap-2">
+              <a
+                href={imageUrl}
+                download="opslag.png"
+                className={`btn-shape inline-flex h-11 flex-1 items-center justify-center gap-2 px-5 text-sm font-medium transition-colors ${
+                  canShare
+                    ? "border border-border bg-card hover:bg-muted-bg"
+                    : "bg-accent text-accent-fg hover:bg-accent-hover"
+                }`}
+              >
+                Download billede
+              </a>
+              <Button variant="outline" onClick={copyText} className="flex-1">
+                {copied ? "Kopieret!" : "Kopiér tekst"}
+              </Button>
+            </div>
           </div>
 
           <div className="mt-3 box-shape border border-border bg-card p-3 text-sm">
