@@ -18,6 +18,7 @@ export default async function DashboardLayout({
     { href: "/dashboard", label: "Oversigt" },
     { href: "/dashboard/standere", label: "Standere" },
     { href: "/dashboard/loyalitet", label: "Stempelkort" },
+    { href: "/dashboard/opslag", label: "Opslag" },
     ...(tierCan(plan, "feedbackInbox")
       ? [{ href: "/dashboard/feedback", label: "Feedback" }]
       : []),
