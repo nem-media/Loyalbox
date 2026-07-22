@@ -6,18 +6,26 @@ import { StarIcon } from "@/components/ui/stars";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 
+export interface PublicLink {
+  type: string;
+  url: string;
+  platform: string;
+}
+
 interface Props {
   standId: string;
   companyId: string;
-  publicUrl: string | null;
-  publicLabel: string;
+  /** Kun de anmeldelses-platforme forretningen har valgt (udfyldt link til). */
+  publicLinks: PublicLink[];
+  /** Valgfrit ekstra link (menukort, booking m.m.) — ikke en anmeldelse. */
+  extraUrl?: string | null;
 }
 
 export function ReviewFlow({
   standId,
   companyId,
-  publicUrl,
-  publicLabel,
+  publicLinks,
+  extraUrl,
 }: Props) {
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -31,16 +39,17 @@ export function ReviewFlow({
   const [pending, startTransition] = useTransition();
 
   const isHappy = rating >= 4;
+  const hasPublic = publicLinks.length > 0;
 
   function choose(n: number) {
     setRating(n);
     setStep("actions");
   }
 
-  function goPublic() {
+  function goPublicTo(url: string) {
     setError(null);
     startTransition(async () => {
-      // Record the click (non-blocking to the redirect if it fails).
+      // Registrér klikket (ikke-blokerende for redirect hvis det fejler).
       await submitFeedback({
         standId,
         companyId,
@@ -50,11 +59,7 @@ export function ReviewFlow({
         customerEmail: email,
         publicReviewClicked: true,
       });
-      if (publicUrl) {
-        window.location.href = publicUrl;
-      } else {
-        setStep("done");
-      }
+      window.location.href = url;
     });
   }
 
@@ -87,13 +92,18 @@ export function ReviewFlow({
         <p className="mt-2 text-sm text-muted">
           Vi sætter stor pris på, at du tog dig tiden.
         </p>
+        {extraUrl ? (
+          <a href={extraUrl} className="mt-4 inline-block text-sm font-medium text-accent">
+            Se mere →
+          </a>
+        ) : null}
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Stars */}
+      {/* Stjerner */}
       <div>
         <p className="text-center text-sm font-medium">
           Hvordan var din oplevelse?
@@ -111,10 +121,7 @@ export function ReviewFlow({
               onClick={() => choose(n)}
               className="p-1 text-star transition-transform hover:scale-110"
             >
-              <StarIcon
-                filled={n <= (hover || rating)}
-                className="h-9 w-9"
-              />
+              <StarIcon filled={n <= (hover || rating)} className="h-9 w-9" />
             </button>
           ))}
         </div>
@@ -122,7 +129,7 @@ export function ReviewFlow({
 
       {step !== "rating" && (
         <>
-          {/* Comment (optional, shared) */}
+          {/* Kommentar (valgfri, delt) */}
           <Textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
@@ -133,7 +140,7 @@ export function ReviewFlow({
             }
           />
 
-          {/* Private contact fields shown when sending private feedback */}
+          {/* Kontaktfelter ved privat feedback */}
           {(step === "private" || !isHappy) && (
             <div className="grid gap-3 sm:grid-cols-2">
               <Input
@@ -154,19 +161,29 @@ export function ReviewFlow({
             <p className="text-center text-sm text-danger">{error}</p>
           ) : null}
 
-          {/* Actions */}
+          {/* Handlinger */}
           <div className="space-y-2">
             {isHappy ? (
               <>
-                {publicUrl ? (
-                  <Button
-                    className="w-full"
-                    size="lg"
-                    onClick={goPublic}
-                    disabled={pending}
-                  >
-                    {publicLabel}
-                  </Button>
+                {hasPublic && step !== "private" ? (
+                  <>
+                    {publicLinks.length > 1 ? (
+                      <p className="text-center text-sm font-medium">
+                        Vælg hvor du vil anmelde os
+                      </p>
+                    ) : null}
+                    {publicLinks.map((link) => (
+                      <Button
+                        key={link.type}
+                        className="w-full"
+                        size="lg"
+                        onClick={() => goPublicTo(link.url)}
+                        disabled={pending}
+                      >
+                        Anmeld os på {link.platform}
+                      </Button>
+                    ))}
+                  </>
                 ) : null}
                 {step === "private" ? (
                   <Button
@@ -198,11 +215,11 @@ export function ReviewFlow({
                 >
                   {pending ? "Sender…" : "Send feedback til virksomheden"}
                 </Button>
-                {publicUrl ? (
+                {hasPublic ? (
                   <Button
                     className="w-full"
                     variant="ghost"
-                    onClick={goPublic}
+                    onClick={() => goPublicTo(publicLinks[0].url)}
                     disabled={pending}
                   >
                     Skriv offentlig anmeldelse
@@ -211,6 +228,15 @@ export function ReviewFlow({
               </>
             )}
           </div>
+
+          {/* Valgfrit ekstra link (menukort, booking m.m.) */}
+          {extraUrl ? (
+            <div className="text-center">
+              <a href={extraUrl} className="text-sm font-medium text-accent">
+                Se mere →
+              </a>
+            </div>
+          ) : null}
         </>
       )}
     </div>
