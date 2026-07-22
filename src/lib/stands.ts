@@ -84,8 +84,12 @@ export function resolvePublicReviewLinks(stand: Stand): ReviewLink[] {
 
 /**
  * Valgfrit ekstra link (fx menukort, booking, webshop) — IKKE en anmeldelse.
- * Vises som et selvstændigt link ved siden af anmeldelses-valgene.
+ * Vises som et selvstændigt link med forretningens egen label ved siden af
+ * anmeldelses-valgene. Falder tilbage til "Se mere", hvis der ikke er en label.
  */
-export function resolveExtraLink(stand: Stand): { url: string } | null {
-  return stand.custom_url ? { url: stand.custom_url } : null;
+export function resolveExtraLink(
+  stand: Stand,
+): { url: string; label: string } | null {
+  if (!stand.custom_url) return null;
+  return { url: stand.custom_url, label: stand.custom_label?.trim() || "Se mere" };
 }

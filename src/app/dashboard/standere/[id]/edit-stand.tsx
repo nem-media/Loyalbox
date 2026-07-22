@@ -72,11 +72,21 @@ export function EditStand({
                 placeholder="https://facebook.com/…"
               />
             </Field>
-            <Field label="Valgfrit link">
+            <Field
+              label="Eget link (fx menukort)"
+              hint="Vises som et ekstra link på din review-side — ikke en anmeldelse."
+            >
               <Input
                 name="custom_url"
                 defaultValue={stand.custom_url ?? ""}
                 placeholder="https://…"
+              />
+            </Field>
+            <Field label="Tekst på eget link" hint="Fx “Menukort” eller “Book bord”.">
+              <Input
+                name="custom_label"
+                defaultValue={stand.custom_label ?? ""}
+                placeholder="Menukort"
               />
             </Field>
           </div>
