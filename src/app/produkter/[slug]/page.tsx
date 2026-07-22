@@ -126,7 +126,7 @@ export default async function ProductPage({
 
             <div className="mt-6 box-shape border border-accent/20 bg-accent/5 p-4 text-sm text-muted">
               Fri fragt i Danmark · Klar til brug ud af kassen ·{" "}
-              {product.interval === "month"
+              {product.monthlyPrice
                 ? "Ingen binding ud over løbende måned"
                 : "Ingen binding"}{" "}
               · Alle priser ex moms

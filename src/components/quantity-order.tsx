@@ -11,9 +11,10 @@ import {
 import { formatCurrency } from "@/lib/utils";
 
 /**
- * Buy-box med antal-vælger (1–30) og live mængderabat. Bruges på produktsiden
- * (mode="order" → /bestil) og på bestil-siden (mode="checkout" → /signup).
- * Product er et rent objekt, så det kan sendes fra server- til client-komponent.
+ * Buy-box med antal-vælger (1–30) og live mængderabat. Kun standerprisen ganges
+ * med antal; abonnement og opsætning er faste — uafhængigt af antal.
+ * Bruges på produktsiden (mode="order" → /bestil) og bestil-siden
+ * (mode="checkout" → /signup). Product er et rent objekt (server → client OK).
  */
 export function QuantityOrder({
   product,
@@ -29,7 +30,6 @@ export function QuantityOrder({
   const clamp = (n: number) => Math.max(1, Math.min(MAX_QTY, Math.floor(n) || 1));
   const [qty, setQty] = useState(clamp(initialQty));
   const p = priceFor(product, qty);
-  const monthly = product.interval === "month";
 
   const href =
     mode === "order"
@@ -79,34 +79,51 @@ export function QuantityOrder({
       </div>
 
       {/* Pris */}
-      <div className="mt-4 space-y-1 border-t border-border pt-4">
-        <div className="flex items-baseline justify-between text-sm">
+      <div className="mt-4 space-y-1.5 border-t border-border pt-4 text-sm">
+        <div className="flex items-baseline justify-between">
           <span className="text-muted">Pris pr. stander</span>
           <span className="font-medium">
             {p.discountPct > 0 ? (
-              <s className="mr-2 text-muted">{formatCurrency(p.baseUnitPrice)}</s>
+              <s className="mr-2 text-muted">{formatCurrency(p.standUnitBase)}</s>
             ) : null}
-            {formatCurrency(p.unitPrice)}
-            {monthly ? "/md" : ""}
+            {formatCurrency(p.standUnit)}
           </span>
         </div>
         {p.discountPct > 0 ? (
-          <div className="flex items-baseline justify-between text-sm text-accent">
+          <div className="flex items-baseline justify-between text-accent">
             <span>Mængderabat ({qty} stk.)</span>
             <span>−{p.discountPct}%</span>
           </div>
         ) : null}
-        <div className="flex items-baseline justify-between pt-1">
-          <span className="text-sm text-muted">{monthly ? "I alt pr. måned" : "I alt"}</span>
+        <div className="flex items-baseline justify-between">
+          <span className="text-muted">Standere ({qty} stk.)</span>
+          <span className="font-medium">{formatCurrency(p.standTotal)}</span>
+        </div>
+        {p.setup > 0 ? (
+          <div className="flex items-baseline justify-between">
+            <span className="text-muted">Opsætning (engangs)</span>
+            <span className="font-medium">{formatCurrency(p.setup)}</span>
+          </div>
+        ) : null}
+
+        {/* Samlet engangsbeløb */}
+        <div className="flex items-baseline justify-between border-t border-border pt-2">
+          <span className="font-medium">I alt i dag</span>
           <span className="text-2xl font-bold tracking-tight">
-            {formatCurrency(p.total)}
-            {monthly ? <span className="text-sm font-normal text-muted">/md</span> : null}
+            {formatCurrency(p.oneTimeTotal)}
           </span>
         </div>
-        {p.setupTotal > 0 ? (
-          <p className="text-right text-sm text-muted">
-            + {formatCurrency(p.setupTotal)} i opsætning (engangs)
-          </p>
+        {p.monthly > 0 ? (
+          <div className="flex items-baseline justify-between">
+            <span className="text-muted">
+              + abonnement{" "}
+              <span className="text-xs">(fast, uanset antal)</span>
+            </span>
+            <span className="font-semibold">
+              {formatCurrency(p.monthly)}
+              <span className="text-xs font-normal text-muted">/md</span>
+            </span>
+          </div>
         ) : null}
         <p className="text-right text-xs text-muted">Alle priser ex moms</p>
       </div>

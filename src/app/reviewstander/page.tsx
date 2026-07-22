@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Pricing } from "@/components/pricing";
@@ -184,9 +185,9 @@ export default function ReviewstanderPage() {
               <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
                 Vælg din reviewstander
               </h2>
-              <p className="mt-2 text-muted">
-                Ingen binding på Basic og Premium. Pro er et abonnement med fuld
-                statistik.
+              <p className="mx-auto mt-2 max-w-xl text-muted">
+                Fra en simpel reviewstander til hele LoyalBox med digitalt
+                stempelkort. Køb op til 30 stk. med mængderabat.
               </p>
             </div>
             <Pricing />
@@ -207,6 +208,17 @@ export default function ReviewstanderPage() {
                 </div>
               ))}
             </div>
+            <p className="mt-8 text-sm text-muted">
+              Vil du også have flere faste kunder? Se vores{" "}
+              <Link href="/stempelkort" className="font-medium text-accent">
+                digitale stempelkort
+              </Link>{" "}
+              — eller få det hele med{" "}
+              <Link href="/produkter/loyalbox-komplet" className="font-medium text-accent">
+                LoyalBox Komplet
+              </Link>
+              .
+            </p>
           </div>
         </section>
 

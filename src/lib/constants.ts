@@ -83,9 +83,12 @@ export interface Product {
   keyword: string;
   /** Valgfri override til <title>; ellers bruges name. */
   metaTitle?: string;
-  price: number; // DKK ex moms (månedspris hvis interval = "month")
+  /** Pris pr. stander (engangs, DKK ex moms). Ganges med antal + mængderabat. */
+  price: number;
   interval: "one_time" | "month";
-  /** Engangs-opsætningsgebyr (DKK ex moms) for komplet/abonnement-pakker. */
+  /** Fast månedligt abonnement (DKK ex moms) — UAFHÆNGIGT af antal standere. */
+  monthlyPrice?: number;
+  /** Engangs opsætningsgebyr (DKK ex moms) — fast, uafhængigt af antal. */
   setupPrice?: number;
   /** True hvis produktet inkluderer hele LoyalBox-platformen (komplet pakke). */
   includesLoyalbox?: boolean;
@@ -194,8 +197,9 @@ export const PRODUCTS: Product[] = [
     name: "Reviewstander Pro",
     keyword: "reviewstander abonnement",
     metaTitle: "Reviewstander Pro — smart review-flow & dynamiske links",
-    price: 99,
-    interval: "month",
+    price: 399,
+    interval: "one_time",
+    monthlyPrice: 99,
     setupPrice: 495,
     includesLoyalbox: false,
     tagline: "Smart review-flow + dynamiske links",
@@ -220,7 +224,8 @@ export const PRODUCTS: Product[] = [
     keyword: "digitalt stempelkort og anmeldelser",
     metaTitle: "LoyalBox Komplet — stempelkort, anmeldelser & opslag",
     price: 399,
-    interval: "month",
+    interval: "one_time",
+    monthlyPrice: 399,
     setupPrice: 950,
     includesLoyalbox: true,
     featured: true,
@@ -255,30 +260,39 @@ export function volumeDiscountPct(qty: number): number {
 export interface PriceBreakdown {
   qty: number;
   discountPct: number;
-  /** Pris pr. stander efter mængderabat (afrundet). */
-  unitPrice: number;
-  /** Listepris pr. stander (før rabat). */
-  baseUnitPrice: number;
-  /** unitPrice × antal (månedspris hvis interval = "month"). */
-  total: number;
-  /** Engangs opsætning i alt (én gang pr. ordre). */
-  setupTotal: number;
-  interval: Product["interval"];
+  /** Pris pr. stander efter mængderabat (engangs, afrundet). */
+  standUnit: number;
+  /** Listepris pr. stander før rabat. */
+  standUnitBase: number;
+  /** standUnit × antal — samlet engangs standerpris. */
+  standTotal: number;
+  /** Fast månedligt abonnement (0 hvis ingen) — UAFHÆNGIGT af antal. */
+  monthly: number;
+  /** Fast engangs opsætning (0 hvis ingen) — uafhængigt af antal. */
+  setup: number;
+  /** Samlet engangsbeløb: standere + opsætning. */
+  oneTimeTotal: number;
 }
 
-/** Beregner den samlede pris for et antal standere inkl. mængderabat. */
+/**
+ * Beregner prisen for et antal standere. Kun standerprisen ganges med antal
+ * (og får mængderabat); abonnement og opsætning er faste — uafhængigt af antal.
+ */
 export function priceFor(product: Product, qty: number): PriceBreakdown {
   const q = Math.max(1, Math.min(MAX_QTY, Math.floor(qty) || 1));
   const pct = volumeDiscountPct(q);
-  const unitPrice = Math.round(product.price * (1 - pct / 100));
+  const standUnit = Math.round(product.price * (1 - pct / 100));
+  const standTotal = standUnit * q;
+  const setup = product.setupPrice ?? 0;
   return {
     qty: q,
     discountPct: pct,
-    unitPrice,
-    baseUnitPrice: product.price,
-    total: unitPrice * q,
-    setupTotal: product.setupPrice ?? 0,
-    interval: product.interval,
+    standUnit,
+    standUnitBase: product.price,
+    standTotal,
+    monthly: product.monthlyPrice ?? 0,
+    setup,
+    oneTimeTotal: standTotal + setup,
   };
 }
 
