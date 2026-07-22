@@ -7,9 +7,9 @@ import { PRODUCTS } from "@/lib/constants";
 import { ProductPrice } from "@/components/product-price";
 
 export const metadata = {
-  title: "Review standere & Google review skilt",
+  title: "Produkter — reviewstander & digitalt stempelkort",
   description:
-    "Vælg din review stander — Google, Trustpilot, Tripadvisor, Facebook eller alt-i-én. QR + NFC, klar med dit logo. Fås også komplet med LoyalBox-platformen.",
+    "Vælg din LoyalBox-stander: Reviewstander med selvvalgt link, Reviewstander Pro med smart review-flow, eller LoyalBox Komplet med digitalt stempelkort. Køb op til 30 stk. med mængderabat.",
   alternates: { canonical: "/produkter" },
 };
 
@@ -21,11 +21,11 @@ export default function ProductsPage() {
         <div className="mb-10 text-center">
           <p className="text-sm font-semibold text-accent">Produkter</p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
-            Review standere til Google-anmeldelser
+            Ét skilt. Vælg hvor langt du vil.
           </h1>
           <p className="mx-auto mt-2 max-w-xl text-muted">
-            Et elegant review skilt med QR og NFC til bordet eller kassen. Vælg
-            platform — eller gå komplet med LoyalBox-platformen oveni.
+            Fra en simpel reviewstander til hele LoyalBox med digitalt
+            stempelkort. Alle med QR og NFC — køb op til 30 stk. med mængderabat.
           </p>
           <p className="mt-2 text-xs text-muted">Alle priser er ex moms.</p>
         </div>

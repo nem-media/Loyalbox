@@ -18,7 +18,7 @@ export function isStripeConfigured(): boolean {
  * for resten. Bruges når checkout-sessionen skal oprettes.
  */
 export function checkoutMode(product: Product): "subscription" | "payment" {
-  return product.interval === "month" ? "subscription" : "payment";
+  return product.monthlyPrice ? "subscription" : "payment";
 }
 
 /** Produkter der skal med i et Google Shopping-feed. */

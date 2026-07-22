@@ -11,12 +11,15 @@ export async function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-white/10 bg-dark/90 text-dark-fg backdrop-blur">
       <div className="mx-auto flex h-[90px] max-w-6xl items-center justify-between px-4">
         <Logo image="light" className="-translate-y-[6px]" />
-        <nav className="hidden items-center gap-8 text-base text-white/70 md:flex">
+        <nav className="hidden items-center gap-7 text-base text-white/70 md:flex">
           <Link href="/produkter" className="hover:text-white">
             Produkter
           </Link>
-          <Link href="/#saadan" className="hover:text-white">
-            Sådan virker det
+          <Link href="/reviewstander" className="hover:text-white">
+            Reviewstander
+          </Link>
+          <Link href="/stempelkort" className="hover:text-white">
+            Stempelkort
           </Link>
           <Link href="/#priser" className="hover:text-white">
             Priser

@@ -4,11 +4,10 @@ import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Badge } from "@/components/ui/badge";
-import { ButtonLink } from "@/components/ui/button";
 import { PRODUCTS, getProduct } from "@/lib/constants";
 import { toProductJsonLd } from "@/lib/commerce";
 import { formatCurrency } from "@/lib/utils";
-import { ProductPrice } from "@/components/product-price";
+import { QuantityOrder } from "@/components/quantity-order";
 
 export function generateStaticParams() {
   return PRODUCTS.map((p) => ({ slug: p.slug }));
@@ -105,10 +104,6 @@ export default async function ProductPage({
             </h1>
             <p className="mt-2 text-lg text-muted">{product.tagline}</p>
 
-            <div className="mt-6">
-              <ProductPrice product={product} size="lg" />
-            </div>
-
             <p className="mt-6 text-muted">{product.description}</p>
 
             <ul className="mt-6 space-y-2 text-sm">
@@ -120,40 +115,36 @@ export default async function ProductPage({
               ))}
             </ul>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <ButtonLink
-                href={`/bestil?produkt=${product.slug}`}
-                size="lg"
-                className="flex-1"
-              >
-                Bestil {product.name}
-              </ButtonLink>
-              <ButtonLink href="/produkter" variant="outline" size="lg">
-                Se alle produkter
-              </ButtonLink>
+            <div className="mt-8">
+              <QuantityOrder product={product} mode="order" />
+            </div>
+            <div className="mt-3">
+              <Link href="/produkter" className="text-sm font-medium text-accent">
+                Se alle produkter →
+              </Link>
             </div>
 
             <div className="mt-6 box-shape border border-accent/20 bg-accent/5 p-4 text-sm text-muted">
               Fri fragt i Danmark · Klar til brug ud af kassen ·{" "}
-              {product.interval === "month"
+              {product.monthlyPrice
                 ? "Ingen binding ud over løbende måned"
                 : "Ingen binding"}{" "}
               · Alle priser ex moms
             </div>
 
-            {/* LoyalBox: inkluderet (komplet) eller tilkøb (standalone) */}
+            {/* LoyalBox: hele platformen inkluderet — ellers op-salg til Komplet */}
             {product.includesLoyalbox ? (
               <div className="mt-4 box-shape border border-accent/30 bg-accent/5 p-5">
                 <div className="flex items-center gap-2">
                   <span className="grid h-6 w-6 place-items-center rounded-md bg-accent text-accent-fg text-xs font-bold">
                     L
                   </span>
-                  <h2 className="font-bold">LoyalBox er inkluderet</h2>
+                  <h2 className="font-bold">Hele LoyalBox er med</h2>
                 </div>
                 <p className="mt-2 text-sm text-muted">
-                  Denne komplet-pakke indeholder hele LoyalBox-platformen: fuldt
-                  dashboard, realtidsstatistik, dynamiske links og privat
-                  feedback — sat op og klar til brug.
+                  Digitalt stempelkort uden app, flere Google-anmeldelser, privat
+                  feedback, opslag af dine bedste anmeldelser og statistik i
+                  realtid — sat op og klar til disken.
                 </p>
               </div>
             ) : (
@@ -162,18 +153,18 @@ export default async function ProductPage({
                   <span className="grid h-6 w-6 place-items-center rounded-md bg-accent text-accent-fg text-xs font-bold">
                     L
                   </span>
-                  <h2 className="font-bold">Vil du have det hele?</h2>
+                  <h2 className="font-bold">Vil du også have faste kunder?</h2>
                 </div>
                 <p className="mt-2 text-sm text-muted">
-                  Standeren virker helt uden abonnement. Vil du have fuldt
-                  dashboard, statistik, dynamiske links og privat feedback, så
-                  vælg komplet-pakken med LoyalBox-platformen oveni.
+                  Med <strong>LoyalBox Komplet</strong> får du et digitalt
+                  stempelkort uden app oveni — så nye kunder bliver til
+                  gengangere. Plus opslag af dine bedste anmeldelser.
                 </p>
                 <Link
-                  href={`/produkter/${product.slug}-komplet`}
+                  href="/produkter/loyalbox-komplet"
                   className="mt-3 inline-block text-sm font-medium text-accent"
                 >
-                  Se komplet-pakken →
+                  Se LoyalBox Komplet →
                 </Link>
               </div>
             )}

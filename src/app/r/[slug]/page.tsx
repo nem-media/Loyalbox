@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { resolvePublicDestination } from "@/lib/stands";
+import { resolvePublicReviewLinks, resolveExtraLink } from "@/lib/stands";
 import { deviceTypeFromUA } from "@/lib/utils";
 import { ReviewFlow } from "./review-flow";
 import { StandLanding } from "./stand-landing";
@@ -61,7 +61,8 @@ export default async function ReviewPage({
     source: source ?? "qr",
   });
 
-  const destination = resolvePublicDestination(stand);
+  const publicLinks = resolvePublicReviewLinks(stand);
+  const extraUrl = resolveExtraLink(stand)?.url ?? null;
 
   // Har virksomheden et aktivt stempelkort? Så vises "Hvad vil du?"-landingen.
   const { data: loyaltyProgram } = await supabase
@@ -103,15 +104,15 @@ export default async function ReviewPage({
             enrollHref={`/kort/tilmeld/${slug}`}
             standId={stand.id}
             companyId={company.id}
-            publicUrl={destination.url}
-            publicLabel={destination.label}
+            publicLinks={publicLinks}
+            extraUrl={extraUrl}
           />
         ) : (
           <ReviewFlow
             standId={stand.id}
             companyId={company.id}
-            publicUrl={destination.url}
-            publicLabel={destination.label}
+            publicLinks={publicLinks}
+            extraUrl={extraUrl}
           />
         )}
       </div>

@@ -32,6 +32,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
     },
     {
+      url: `${base}/stempelkort`,
+      changeFrequency: "monthly",
+      priority: 0.9,
+      lastModified,
+    },
+    {
+      url: `${base}/bestil`,
+      changeFrequency: "monthly",
+      priority: 0.5,
+      lastModified,
+    },
+    {
       url: `${base}/signup`,
       changeFrequency: "monthly",
       priority: 0.6,
