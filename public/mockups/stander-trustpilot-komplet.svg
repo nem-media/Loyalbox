@@ -47,8 +47,8 @@
 <line x1="290" y1="596" x2="510" y2="596" stroke="#c9a24b" stroke-width="1" opacity="0.5"/>
 <text x="400" y="628" text-anchor="middle" font-family="'Segoe Script','Brush Script MT',cursive" font-style="italic" font-size="19" fill="#d8b866">Vi glæder os til at se dig igen!</text>
 <g>
-<rect x="34" y="36" width="256" height="56" rx="28" fill="#1b916a"/>
+<rect x="34" y="36" width="260" height="56" rx="28" fill="#1b916a"/>
 <path d="M58,64 l8,8 l16,-18" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="178" y="72" text-anchor="middle" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#ffffff" letter-spacing="1">INKL. LOYALBOX</text>
+<text x="186" y="72" text-anchor="middle" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#ffffff" letter-spacing="1">INKL. LOYALBOX</text>
 </g>
 </svg>

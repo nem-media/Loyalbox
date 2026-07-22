@@ -28,6 +28,114 @@ export interface BlogPost {
 
 export const POSTS: BlogPost[] = [
   {
+    slug: "digitalt-stempelkort-faa-kunder-til-at-komme-igen",
+    title: "Digitalt stempelkort: Sådan får du kunderne til at komme igen",
+    metaTitle: "Digitalt stempelkort — få kunderne til at komme igen",
+    description:
+      "Et digitalt stempelkort får engangskunder til at blive faste kunder — helt uden app. Sådan virker det, og sådan kommer du i gang som lokal forretning.",
+    keyword: "digitalt stempelkort",
+    date: "2026-07-22",
+    readingMinutes: 5,
+    excerpt:
+      "At skaffe en ny kunde er dyrt. At få den samme kunde til at komme igen er nærmest gratis. Et digitalt stempelkort er en af de enkleste måder at gøre netop det — her er hvordan.",
+    body: [
+      {
+        type: "p",
+        html: "At skaffe en <strong>ny</strong> kunde koster tid og penge — annoncer, tilbud, synlighed. At få en kunde, du allerede har, til at komme <strong>igen</strong>, koster derimod næsten ingenting. Alligevel bruger de fleste lokale forretninger al deres energi på nye kunder og næsten ingen på at fastholde dem, de har.",
+      },
+      {
+        type: "p",
+        html: "Et <strong>digitalt stempelkort</strong> vender det om. Det giver kunden en grund til at vælge dig næste gang — og gør din bedste markedsføring til noget, der kører af sig selv.",
+      },
+      { type: "h2", text: "Hvad er et digitalt stempelkort?" },
+      {
+        type: "p",
+        html: "Det er den moderne udgave af papkortet med klip: kunden samler stempler mod en belønning. Forskellen er, at kortet lever på kundens telefon i stedet for i tegnebogen — så det aldrig bliver væk, og du kan se præcis, hvordan det bruges.",
+      },
+      { type: "h2", text: "Hvorfor \"uden app\" er afgørende" },
+      {
+        type: "p",
+        html: "Den største grund til, at loyalitetsprogrammer fejler i små forretninger, er friktion: ingen gider hente en app for én café eller frisør. Et godt digitalt stempelkort kræver derfor <strong>ingen app</strong> — kunden scanner dit skilt og har kortet i browseren med det samme. Ingen download, ingen konto.",
+      },
+      { type: "h2", text: "Sådan virker det i praksis" },
+      {
+        type: "ul",
+        items: [
+          "Kunden <strong>scanner</strong> QR eller tapper NFC på din stander og opretter sit kort på få sekunder.",
+          "Personalet giver et <strong>stempel med ét scan</strong> ved næste køb — hurtigt over disken.",
+          "Når kortet er fuldt, får kunden sin <strong>belønning</strong> — og en grund til at komme igen.",
+        ],
+      },
+      { type: "h2", text: "Tre ting der gør et stempelkort effektivt" },
+      {
+        type: "p",
+        html: "<strong>1. En belønning der er værd at gå efter.</strong> Gratis kaffe efter 10 køb virker, fordi den er konkret og opnåelig. <strong>2. Den rigtige friktion.</strong> Nemt at tilmelde sig, nemt at stemple. <strong>3. Synlighed.</strong> Et skilt på disken minder kunden om kortet, hver gang de betaler.",
+      },
+      {
+        type: "p",
+        html: "Med LoyalBox får du det hele på ét skilt: kunderne tilmelder sig selv, personalet stempler med et scan, og du kan endda <a href=\"/stempelkort\">se hvordan det virker</a> og sætte dine egne regler.",
+      },
+      {
+        type: "cta",
+        text: "Klar til flere faste kunder?",
+        href: "/produkter/loyalbox-komplet",
+        label: "Se LoyalBox Komplet",
+      },
+    ],
+  },
+  {
+    slug: "kundeklub-uden-app-guide",
+    title: "Kundeklub uden app: Guide til lokale forretninger",
+    metaTitle: "Kundeklub uden app — guide til lokale forretninger",
+    description:
+      "En kundeklub behøver ikke en app. Sådan laver du et enkelt loyalitetsprogram, kunderne faktisk bruger — og som får dem til at handle hos dig igen.",
+    keyword: "kundeklub",
+    date: "2026-07-21",
+    readingMinutes: 6,
+    excerpt:
+      "De store kæder har kundeklubber med apps og point. Men som lokal forretning har du en fordel, de ikke har — og du behøver hverken app eller stort budget. Her er guiden.",
+    body: [
+      {
+        type: "p",
+        html: "En <strong>kundeklub</strong> handler om én ting: at give dine bedste kunder en grund til at blive ved med at vælge dig. De store kæder gør det med apps, point og nyhedsbreve. Men som lokal forretning behøver du hverken app eller stort budget — faktisk har du en fordel, kæderne ikke har: den personlige relation.",
+      },
+      { type: "h2", text: "Hvorfor apps sjældent virker for små forretninger" },
+      {
+        type: "p",
+        html: "En app lyder som den professionelle løsning, men den er også den største barriere. Kunden skal finde den, hente den, oprette en konto og huske at bruge den. For en enkelt café eller klinik er det for meget besvær — og resultatet er en app, ingen bruger.",
+      },
+      {
+        type: "p",
+        html: "Løsningen er en <strong>kundeklub uden app</strong>: al værdien af et loyalitetsprogram, uden barrieren.",
+      },
+      { type: "h2", text: "Sådan ser en enkel kundeklub ud" },
+      {
+        type: "ul",
+        items: [
+          "Kunden tilmelder sig ved at <strong>scanne et skilt</strong> — ingen app, ingen konto.",
+          "De samler stempler eller point på deres telefon ved hvert køb.",
+          "De optjener belønninger, der får dem tilbage — og du ser det hele i ét dashboard.",
+        ],
+      },
+      { type: "h2", text: "Design en belønning der virker" },
+      {
+        type: "p",
+        html: "Den bedste belønning er <strong>konkret, opnåelig og relevant</strong>. \"10. kop kaffe er gratis\" slår \"spar op til rabatter\", fordi kunden kan se målet. Hold det enkelt — én klar belønning er stærkere end et kompliceret pointsystem.",
+      },
+      { type: "h2", text: "Kom i gang uden teknisk bøvl" },
+      {
+        type: "p",
+        html: "Du behøver ikke bygge noget selv. Med et <a href=\"/stempelkort\">digitalt stempelkort</a> fra LoyalBox har du en kundeklub kørende samme dag: sæt skiltet på disken, vælg din belønning, og lad kunderne tilmelde sig selv. Vil du også have flere anmeldelser med i samme skilt, kan du <a href=\"/produkter/loyalbox-komplet\">se hele platformen her</a>.",
+      },
+      {
+        type: "cta",
+        text: "Start din kundeklub i dag",
+        href: "/produkter/loyalbox-komplet",
+        label: "Se LoyalBox Komplet",
+      },
+    ],
+  },
+  {
     slug: "saadan-faar-du-flere-google-anmeldelser",
     title: "Sådan får du flere Google-anmeldelser (der virker i 2026)",
     metaTitle: "Sådan får du flere Google-anmeldelser — guide 2026",

@@ -180,7 +180,7 @@ export const PRODUCTS: Product[] = [
     tagline: "Selvvalgt anmeldelseslink",
     description:
       "Elegant bordstander i sort akryl med QR og NFC. Du sætter selv linket — til Google, Trustpilot, Tripadvisor, Facebook eller din egen side. Indsæt dit logo og link, sæt den på disken, og du er klar. Ingen abonnement.",
-    image: "/mockups/stander-alt-i-en.svg",
+    image: "/mockups/stander-reviewstander.svg",
     features: [
       "Selvvalgt link (Google, Trustpilot, Tripadvisor, Facebook…)",
       "QR + NFC — kunden scanner eller tapper",
@@ -205,7 +205,7 @@ export const PRODUCTS: Product[] = [
     tagline: "Smart review-flow + dynamiske links",
     description:
       "Standeren med LoyalBox review-platformen oveni. På din dedikerede anmeldelsesside vælger du selv, hvilke platforme kunderne kan anmelde dig på (Google, Trustpilot, Facebook) — plus et eget link til fx dit menukort eller booking. Et smart review-flow sender glade kunder videre, mens kritik lander privat i dit dashboard, så en enkelt dårlig oplevelse ikke bliver en offentlig 1-stjerne. Skift links når som helst, og følg det hele i realtid.",
-    image: "/mockups/stander-alt-i-en-komplet.svg",
+    image: "/mockups/stander-reviewstander-pro.svg",
     features: [
       "Dedikeret anmeldelsesside — vælg selv platforme (Google, Trustpilot, Facebook)",
       "Eget link til fx menukort eller booking",
@@ -232,7 +232,7 @@ export const PRODUCTS: Product[] = [
     tagline: "Hele platformen — reviews + stempelkort",
     description:
       "Alt i Reviewstander Pro — plus et digitalt stempelkort uden app for dine kunder. Kunderne tilmelder sig selv på standeren, personalet giver stempler med ét scan, og du laver opslag af dine bedste anmeldelser. Flere nye kunder, og flere der kommer igen — samlet ét sted.",
-    image: "/mockups/stander-google-komplet.svg",
+    image: "/mockups/stander-loyalbox-komplet.svg",
     features: [
       "Alt i Reviewstander Pro",
       "Digitalt stempelkort — uden app",

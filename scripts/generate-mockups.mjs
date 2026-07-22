@@ -45,14 +45,18 @@ function multiBlock() {
   return parts + dividers;
 }
 
-/** Tydeligt "INKL. LOYALBOX"-badge til komplet-varianterne. */
-const KOMPLET_BADGE = `<g>
-<rect x="34" y="36" width="256" height="56" rx="28" fill="#1b916a"/>
+/** Grøn pille-badge med flueben — mærker varen (fx PRO / KOMPLET). */
+const makeBadge = (text) => {
+  const w = Math.max(150, 78 + text.length * 13);
+  const tx = 34 + 44 + (w - 44) / 2;
+  return `<g>
+<rect x="34" y="36" width="${w}" height="56" rx="28" fill="#1b916a"/>
 <path d="M58,64 l8,8 l16,-18" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="178" y="72" text-anchor="middle" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#ffffff" letter-spacing="1">INKL. LOYALBOX</text>
+<text x="${tx}" y="72" text-anchor="middle" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#ffffff" letter-spacing="1">${text}</text>
 </g>`;
+};
 
-function svg(platformBlock, komplet = false) {
+function svg(platformBlock, badgeSvg = "") {
   return `<svg viewBox="0 0 800 1000" xmlns="http://www.w3.org/2000/svg" role="img">
 <rect x="0" y="0" width="800" height="1000" rx="28" fill="#e9ebee"/>
 <ellipse cx="412" cy="744" rx="210" ry="22" fill="#000000" opacity="0.13"/>
@@ -101,7 +105,7 @@ ${platformBlock}
 <text x="460" y="562" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#dcdce0">SCAN MED KAMERA</text>
 <line x1="290" y1="596" x2="510" y2="596" stroke="${GOLD}" stroke-width="1" opacity="0.5"/>
 <text x="400" y="628" text-anchor="middle" font-family="'Segoe Script','Brush Script MT',cursive" font-style="italic" font-size="19" fill="#d8b866">Vi glæder os til at se dig igen!</text>
-${komplet ? KOMPLET_BADGE : ""}
+${badgeSvg}
 </svg>`;
 }
 
@@ -116,9 +120,26 @@ const variants = [
 let count = 0;
 for (const v of variants) {
   // Standalone + komplet (med "INKL. LOYALBOX"-badge)
-  writeFileSync(join(outDir, `stander-${v.key}.svg`), svg(v.block, false), "utf8");
-  writeFileSync(join(outDir, `stander-${v.key}-komplet.svg`), svg(v.block, true), "utf8");
+  writeFileSync(join(outDir, `stander-${v.key}.svg`), svg(v.block, ""), "utf8");
+  writeFileSync(
+    join(outDir, `stander-${v.key}-komplet.svg`),
+    svg(v.block, makeBadge("INKL. LOYALBOX")),
+    "utf8",
+  );
   console.log("skrev", `stander-${v.key}.svg`, "+", `stander-${v.key}-komplet.svg`);
   count += 2;
 }
+
+// Produkt-mockups til de 3 varer: samme stander (multi-platform), etiket pr. vare.
+const productMockups = [
+  { file: "stander-reviewstander", badge: "" },
+  { file: "stander-reviewstander-pro", badge: makeBadge("PRO") },
+  { file: "stander-loyalbox-komplet", badge: makeBadge("KOMPLET") },
+];
+for (const pm of productMockups) {
+  writeFileSync(join(outDir, `${pm.file}.svg`), svg(multiBlock(), pm.badge), "utf8");
+  console.log("skrev", `${pm.file}.svg`);
+  count += 1;
+}
+
 console.log(`Færdig — ${count} mockups i public/mockups/`);
