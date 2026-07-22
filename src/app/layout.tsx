@@ -14,13 +14,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_TITLE = `${SITE_NAME} — Digitalt stempelkort & flere anmeldelser`;
 const SITE_DESCRIPTION =
-  "LoyalBox er en review stander / Google review skilt med QR og NFC. Få flere Google-anmeldelser, fang privat feedback og styrk din lokale forretning.";
+  "LoyalBox er ét lille NFC/QR-skilt til disken, der giver flere 5-stjernede Google-anmeldelser og kører dit digitale stempelkort — uden app for dine kunder. Flere nye kunder, og flere der kommer igen.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: `${SITE_NAME} — Review stander til Google-anmeldelser`,
+    default: SITE_TITLE,
     template: `%s — ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
@@ -31,12 +32,12 @@ export const metadata: Metadata = {
     locale: "da_DK",
     siteName: SITE_NAME,
     url: "/",
-    title: `${SITE_NAME} — Review stander til Google-anmeldelser`,
+    title: SITE_TITLE,
     description: SITE_DESCRIPTION,
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} — Review stander til Google-anmeldelser`,
+    title: SITE_TITLE,
     description: SITE_DESCRIPTION,
   },
 };
