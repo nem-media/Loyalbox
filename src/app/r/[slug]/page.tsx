@@ -62,7 +62,7 @@ export default async function ReviewPage({
   });
 
   const publicLinks = resolvePublicReviewLinks(stand);
-  const extraUrl = resolveExtraLink(stand)?.url ?? null;
+  const extra = resolveExtraLink(stand);
 
   // Har virksomheden et aktivt stempelkort? Så vises "Hvad vil du?"-landingen.
   const { data: loyaltyProgram } = await supabase
@@ -105,14 +105,14 @@ export default async function ReviewPage({
             standId={stand.id}
             companyId={company.id}
             publicLinks={publicLinks}
-            extraUrl={extraUrl}
+            extra={extra}
           />
         ) : (
           <ReviewFlow
             standId={stand.id}
             companyId={company.id}
             publicLinks={publicLinks}
-            extraUrl={extraUrl}
+            extra={extra}
           />
         )}
       </div>

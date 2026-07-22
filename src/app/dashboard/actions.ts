@@ -129,6 +129,8 @@ export async function updateStand(
         facebook_url:
           String(formData.get("facebook_url") ?? "").trim() || null,
         custom_url: String(formData.get("custom_url") ?? "").trim() || null,
+        custom_label:
+          String(formData.get("custom_label") ?? "").trim() || null,
       }
     : { destination_type: "google" as DestinationType };
 

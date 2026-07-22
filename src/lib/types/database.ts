@@ -101,6 +101,7 @@ export interface Database {
           trustpilot_url: string | null;
           facebook_url: string | null;
           custom_url: string | null;
+          custom_label: string | null;
           is_active: boolean;
           created_at: string;
         };
@@ -114,6 +115,7 @@ export interface Database {
           trustpilot_url?: string | null;
           facebook_url?: string | null;
           custom_url?: string | null;
+          custom_label?: string | null;
           is_active?: boolean;
           created_at?: string;
         };

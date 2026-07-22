@@ -12,20 +12,25 @@ export interface PublicLink {
   platform: string;
 }
 
+export interface ExtraLink {
+  url: string;
+  label: string;
+}
+
 interface Props {
   standId: string;
   companyId: string;
   /** Kun de anmeldelses-platforme forretningen har valgt (udfyldt link til). */
   publicLinks: PublicLink[];
   /** Valgfrit ekstra link (menukort, booking m.m.) — ikke en anmeldelse. */
-  extraUrl?: string | null;
+  extra?: ExtraLink | null;
 }
 
 export function ReviewFlow({
   standId,
   companyId,
   publicLinks,
-  extraUrl,
+  extra,
 }: Props) {
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -92,9 +97,9 @@ export function ReviewFlow({
         <p className="mt-2 text-sm text-muted">
           Vi sætter stor pris på, at du tog dig tiden.
         </p>
-        {extraUrl ? (
-          <a href={extraUrl} className="mt-4 inline-block text-sm font-medium text-accent">
-            Se mere →
+        {extra ? (
+          <a href={extra.url} className="mt-4 inline-block text-sm font-medium text-accent">
+            {extra.label} →
           </a>
         ) : null}
       </div>
@@ -230,10 +235,10 @@ export function ReviewFlow({
           </div>
 
           {/* Valgfrit ekstra link (menukort, booking m.m.) */}
-          {extraUrl ? (
+          {extra ? (
             <div className="text-center">
-              <a href={extraUrl} className="text-sm font-medium text-accent">
-                Se mere →
+              <a href={extra.url} className="text-sm font-medium text-accent">
+                {extra.label} →
               </a>
             </div>
           ) : null}

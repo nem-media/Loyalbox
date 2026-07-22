@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ReviewFlow, type PublicLink } from "./review-flow";
+import { ReviewFlow, type PublicLink, type ExtraLink } from "./review-flow";
 import { Button, ButtonLink } from "@/components/ui/button";
 
 /**
@@ -14,13 +14,13 @@ export function StandLanding({
   standId,
   companyId,
   publicLinks,
-  extraUrl,
+  extra,
 }: {
   enrollHref: string;
   standId: string;
   companyId: string;
   publicLinks: PublicLink[];
-  extraUrl?: string | null;
+  extra?: ExtraLink | null;
 }) {
   const [mode, setMode] = useState<"choose" | "review">("choose");
 
@@ -30,7 +30,7 @@ export function StandLanding({
         standId={standId}
         companyId={companyId}
         publicLinks={publicLinks}
-        extraUrl={extraUrl}
+        extra={extra}
       />
     );
   }
