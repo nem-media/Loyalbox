@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCompanyAccess } from "@/lib/loyalty/access";
-import { giveStamp } from "@/lib/loyalty/service";
+import { giveStamp, redeemReward } from "@/lib/loyalty/service";
 
 export interface EnrollState {
   error?: string;
@@ -18,6 +18,11 @@ export interface StampByTokenState {
   required?: number;
   rewardEarned?: boolean;
   rewardName?: string | null;
+}
+
+export interface RedeemByTokenState {
+  ok?: boolean;
+  error?: string;
 }
 
 const str = (v: FormDataEntryValue | null) => String(v ?? "").trim();
@@ -213,4 +218,60 @@ export async function stampByToken(
     rewardEarned: result.rewardEarned,
     rewardName: result.rewardName,
   };
+}
+
+/**
+ * Indløs-fra-kort: personale indløser en optjent belønning direkte fra kundens
+ * QR-kort. Samme sikkerhedsmønster som `stampByToken` — kræver ALTID et gyldigt
+ * personale-login med `canRedeem` for kortets egen virksomhed, og belønningen
+ * skal tilhøre netop dette medlem. `redeemReward` re-validerer firma-
+ * tilhørsforholdet, så tjekket her er dybde-forsvar.
+ */
+export async function redeemRewardByToken(
+  _prev: RedeemByTokenState,
+  formData: FormData,
+): Promise<RedeemByTokenState> {
+  const access = await getCompanyAccess();
+  if (!access || !access.permissions.canRedeem) {
+    return { error: "Kun personale kan indløse belønninger." };
+  }
+
+  const token = str(formData.get("token"));
+  const rewardId = str(formData.get("customer_reward_id"));
+  if (!token || !rewardId) return { error: "Ugyldigt kort." };
+
+  const admin = createAdminClient();
+
+  // Token → medlem. Kortet skal tilhøre personalets egen virksomhed. En
+  // netværks-/DB-fejl giver også data=null, så vi skelner den fra "findes ikke".
+  const { data: member, error: memberErr } = await admin
+    .from("loyalty_members")
+    .select("id, company_id")
+    .eq("public_token", token)
+    .maybeSingle();
+  if (memberErr) {
+    return { error: "Kunne ikke hente kortet lige nu. Tjek forbindelsen og prøv igen." };
+  }
+  if (!member || member.company_id !== access.companyId) {
+    return { error: "Kortet blev ikke fundet." };
+  }
+
+  // Belønningen skal høre til netop dette medlem.
+  const { data: cr, error: crErr } = await admin
+    .from("customer_rewards")
+    .select("id, member_id")
+    .eq("id", rewardId)
+    .maybeSingle();
+  if (crErr) {
+    return { error: "Kunne ikke hente belønningen lige nu. Tjek forbindelsen og prøv igen." };
+  }
+  if (!cr || cr.member_id !== member.id) {
+    return { error: "Belønningen passer ikke til denne kunde." };
+  }
+
+  const result = await redeemReward(access, rewardId);
+  if (!result.ok) return { error: result.error };
+
+  revalidatePath(`/kort/${token}`);
+  return { ok: true };
 }
