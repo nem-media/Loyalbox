@@ -5,6 +5,7 @@ import { qrDataUrl } from "@/lib/qr";
 import { getSiteUrl } from "@/lib/site";
 import { StampCardPreview } from "@/components/loyalty/stamp-card-preview";
 import { StaffStampPanel } from "./staff-stamp-panel";
+import { StaffRedeemPanel } from "./staff-redeem-panel";
 import { stampProgress, progressLabel } from "@/lib/loyalty/balance";
 import { TXN_TYPE_LABELS } from "@/lib/loyalty/constants";
 import { Logo } from "@/components/brand";
@@ -33,6 +34,9 @@ export default async function CardPage({
   const access = await getCompanyAccess();
   const canStampHere = Boolean(
     access && access.companyId === member.company_id && access.permissions.canStamp,
+  );
+  const canRedeemHere = Boolean(
+    access && access.companyId === member.company_id && access.permissions.canRedeem,
   );
 
   const { data: company } = await admin
@@ -139,6 +143,16 @@ export default async function CardPage({
               {canStampHere ? (
                 <StaffStampPanel token={token} membershipId={ms.id} />
               ) : null}
+              {canRedeemHere
+                ? rewardsForMs.map((cr) => (
+                    <StaffRedeemPanel
+                      key={cr.id}
+                      token={token}
+                      customerRewardId={cr.id}
+                      rewardName={reward?.name ?? "Belønning"}
+                    />
+                  ))
+                : null}
             </div>
           );
         })}
