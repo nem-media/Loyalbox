@@ -1,11 +1,15 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCompanyAccess } from "@/lib/loyalty/access";
+import { getCurrentUser } from "@/lib/auth";
 import { qrDataUrl } from "@/lib/qr";
 import { getSiteUrl } from "@/lib/site";
 import { StampCardPreview } from "@/components/loyalty/stamp-card-preview";
+import { ButtonLink } from "@/components/ui/button";
 import { StaffStampPanel } from "./staff-stamp-panel";
 import { StaffRedeemPanel } from "./staff-redeem-panel";
+import { SaveCardPanel } from "./save-card-panel";
 import { stampProgress, progressLabel } from "@/lib/loyalty/balance";
 import { TXN_TYPE_LABELS } from "@/lib/loyalty/constants";
 import { Logo } from "@/components/brand";
@@ -38,6 +42,14 @@ export default async function CardPage({
   const canRedeemHere = Boolean(
     access && access.companyId === member.company_id && access.permissions.canRedeem,
   );
+
+  // Konto-tilstand: kortet virker uden konto, men en indlogget kunde kan gemme
+  // det, så det kan findes igen på /mine-kort fra enhver enhed. Personale i
+  // butikken ser aldrig denne sektion — de betjener kundens kort, ikke deres eget.
+  const visitor = await getCurrentUser();
+  const isMyCard = Boolean(visitor && member.user_id === visitor.id);
+  const claimedByOther = Boolean(member.user_id) && !isMyCard;
+  const showAccountBlock = !canStampHere && !claimedByOther;
 
   const { data: company } = await admin
     .from("companies")
@@ -186,6 +198,49 @@ export default async function CardPage({
           <img src={qr} alt="Din QR-kode" className="mx-auto mt-3 h-40 w-40" />
           <p className="mt-2 text-xs text-muted">Gem denne side som genvej på din telefon.</p>
         </div>
+
+        {/* Konto — frivilligt lag oven på token-linket */}
+        {showAccountBlock ? (
+          isMyCard ? (
+            <div className="box-shape border border-border bg-card p-4 text-center">
+              <p className="text-sm font-medium">Kortet er gemt på din konto</p>
+              <p className="mt-1 text-xs text-muted">{visitor!.email}</p>
+              <Link
+                href="/mine-kort"
+                className="mt-2 inline-block text-sm font-medium text-accent"
+              >
+                Se alle mine stempelkort
+              </Link>
+            </div>
+          ) : visitor ? (
+            <SaveCardPanel token={token} />
+          ) : (
+            <div className="box-shape border border-border bg-card p-4 text-center">
+              <p className="text-sm font-medium">Mist ikke dit kort</p>
+              <p className="mt-1 text-xs text-muted">
+                Opret en konto, så kan du finde kortet igen på enhver telefon.
+              </p>
+              <ButtonLink
+                href={`/opret-konto?token=${token}${
+                  member.email ? `&email=${encodeURIComponent(member.email)}` : ""
+                }`}
+                size="sm"
+                className="mt-3"
+              >
+                Opret konto
+              </ButtonLink>
+              <p className="mt-2 text-xs text-muted">
+                Har du allerede en?{" "}
+                <Link
+                  href={`/login?next=${encodeURIComponent(`/kort/${token}`)}`}
+                  className="font-medium text-accent"
+                >
+                  Log ind
+                </Link>
+              </p>
+            </div>
+          )
+        ) : null}
 
         {/* Historik */}
         {txns && txns.length > 0 ? (

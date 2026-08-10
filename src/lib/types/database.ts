@@ -421,6 +421,8 @@ export interface Database {
           phone: string | null;
           customer_number: string | null;
           public_token: string;
+          user_id: string | null;
+          claimed_at: string | null;
           created_at: string;
         };
         Insert: {
@@ -431,6 +433,8 @@ export interface Database {
           phone?: string | null;
           customer_number?: string | null;
           public_token?: string;
+          user_id?: string | null;
+          claimed_at?: string | null;
           created_at?: string;
         };
         Update: Partial<

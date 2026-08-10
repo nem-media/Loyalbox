@@ -36,8 +36,11 @@ export async function updateSession(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
   const isProtected =
-    path.startsWith("/dashboard") || path.startsWith("/admin");
-  const isAuthPage = path === "/login" || path === "/signup";
+    path.startsWith("/dashboard") ||
+    path.startsWith("/admin") ||
+    path.startsWith("/mine-kort");
+  const isAuthPage =
+    path === "/login" || path === "/signup" || path === "/opret-konto";
 
   if (isProtected && !user) {
     const url = request.nextUrl.clone();
@@ -47,6 +50,8 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (isAuthPage && user) {
+    // Dashboardet sender selv slutkunder videre til /mine-kort — det kræver et
+    // DB-opslag, som ikke hører hjemme i middleware på hver eneste request.
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     url.search = "";
