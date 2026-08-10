@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { userHasCards } from "@/lib/loyalty/member-account";
 import type { Database, UserRole } from "@/lib/types/database";
 
 type CompanyRow = Database["public"]["Tables"]["companies"]["Row"];
@@ -47,4 +49,43 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     role,
     company,
   };
+}
+
+/**
+ * Hvor hører brugeren hjemme efter login? Butiksejere og medarbejdere på
+ * dashboardet, slutkunder med stempelkort på `/mine-kort`. Bruges når der ikke
+ * er et eksplicit `next` at vende tilbage til.
+ *
+ * Kører med service-role, fordi den kaldes lige efter login hvor session-cookien
+ * endnu ikke nødvendigvis er læsbar i samme request.
+ */
+export async function resolveLandingPath(userId: string): Promise<string> {
+  const admin = createAdminClient();
+
+  const { data: profile } = await admin
+    .from("users")
+    .select("role")
+    .eq("id", userId)
+    .maybeSingle();
+  if (profile?.role === "admin") return "/admin";
+
+  const { data: company } = await admin
+    .from("companies")
+    .select("id")
+    .eq("user_id", userId)
+    .limit(1)
+    .maybeSingle();
+  if (company) return "/dashboard";
+
+  const { data: employee } = await admin
+    .from("employees")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .limit(1)
+    .maybeSingle();
+  if (employee) return "/dashboard";
+
+  if (await userHasCards(userId)) return "/mine-kort";
+  return "/dashboard";
 }

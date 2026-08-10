@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SITE_NAME, SEO_KEYWORDS } from "@/lib/constants";
 import { getSiteUrl } from "@/lib/site";
+import { PwaRegister } from "@/components/pwa-register";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,6 +41,17 @@ export const metadata: Metadata = {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
   },
+  // Gør "Føj til hjemmeskærm" på iOS til en rigtig app-oplevelse: eget ikon og
+  // ingen browserlinje. Android læser det tilsvarende fra manifest.ts.
+  appleWebApp: {
+    capable: true,
+    title: SITE_NAME,
+    statusBarStyle: "default",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#1b916a",
 };
 
 export default function RootLayout({
@@ -52,7 +64,10 @@ export default function RootLayout({
       lang="da"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        {children}
+        <PwaRegister />
+      </body>
     </html>
   );
 }

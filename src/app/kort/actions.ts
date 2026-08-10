@@ -5,9 +5,18 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCompanyAccess } from "@/lib/loyalty/access";
+import { getCurrentUser } from "@/lib/auth";
+import { claimCardForUser } from "@/lib/loyalty/member-account";
 import { giveStamp, redeemReward } from "@/lib/loyalty/service";
 
 export interface EnrollState {
+  error?: string;
+  /** Kortet er beskyttet af en konto — kunden skal logge ind for at åbne det. */
+  loginRequired?: boolean;
+}
+
+export interface ClaimCardState {
+  ok?: boolean;
   error?: string;
 }
 
@@ -73,13 +82,16 @@ export async function selfEnroll(
     return { error: "Der er endnu ikke noget aktivt stempelkort her." };
   }
 
+  // Er den besøgende logget ind, knyttes kortet til deres konto med det samme.
+  const visitor = await getCurrentUser();
+
   // Genbrug eksisterende medlem (åbn kort) hvis e-mail/telefon matcher.
   let memberId: string | null = null;
   let token: string | null = null;
   if (email || phone) {
     const { data: existing } = await admin
       .from("loyalty_members")
-      .select("id, public_token")
+      .select("id, public_token, user_id")
       .eq("company_id", stand.company_id)
       .or([email ? `email.eq.${email}` : "", phone ? `phone.eq.${phone}` : ""]
         .filter(Boolean)
@@ -87,6 +99,16 @@ export async function selfEnroll(
       .limit(1)
       .maybeSingle();
     if (existing) {
+      // Har kunden knyttet kortet til en konto, er e-mail/telefon ikke længere
+      // nok til at åbne det — ellers kunne en fremmed med kendskab til blot en
+      // e-mailadresse få kortets token udleveret her.
+      if (existing.user_id && existing.user_id !== visitor?.id) {
+        return {
+          error:
+            "Der findes allerede et stempelkort med de oplysninger, og det er knyttet til en konto. Log ind for at åbne det.",
+          loginRequired: true,
+        };
+      }
       memberId = existing.id;
       token = existing.public_token;
     }
@@ -100,6 +122,8 @@ export async function selfEnroll(
         name: name || null,
         email: email || null,
         phone: phone || null,
+        user_id: visitor?.id ?? null,
+        claimed_at: visitor ? new Date().toISOString() : null,
       })
       .select("id, public_token")
       .single();
@@ -108,6 +132,9 @@ export async function selfEnroll(
     }
     memberId = member.id;
     token = member.public_token;
+  } else if (visitor && token) {
+    // Eksisterende, endnu ikke tilknyttet kort — knyt det til den indloggede.
+    await claimCardForUser(token, visitor.id);
   }
 
   // Sikr medlemskab til programmet (idempotent).
@@ -149,6 +176,29 @@ export async function selfEnroll(
   }
 
   redirect(`/kort/${token}`);
+}
+
+/**
+ * Gem kortet på kundens konto. Kaldes fra kortets egen side, og det er netop
+ * pointen: BESIDDELSE AF TOKENET er autorisationen. Der knyttes aldrig kort ud
+ * fra e-mail-match, fordi e-mails ikke verificeres ved signup. Et kort der
+ * allerede tilhører en anden konto røres ikke.
+ */
+export async function claimCard(
+  _prev: ClaimCardState,
+  formData: FormData,
+): Promise<ClaimCardState> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Log ind for at gemme kortet." };
+
+  const token = str(formData.get("token"));
+  if (!token) return { error: "Ugyldigt kort." };
+
+  const result = await claimCardForUser(token, user.id);
+  if (!result.ok) return { error: result.error };
+
+  revalidatePath(`/kort/${token}`);
+  return { ok: true };
 }
 
 /**

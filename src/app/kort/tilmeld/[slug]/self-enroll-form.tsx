@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { selfEnroll, type EnrollState } from "../../actions";
 import { Button } from "@/components/ui/button";
 import { Input, Field } from "@/components/ui/input";
@@ -34,6 +35,14 @@ export function SelfEnrollForm({ slug }: { slug: string }) {
       </label>
 
       {state.error ? <p className="text-sm text-danger">{state.error}</p> : null}
+      {state.loginRequired ? (
+        <Link
+          href="/login?next=/mine-kort"
+          className="block text-sm font-medium text-accent"
+        >
+          Log ind og åbn dit kort
+        </Link>
+      ) : null}
 
       <Button type="submit" size="lg" className="w-full" disabled={pending}>
         {pending ? "Opretter…" : "Opret mit stempelkort"}

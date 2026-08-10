@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
+import { getCompanyAccess } from "@/lib/loyalty/access";
+import { userHasCards } from "@/lib/loyalty/member-account";
 import { DashboardShell, type NavItem } from "@/components/dashboard-shell";
 import { TIER_LABELS, tierCan, type Tier } from "@/lib/constants";
 
@@ -11,6 +13,12 @@ export default async function DashboardLayout({
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/dashboard");
   if (user.role === "admin") redirect("/admin");
+
+  // Slutkunder har hverken virksomhed eller medarbejderrolle — de hører hjemme
+  // ved deres stempelkort, ikke på et tomt dashboard.
+  if (!user.company && !(await getCompanyAccess()) && (await userHasCards(user.id))) {
+    redirect("/mine-kort");
+  }
 
   const plan = (user.company?.plan ?? "basic") as Tier;
 

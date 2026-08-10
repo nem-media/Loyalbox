@@ -8,5 +8,7 @@ export default async function LoginPage({
   searchParams: Promise<{ next?: string }>;
 }) {
   const { next } = await searchParams;
-  return <LoginForm next={next ?? "/dashboard"} />;
+  // Tomt `next` er meningen: så vælger login-actionen landingssiden ud fra
+  // hvem brugeren er (butiksejer/medarbejder → dashboard, kunde → /mine-kort).
+  return <LoginForm next={next ?? ""} />;
 }

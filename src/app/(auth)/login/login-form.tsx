@@ -16,7 +16,8 @@ export function LoginForm({ next }: { next: string }) {
         <div>
           <h1 className="text-xl font-bold tracking-tight">Log ind</h1>
           <p className="mt-1 text-sm text-muted">
-            Velkommen tilbage. Log ind på dit dashboard.
+            Velkommen tilbage. Samme login til dit dashboard og dine
+            stempelkort.
           </p>
         </div>
 
@@ -43,12 +44,20 @@ export function LoginForm({ next }: { next: string }) {
           </Button>
         </form>
 
-        <p className="text-center text-sm text-muted">
-          Har du ikke en konto?{" "}
-          <Link href="/signup" className="font-medium text-accent">
-            Opret virksomhed
-          </Link>
-        </p>
+        <div className="space-y-1 text-center text-sm text-muted">
+          <p>
+            Har du ikke en konto?{" "}
+            <Link href="/signup" className="font-medium text-accent">
+              Opret virksomhed
+            </Link>
+          </p>
+          <p>
+            Kunde med et stempelkort?{" "}
+            <Link href="/opret-konto" className="font-medium text-accent">
+              Opret kundekonto
+            </Link>
+          </p>
+        </div>
       </CardBody>
     </Card>
   );
