@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { getCardsForUser } from "@/lib/loyalty/member-account";
 import { StampCardPreview } from "@/components/loyalty/stamp-card-preview";
 import { ButtonLink } from "@/components/ui/button";
+import { PwaInstall } from "@/components/pwa-install";
 import { Logo } from "@/components/brand";
 import { signout } from "@/app/(auth)/actions";
 
@@ -69,6 +70,8 @@ export default async function MyCardsPage() {
             </div>
           ))
         )}
+
+        <PwaInstall />
 
         <form action={signout} className="pt-2 text-center">
           <button type="submit" className="text-sm font-medium text-muted underline">
