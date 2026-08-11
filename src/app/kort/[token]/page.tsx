@@ -7,6 +7,7 @@ import { qrDataUrl } from "@/lib/qr";
 import { getSiteUrl } from "@/lib/site";
 import { StampCardPreview } from "@/components/loyalty/stamp-card-preview";
 import { ButtonLink } from "@/components/ui/button";
+import { PwaInstall } from "@/components/pwa-install";
 import { StaffStampPanel } from "./staff-stamp-panel";
 import { StaffRedeemPanel } from "./staff-redeem-panel";
 import { SaveCardPanel } from "./save-card-panel";
@@ -196,7 +197,6 @@ export default async function CardPage({
           <p className="text-sm font-medium">Vis denne kode til personalet</p>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={qr} alt="Din QR-kode" className="mx-auto mt-3 h-40 w-40" />
-          <p className="mt-2 text-xs text-muted">Gem denne side som genvej på din telefon.</p>
         </div>
 
         {/* Konto — frivilligt lag oven på token-linket */}
@@ -259,6 +259,8 @@ export default async function CardPage({
             </ul>
           </div>
         ) : null}
+
+        <PwaInstall />
 
         <div className="pt-2 text-center">
           <Logo image="dark" className="opacity-70" />
