@@ -12,7 +12,7 @@ import { SITE_NAME } from "@/lib/constants";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: `${SITE_NAME} — mine stempelkort`,
-    short_name: "LoyalBox",
+    short_name: SITE_NAME.replace(".dk", ""),
     description:
       "Dine digitale stempelkort fra dine lokale butikker — samlet ét sted, uden app.",
     lang: "da",

@@ -18,12 +18,18 @@ const nextConfig: NextConfig = {
         destination: "/produkter/reviewstander",
         permanent: true,
       })),
-      // Gamle komplet-varianter → LoyalBox Komplet
+      // Gamle komplet-varianter → LoyalSum Komplet
       ...OLD_STAND_SLUGS.map((slug) => ({
         source: `/produkter/${slug}-komplet`,
-        destination: "/produkter/loyalbox-komplet",
+        destination: "/produkter/loyalsum-komplet",
         permanent: true,
       })),
+      // Navneskift LoyalBox → LoyalSum (produktsiden skiftede slug).
+      {
+        source: "/produkter/loyalbox-komplet",
+        destination: "/produkter/loyalsum-komplet",
+        permanent: true,
+      },
     ];
   },
 };

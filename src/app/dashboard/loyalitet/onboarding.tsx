@@ -17,7 +17,7 @@ export function LoyaltyOnboarding() {
       <CardBody className="py-8">
         <div className="mx-auto max-w-xl text-center">
           <h2 className="text-xl font-bold tracking-tight">
-            Sådan virker LoyalBox Stempelkort
+            Sådan virker LoyalSum Stempelkort
           </h2>
           <p className="mt-2 text-sm text-muted">
             Kom i gang på få minutter. Giv dine kunder en grund til at komme igen.

@@ -4,7 +4,7 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
-# LoyalBox — projektkonventioner
+# LoyalSum — projektkonventioner
 
 - **Sprog:** produktet er dansk. Al UI-tekst, fejlbeskeder, blog og indhold skrives på dansk.
 - **React Compiler er slået til.** Undgå manuel `useMemo`/`useCallback` — de udløser lint-fejl (`react-hooks/preserve-manual-memoization`), og compileren memoiserer selv. Beregn direkte i render. Synkron `setState` i en `useEffect` giver også lint-fejl; til klient-kun-detektion (fx `navigator.canShare`) brug `useSyncExternalStore` med et server-snapshot, ikke `useEffect`+`setState`.

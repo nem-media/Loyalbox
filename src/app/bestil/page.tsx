@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 export const metadata = {
   title: "Bestil din stander",
   description:
-    "Bestil din LoyalBox-stander — vælg antal op til 30 stk. med mængderabat. Reviewstander, Reviewstander Pro eller LoyalBox Komplet med digitalt stempelkort.",
+    "Bestil din LoyalSum-stander — vælg antal op til 30 stk. med mængderabat. Reviewstander, Reviewstander Pro eller LoyalSum Komplet med digitalt stempelkort.",
   alternates: { canonical: "/bestil" },
 };
 

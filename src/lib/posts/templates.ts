@@ -91,7 +91,7 @@ export const POST_BACKGROUNDS: PostBackground[] = [
   {
     id: "navy",
     name: "Brand-mørk",
-    description: "LoyalBox-navy med guld-accent — rolig og professionel.",
+    description: "LoyalSum-navy med guld-accent — rolig og professionel.",
     bgImage: "linear-gradient(160deg, #204777 0%, #19375c 55%, #10243d 100%)",
     ink: "#f2f6fb",
     subInk: "#a9c0d8",

@@ -25,8 +25,8 @@ export function Logo({
         <img
           src={
             image === "dark"
-              ? "/reviewstand-logo-dark.png"
-              : "/reviewstand-logo.png"
+              ? "/loyalsum-logo-dark.png"
+              : "/loyalsum-logo.png"
           }
           alt={SITE_NAME}
           width={1450}

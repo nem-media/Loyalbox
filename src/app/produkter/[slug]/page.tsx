@@ -132,14 +132,14 @@ export default async function ProductPage({
               · Alle priser ex moms
             </div>
 
-            {/* LoyalBox: hele platformen inkluderet — ellers op-salg til Komplet */}
-            {product.includesLoyalbox ? (
+            {/* LoyalSum: hele platformen inkluderet — ellers op-salg til Komplet */}
+            {product.includesLoyalSum ? (
               <div className="mt-4 box-shape border border-accent/30 bg-accent/5 p-5">
                 <div className="flex items-center gap-2">
                   <span className="grid h-6 w-6 place-items-center rounded-md bg-accent text-accent-fg text-xs font-bold">
                     L
                   </span>
-                  <h2 className="font-bold">Hele LoyalBox er med</h2>
+                  <h2 className="font-bold">Hele LoyalSum er med</h2>
                 </div>
                 <p className="mt-2 text-sm text-muted">
                   Digitalt stempelkort uden app, flere Google-anmeldelser, privat
@@ -156,15 +156,15 @@ export default async function ProductPage({
                   <h2 className="font-bold">Vil du også have faste kunder?</h2>
                 </div>
                 <p className="mt-2 text-sm text-muted">
-                  Med <strong>LoyalBox Komplet</strong> får du et digitalt
+                  Med <strong>LoyalSum Komplet</strong> får du et digitalt
                   stempelkort uden app oveni — så nye kunder bliver til
                   gengangere. Plus opslag af dine bedste anmeldelser.
                 </p>
                 <Link
-                  href="/produkter/loyalbox-komplet"
+                  href="/produkter/loyalsum-komplet"
                   className="mt-3 inline-block text-sm font-medium text-accent"
                 >
-                  Se LoyalBox Komplet →
+                  Se LoyalSum Komplet →
                 </Link>
               </div>
             )}

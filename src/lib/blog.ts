@@ -73,13 +73,13 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: "Med LoyalBox får du det hele på ét skilt: kunderne tilmelder sig selv, personalet stempler med et scan, og du kan endda <a href=\"/stempelkort\">se hvordan det virker</a> og sætte dine egne regler.",
+        html: "Med LoyalSum får du det hele på ét skilt: kunderne tilmelder sig selv, personalet stempler med et scan, og du kan endda <a href=\"/stempelkort\">se hvordan det virker</a> og sætte dine egne regler.",
       },
       {
         type: "cta",
         text: "Klar til flere faste kunder?",
-        href: "/produkter/loyalbox-komplet",
-        label: "Se LoyalBox Komplet",
+        href: "/produkter/loyalsum-komplet",
+        label: "Se LoyalSum Komplet",
       },
     ],
   },
@@ -125,13 +125,13 @@ export const POSTS: BlogPost[] = [
       { type: "h2", text: "Kom i gang uden teknisk bøvl" },
       {
         type: "p",
-        html: "Du behøver ikke bygge noget selv. Med et <a href=\"/stempelkort\">digitalt stempelkort</a> fra LoyalBox har du en kundeklub kørende samme dag: sæt skiltet på disken, vælg din belønning, og lad kunderne tilmelde sig selv. Vil du også have flere anmeldelser med i samme skilt, kan du <a href=\"/produkter/loyalbox-komplet\">se hele platformen her</a>.",
+        html: "Du behøver ikke bygge noget selv. Med et <a href=\"/stempelkort\">digitalt stempelkort</a> fra LoyalSum har du en kundeklub kørende samme dag: sæt skiltet på disken, vælg din belønning, og lad kunderne tilmelde sig selv. Vil du også have flere anmeldelser med i samme skilt, kan du <a href=\"/produkter/loyalsum-komplet\">se hele platformen her</a>.",
       },
       {
         type: "cta",
         text: "Start din kundeklub i dag",
-        href: "/produkter/loyalbox-komplet",
-        label: "Se LoyalBox Komplet",
+        href: "/produkter/loyalsum-komplet",
+        label: "Se LoyalSum Komplet",
       },
     ],
   },
@@ -204,7 +204,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "cta",
-        text: "Se hvordan LoyalBox-standeren giver dig flere Google-anmeldelser automatisk.",
+        text: "Se hvordan LoyalSum-standeren giver dig flere Google-anmeldelser automatisk.",
         href: "/produkter",
         label: "Se produkterne",
       },
@@ -250,7 +250,7 @@ export const POSTS: BlogPost[] = [
       { type: "h2", text: "Hvad koster en review-stander?" },
       {
         type: "p",
-        html: "Der findes to modeller: en <strong>engangspris</strong> for selve standeren, og et <strong>abonnement</strong>, hvis du vil have dashboard, statistik og dynamiske links oveni. Hos LoyalBox starter en stander ved en enkel engangspris, og du kan opgradere til abonnement, når du vil have fuld indsigt. Se de tre niveauer på <a href=\"/produkter\">produktsiden</a>.",
+        html: "Der findes to modeller: en <strong>engangspris</strong> for selve standeren, og et <strong>abonnement</strong>, hvis du vil have dashboard, statistik og dynamiske links oveni. Hos LoyalSum starter en stander ved en enkel engangspris, og du kan opgradere til abonnement, når du vil have fuld indsigt. Se de tre niveauer på <a href=\"/produkter\">produktsiden</a>.",
       },
       {
         type: "p",
@@ -258,7 +258,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "cta",
-        text: "Klar til flere anmeldelser? Se LoyalBox-standerne.",
+        text: "Klar til flere anmeldelser? Se LoyalSum-standerne.",
         href: "/produkter",
         label: "Se produkterne",
       },
