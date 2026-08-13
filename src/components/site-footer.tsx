@@ -16,10 +16,11 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
     ],
   },
   {
-    title: "Løsninger",
+    title: "Platform",
     links: [
-      { href: "/reviewstander", label: "Reviewstander" },
+      { href: "/#platform", label: "Alt i LoyalSum" },
       { href: "/stempelkort", label: "Digitalt stempelkort" },
+      { href: "/reviewstander", label: "Reviewstander" },
       { href: "/#saadan", label: "Sådan virker det" },
     ],
   },
@@ -27,7 +28,7 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
     title: "Ressourcer",
     links: [
       { href: "/blog", label: "Blog" },
-      { href: "/#priser", label: "Priser" },
+      { href: "/produkter", label: "Priser" },
       { href: "/bestil", label: "Bestil stander" },
     ],
   },
@@ -71,8 +72,8 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-12 border-t border-border pt-6 text-sm text-muted">
-          © {new Date().getFullYear()} {SITE_NAME} · Flere anmeldelser og flere
-          faste kunder for lokale forretninger.
+          © {new Date().getFullYear()} {SITE_NAME} · Flere nye kunder og flere
+          genbesøg for lokale forretninger.
         </div>
       </div>
     </footer>

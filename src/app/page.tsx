@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { Pricing } from "@/components/pricing";
 import { ButtonLink } from "@/components/ui/button";
-import { Stars } from "@/components/ui/stars";
+import { HeroVisual } from "@/components/home/hero-visual";
+import { LoyalsumLoop } from "@/components/home/loyalsum-loop";
+import { PlatformShowcase } from "@/components/home/platform-showcase";
 import { SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import { getSiteUrl } from "@/lib/site";
 
@@ -25,92 +27,80 @@ function Svg({ children }: { children: React.ReactNode }) {
   );
 }
 
-const IconReview = (
-  <Svg>
-    <path d="M12 3.5l2.6 5.27 5.82.85-4.21 4.1 1 5.8L12 17.77l-5.21 2.75 1-5.8-4.21-4.1 5.82-.85z" />
-  </Svg>
-);
-const IconStamp = (
-  <Svg>
-    <circle cx="12" cy="12" r="9" />
-    <path d="M8.5 12.5l2.5 2.5 4.5-5" />
-  </Svg>
-);
-const IconScan = (
-  <Svg>
-    <path d="M4 8V5.5A1.5 1.5 0 015.5 4H8M16 4h2.5A1.5 1.5 0 0120 5.5V8M20 16v2.5a1.5 1.5 0 01-1.5 1.5H16M8 20H5.5A1.5 1.5 0 014 18.5V16M4 12h16" />
-  </Svg>
-);
-const IconShare = (
-  <Svg>
-    <path d="M12 15V3M8.5 6.5L12 3l3.5 3.5M5 13v6a1 1 0 001 1h12a1 1 0 001-1v-6" />
-  </Svg>
-);
-const IconShield = (
-  <Svg>
-    <path d="M12 3l7 3v5c0 4.4-3 7.4-7 9-4-1.6-7-4.6-7-9V6l7-3z" />
-    <path d="M9.5 12l1.8 1.8 3.5-3.8" />
-  </Svg>
-);
-const IconChart = (
-  <Svg>
-    <path d="M3 20h18M6.5 20v-6M12 20V8M17.5 20v-9" />
-  </Svg>
-);
 const IconCheck = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2.4}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="h-4 w-4"
+    aria-hidden="true"
+  >
     <path d="M5 12l4.5 4.5L19 7" />
   </svg>
 );
 
+const IconMagnet = (
+  <Svg>
+    <path d="M6 4v8a6 6 0 0 0 12 0V4" />
+    <path d="M6 9h4M14 9h4" />
+  </Svg>
+);
+
+const IconRepeat = (
+  <Svg>
+    <path d="M4 11a7 7 0 0 1 11.9-5L20 9" />
+    <path d="M20 4v5h-5" />
+    <path d="M20 13a7 7 0 0 1-11.9 5L4 15" />
+    <path d="M4 20v-5h5" />
+  </Svg>
+);
+
 /* ------------------------------------------------------------------- data */
 
-const STEPS = [
+const SETUP_STEPS = [
   {
-    title: "Kunden scanner skiltet",
-    body: "Gæsten tapper NFC eller scanner QR på din stander ved kassen eller bordet — uden at hente en app.",
+    title: "Sæt LoyalSum op",
+    body: "Vi hjælper dig i gang med din forretning, dine anmeldelseslinks, dit loyalitetsprogram og din branding.",
   },
   {
-    title: "Anmelder eller samler stempel",
-    body: "Glade kunder sendes til Google. Andre giver privat feedback. Og alle kan åbne deres digitale stempelkort.",
+    title: "Invitér kunderne ind",
+    body: "Kunderne møder LoyalSum gennem QR, NFC, links og de kontaktpunkter, du allerede har i forvejen.",
   },
   {
-    title: "Du vokser — og kan se det",
-    body: "Flere 5-stjernede anmeldelser og flere gengangere. Alt samlet i dit dashboard med statistik i realtid.",
+    title: "LoyalSum arbejder videre",
+    body: "Anmeldelser, feedback, genbesøg, opslag og indsigt løber ind ét sted — også når du har travlt.",
   },
 ];
 
-const FEATURES = [
-  {
-    icon: IconReview,
-    title: "Flere Google-anmeldelser",
-    body: "Gør det gnidningsfrit at anmelde. Glade kunder sendes direkte til Google, Trustpilot eller Facebook.",
-  },
-  {
-    icon: IconStamp,
-    title: "Digitalt stempelkort",
-    body: "Kør din egen kundeklub uden app. Kunden tilmelder sig selv på skiltet og samler stempler mod belønninger.",
-  },
-  {
-    icon: IconScan,
-    title: "Scan-til-stempel",
-    body: "Personalet giver et stempel med ét scan af kundens kort — hurtigt over disken, ingen kvitteringer.",
-  },
-  {
-    icon: IconShare,
-    title: "Opslag på et øjeblik",
-    body: "Lav et færdigt opslag ud af dine bedste anmeldelser og del det på Facebook og Instagram — gratis reklame.",
-  },
-  {
-    icon: IconShield,
-    title: "Privat feedback",
-    body: "Fang kritik internt, før den bliver til en offentlig 1-stjerne. Du hører det først — og kan rette op.",
-  },
-  {
-    icon: IconChart,
-    title: "Statistik i realtid",
-    body: "Se scanninger, anmeldelser, stempler og gennemsnitlig rating — ét sted, opdateret løbende.",
-  },
+const INDUSTRIES = [
+  "Café",
+  "Restaurant",
+  "Takeaway",
+  "Frisør",
+  "Skønhedsklinik",
+  "Klinik",
+  "Butik",
+  "Værksted",
+  "Fitness",
+];
+
+const NEW_CUSTOMERS = [
+  "Flere anmeldelser",
+  "Større troværdighed online",
+  "Løbende synlighed",
+  "Færdige opslag til sociale medier",
+  "Mere aktivitet omkring forretningen",
+];
+
+const RETURNING_CUSTOMERS = [
+  "Digitale stempelkort",
+  "Belønninger og tilbud",
+  "Privat feedback du kan handle på",
+  "Stærkere kunderelationer",
+  "Flere genbesøg pr. kunde",
 ];
 
 /* ------------------------------------------------------------------- page */
@@ -136,83 +126,152 @@ export default function LandingPage() {
       <SiteHeader />
 
       <main>
-        {/* Hero */}
+        {/* ---------------------------------------------------------- hero */}
+        {/* Ingen baggrundsfoto her: hero-cafe.jpg viser en reviewstander og
+            hører hjemme på /reviewstander. En ren gradient holder heroen om
+            platformen — og sparer et stort billede over folden. */}
         <section className="relative isolate overflow-hidden bg-dark text-dark-fg">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/hero-cafe.jpg"
-            alt=""
-            aria-hidden="true"
-            className="absolute inset-0 -z-10 h-full w-full object-cover object-right"
-          />
           <div
             aria-hidden="true"
-            className="absolute inset-0 -z-10 bg-gradient-to-r from-dark from-25% via-dark/90 to-dark/30"
+            className="absolute inset-0 -z-10"
+            style={{
+              backgroundImage:
+                "radial-gradient(60% 60% at 78% 12%, rgba(27,145,106,0.32), transparent 62%), radial-gradient(55% 55% at 4% 96%, rgba(255,183,0,0.10), transparent 60%)",
+            }}
           />
-          <div className="mx-auto max-w-6xl px-4 py-24 sm:py-32">
-            <div className="max-w-2xl">
-              <span className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white ring-1 ring-white/15">
-                <span className="h-1.5 w-1.5 rounded-full bg-secondary" aria-hidden="true" />
-                Stempelkort &amp; anmeldelser · ét lille skilt
-              </span>
-              <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-                Flere anmeldelser.{" "}
-                <span className="text-secondary">Flere faste kunder.</span>
-              </h1>
-              <p className="mt-5 max-w-xl text-lg text-white/75">
-                LoyalSum samler 5-stjernede anmeldelser og kører dit digitale
-                stempelkort — fra én NFC/QR-stander på disken. Ingen app for dine
-                kunder.
-              </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <ButtonLink href="/signup" size="lg">
-                  Kom i gang
-                </ButtonLink>
-                <ButtonLink href="/#saadan" variant="outline-invert" size="lg">
-                  Se hvordan det virker
-                </ButtonLink>
-              </div>
-              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-white/70">
-                <span className="inline-flex items-center gap-2">
-                  <Stars value={5} />
-                  Elsket af caféer, frisører &amp; klinikker
+          <div className="mx-auto max-w-6xl px-4 py-20 sm:py-28">
+            <div className="grid items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
+              <div>
+                <span className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white ring-1 ring-white/15">
+                  <span
+                    className="h-1.5 w-1.5 rounded-full bg-secondary"
+                    aria-hidden="true"
+                  />
+                  Anmeldelser · Synlighed · Feedback · Loyalitet
                 </span>
-                <span className="hidden h-4 w-px bg-white/20 sm:block" aria-hidden="true" />
-                <span>Ingen app · Ingen binding på Basic</span>
+                <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+                  Få flere kunder.{" "}
+                  {/* Egen linje fra sm og op, så de to sætninger ikke brækker
+                      midt over — på mobil får den lov at flyde. */}
+                  <span className="text-secondary sm:block">
+                    Få dem til at komme igen.
+                  </span>
+                </h1>
+                <p className="mt-5 max-w-xl text-lg text-white/75">
+                  LoyalSum samler anmeldelser, kundeloyalitet, feedback og
+                  synlighed i én enkel platform — så lokale forretninger
+                  tiltrækker nye kunder og får de eksisterende til at vende
+                  tilbage.
+                </p>
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                  <ButtonLink href="/signup" size="lg">
+                    Kom i gang
+                  </ButtonLink>
+                  <ButtonLink href="/#loop" variant="outline-invert" size="lg">
+                    Se hvordan LoyalSum virker
+                  </ButtonLink>
+                </div>
+              </div>
+
+              <div className="lg:pl-6">
+                <HeroVisual />
               </div>
             </div>
           </div>
         </section>
 
-        {/* To motorer */}
+        {/* --------------------------------------------------- trust-stribe */}
+        <section className="border-t border-border bg-muted-bg">
+          <div className="mx-auto max-w-6xl px-4 py-5">
+            <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-sm text-muted">
+              {[
+                "Ingen app for dine kunder",
+                "Virker på alle telefoner",
+                "Dansk platform",
+                "Ingen binding på Basic",
+              ].map((t) => (
+                <li key={t} className="inline-flex items-center gap-2">
+                  <span className="text-accent">{IconCheck}</span>
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* ------------------------------------------------------- problemet */}
+        <section className="border-t border-border bg-background">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
+            <div className="grid gap-10 md:grid-cols-2 md:items-center">
+              <div>
+                <p className="text-sm font-semibold text-accent">Muligheden</p>
+                <h2 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
+                  Det er dyrt at skaffe en ny kunde. Få mere ud af hver enkelt.
+                </h2>
+                <p className="mt-4 text-muted">
+                  Du bruger tid og penge på at få folk ind ad døren. Men værdien
+                  stopper ikke ved første besøg — den opstår, når kunden får en
+                  god oplevelse, deler den, kommer igen og trækker nye kunder med
+                  sig.
+                </p>
+                <p className="mt-3 text-muted">
+                  Det er præcis den proces, LoyalSum samler ét sted.
+                </p>
+              </div>
+
+              <div className="box-shape border border-border bg-card p-7">
+                <p className="text-sm font-semibold tracking-tight">
+                  Uden et system sker det tilfældigt
+                </p>
+                <ul className="mt-4 space-y-3 text-sm text-muted">
+                  <li>De glade kunder glemmer at anmelde dig.</li>
+                  <li>De utilfredse siger det først offentligt.</li>
+                  <li>Førstegangskunderne kommer aldrig igen.</li>
+                  <li>Og du kan ikke se, hvad der egentlig virker.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ------------------------------------------------ LoyalSum-loopet */}
+        <section id="loop" className="scroll-mt-24 border-t border-border bg-muted-bg">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="text-sm font-semibold text-accent">LoyalSum-loopet</p>
+              <h2 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
+                Fra første besøg til næste besøg
+              </h2>
+              <p className="mt-3 text-muted">
+                De fire dele hænger sammen. Hver gang loopet kører rundt, bliver
+                din forretning lidt mere synlig — og lidt sværere at vælge fra.
+              </p>
+            </div>
+            <div className="mt-12">
+              <LoyalsumLoop />
+            </div>
+          </div>
+        </section>
+
+        {/* ------------------------------- nye kunder vs. eksisterende kunder */}
         <section className="border-t border-border bg-background">
           <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="text-sm font-semibold text-accent">Én stander, to vækstmotorer</p>
-              <h2 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
-                Få nye kunder — og få dem til at komme igen
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                To ting, der får din forretning til at vokse
               </h2>
-              <p className="mt-3 text-muted">
-                Anmeldelser trækker nye kunder ind. Stempelkort får dem tilbage
-                igen og igen. LoyalSum gør begge dele fra det samme skilt.
-              </p>
             </div>
 
             <div className="mt-12 grid gap-6 md:grid-cols-2">
-              {/* Tiltræk */}
               <div className="box-shape border border-accent/25 bg-card p-7 shadow-[0_20px_40px_-28px_rgba(27,145,106,0.5)]">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-accent-fg">
-                  {IconReview}
+                  {IconMagnet}
                 </div>
-                <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-accent">Tiltræk</p>
-                <h3 className="mt-1 text-xl font-bold tracking-tight">Flere nye kunder</h3>
-                <p className="mt-2 text-sm text-muted">
-                  Flere 5-stjernede anmeldelser er den bedste — og billigste —
-                  reklame en lokal forretning kan få. Social proof sælger for dig,
-                  døgnet rundt.
-                </p>
-                <ul className="mt-5 space-y-2 text-sm">
-                  {["Direkte til Google, Trustpilot eller Facebook", "Privat feedback fanger kritikken først", "Opslag gør ros til gratis markedsføring"].map((t) => (
+                <h3 className="mt-5 text-xl font-bold tracking-tight">
+                  Få flere nye kunder
+                </h3>
+                <ul className="mt-4 space-y-2 text-sm">
+                  {NEW_CUSTOMERS.map((t) => (
                     <li key={t} className="flex items-start gap-2">
                       <span className="mt-0.5 text-accent">{IconCheck}</span>
                       <span>{t}</span>
@@ -221,19 +280,15 @@ export default function LandingPage() {
                 </ul>
               </div>
 
-              {/* Fasthold */}
               <div className="box-shape border border-secondary/50 bg-card p-7 shadow-[0_20px_40px_-28px_rgba(255,183,0,0.55)]">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-secondary-fg">
-                  {IconStamp}
+                  {IconRepeat}
                 </div>
-                <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-secondary-fg">Fasthold</p>
-                <h3 className="mt-1 text-xl font-bold tracking-tight">Flere faste kunder</h3>
-                <p className="mt-2 text-sm text-muted">
-                  Et digitalt stempelkort får engangskunder til at komme igen — og
-                  hver gentagelse er ren fortjeneste. Uden app, uden pap, uden bøvl.
-                </p>
-                <ul className="mt-5 space-y-2 text-sm">
-                  {["Kunden tilmelder sig selv på skiltet", "Personalet stempler med ét scan", "Belønninger der trækker dem tilbage"].map((t) => (
+                <h3 className="mt-5 text-xl font-bold tracking-tight">
+                  Få flere kunder til at komme igen
+                </h3>
+                <ul className="mt-4 space-y-2 text-sm">
+                  {RETURNING_CUSTOMERS.map((t) => (
                     <li key={t} className="flex items-start gap-2">
                       <span className="mt-0.5 text-accent">{IconCheck}</span>
                       <span>{t}</span>
@@ -241,89 +296,107 @@ export default function LandingPage() {
                   ))}
                 </ul>
               </div>
+            </div>
+
+            <p className="mx-auto mt-8 max-w-xl text-center text-lg font-medium">
+              Det hele hænger sammen i LoyalSum.
+            </p>
+          </div>
+        </section>
+
+        {/* ----------------------------------------------------- platformen */}
+        <section
+          id="platform"
+          className="scroll-mt-24 border-t border-border bg-muted-bg"
+        >
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="text-sm font-semibold text-accent">Platformen</p>
+              <h2 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
+                Alt du skal bruge til stærkere kunderelationer
+              </h2>
+              <p className="mt-3 text-muted">
+                Fem områder, ét system. Vælg et område og se, hvad det gør for
+                din forretning.
+              </p>
+            </div>
+            <div className="mt-12">
+              <PlatformShowcase />
             </div>
           </div>
         </section>
 
-        {/* Sådan virker det */}
-        <section id="saadan" className="border-t border-border bg-muted-bg">
+        {/* ------------------------------------------------ sådan kommer du i gang */}
+        <section
+          id="saadan"
+          className="scroll-mt-24 border-t border-border bg-background"
+        >
           <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
             <div className="text-center">
-              <p className="text-sm font-semibold text-accent">Nemt for dine gæster</p>
-              <h2 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">Sådan virker det</h2>
+              <p className="text-sm font-semibold text-accent">Kom godt fra start</p>
+              <h2 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
+                Sådan virker det
+              </h2>
             </div>
-            <div className="mt-12 grid gap-8 md:grid-cols-3">
-              {STEPS.map((s, i) => (
-                <div key={s.title}>
+            <ol className="mt-12 grid gap-8 md:grid-cols-3">
+              {SETUP_STEPS.map((s, i) => (
+                <li key={s.title}>
                   <div className="btn-shape grid h-10 w-10 place-items-center bg-accent font-bold text-accent-fg">
                     {i + 1}
                   </div>
                   <h3 className="mt-4 text-lg font-bold">{s.title}</h3>
                   <p className="mt-2 text-sm text-muted">{s.body}</p>
-                </div>
+                </li>
               ))}
+            </ol>
+            <div className="mt-10 text-center">
+              <ButtonLink href="/signup" size="lg">
+                Kom i gang
+              </ButtonLink>
             </div>
           </div>
         </section>
 
-        {/* Funktioner */}
-        <section id="features" className="border-t border-border bg-dark text-dark-fg">
+        {/* -------------------------------------------------------- brancher */}
+        <section className="border-t border-border bg-muted-bg">
           <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="text-sm font-semibold text-secondary">Alt-i-ét</p>
-              <h2 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
-                Alt du skal bruge — på ét skilt
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                Bygget til forretninger med kunder, der gerne må komme igen
               </h2>
-              <p className="mt-3 text-white/70">
-                Anmeldelser, loyalitet, feedback og markedsføring. Sat op og klar
-                til disken.
-              </p>
             </div>
-            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {FEATURES.map((f) => (
-                <div key={f.title} className="box-shape border border-white/10 bg-white/5 p-6">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-secondary">
-                    {f.icon}
-                  </div>
-                  <h3 className="mt-4 font-bold">{f.title}</h3>
-                  <p className="mt-2 text-sm text-white/70">{f.body}</p>
-                </div>
+            <ul className="mt-10 flex flex-wrap justify-center gap-3">
+              {INDUSTRIES.map((b) => (
+                <li
+                  key={b}
+                  className="btn-shape border border-border bg-card px-4 py-2 text-sm font-medium"
+                >
+                  {b}
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         </section>
 
-        {/* Produkter / Priser */}
-        <section id="produkter" className="border-t border-border bg-background">
-          <div id="priser" className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
-            <div className="mx-auto max-w-2xl text-center">
-              <p className="text-sm font-semibold text-accent">Produkter</p>
-              <h2 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">Vælg din stander</h2>
-              <p className="mt-3 text-muted">
-                Standeren virker standalone fra dag ét. Gå komplet, og få hele
-                LoyalSum med: stempelkort, anmeldelser, opslag og statistik.
-              </p>
-            </div>
-            <div className="mt-12">
-              <Pricing />
-            </div>
-          </div>
-        </section>
-
-        {/* CTA */}
+        {/* ------------------------------------------------------- final CTA */}
         <section className="border-t border-border bg-dark text-dark-fg">
           <div className="mx-auto max-w-6xl px-4 py-20 text-center">
-            <p className="text-sm font-semibold text-secondary">Kom godt i gang</p>
-            <h2 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
-              Klar til flere anmeldelser og flere faste kunder?
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Få flere kunder. Og flere af dem tilbage.
             </h2>
             <p className="mx-auto mt-3 max-w-lg text-white/70">
-              Opret din virksomhed på under et minut og få din stander klar.
+              Få anmeldelser, loyalitet, feedback og synlighed samlet i LoyalSum.
             </p>
-            <div className="mt-8">
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <ButtonLink href="/signup" size="lg">
-                Opret virksomhed
+                Kom i gang
               </ButtonLink>
+              <Link
+                href="/produkter"
+                className="text-sm font-medium text-white/75 underline-offset-4 hover:text-white hover:underline"
+              >
+                Se priser og produkter →
+              </Link>
             </div>
           </div>
         </section>

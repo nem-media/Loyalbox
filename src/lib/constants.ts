@@ -1,6 +1,6 @@
 export const SITE_NAME = "LoyalSum.dk";
 export const SITE_TAGLINE =
-  "Flere anmeldelser og flere faste kunder — fra ét lille skilt på disken. Digitalt stempelkort og 5-stjernede anmeldelser, uden app for dine kunder.";
+  "Anmeldelser, loyalitet, feedback og synlighed samlet i én platform — så lokale forretninger får flere nye kunder og flere genbesøg.";
 
 /**
  * Målsøgeord kunder skal finde os på (organisk + Shopping). Dækker begge motorer:
@@ -8,6 +8,12 @@ export const SITE_TAGLINE =
  * — ikke keyword-stuffing.
  */
 export const SEO_KEYWORDS = [
+  // Platformen (forsidens semantiske tyngdepunkt)
+  "kundeloyalitet",
+  "kunderelationer",
+  "flere genbesøg",
+  "kundeklub til lokale virksomheder",
+  "online synlighed lokal virksomhed",
   // Loyalitet / stempelkort
   "digitalt stempelkort",
   "stempelkort uden app",

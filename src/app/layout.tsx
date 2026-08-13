@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const SITE_TITLE = `${SITE_NAME} — Digitalt stempelkort & flere anmeldelser`;
+const SITE_TITLE = "LoyalSum — Få flere kunder og få dem til at komme igen";
 const SITE_DESCRIPTION =
-  "LoyalSum er ét lille NFC/QR-skilt til disken, der giver flere 5-stjernede Google-anmeldelser og kører dit digitale stempelkort — uden app for dine kunder. Flere nye kunder, og flere der kommer igen.";
+  "LoyalSum samler anmeldelser, loyalitet, feedback og synlighed i én platform. Få flere nye kunder — og giv dem en grund til at komme igen.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
