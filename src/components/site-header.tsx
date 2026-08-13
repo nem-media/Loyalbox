@@ -11,17 +11,19 @@ export async function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-white/10 bg-dark/90 text-dark-fg backdrop-blur">
       <div className="mx-auto flex h-[90px] max-w-6xl items-center justify-between px-4">
         <Logo image="light" className="-translate-y-[6px]" />
+        {/* Platform først: LoyalSum er en samlet platform, og reviewstanderen
+            er ét produkt i den — ikke omvendt. */}
         <nav className="hidden items-center gap-7 text-base text-white/70 md:flex">
-          <Link href="/produkter" className="hover:text-white">
-            Produkter
-          </Link>
-          <Link href="/reviewstander" className="hover:text-white">
-            Reviewstander
+          <Link href="/#platform" className="hover:text-white">
+            Platform
           </Link>
           <Link href="/stempelkort" className="hover:text-white">
             Stempelkort
           </Link>
-          <Link href="/#priser" className="hover:text-white">
+          <Link href="/reviewstander" className="hover:text-white">
+            Reviewstander
+          </Link>
+          <Link href="/produkter" className="hover:text-white">
             Priser
           </Link>
           <Link href="/blog" className="hover:text-white">
@@ -35,10 +37,25 @@ export async function SiteHeader() {
             </ButtonLink>
           ) : (
             <>
-              <ButtonLink href="/login" variant="ghost-invert" size="md">
-                Log ind
-              </ButtonLink>
-              <ButtonLink href="/signup" size="md">
+              {/* På de smalleste skærme fylder logoet næsten hele bredden, så
+                  begge knapper brækker midt over. Log ind viger — Kom i gang
+                  er den primære handling.
+
+                  Synligheden ligger på wrapperen med vilje: cn() i lib/utils er
+                  en ren sammenkædning uden tailwind-merge, så et "hidden" sendt
+                  via className ville kollidere med knappens egen "inline-flex"
+                  og tabe på kilderækkefølgen. */}
+              <span className="hidden sm:block">
+                <ButtonLink
+                  href="/login"
+                  variant="ghost-invert"
+                  size="md"
+                  className="whitespace-nowrap"
+                >
+                  Log ind
+                </ButtonLink>
+              </span>
+              <ButtonLink href="/signup" size="md" className="whitespace-nowrap">
                 Kom i gang
               </ButtonLink>
             </>

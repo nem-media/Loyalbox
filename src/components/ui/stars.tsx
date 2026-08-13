@@ -1,10 +1,19 @@
 import { cn } from "@/lib/utils";
 
-function StarIcon({ filled, className }: { filled: boolean; className?: string }) {
+function StarIcon({
+  filled,
+  className,
+  style,
+}: {
+  filled: boolean;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
   return (
     <svg
       viewBox="0 0 24 24"
       className={className}
+      style={style}
       fill={filled ? "currentColor" : "none"}
       stroke="currentColor"
       strokeWidth={1.5}
@@ -35,9 +44,11 @@ export function Stars({
         <StarIcon
           key={n}
           filled={n <= Math.round(value)}
-          className=""
-          // inline size to keep it simple across contexts
-          {...{ style: { width: size, height: size } }}
+          // Inline størrelse holder komponenten enkel på tværs af kontekster.
+          // BEMÆRK: skal sendes som en rigtig prop — StarIcon videresender den
+          // til <svg>. Uden width/height falder SVG'en sammen til 0x0 i en
+          // flex-container, og stjernerne bliver usynlige.
+          style={{ width: size, height: size }}
         />
       ))}
     </span>

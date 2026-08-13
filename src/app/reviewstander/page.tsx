@@ -86,7 +86,20 @@ export default function ReviewstanderPage() {
 
       <main>
         {/* Hero */}
-        <section className="border-b border-border bg-dark text-dark-fg">
+        {/* Foto af standeren i en café — flyttet hertil fra forsiden, hvor det
+            gjorde LoyalSum til et hardware-brand. Her er det præcis på budskab. */}
+        <section className="relative isolate overflow-hidden border-b border-border bg-dark text-dark-fg">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/hero-cafe.jpg"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 h-full w-full object-cover object-right"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 bg-gradient-to-r from-dark from-25% via-dark/90 to-dark/40"
+          />
           <div className="mx-auto max-w-6xl px-4 py-20 sm:py-28">
             <div className="max-w-2xl">
               <span className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white">
