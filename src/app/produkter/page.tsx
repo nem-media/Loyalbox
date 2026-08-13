@@ -9,7 +9,7 @@ import { ProductPrice } from "@/components/product-price";
 export const metadata = {
   title: "Produkter — reviewstander & digitalt stempelkort",
   description:
-    "Vælg din LoyalBox-stander: Reviewstander med selvvalgt link, Reviewstander Pro med smart review-flow, eller LoyalBox Komplet med digitalt stempelkort. Køb op til 30 stk. med mængderabat.",
+    "Vælg din LoyalSum-stander: Reviewstander med selvvalgt link, Reviewstander Pro med smart review-flow, eller LoyalSum Komplet med digitalt stempelkort. Køb op til 30 stk. med mængderabat.",
   alternates: { canonical: "/produkter" },
 };
 
@@ -24,7 +24,7 @@ export default function ProductsPage() {
             Ét skilt. Vælg hvor langt du vil.
           </h1>
           <p className="mx-auto mt-2 max-w-xl text-muted">
-            Fra en simpel reviewstander til hele LoyalBox med digitalt
+            Fra en simpel reviewstander til hele LoyalSum med digitalt
             stempelkort. Alle med QR og NFC — køb op til 30 stk. med mængderabat.
           </p>
           <p className="mt-2 text-xs text-muted">Alle priser er ex moms.</p>
@@ -48,7 +48,7 @@ export default function ProductsPage() {
                   <div className="absolute left-3 top-3">
                     <Badge tone="accent">Mest populær</Badge>
                   </div>
-                ) : p.includesLoyalbox ? (
+                ) : p.includesLoyalSum ? (
                   <div className="absolute left-3 top-3">
                     <Badge tone="neutral">Komplet</Badge>
                   </div>

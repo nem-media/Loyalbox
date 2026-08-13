@@ -186,7 +186,7 @@ export default function ReviewstanderPage() {
                 Vælg din reviewstander
               </h2>
               <p className="mx-auto mt-2 max-w-xl text-muted">
-                Fra en simpel reviewstander til hele LoyalBox med digitalt
+                Fra en simpel reviewstander til hele LoyalSum med digitalt
                 stempelkort. Køb op til 30 stk. med mængderabat.
               </p>
             </div>
@@ -214,8 +214,8 @@ export default function ReviewstanderPage() {
                 digitale stempelkort
               </Link>{" "}
               — eller få det hele med{" "}
-              <Link href="/produkter/loyalbox-komplet" className="font-medium text-accent">
-                LoyalBox Komplet
+              <Link href="/produkter/loyalsum-komplet" className="font-medium text-accent">
+                LoyalSum Komplet
               </Link>
               .
             </p>

@@ -1,5 +1,5 @@
 /**
- * LoyalBox Stempelkort — domæne-konstanter.
+ * LoyalSum Stempelkort — domæne-konstanter.
  * Enum-værdierne matcher migration 0004 præcist. Danske labels holdes ét sted,
  * så UI kan holdes fri for tekniske ord.
  */

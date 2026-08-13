@@ -74,7 +74,7 @@ const FAQ = [
   },
   {
     q: "Hvad koster et digitalt stempelkort?",
-    a: "Stempelkortet er en del af LoyalBox Komplet — abonnementet der samler stempelkort, anmeldelser og opslag på én stander. Se de tre produktniveauer nedenfor.",
+    a: "Stempelkortet er en del af LoyalSum Komplet — abonnementet der samler stempelkort, anmeldelser og opslag på én stander. Se de tre produktniveauer nedenfor.",
   },
 ];
 
@@ -116,7 +116,7 @@ export default function StempelkortPage() {
                 belønninger trækker dem tilbage — helt uden en app.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <ButtonLink href="/produkter/loyalbox-komplet" size="lg">
+                <ButtonLink href="/produkter/loyalsum-komplet" size="lg">
                   Se priser
                 </ButtonLink>
                 <ButtonLink href="/#saadan" variant="outline-invert" size="lg">
@@ -191,10 +191,10 @@ export default function StempelkortPage() {
           <div className="mx-auto max-w-6xl px-4 py-16">
             <div className="mb-10 text-center">
               <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-                Få stempelkort med LoyalBox Komplet
+                Få stempelkort med LoyalSum Komplet
               </h2>
               <p className="mx-auto mt-2 max-w-xl text-muted">
-                Det digitale stempelkort er en del af LoyalBox Komplet — sammen med
+                Det digitale stempelkort er en del af LoyalSum Komplet — sammen med
                 anmeldelser, opslag og statistik på ét skilt.
               </p>
             </div>
@@ -222,8 +222,8 @@ export default function StempelkortPage() {
                 reviewstander
               </Link>{" "}
               — eller få det hele med{" "}
-              <Link href="/produkter/loyalbox-komplet" className="font-medium text-accent">
-                LoyalBox Komplet
+              <Link href="/produkter/loyalsum-komplet" className="font-medium text-accent">
+                LoyalSum Komplet
               </Link>
               .
             </p>
@@ -241,8 +241,8 @@ export default function StempelkortPage() {
               til gengangere.
             </p>
             <div className="mt-6">
-              <ButtonLink href="/produkter/loyalbox-komplet" size="lg">
-                Se LoyalBox Komplet
+              <ButtonLink href="/produkter/loyalsum-komplet" size="lg">
+                Se LoyalSum Komplet
               </ButtonLink>
             </div>
           </div>

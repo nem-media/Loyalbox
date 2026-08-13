@@ -122,7 +122,8 @@ export default function LandingPage() {
     "@type": "Organization",
     name: SITE_NAME,
     url: base,
-    logo: `${base}/reviewstand-logo.png`,
+    // Mørk variant: strukturdata-logoer vises på hvid baggrund hos Google.
+    logo: `${base}/loyalsum-logo-dark.png`,
     description: SITE_TAGLINE,
   };
 
@@ -159,7 +160,7 @@ export default function LandingPage() {
                 <span className="text-secondary">Flere faste kunder.</span>
               </h1>
               <p className="mt-5 max-w-xl text-lg text-white/75">
-                LoyalBox samler 5-stjernede anmeldelser og kører dit digitale
+                LoyalSum samler 5-stjernede anmeldelser og kører dit digitale
                 stempelkort — fra én NFC/QR-stander på disken. Ingen app for dine
                 kunder.
               </p>
@@ -193,7 +194,7 @@ export default function LandingPage() {
               </h2>
               <p className="mt-3 text-muted">
                 Anmeldelser trækker nye kunder ind. Stempelkort får dem tilbage
-                igen og igen. LoyalBox gør begge dele fra det samme skilt.
+                igen og igen. LoyalSum gør begge dele fra det samme skilt.
               </p>
             </div>
 
@@ -300,7 +301,7 @@ export default function LandingPage() {
               <h2 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">Vælg din stander</h2>
               <p className="mt-3 text-muted">
                 Standeren virker standalone fra dag ét. Gå komplet, og få hele
-                LoyalBox med: stempelkort, anmeldelser, opslag og statistik.
+                LoyalSum med: stempelkort, anmeldelser, opslag og statistik.
               </p>
             </div>
             <div className="mt-12">

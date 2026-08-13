@@ -119,11 +119,11 @@ const variants = [
 
 let count = 0;
 for (const v of variants) {
-  // Standalone + komplet (med "INKL. LOYALBOX"-badge)
+  // Standalone + komplet (med "INKL. LOYALSUM"-badge)
   writeFileSync(join(outDir, `stander-${v.key}.svg`), svg(v.block, ""), "utf8");
   writeFileSync(
     join(outDir, `stander-${v.key}-komplet.svg`),
-    svg(v.block, makeBadge("INKL. LOYALBOX")),
+    svg(v.block, makeBadge("INKL. LOYALSUM")),
     "utf8",
   );
   console.log("skrev", `stander-${v.key}.svg`, "+", `stander-${v.key}-komplet.svg`);
@@ -134,7 +134,7 @@ for (const v of variants) {
 const productMockups = [
   { file: "stander-reviewstander", badge: "" },
   { file: "stander-reviewstander-pro", badge: makeBadge("PRO") },
-  { file: "stander-loyalbox-komplet", badge: makeBadge("KOMPLET") },
+  { file: "stander-loyalsum-komplet", badge: makeBadge("KOMPLET") },
 ];
 for (const pm of productMockups) {
   writeFileSync(join(outDir, `${pm.file}.svg`), svg(multiBlock(), pm.badge), "utf8");

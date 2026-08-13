@@ -55,7 +55,8 @@ export default async function BlogPostPage({
     publisher: {
       "@type": "Organization",
       name: SITE_NAME,
-      logo: { "@type": "ImageObject", url: `${base}/reviewstand-logo.png` },
+      // Mørk variant: strukturdata-logoer vises på hvid baggrund hos Google.
+      logo: { "@type": "ImageObject", url: `${base}/loyalsum-logo-dark.png` },
     },
     mainEntityOfPage: `${base}/blog/${post.slug}`,
   };

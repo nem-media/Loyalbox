@@ -1,4 +1,4 @@
-export const SITE_NAME = "LoyalBox.dk";
+export const SITE_NAME = "LoyalSum.dk";
 export const SITE_TAGLINE =
   "Flere anmeldelser og flere faste kunder — fra ét lille skilt på disken. Digitalt stempelkort og 5-stjernede anmeldelser, uden app for dine kunder.";
 
@@ -90,8 +90,8 @@ export interface Product {
   monthlyPrice?: number;
   /** Engangs opsætningsgebyr (DKK ex moms) — fast, uafhængigt af antal. */
   setupPrice?: number;
-  /** True hvis produktet inkluderer hele LoyalBox-platformen (komplet pakke). */
-  includesLoyalbox?: boolean;
+  /** True hvis produktet inkluderer hele LoyalSum-platformen (komplet pakke). */
+  includesLoyalSum?: boolean;
   tagline: string;
   description: string;
   image: string;
@@ -111,7 +111,7 @@ export interface Product {
   mpn?: string;
   /** Stregkode (EAN/UPC), hvis produktet får en. Ellers udeladt. */
   gtin?: string;
-  /** Vises som product_type i feedet, fx "LoyalBox > Standere > Basic". */
+  /** Vises som product_type i feedet, fx "LoyalSum > Standere > Basic". */
   productType?: string;
   /** Ekstra produktbilleder (additional_image_link). Stier under /public. */
   additionalImages?: string[];
@@ -122,7 +122,7 @@ export interface Product {
  * Google Shopping-feed. Ét sted, så vi ikke gentager dem pr. produkt.
  */
 export const COMMERCE = {
-  brand: SITE_NAME.replace(".dk", ""), // "LoyalBox"
+  brand: SITE_NAME.replace(".dk", ""), // "LoyalSum"
   currency: "DKK",
   /** Google Shopping: alle standere er nye. */
   condition: "new",
@@ -165,7 +165,7 @@ export const PRICES_EX_VAT = true;
  * De tre varer — REDIGÉR pris/opsætning direkte på hver vare herunder.
  * 1) Reviewstander (engangskøb, selvvalgt link)
  * 2) Reviewstander Pro (review-platform: smart flow + dynamiske links, abonnement)
- * 3) LoyalBox Komplet (alt inkl. stempelkort & opslag, abonnement)
+ * 3) LoyalSum Komplet (alt inkl. stempelkort & opslag, abonnement)
  */
 export const PRODUCTS: Product[] = [
   {
@@ -176,7 +176,7 @@ export const PRODUCTS: Product[] = [
     metaTitle: "Reviewstander med selvvalgt link (QR + NFC)",
     price: 399,
     interval: "one_time",
-    includesLoyalbox: false,
+    includesLoyalSum: false,
     tagline: "Selvvalgt anmeldelseslink",
     description:
       "Elegant bordstander i sort akryl med QR og NFC. Du sætter selv linket — til Google, Trustpilot, Tripadvisor, Facebook eller din egen side. Indsæt dit logo og link, sæt den på disken, og du er klar. Ingen abonnement.",
@@ -188,8 +188,8 @@ export const PRODUCTS: Product[] = [
       "Klar til brug — ingen abonnement",
     ],
     shoppable: true,
-    mpn: "LB-REVIEW",
-    productType: "LoyalBox > Standere > Reviewstander",
+    mpn: "LS-REVIEW",
+    productType: "LoyalSum > Standere > Reviewstander",
   },
   {
     slug: "reviewstander-pro",
@@ -201,10 +201,10 @@ export const PRODUCTS: Product[] = [
     interval: "one_time",
     monthlyPrice: 99,
     setupPrice: 495,
-    includesLoyalbox: false,
+    includesLoyalSum: false,
     tagline: "Smart review-flow + dynamiske links",
     description:
-      "Standeren med LoyalBox review-platformen oveni. På din dedikerede anmeldelsesside vælger du selv, hvilke platforme kunderne kan anmelde dig på (Google, Trustpilot, Facebook) — plus et eget link til fx dit menukort eller booking. Et smart review-flow sender glade kunder videre, mens kritik lander privat i dit dashboard, så en enkelt dårlig oplevelse ikke bliver en offentlig 1-stjerne. Skift links når som helst, og følg det hele i realtid.",
+      "Standeren med LoyalSum review-platformen oveni. På din dedikerede anmeldelsesside vælger du selv, hvilke platforme kunderne kan anmelde dig på (Google, Trustpilot, Facebook) — plus et eget link til fx dit menukort eller booking. Et smart review-flow sender glade kunder videre, mens kritik lander privat i dit dashboard, så en enkelt dårlig oplevelse ikke bliver en offentlig 1-stjerne. Skift links når som helst, og følg det hele i realtid.",
     image: "/mockups/stander-reviewstander-pro.svg",
     features: [
       "Dedikeret anmeldelsesside — vælg selv platforme (Google, Trustpilot, Facebook)",
@@ -214,25 +214,25 @@ export const PRODUCTS: Product[] = [
       "Privat feedback-indbakke & statistik",
     ],
     shoppable: false,
-    mpn: "LB-REVIEW-PRO",
-    productType: "LoyalBox > Abonnement > Reviewstander Pro",
+    mpn: "LS-REVIEW-PRO",
+    productType: "LoyalSum > Abonnement > Reviewstander Pro",
   },
   {
-    slug: "loyalbox-komplet",
+    slug: "loyalsum-komplet",
     platform: "multi",
-    name: "LoyalBox Komplet",
+    name: "LoyalSum Komplet",
     keyword: "digitalt stempelkort og anmeldelser",
-    metaTitle: "LoyalBox Komplet — stempelkort, anmeldelser & opslag",
+    metaTitle: "LoyalSum Komplet — stempelkort, anmeldelser & opslag",
     price: 399,
     interval: "one_time",
     monthlyPrice: 399,
     setupPrice: 950,
-    includesLoyalbox: true,
+    includesLoyalSum: true,
     featured: true,
     tagline: "Hele platformen — reviews + stempelkort",
     description:
       "Alt i Reviewstander Pro — plus et digitalt stempelkort uden app for dine kunder. Kunderne tilmelder sig selv på standeren, personalet giver stempler med ét scan, og du laver opslag af dine bedste anmeldelser. Flere nye kunder, og flere der kommer igen — samlet ét sted.",
-    image: "/mockups/stander-loyalbox-komplet.svg",
+    image: "/mockups/stander-loyalsum-komplet.svg",
     features: [
       "Alt i Reviewstander Pro",
       "Digitalt stempelkort — uden app",
@@ -241,8 +241,8 @@ export const PRODUCTS: Product[] = [
       "Kundeklub & belønninger",
     ],
     shoppable: false,
-    mpn: "LB-KOMPLET",
-    productType: "LoyalBox > Abonnement > LoyalBox Komplet",
+    mpn: "LS-KOMPLET",
+    productType: "LoyalSum > Abonnement > LoyalSum Komplet",
   },
 ];
 
@@ -297,8 +297,8 @@ export function priceFor(product: Product, qty: number): PriceBreakdown {
 }
 
 /**
- * LoyalBox-abonnementet (tilkøb til standeren). Adskilt fra de fysiske produkter:
- * standeren virker standalone, men LoyalBox låser dashboard, statistik og
+ * LoyalSum-abonnementet (tilkøb til standeren). Adskilt fra de fysiske produkter:
+ * standeren virker standalone, men LoyalSum låser dashboard, statistik og
  * dynamiske links op. Driver plan-vælgeren og prissektionen.
  */
 export interface Plan {
@@ -310,7 +310,7 @@ export interface Plan {
   featured?: boolean;
 }
 
-export const LOYALBOX_PLANS: Plan[] = [
+export const LOYALSUM_PLANS: Plan[] = [
   {
     tier: "basic",
     name: "Basic",
@@ -342,7 +342,7 @@ export const LOYALBOX_PLANS: Plan[] = [
 ];
 
 export function getPlan(tier: Tier): Plan {
-  return LOYALBOX_PLANS.find((p) => p.tier === tier) ?? LOYALBOX_PLANS[0];
+  return LOYALSUM_PLANS.find((p) => p.tier === tier) ?? LOYALSUM_PLANS[0];
 }
 
 export const DESTINATION_LABELS: Record<string, string> = {

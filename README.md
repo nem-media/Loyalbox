@@ -1,4 +1,4 @@
-# ReviewStand.dk
+# LoyalSum.dk
 
 SaaS-platform hvor en fysisk NFC-/QR-stander indsamler anmeldelser, privat
 feedback og kundedata. Dette er **Sprint 1 (MVP)**.

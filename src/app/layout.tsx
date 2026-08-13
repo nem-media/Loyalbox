@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 
 const SITE_TITLE = `${SITE_NAME} — Digitalt stempelkort & flere anmeldelser`;
 const SITE_DESCRIPTION =
-  "LoyalBox er ét lille NFC/QR-skilt til disken, der giver flere 5-stjernede Google-anmeldelser og kører dit digitale stempelkort — uden app for dine kunder. Flere nye kunder, og flere der kommer igen.";
+  "LoyalSum er ét lille NFC/QR-skilt til disken, der giver flere 5-stjernede Google-anmeldelser og kører dit digitale stempelkort — uden app for dine kunder. Flere nye kunder, og flere der kommer igen.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),

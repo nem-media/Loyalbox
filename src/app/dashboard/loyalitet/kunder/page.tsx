@@ -67,7 +67,7 @@ export default async function CustomersPage({
                   Ingen kunder er tilmeldt endnu.
                 </p>
                 <p className="mt-1 text-sm">
-                  Del QR-koden eller brug din LoyalBox-stander for at få de første
+                  Del QR-koden eller brug din LoyalSum-stander for at få de første
                   medlemmer.
                 </p>
               </>
