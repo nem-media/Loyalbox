@@ -1,7 +1,21 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand";
 import { ButtonLink } from "@/components/ui/button";
+import { MobileNav, type NavLink } from "@/components/mobile-nav";
 import { getCurrentUser } from "@/lib/auth";
+
+/**
+ * Platform først: LoyalSum er en samlet platform, og reviewstanderen er ét
+ * produkt i den — ikke omvendt. Deles med mobilmenuen, så de to navigationer
+ * ikke kan komme ud af trit.
+ */
+const NAV_LINKS: NavLink[] = [
+  { href: "/#platform", label: "Platform" },
+  { href: "/stempelkort", label: "Stempelkort" },
+  { href: "/reviewstander", label: "Reviewstander" },
+  { href: "/produkter", label: "Priser" },
+  { href: "/blog", label: "Blog" },
+];
 
 export async function SiteHeader() {
   const user = await getCurrentUser();
@@ -11,41 +25,25 @@ export async function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-white/10 bg-dark/90 text-dark-fg backdrop-blur">
       <div className="mx-auto flex h-[90px] max-w-6xl items-center justify-between px-4">
         <Logo image="light" className="-translate-y-[6px]" />
-        {/* Platform først: LoyalSum er en samlet platform, og reviewstanderen
-            er ét produkt i den — ikke omvendt. */}
-        <nav className="hidden items-center gap-7 text-base text-white/70 md:flex">
-          <Link href="/#platform" className="hover:text-white">
-            Platform
-          </Link>
-          <Link href="/stempelkort" className="hover:text-white">
-            Stempelkort
-          </Link>
-          <Link href="/reviewstander" className="hover:text-white">
-            Reviewstander
-          </Link>
-          <Link href="/produkter" className="hover:text-white">
-            Priser
-          </Link>
-          <Link href="/blog" className="hover:text-white">
-            Blog
-          </Link>
-        </nav>
-        <div className="flex items-center gap-2">
-          {user ? (
-            <ButtonLink href={dashboardHref} size="md">
-              Dashboard
-            </ButtonLink>
-          ) : (
-            <>
-              {/* På de smalleste skærme fylder logoet næsten hele bredden, så
-                  begge knapper brækker midt over. Log ind viger — Kom i gang
-                  er den primære handling.
 
-                  Synligheden ligger på wrapperen med vilje: cn() i lib/utils er
-                  en ren sammenkædning uden tailwind-merge, så et "hidden" sendt
-                  via className ville kollidere med knappens egen "inline-flex"
-                  og tabe på kilderækkefølgen. */}
-              <span className="hidden sm:block">
+        {/* Skiftet sker ved lg, ikke md: logo + fem links + to knapper kan ikke
+            være der på en 768px-tablet uden at brække. */}
+        <nav className="hidden items-center gap-7 text-base text-white/70 lg:flex">
+          {NAV_LINKS.map((l) => (
+            <Link key={l.href} href={l.href} className="hover:text-white">
+              {l.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="flex items-center gap-2">
+          <div className="hidden items-center gap-2 lg:flex">
+            {user ? (
+              <ButtonLink href={dashboardHref} size="md">
+                Dashboard
+              </ButtonLink>
+            ) : (
+              <>
                 <ButtonLink
                   href="/login"
                   variant="ghost-invert"
@@ -54,12 +52,18 @@ export async function SiteHeader() {
                 >
                   Log ind
                 </ButtonLink>
-              </span>
-              <ButtonLink href="/signup" size="md" className="whitespace-nowrap">
-                Kom i gang
-              </ButtonLink>
-            </>
-          )}
+                <ButtonLink href="/signup" size="md" className="whitespace-nowrap">
+                  Kom i gang
+                </ButtonLink>
+              </>
+            )}
+          </div>
+
+          <MobileNav
+            links={NAV_LINKS}
+            loggedIn={Boolean(user)}
+            dashboardHref={dashboardHref}
+          />
         </div>
       </div>
     </header>
