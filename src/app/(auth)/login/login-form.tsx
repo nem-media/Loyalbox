@@ -7,7 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input, Field } from "@/components/ui/input";
 import { Card, CardBody } from "@/components/ui/card";
 
-export function LoginForm({ next }: { next: string }) {
+export function LoginForm({
+  next,
+  notice,
+}: {
+  next: string;
+  /** Besked fra et udløbt eller allerede brugt link i en auth-mail. */
+  notice?: string;
+}) {
   const [state, action, pending] = useActionState<AuthState, FormData>(login, {});
 
   return (
@@ -20,6 +27,12 @@ export function LoginForm({ next }: { next: string }) {
             stempelkort.
           </p>
         </div>
+
+        {notice ? (
+          <p className="box-shape border border-secondary/30 bg-secondary/10 p-3 text-sm">
+            {notice}
+          </p>
+        ) : null}
 
         <form action={action} className="space-y-4">
           <input type="hidden" name="next" value={next} />
@@ -45,6 +58,14 @@ export function LoginForm({ next }: { next: string }) {
         </form>
 
         <div className="space-y-1 text-center text-sm text-muted">
+          <p>
+            <Link
+              href="/glemt-adgangskode"
+              className="font-medium text-accent"
+            >
+              Glemt adgangskode?
+            </Link>
+          </p>
           <p>
             Har du ikke en konto?{" "}
             <Link href="/signup" className="font-medium text-accent">

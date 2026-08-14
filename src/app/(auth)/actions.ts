@@ -3,11 +3,15 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveLandingPath } from "@/lib/auth";
 import { claimCardForUser } from "@/lib/loyalty/member-account";
+import { getSiteUrl } from "@/lib/site";
 
 export interface AuthState {
   error?: string;
+  /** Sat når Supabase kræver e-mailbekræftelse før der gives en session. */
+  needsConfirmation?: boolean;
 }
 
 export interface CustomerAuthState {
@@ -80,15 +84,23 @@ export async function signup(
   if (error) {
     return { error: error.message };
   }
-
-  // Create the company immediately so onboarding has something to attach to.
-  if (data.user) {
-    await supabase.from("companies").insert({
-      user_id: data.user.id,
-      name: companyName,
-      contact_email: email,
-    });
+  if (!data.user) {
+    return { error: "Kontoen kunne ikke oprettes. Prøv igen." };
   }
+
+  // Virksomheden oprettes med det samme, så onboarding har noget at hænge på.
+  // Indsættes med service-role og ikke brugerens egen klient: er
+  // e-mailbekræftelse slået til i Supabase, kommer der INGEN session med
+  // signup, og en RLS-tjekket insert ville blive afvist — så ville brugeren
+  // stå med en konto uden virksomhed efter at have bekræftet sin mail.
+  await createAdminClient().from("companies").insert({
+    user_id: data.user.id,
+    name: companyName,
+    contact_email: email,
+  });
+
+  // Uden session venter Supabase på, at e-mailen bekræftes.
+  if (!data.session) return { needsConfirmation: true };
 
   revalidatePath("/", "layout");
   redirect("/dashboard");
@@ -152,4 +164,75 @@ export async function signout() {
   await supabase.auth.signOut();
   revalidatePath("/", "layout");
   redirect("/login");
+}
+
+export interface ResetRequestState {
+  error?: string;
+  /** Sat når kvitteringen er vist — uanset om e-mailen fandtes. */
+  sent?: boolean;
+}
+
+/**
+ * Beder Supabase sende et nulstillingslink. Linket peger på `/auth/callback`,
+ * som veksler koden til en session og sender brugeren videre til
+ * `/nulstil-adgangskode` — uden den mellemstation ville brugeren lande uden
+ * session og ikke kunne sætte en ny adgangskode.
+ */
+export async function requestPasswordReset(
+  _prev: ResetRequestState,
+  formData: FormData,
+): Promise<ResetRequestState> {
+  const email = String(formData.get("email") ?? "").trim();
+  if (!email) return { error: "Udfyld din e-mail." };
+
+  const supabase = await createClient();
+  await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${getSiteUrl()}/auth/callback?next=/nulstil-adgangskode`,
+  });
+
+  // Samme kvittering uanset om adressen har en konto. Ville vi vise "findes
+  // ikke", kunne enhver afprøve e-mails og kortlægge, hvem der er kunder.
+  return { sent: true };
+}
+
+export interface NewPasswordState {
+  error?: string;
+}
+
+/**
+ * Sætter en ny adgangskode på den bruger, recovery-sessionen tilhører.
+ * Kræver en gyldig session — den kommer fra `/auth/callback`.
+ */
+export async function updatePassword(
+  _prev: NewPasswordState,
+  formData: FormData,
+): Promise<NewPasswordState> {
+  const password = String(formData.get("password") ?? "");
+  const repeat = String(formData.get("password_repeat") ?? "");
+
+  if (password.length < 6) {
+    return { error: "Adgangskoden skal være mindst 6 tegn." };
+  }
+  if (password !== repeat) {
+    return { error: "De to adgangskoder er ikke ens." };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return {
+      error:
+        "Linket er udløbet eller allerede brugt. Bed om et nyt nulstillingslink.",
+    };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) {
+    return { error: "Adgangskoden kunne ikke ændres. Prøv igen." };
+  }
+
+  revalidatePath("/", "layout");
+  redirect(await resolveLandingPath(user.id));
 }
