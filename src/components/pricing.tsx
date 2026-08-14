@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PRODUCTS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { ProductPrice } from "@/components/product-price";
+import { StanderPlaceholder } from "@/components/product-placeholder";
 
 /**
  * Produktkort over standerne (platform-baseret katalog). Bruges på forsiden og
@@ -16,19 +17,16 @@ export function Pricing() {
           href={`/produkter/${p.slug}`}
           className="group box-shape flex flex-col overflow-hidden border border-border bg-card transition-shadow hover:shadow-[0_20px_40px_-24px_rgba(0,0,0,0.4)]"
         >
-          <div className="relative aspect-[4/5] overflow-hidden bg-[#e9ebee]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={p.image}
-              alt={p.name}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-            />
+          <StanderPlaceholder
+            className="aspect-[4/5]"
+            iconClassName="h-24 w-24 transition-transform duration-300 group-hover:scale-110"
+          >
             {p.featured ? (
               <div className="absolute left-3 top-3">
                 <Badge tone="accent">Mest populær</Badge>
               </div>
             ) : null}
-          </div>
+          </StanderPlaceholder>
           <div className="flex flex-1 flex-col p-5">
             <h3 className="font-bold tracking-tight">{p.name}</h3>
             <p className="mt-1 text-sm text-muted">{p.tagline}</p>
