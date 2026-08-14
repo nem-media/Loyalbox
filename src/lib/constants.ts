@@ -256,6 +256,58 @@ export function getProduct(slug: string): Product | undefined {
   return PRODUCTS.find((p) => p.slug === slug);
 }
 
+// ===========================================================================
+// MATERIALER PÅ VEJ  —  PLACEHOLDERE
+// Kommende fysiske varer ud over standeren. De er BEVIDST holdt uden for
+// PRODUCTS, fordi den liste driver sitemap, footer-links, produktsider
+// (generateStaticParams) og et kommende Google Shopping-feed — placeholdere
+// hører ingen af de steder hjemme.
+//
+// Ingen af dem har pris endnu. Sæt ikke et tal på her: prisen ville blive vist
+// som en rigtig pris på en offentlig side. Når en vare er klar, flyttes den
+// over i PRODUCTS med rigtig pris, billede og egen side.
+// ===========================================================================
+
+export interface UpcomingItem {
+  /** Bruges kun som React-key og til ikonvalg — ikke som URL. */
+  key: string;
+  name: string;
+  tagline: string;
+  /** Hvor i forretningen varen sidder. Holder listen konkret. */
+  placering: string;
+}
+
+export const UPCOMING_MERCH: UpcomingItem[] = [
+  {
+    key: "bordskaaner",
+    name: "Bordskåner med QR",
+    tagline:
+      "Ligger på bordet, mens gæsten alligevel venter. Et scan, og de er inde i dit stempelkort.",
+    placering: "Bordet",
+  },
+  {
+    key: "facadeplakat",
+    name: "Facadeplakat",
+    tagline:
+      "Viser allerede ved døren, at I samler anmeldelser — og at der er en kundeklub indenfor.",
+    placering: "Facaden",
+  },
+  {
+    key: "vinduesmaerkat",
+    name: "Vinduesmærkat",
+    tagline:
+      "Diskret mærkat til ruden. Fylder ingenting og virker døgnet rundt.",
+    placering: "Ruden",
+  },
+  {
+    key: "bordkort",
+    name: "Bordkort",
+    tagline:
+      "Lille kort til hvert bord, så gæsten ikke skal hen til disken for at scanne.",
+    placering: "Hvert bord",
+  },
+];
+
 /** Højeste mængderabat (%) kunden opnår ved et givet antal standere. */
 export function volumeDiscountPct(qty: number): number {
   let pct = 0;

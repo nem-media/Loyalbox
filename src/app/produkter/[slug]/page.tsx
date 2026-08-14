@@ -8,6 +8,7 @@ import { PRODUCTS, getProduct } from "@/lib/constants";
 import { toProductJsonLd } from "@/lib/commerce";
 import { formatCurrency } from "@/lib/utils";
 import { QuantityOrder } from "@/components/quantity-order";
+import { StanderPlaceholder } from "@/components/product-placeholder";
 
 export function generateStaticParams() {
   return PRODUCTS.map((p) => ({ slug: p.slug }));
@@ -81,16 +82,10 @@ export default async function ProductPage({
 
         <div className="grid gap-10 lg:grid-cols-2">
           {/* Billede */}
-          <div className="box-shape overflow-hidden border border-border bg-[#e9ebee]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={product.image}
-              alt={product.name}
-              width={1024}
-              height={1536}
-              className="h-auto w-full"
-            />
-          </div>
+          <StanderPlaceholder
+            className="box-shape aspect-[2/3] overflow-hidden border border-border"
+            iconClassName="h-32 w-32"
+          />
 
           {/* Detaljer */}
           <div className="flex flex-col">
