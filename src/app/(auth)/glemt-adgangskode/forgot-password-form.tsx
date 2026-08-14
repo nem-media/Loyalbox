@@ -2,34 +2,31 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
-import { signup, type AuthState } from "../actions";
+import { requestPasswordReset, type ResetRequestState } from "../actions";
 import { Button } from "@/components/ui/button";
 import { Input, Field } from "@/components/ui/input";
 import { Card, CardBody } from "@/components/ui/card";
 
-export function SignupForm() {
-  const [state, action, pending] = useActionState<AuthState, FormData>(
-    signup,
+export function ForgotPasswordForm() {
+  const [state, action, pending] = useActionState<ResetRequestState, FormData>(
+    requestPasswordReset,
     {},
   );
 
-  // Er e-mailbekræftelse slået til i Supabase, kommer der ingen session med
-  // oprettelsen. Virksomheden er allerede gemt, så brugeren skal blot bekræfte
-  // og logge ind.
-  if (state.needsConfirmation) {
+  if (state.sent) {
     return (
       <Card className="shadow-[0_30px_60px_-25px_rgba(0,0,0,0.5)]">
         <CardBody className="space-y-3 text-center">
           <h1 className="text-xl font-bold tracking-tight">Tjek din e-mail</h1>
           <p className="text-sm text-muted">
-            Vi har sendt dig et bekræftelseslink. Åbn det, og log derefter ind —
-            så ligger din virksomhed klar i dashboardet.
+            Findes der en konto med den adresse, har vi sendt et link til at
+            vælge en ny adgangskode. Linket virker i én time.
           </p>
           <Link
             href="/login"
             className="inline-block text-sm font-medium text-accent"
           >
-            Gå til log ind
+            Tilbage til log ind
           </Link>
         </CardBody>
       </Card>
@@ -41,27 +38,16 @@ export function SignupForm() {
       <CardBody className="space-y-5">
         <div>
           <h1 className="text-xl font-bold tracking-tight">
-            Opret virksomhed
+            Glemt adgangskode
           </h1>
           <p className="mt-1 text-sm text-muted">
-            Kom i gang med at samle anmeldelser på minutter.
+            Skriv din e-mail, så sender vi et link til at vælge en ny.
           </p>
         </div>
 
         <form action={action} className="space-y-4">
-          <Field label="Firmanavn">
-            <Input name="company_name" required />
-          </Field>
           <Field label="E-mail">
             <Input type="email" name="email" autoComplete="email" required />
-          </Field>
-          <Field label="Adgangskode" hint="Mindst 6 tegn.">
-            <Input
-              type="password"
-              name="password"
-              autoComplete="new-password"
-              required
-            />
           </Field>
 
           {state.error ? (
@@ -69,12 +55,12 @@ export function SignupForm() {
           ) : null}
 
           <Button type="submit" className="w-full" disabled={pending}>
-            {pending ? "Opretter…" : "Opret konto"}
+            {pending ? "Sender…" : "Send nulstillingslink"}
           </Button>
         </form>
 
         <p className="text-center text-sm text-muted">
-          Har du allerede en konto?{" "}
+          Kom du i tanke om den?{" "}
           <Link href="/login" className="font-medium text-accent">
             Log ind
           </Link>
