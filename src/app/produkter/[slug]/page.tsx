@@ -137,9 +137,12 @@ export default async function ProductPage({
                   <h2 className="font-bold">Hele LoyalSum er med</h2>
                 </div>
                 <p className="mt-2 text-sm text-muted">
-                  Digitalt stempelkort uden app, flere Google-anmeldelser, privat
-                  feedback, opslag af dine bedste anmeldelser og statistik i
-                  realtid — sat op og klar til disken.
+                  <Link href="/stempelkort" className="font-medium text-accent">
+                    Digitalt stempelkort
+                  </Link>{" "}
+                  uden app, flere Google-anmeldelser, privat feedback, opslag af
+                  dine bedste anmeldelser og statistik i realtid — sat op og klar
+                  til disken.
                 </p>
               </div>
             ) : (
