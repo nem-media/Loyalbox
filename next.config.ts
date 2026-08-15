@@ -30,6 +30,14 @@ const nextConfig: NextConfig = {
         destination: "/produkter/loyalsum-komplet",
         permanent: true,
       },
+      // Blogindlægget jagtede samme søgeord som /stempelkort. Det er skrevet om
+      // til et snævrere emne og har fået ny slug; den brede intent ligger nu
+      // kun ét sted.
+      {
+        source: "/blog/digitalt-stempelkort-faa-kunder-til-at-komme-igen",
+        destination: "/blog/hvor-mange-stempler-stempelkort",
+        permanent: true,
+      },
     ];
   },
 };

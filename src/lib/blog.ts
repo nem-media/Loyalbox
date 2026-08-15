@@ -28,58 +28,75 @@ export interface BlogPost {
 
 export const POSTS: BlogPost[] = [
   {
-    slug: "digitalt-stempelkort-faa-kunder-til-at-komme-igen",
-    title: "Digitalt stempelkort: Sådan får du kunderne til at komme igen",
-    metaTitle: "Digitalt stempelkort — få kunderne til at komme igen",
+    slug: "hvor-mange-stempler-stempelkort",
+    title: "Hvor mange stempler bør et stempelkort have?",
+    metaTitle: "Hvor mange stempler bør et stempelkort have?",
     description:
-      "Et digitalt stempelkort får engangskunder til at blive faste kunder — helt uden app. Sådan virker det, og sådan kommer du i gang som lokal forretning.",
-    keyword: "digitalt stempelkort",
+      "10 stempler til en café, 6 til en frisør — men hvorfor? Sådan finder du det rigtige antal stempler ud fra, hvor tit dine kunder kommer, og hvad belønningen koster dig.",
+    keyword: "hvor mange stempler stempelkort",
     date: "2026-07-22",
-    readingMinutes: 5,
+    readingMinutes: 4,
     excerpt:
-      "At skaffe en ny kunde er dyrt. At få den samme kunde til at komme igen er nærmest gratis. Et digitalt stempelkort er en af de enkleste måder at gøre netop det — her er hvordan.",
+      "Sætter du tallet for højt, giver kunden op. Sætter du det for lavt, forærer du penge væk. Her er den regnemetode, der giver dig det rigtige antal stempler til netop din forretning.",
     body: [
       {
         type: "p",
-        html: "At skaffe en <strong>ny</strong> kunde koster tid og penge — annoncer, tilbud, synlighed. At få en kunde, du allerede har, til at komme <strong>igen</strong>, koster derimod næsten ingenting. Alligevel bruger de fleste lokale forretninger al deres energi på nye kunder og næsten ingen på at fastholde dem, de har.",
+        html: "Det er det første spørgsmål, der melder sig, når man skal lave et stempelkort: <strong>hvor mange stempler skal der til?</strong> Sætter du tallet for højt, opgiver kunden undervejs og kortet bliver ligegyldigt. Sætter du det for lavt, forærer du fortjeneste væk til folk, der alligevel var kommet igen.",
       },
       {
         type: "p",
-        html: "Et <strong>digitalt stempelkort</strong> vender det om. Det giver kunden en grund til at vælge dig næste gang — og gør din bedste markedsføring til noget, der kører af sig selv.",
+        html: "Der findes ikke ét rigtigt tal. Men der findes en enkel måde at finde dit på — og den bygger på to ting, du allerede kender: hvor tit dine kunder kommer, og hvad belønningen koster dig.",
       },
-      { type: "h2", text: "Hvad er et digitalt stempelkort?" },
+      { type: "h2", text: "Start med hvor tit kunden kommer" },
       {
         type: "p",
-        html: "Det er den moderne udgave af papkortet med klip: kunden samler stempler mod en belønning. Forskellen er, at kortet lever på kundens telefon i stedet for i tegnebogen — så det aldrig bliver væk, og du kan se præcis, hvordan det bruges.",
+        html: "Et stempelkort skal kunne fyldes inden for et tidsrum, kunden kan overskue. En kaffekunde, der kommer to-tre gange om ugen, når 10 stempler på en måned — det føles opnåeligt. En frisørkunde, der kommer hver ottende uge, ville være næsten et år om det samme. Derfor har frisøren typisk et kort med langt færre felter.",
       },
-      { type: "h2", text: "Hvorfor \"uden app\" er afgørende" },
       {
         type: "p",
-        html: "Den største grund til, at loyalitetsprogrammer fejler i små forretninger, er friktion: ingen gider hente en app for én café eller frisør. Et godt digitalt stempelkort kræver derfor <strong>ingen app</strong> — kunden scanner dit skilt og har kortet i browseren med det samme. Ingen download, ingen konto.",
+        html: "Regn baglæns: hvor lang tid vil du have, der går, før kunden når belønningen? For de fleste forretninger er svaret et sted mellem <strong>en måned og et halvt år</strong>. Divider med hvor tit kunden kommer, og du har dit tal.",
       },
-      { type: "h2", text: "Sådan virker det i praksis" },
+      { type: "h2", text: "Tjek derefter hvad belønningen koster dig" },
+      {
+        type: "p",
+        html: "Belønningen skal koste dig mindre end det, du tjener på de besøg, der går forud. Bemærk at den koster dig <strong>din indkøbspris, ikke din salgspris</strong> — en gratis kaffe koster bønner og mælk, ikke de fyrre kroner på skiltet. Det er derfor gratis-produkt-belønninger næsten altid er billigere for dig end en procentrabat på et helt køb.",
+      },
+      {
+        type: "p",
+        html: "Er belønningen dyr, skal antallet op. Er den billig, kan du sætte det ned og gøre kortet mere motiverende.",
+      },
+      { type: "h2", text: "De tal andre bruger" },
+      {
+        type: "p",
+        html: "Til at komme i gang har LoyalSum fire færdige skabeloner, som rammer det, der typisk fungerer i de fire brancher:",
+      },
       {
         type: "ul",
         items: [
-          "Kunden <strong>scanner</strong> QR eller tapper NFC på din stander og opretter sit kort på få sekunder.",
-          "Personalet giver et <strong>stempel med ét scan</strong> ved næste køb — hurtigt over disken.",
-          "Når kortet er fuldt, får kunden sin <strong>belønning</strong> — og en grund til at komme igen.",
+          "<strong>Café:</strong> 1 køb = 1 stempel · 10 stempler = gratis kaffe",
+          "<strong>Restaurant:</strong> 1 besøg = 1 stempel · 8 stempler = gratis dessert",
+          "<strong>Frisør:</strong> 1 besøg = 1 stempel · 6 stempler = 20 % rabat",
+          "<strong>Klinik:</strong> 1 behandling = 1 stempel · 5 stempler = valgfri bonus",
         ],
       },
-      { type: "h2", text: "Tre ting der gør et stempelkort effektivt" },
       {
         type: "p",
-        html: "<strong>1. En belønning der er værd at gå efter.</strong> Gratis kaffe efter 10 køb virker, fordi den er konkret og opnåelig. <strong>2. Den rigtige friktion.</strong> Nemt at tilmelde sig, nemt at stemple. <strong>3. Synlighed.</strong> Et skilt på disken minder kunden om kortet, hver gang de betaler.",
+        html: "Læg mærke til mønsteret: jo sjældnere kunden kommer, og jo dyrere hvert besøg er, jo færre stempler. Det er hele logikken på fire linjer.",
+      },
+      { type: "h2", text: "Hvad hvis du gætter forkert?" },
+      {
+        type: "p",
+        html: "Så retter du det. Et <a href=\"/stempelkort\">digitalt stempelkort</a> er ikke trykt i tusind eksemplarer — du kan sætte et program på pause og starte et nyt med andre tal, uden at nogen står med et forældet papkort i hånden. Det er en af de mere undervurderede fordele ved at gøre kortet digitalt.",
       },
       {
         type: "p",
-        html: "Med LoyalSum får du det hele på ét skilt: kunderne tilmelder sig selv, personalet stempler med et scan, og du kan endda <a href=\"/stempelkort\">se hvordan det virker</a> og sætte dine egne regler.",
+        html: "Et godt sted at begynde: vælg det tal, der svarer til cirka to måneders besøg for en typisk kunde. Kig på det igen efter et kvartal, og se på, hvor mange der rent faktisk når belønningen. Når næsten ingen frem, er tallet for højt.",
       },
       {
         type: "cta",
-        text: "Klar til flere faste kunder?",
-        href: "/produkter/loyalsum-komplet",
-        label: "Se LoyalSum Komplet",
+        text: "Klar til at lave dit eget stempelkort?",
+        href: "/stempelkort",
+        label: "Se hvordan stempelkortet virker",
       },
     ],
   },

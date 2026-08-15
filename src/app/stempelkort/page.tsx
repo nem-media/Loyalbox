@@ -646,10 +646,10 @@ export default function StempelkortPage() {
             <p className="mt-8 text-sm text-muted">
               Læs videre:{" "}
               <Link
-                href="/blog/digitalt-stempelkort-faa-kunder-til-at-komme-igen"
+                href="/blog/hvor-mange-stempler-stempelkort"
                 className="font-medium text-accent"
               >
-                sådan får et digitalt stempelkort kunderne til at komme igen
+                hvor mange stempler bør et stempelkort have?
               </Link>{" "}
               eller{" "}
               <Link
