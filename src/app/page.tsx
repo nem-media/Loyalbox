@@ -301,6 +301,13 @@ export default function LandingPage() {
             <p className="mx-auto mt-8 max-w-xl text-center text-lg font-medium">
               Det hele hænger sammen i LoyalSum.
             </p>
+            <p className="mx-auto mt-3 max-w-xl text-center text-sm text-muted">
+              Genbesøgene starter med et{" "}
+              <Link href="/stempelkort" className="font-medium text-accent">
+                digitalt stempelkort
+              </Link>{" "}
+              — kunden samler stempler og optjener den belønning, du vælger.
+            </p>
           </div>
         </section>
 

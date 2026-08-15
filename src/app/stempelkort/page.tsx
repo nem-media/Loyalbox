@@ -2,247 +2,687 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { Pricing } from "@/components/pricing";
 import { ButtonLink } from "@/components/ui/button";
+import { StampCardPreview } from "@/components/loyalty/stamp-card-preview";
+import { getProduct } from "@/lib/constants";
+import { formatCurrency } from "@/lib/utils";
+import { getSiteUrl } from "@/lib/site";
+
+/**
+ * SEO-landingsside for "stempelkort" / "digitalt stempelkort".
+ *
+ * REGEL FOR DENNE SIDE: der må kun stå funktioner, der findes i produktet.
+ * Alt herunder er verificeret i koden — program-wizarden
+ * (`src/app/dashboard/loyalitet/programmer/program-wizard.tsx`), domænets
+ * enums (`src/lib/loyalty/constants.ts`), kundens kort (`/kort/[token]`),
+ * selvtilmelding (`/kort/tilmeld/[slug]`) og stempel-/indløsningsflowet
+ * (`src/lib/loyalty/service.ts`).
+ *
+ * Skriv IKKE noget om Apple/Google Wallet, kassesystem-integration, MobilePay,
+ * push-beskeder, SMS, e-mailmarketing, automatisk stempling uden personale
+ * eller flere afdelinger pr. konto. Intet af det findes.
+ */
+
+const title = "Digitalt stempelkort til virksomheder";
+const description =
+  "Få et digitalt stempelkort, der får kunderne til at komme igen. Kunden samler stempler på mobilen uden app, du bestemmer selv antal stempler og belønning. Se hvordan det virker.";
 
 export const metadata: Metadata = {
-  title: "Digitalt stempelkort uden app til din butik",
-  description:
-    "Et digitalt stempelkort uden app får dine kunder til at komme igen. Kunden tilmelder sig selv på skiltet, personalet stempler med ét scan, og belønninger trækker dem tilbage. Se hvordan — og priser.",
+  title,
+  description,
   keywords: [
     "digitalt stempelkort",
-    "stempelkort uden app",
-    "stempelkort til café",
-    "loyalitetsprogram lille virksomhed",
-    "kundeklub",
-    "NFC stempelkort",
+    "stempelkort",
+    "digitale stempelkort",
+    "stempelkort app",
+    "elektronisk stempelkort",
     "digitalt loyalitetskort",
+    "loyalitetsprogram",
+    "kundeklub",
+    "stempelkort til café",
+    "stempelkort til frisør",
   ],
   alternates: { canonical: "/stempelkort" },
+  openGraph: {
+    type: "website",
+    title: `${title} — få kunderne til at komme igen`,
+    description,
+    url: "/stempelkort",
+  },
 };
 
+/* ------------------------------------------------------------------ data */
+
+/** Trin-for-trin. Rækkefølgen matcher det faktiske flow i produktet. */
 const STEPS = [
   {
-    title: "Kunden tilmelder sig på skiltet",
-    body: "Gæsten scanner QR eller tapper NFC på standeren og opretter sit stempelkort på få sekunder — i browseren, uden at hente en app.",
+    title: "Du opretter stempelkortet",
+    body: "Vælg hvor mange stempler der skal til, hvad kunden optjener, og hvad kortet hedder. Du vælger farve og en kort tekst, så kortet ligner din forretning. Skal du hurtigt i gang, kan du starte fra en færdig skabelon til café, restaurant, frisør eller klinik.",
   },
   {
-    title: "Personalet stempler med ét scan",
-    body: "Ved næste køb scanner personalet kundens kode og giver et stempel over disken. Ingen papkort, ingen kvitteringer at holde styr på.",
+    title: "Kunden får sit kort ved at scanne",
+    body: "Gæsten scanner QR-koden på din stander og opretter kortet på få sekunder. Kortet er en helt almindelig webside — der er ingen app at hente og ingen konto, kunden skal oprette først.",
   },
   {
-    title: "Belønningen trækker dem tilbage",
-    body: "Når kortet er fuldt, får kunden sin belønning — en gratis kaffe, en rabat, hvad du vælger. Og en grund til at komme igen.",
+    title: "Personalet giver et stempel",
+    body: "Kunden viser sit kort, personalet åbner det og trykker én gang. Stemplet lander med det samme, og kunden ser fremgangen på sin egen skærm. Kun personale med adgang til din forretning kan stemple.",
+  },
+  {
+    title: "Kunden låser belønningen op",
+    body: "Når kortet er fuldt, står belønningen klar på kundens kort. Personalet indløser den, når kunden bruger den, og kortet starter forfra efter de regler, du har valgt.",
+  },
+  {
+    title: "Og har en grund til at komme igen",
+    body: "Kunden går ud ad døren med fremskridt mod noget, de kun kan hente hos dig. Det er hele pointen: næste gang står valget ikke længere mellem dig og de andre på lige fod.",
   },
 ];
 
-const BENEFITS = [
+/** Belønningstyper — matcher `RewardType` i src/lib/loyalty/constants.ts. */
+const REWARDS = [
+  { label: "Gratis produkt", body: "Den tiende kaffe, en dessert, et stykke brød." },
+  { label: "Beløb i rabat", body: "Et fast beløb trukket fra næste køb." },
+  { label: "Procent i rabat", body: "Fx 20 % på næste besøg." },
+  { label: "En ydelse", body: "En behandling, en service, en ekstra ting oveni." },
+  { label: "En gave", body: "Noget håndgribeligt, kunden får med." },
+  { label: "Noget du selv beskriver", body: "Din egen formulering, hvis intet af ovenstående passer." },
+];
+
+/** Brancheeksempler. Tallene er de faktiske skabeloner i produktet. */
+const INDUSTRIES = [
   {
-    title: "Helt uden app",
-    body: "Dine kunder skal ikke hente noget. Stempelkortet lever i browseren og kan gemmes på hjemmeskærmen.",
+    name: "Café og kaffebar",
+    body: "Et køb giver et stempel, og det tiende er gratis. Den klassiske kaffeaftale, bare uden papkort der falder fra hinanden i lommen.",
+    template: "1 køb = 1 stempel · 10 stempler = gratis kaffe",
   },
   {
-    title: "Selvbetjent tilmelding",
-    body: "Kunderne opretter sig selv på skiltet — du behøver ikke taste noget ind eller stå med et kartotek.",
+    name: "Restaurant og takeaway",
+    body: "Et besøg giver et stempel. Efter otte besøg står der en dessert eller en ret klar til gæsten.",
+    template: "1 besøg = 1 stempel · 8 stempler = gratis dessert",
   },
   {
-    title: "Scan-til-stempel",
-    body: "Personalet giver et stempel med ét scan af kundens kode. Hurtigt, selv i myldretiden.",
+    name: "Frisør og barber",
+    body: "Klip nummer seks udløser en rabat. Det gør det lidt lettere for kunden at booke hos dig igen frem for at prøve en ny salon.",
+    template: "1 besøg = 1 stempel · 6 stempler = 20 % rabat",
   },
   {
-    title: "Din egen kundeklub",
-    body: "Sæt selv reglerne: antal stempler, belønninger og kampagner. Se det hele i dit dashboard.",
+    name: "Klinik og skønhed",
+    body: "Behandlinger tæller op mod en bonus, kunden selv vælger. Passer til neglesalon, hudpleje og mindre klinikker med faste forløb.",
+    template: "1 behandling = 1 stempel · 5 stempler = valgfri bonus",
+  },
+  {
+    name: "Butik",
+    body: "Beløn dem, der handler hos dig igen og igen. Du kan lade et stempel følge et køb, et besøg eller et beløb, kunden handler for.",
+    template: "Du sætter selv antal og belønning",
+  },
+  {
+    name: "Bilvask, værksted og fitness",
+    body: "Alt hvor den samme kunde kommer tilbage med jævne mellemrum. Er der genbesøg i din forretning, er der en grund til et stempelkort.",
+    template: "Du sætter selv antal og belønning",
   },
 ];
 
 const FAQ = [
   {
     q: "Hvad er et digitalt stempelkort?",
-    a: "Et digitalt stempelkort er den moderne udgave af papkortet med klip. I stedet for et pap-kort samler kunden stempler på sin telefon og optjener belønninger — men helt uden en app. Kortet er en almindelig webside, kunden får ved at scanne dit skilt.",
+    a: "Et digitalt stempelkort er den digitale udgave af papkortet med stempler. I stedet for et fysisk kort ligger kundens stempler på telefonen. Når kunden har samlet det antal stempler, du har bestemt, kan de hente den belønning, du har valgt — for eksempel den tiende kaffe gratis.",
   },
   {
     q: "Skal mine kunder hente en app?",
-    a: "Nej. Kunden tilmelder sig ved at scanne QR-koden eller tappe NFC på standeren, og stempelkortet åbner med det samme i browseren. De kan gemme det på hjemmeskærmen som en genvej — men der er ingen app at downloade og ingen konto at oprette.",
+    a: "Nej. Kortet er en almindelig webside, kunden får ved at scanne QR-koden på din stander. Der er ingen app at downloade og ingen App Store. Kunden kan lægge kortet på telefonens hjemmeskærm, så det ligner en app og er lige ved hånden næste gang.",
   },
   {
-    q: "Hvordan giver personalet et stempel?",
-    a: "Kunden viser sit kort, personalet scanner koden og giver et stempel med ét tryk — det tager få sekunder. Systemet forhindrer selv dobbelt-stempling, så det er sikkert selv når der er travlt.",
+    q: "Hvordan får kunden sit stempelkort?",
+    a: "Kunden scanner QR-koden på standeren og opretter kortet på få sekunder. Du kan også oprette en kunde manuelt fra dit dashboard, hvis det passer bedre til situationen — for eksempel når nogen står ved disken uden telefonen fremme.",
   },
   {
-    q: "Passer et digitalt stempelkort til min forretning?",
-    a: "Ja, hvis du har kunder der kommer igen. Det er stærkt til caféer, restauranter, frisører, klinikker, bagere og butikker — alle steder hvor et loyalitetsprogram får engangskunder til at blive faste kunder.",
+    q: "Hvordan giver jeg et stempel?",
+    a: "Kunden viser sit kort, du åbner det og trykker én gang. Kun personale, der er logget ind med adgang til din forretning, kan give stempler — kunden kan altså ikke stemple sig selv.",
+  },
+  {
+    q: "Kan jeg selv vælge antal stempler og belønningen?",
+    a: "Ja. Du bestemmer, hvor mange stempler der skal til, og hvad kunden optjener: et gratis produkt, et beløb i rabat, en procentrabat, en ydelse, en gave eller noget, du selv formulerer. Du kan også vælge, om kortet nulstilles efter en belønning, eller om overskydende stempler følger med over på det næste kort.",
+  },
+  {
+    q: "Kan stempelkortet tilpasses min forretning?",
+    a: "Du vælger kortets navn, farve og en kort tekst, og dit logo vises for kunden, når du har lagt det op i dit dashboard. Kortet bærer altså din forretnings udtryk, ikke vores.",
+  },
+  {
+    q: "Hvad forhindrer, at nogen samler stempler uden at købe noget?",
+    a: "Du sætter reglerne: hvor mange stempler der højst må gives pr. køb, hvor mange en kunde kan få på én dag, og hvor lang tid der mindst skal gå mellem to stempler. Du kan også lade stempler udløbe efter et antal dage. Reglerne håndhæves af systemet, ikke af hukommelsen hos den, der står ved kassen.",
+  },
+  {
+    q: "Hvad sker der, når stempelkortet er fuldt?",
+    a: "Belønningen står klar på kundens kort, og personalet indløser den, når kunden bruger den. Derefter starter kortet forfra efter de regler, du har valgt — enten på nul eller med de stempler, kunden har samlet ud over det krævede antal.",
+  },
+  {
+    q: "Kan jeg have flere stempelkort samtidig?",
+    a: "Ja. Du kan oprette flere programmer i din forretning, for eksempel et almindeligt kort og et til en kampagne, og sætte dem aktive eller på pause hver for sig.",
+  },
+  {
+    q: "Hvad sker der, hvis kunden skifter telefon?",
+    a: "Kortet kan altid åbnes fra sit eget link. Vil kunden være sikker på at finde det igen på en ny telefon, kan de gratis oprette en konto fra kortet og samle alle deres kort ét sted.",
+  },
+  {
+    q: "Hvad er forskellen på et stempelkort og et loyalitetsprogram?",
+    a: "Et stempelkort er den enkleste form for loyalitetsprogram: besøg tæller op mod én belønning, du selv har valgt. Et loyalitetsprogram kan derudover rumme rabatter og fordele, der ikke hænger på stempler — for eksempel en velkomstrabat eller en fordel til kunder, du gerne vil have tilbage. Begge dele findes i LoyalSum.",
   },
   {
     q: "Hvad koster et digitalt stempelkort?",
-    a: "Stempelkortet er en del af LoyalSum Komplet — abonnementet der samler stempelkort, anmeldelser og opslag på én stander. Se de tre produktniveauer nedenfor.",
+    a: "Stempelkortet er en del af LoyalSum Komplet. Du betaler for standeren én gang, en opsætning og et fast månedligt abonnement — se de aktuelle priser på produktsiden.",
   },
 ];
 
+/* ------------------------------------------------------------------- page */
+
 export default function StempelkortPage() {
-  const faqJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: FAQ.map((item) => ({
-      "@type": "Question",
-      name: item.q,
-      acceptedAnswer: { "@type": "Answer", text: item.a },
-    })),
-  };
+  const komplet = getProduct("loyalsum-komplet");
+  const base = getSiteUrl();
+
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: FAQ.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Forside", item: base },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Digitalt stempelkort",
+          item: `${base}/stempelkort`,
+        },
+      ],
+    },
+  ];
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <SiteHeader />
 
       <main>
-        {/* Hero */}
+        {/* ---------------------------------------------------------- hero */}
         <section className="border-b border-border bg-dark text-dark-fg">
-          <div className="mx-auto max-w-6xl px-4 py-20 sm:py-28">
-            <div className="max-w-2xl">
+          <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:py-24 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+            <div>
               <span className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white ring-1 ring-white/15">
-                <span className="h-1.5 w-1.5 rounded-full bg-secondary" aria-hidden="true" />
-                Digitalt stempelkort · NFC &amp; QR
+                <span
+                  className="h-1.5 w-1.5 rounded-full bg-secondary"
+                  aria-hidden="true"
+                />
+                Digitalt stempelkort · uden app
               </span>
               <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-                Digitalt stempelkort —{" "}
-                <span className="text-secondary">uden app</span>
+                Digitalt stempelkort, der får kunderne til at{" "}
+                <span className="text-secondary">komme igen</span>
               </h1>
               <p className="mt-5 max-w-xl text-lg text-white/70">
-                Få dine kunder til at komme igen med en digital kundeklub. Kunden
-                tilmelder sig selv på skiltet, personalet stempler med ét scan, og
-                belønninger trækker dem tilbage — helt uden en app.
+                Beløn dine faste kunder med et digitalt stempelkort fra LoyalSum.
+                Kunden samler stempler på mobilen, optjener den belønning du selv
+                vælger — og får en grund til at vælge dig næste gang.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <ButtonLink href="/produkter/loyalsum-komplet" size="lg">
-                  Se priser
+                <ButtonLink href="/signup" size="lg">
+                  Kom i gang
                 </ButtonLink>
-                <ButtonLink href="/#saadan" variant="outline-invert" size="lg">
-                  Sådan virker det
+                <ButtonLink href="#saadan" variant="outline-invert" size="lg">
+                  Se hvordan det virker
                 </ButtonLink>
+              </div>
+              <p className="mt-5 text-sm text-white/50">
+                Ingen app for dine kunder · du bestemmer stempler og belønning
+              </p>
+            </div>
+
+            {/* Kundens faktiske kort — samme komponent som i produktet */}
+            <div className="lg:justify-self-end lg:pl-8">
+              <div className="mx-auto w-full max-w-[300px]">
+                <StampCardPreview
+                  companyName="Café Aurora"
+                  name="Kaffekort"
+                  color="#1b916a"
+                  requiredStamps={10}
+                  filled={7}
+                  rewardName="Gratis kaffe"
+                  cardText="Køb 9 kaffe — få den 10. gratis"
+                />
+                <p className="mt-3 text-center text-xs text-white/50">
+                  Sådan ser kundens kort ud på telefonen
+                </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Hvad er et digitalt stempelkort */}
+        {/* ------------------------------------- hvad er et digitalt stempelkort */}
         <section className="bg-background">
           <div className="mx-auto max-w-3xl px-4 py-16">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Hvad er et digitalt stempelkort?
             </h2>
             <p className="mt-4 leading-relaxed text-foreground/90">
-              Et <strong>digitalt stempelkort</strong> er den moderne udgave af
-              papkortet med klip: kunden samler stempler mod en belønning — men på
-              telefonen, og helt <strong>uden app</strong>. Det fjerner alt
-              besværet med papkort, der bliver væk, og gør din kundeklub til noget
-              kunderne faktisk bruger.
+              Et <strong>digitalt stempelkort</strong> er den digitale udgave af
+              det klassiske papstempelkort. I stedet for et fysisk kort, kunden
+              skal huske at have med, registreres stemplerne digitalt og ligger
+              på kundens telefon. Når kunden har samlet det antal stempler, du
+              har bestemt, kan de hente den belønning, du har valgt.
             </p>
             <p className="mt-4 leading-relaxed text-foreground/90">
-              Nye kunder er dyre at skaffe. Et <strong>loyalitetsprogram</strong>{" "}
-              gør det billigt at få dem igen — og hver gentagelse er nærmest ren
-              fortjeneste. Derfor er et stempelkort en af de enkleste måder at få
-              flere faste kunder på for en lokal forretning.
+              Princippet er det samme som altid — det er kun kortet, der har
+              skiftet form. Til gengæld kan det ikke blive væk i en jakkelomme,
+              og du kan se, hvor mange der er i gang med at samle op mod en
+              belønning.
+            </p>
+
+            <ul className="mt-8 grid gap-3 sm:grid-cols-3">
+              {[
+                "Køb 9 kaffe — få den 10. gratis",
+                "5 behandlinger — få en fordel på den næste",
+                "6 besøg — lås op for en belønning",
+              ].map((ex) => (
+                <li
+                  key={ex}
+                  className="box-shape border border-border bg-card p-4 text-sm font-medium"
+                >
+                  {ex}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* ------------------------------------------------ hvorfor det virker */}
+        <section className="border-t border-border bg-muted-bg">
+          <div className="mx-auto max-w-4xl px-4 py-16">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Giv kunderne en grund til at vælge dig igen
+            </h2>
+            <p className="mt-4 max-w-2xl leading-relaxed text-foreground/90">
+              En tilfreds kunde er ikke det samme som en fast kunde. Næste gang
+              står de med de samme ti valgmuligheder som alle andre, og
+              tilfredshed alene flytter sjældent beslutningen. Et stempelkort
+              lægger noget i den anden vægtskål: kunden er allerede på vej mod
+              noget, de kun kan hente hos dig.
+            </p>
+            <p className="mt-4 max-w-2xl leading-relaxed text-foreground/90">
+              Det er den enkle mekanik, der gør papstempelkortet så sejlivet. Det
+              digitale kort ændrer ikke på psykologien — det fjerner bare besværet
+              og giver dig et overblik, papkortet aldrig kunne.
+            </p>
+
+            <ol className="mt-10 grid gap-3 sm:grid-cols-5">
+              {["Besøg", "Stempel", "Fremskridt", "Belønning", "Næste besøg"].map(
+                (step, i) => (
+                  <li
+                    key={step}
+                    className="box-shape border border-border bg-card p-4 text-center"
+                  >
+                    <span className="text-xs font-medium text-muted">
+                      {i + 1}
+                    </span>
+                    <p className="mt-1 font-bold tracking-tight">{step}</p>
+                  </li>
+                ),
+              )}
+            </ol>
+          </div>
+        </section>
+
+        {/* ------------------------------------------------- sådan fungerer det */}
+        <section id="saadan" className="border-t border-border bg-background">
+          <div className="mx-auto max-w-4xl px-4 py-16">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Sådan fungerer LoyalSums digitale stempelkort
+            </h2>
+            <p className="mt-3 max-w-2xl text-muted">
+              Fem trin fra du opretter kortet, til kunden står i døren igen.
+            </p>
+
+            <ol className="mt-10 space-y-8">
+              {STEPS.map((s, i) => (
+                <li key={s.title} className="flex gap-5">
+                  <div
+                    className="btn-shape grid h-10 w-10 shrink-0 place-items-center bg-accent font-bold text-accent-fg"
+                    aria-hidden="true"
+                  >
+                    {i + 1}
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold tracking-tight">
+                      {s.title}
+                    </h3>
+                    <p className="mt-2 leading-relaxed text-muted">{s.body}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+
+            <div className="mt-10">
+              <ButtonLink href="/signup" size="lg">
+                Kom i gang
+              </ButtonLink>
+            </div>
+          </div>
+        </section>
+
+        {/* ---------------------------------------------- digitalt vs. fysisk */}
+        <section className="border-t border-border bg-muted-bg">
+          <div className="mx-auto max-w-4xl px-4 py-16">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Digitalt eller fysisk stempelkort?
+            </h2>
+            <p className="mt-4 max-w-2xl leading-relaxed text-foreground/90">
+              Papkortet har én stor fordel: det kræver ingenting af nogen. Det
+              koster et tryk og en stempelpude, og alle forstår det med det
+              samme. Vælger du digitalt, er det fordi du vil have styr på
+              stemplerne og se, hvad der egentlig sker i din kundeklub.
+            </p>
+
+            <div className="mt-8 grid gap-6 sm:grid-cols-2">
+              <div className="box-shape border border-border bg-card p-6">
+                <h3 className="font-bold tracking-tight">Fysisk stempelkort</h3>
+                <ul className="mt-4 space-y-2 text-sm text-muted">
+                  <li>Bliver glemt eller væk</li>
+                  <li>Skal printes og genoptrykkes</li>
+                  <li>Ændrer du belønningen, gælder de gamle kort stadig</li>
+                  <li>Ingen indsigt i hvem der samler, eller hvor mange</li>
+                  <li>Stempelpuden kan lånes af andre end personalet</li>
+                </ul>
+              </div>
+              <div className="box-shape border border-accent/30 bg-accent/5 p-6">
+                <h3 className="font-bold tracking-tight">Digitalt stempelkort</h3>
+                <ul className="mt-4 space-y-2 text-sm text-muted">
+                  <li>Ligger på kundens telefon og kan hentes frem igen</li>
+                  <li>Ingen tryk, intet oplag, ingen genoptryk</li>
+                  <li>Du ændrer belønning og regler ét sted</li>
+                  <li>Du kan se aktiviteten og hvem der er tæt på en belønning</li>
+                  <li>Kun personale med adgang kan give stempler</li>
+                </ul>
+              </div>
+            </div>
+
+            <p className="mt-6 text-sm text-muted">
+              Har din forretning få genbesøg og ingen interesse i tallene bagved,
+              gør papkortet det fint. Det digitale kort betaler sig, når kunderne
+              kommer igen — og du vil vide hvor mange.
             </p>
           </div>
         </section>
 
-        {/* Sådan virker det */}
-        <section id="saadan" className="border-t border-border bg-muted-bg">
-          <div className="mx-auto max-w-6xl px-4 py-16">
-            <h2 className="text-center text-2xl font-bold tracking-tight sm:text-3xl">
-              Sådan virker et digitalt stempelkort
-            </h2>
-            <div className="mt-10 grid gap-8 md:grid-cols-3">
-              {STEPS.map((s, i) => (
-                <div key={s.title}>
-                  <div className="btn-shape grid h-10 w-10 place-items-center bg-accent font-bold text-accent-fg">
-                    {i + 1}
-                  </div>
-                  <h3 className="mt-4 text-lg font-bold">{s.title}</h3>
-                  <p className="mt-2 text-sm text-muted">{s.body}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Fordele */}
-        <section className="border-t border-border bg-dark text-dark-fg">
-          <div className="mx-auto max-w-6xl px-4 py-16">
-            <h2 className="mb-10 text-center text-2xl font-bold tracking-tight sm:text-3xl">
-              Derfor virker det
-            </h2>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {BENEFITS.map((b) => (
-                <div key={b.title} className="box-shape border border-white/10 bg-white/5 p-5">
-                  <h3 className="font-bold">{b.title}</h3>
-                  <p className="mt-2 text-sm text-white/70">{b.body}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Priser */}
+        {/* -------------------------------------------------------- belønninger */}
         <section className="border-t border-border bg-background">
-          <div className="mx-auto max-w-6xl px-4 py-16">
-            <div className="mb-10 text-center">
-              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-                Få stempelkort med LoyalSum Komplet
-              </h2>
-              <p className="mx-auto mt-2 max-w-xl text-muted">
-                Det digitale stempelkort er en del af LoyalSum Komplet — sammen med
-                anmeldelser, opslag og statistik på ét skilt.
+          <div className="mx-auto max-w-4xl px-4 py-16">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Du bestemmer, hvad dine kunder skal optjene
+            </h2>
+            <p className="mt-4 max-w-2xl leading-relaxed text-foreground/90">
+              En café og en frisør har vidt forskellig økonomi i hvert besøg.
+              Derfor er der ingen fast opskrift: du vælger selv antallet af
+              stempler, hvad der udløser dem, og hvad kunden får til sidst.
+            </p>
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {REWARDS.map((r) => (
+                <div
+                  key={r.label}
+                  className="box-shape border border-border bg-card p-5"
+                >
+                  <h3 className="font-bold tracking-tight">{r.label}</h3>
+                  <p className="mt-1 text-sm text-muted">{r.body}</p>
+                </div>
+              ))}
+            </div>
+
+            <h3 className="mt-12 text-lg font-bold tracking-tight">
+              Hvornår tæller et stempel?
+            </h3>
+            <p className="mt-3 max-w-2xl leading-relaxed text-muted">
+              Du vælger, om et stempel følger et køb, et besøg, et beløb kunden
+              handler for, eller om personalet giver det manuelt. Til kampagner
+              kan du lave et program, der kun kører i en periode.
+            </p>
+
+            <h3 className="mt-10 text-lg font-bold tracking-tight">
+              Du sætter reglerne — systemet holder dem
+            </h3>
+            <p className="mt-3 max-w-2xl leading-relaxed text-muted">
+              Sæt hvor mange stempler der højst må gives pr. køb, hvor mange en
+              kunde kan få på én dag, og hvor lang tid der mindst skal gå mellem
+              to stempler. Du kan lade stempler udløbe efter et antal dage, og
+              du bestemmer, om kortet nulstilles efter en belønning, eller om
+              overskydende stempler følger med videre. Reglerne håndhæves af
+              systemet — ikke af hukommelsen hos den, der står ved kassen en
+              travl fredag.
+            </p>
+
+            <div className="mt-8 box-shape border border-secondary/30 bg-secondary/10 p-5">
+              <h3 className="font-bold tracking-tight">
+                Belønninger kobles aldrig til anmeldelser
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed">
+                Det er bevidst umuligt at give stempler eller belønninger for, at
+                en kunde skriver, ændrer eller sletter en offentlig anmeldelse.
+                Den slags er i strid med både Googles og Trustpilots regler og
+                kan koste dig dine anmeldelser. Derfor holder LoyalSum
+                loyalitetsprogrammet og{" "}
+                <Link href="/reviewstander" className="font-medium text-accent">
+                  anmeldelserne
+                </Link>{" "}
+                adskilt.
               </p>
             </div>
-            <Pricing />
           </div>
         </section>
 
-        {/* FAQ */}
-        <section className="border-t border-border bg-background">
+        {/* ----------------------------------------------------------- brancher */}
+        <section className="border-t border-border bg-muted-bg">
+          <div className="mx-auto max-w-6xl px-4 py-16">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Digitalt stempelkort til din virksomhed
+            </h2>
+            <p className="mt-3 max-w-2xl text-muted">
+              Kommer den samme kunde tilbage flere gange, giver et stempelkort
+              mening. Her er, hvordan det typisk sættes op.
+            </p>
+
+            <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {INDUSTRIES.map((b) => (
+                <div
+                  key={b.name}
+                  className="box-shape flex flex-col border border-border bg-card p-6"
+                >
+                  <h3 className="font-bold tracking-tight">{b.name}</h3>
+                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">
+                    {b.body}
+                  </p>
+                  <p className="mt-4 text-xs font-medium text-accent">
+                    {b.template}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ------------------------------------------------ del af platformen */}
+        <section className="border-t border-border bg-dark text-dark-fg">
+          <div className="mx-auto max-w-4xl px-4 py-16">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Stempelkortet er kun begyndelsen
+            </h2>
+            <p className="mt-4 max-w-2xl leading-relaxed text-white/70">
+              Dit digitale stempelkort er en del af LoyalSum — platformen der
+              hjælper dig med både at få nye kunder og få de eksisterende til at
+              komme igen. Et stempelkort motiverer genbesøget. Men en kunde, der
+              også skriver en god anmeldelse, sender de næste kunder din vej.
+            </p>
+
+            <div className="mt-10 grid gap-6 sm:grid-cols-2">
+              <div className="box-shape border border-white/10 bg-white/5 p-6">
+                <p className="text-xs font-medium uppercase tracking-wide text-secondary">
+                  Flere nye kunder
+                </p>
+                <h3 className="mt-1 font-bold">Anmeldelser og synlighed</h3>
+                <p className="mt-2 text-sm text-white/70">
+                  Standeren gør det let for glade kunder at anmelde dig, og
+                  kritik lander privat hos dig i stedet for offentligt.
+                </p>
+              </div>
+              <div className="box-shape border border-white/10 bg-white/5 p-6">
+                <p className="text-xs font-medium uppercase tracking-wide text-secondary">
+                  Flere genbesøg
+                </p>
+                <h3 className="mt-1 font-bold">Stempelkort og belønninger</h3>
+                <p className="mt-2 text-sm text-white/70">
+                  Stempelkort, rabatter til udvalgte kunder og overblik over,
+                  hvem der er tæt på en belønning.
+                </p>
+              </div>
+            </div>
+
+            <p className="mt-8">
+              <Link href="/" className="font-medium text-secondary">
+                Se hele LoyalSum →
+              </Link>
+            </p>
+          </div>
+        </section>
+
+        {/* --------------------------------------------------------------- pris */}
+        {komplet ? (
+          <section className="border-t border-border bg-background">
+            <div className="mx-auto max-w-4xl px-4 py-16">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+                Hvad koster et digitalt stempelkort?
+              </h2>
+              <p className="mt-4 max-w-2xl leading-relaxed text-foreground/90">
+                Stempelkortet får du med <strong>{komplet.name}</strong>, som
+                samler stempelkort, anmeldelser og opslag på én stander.
+              </p>
+
+              <div className="mt-8 box-shape border border-border bg-card p-6">
+                <dl className="grid gap-4 sm:grid-cols-3">
+                  <div>
+                    <dt className="text-sm text-muted">Stander</dt>
+                    <dd className="text-xl font-bold">
+                      {formatCurrency(komplet.price)}
+                    </dd>
+                  </div>
+                  {komplet.setupPrice ? (
+                    <div>
+                      <dt className="text-sm text-muted">
+                        Opsætning (engangs)
+                      </dt>
+                      <dd className="text-xl font-bold">
+                        {formatCurrency(komplet.setupPrice)}
+                      </dd>
+                    </div>
+                  ) : null}
+                  {komplet.monthlyPrice ? (
+                    <div>
+                      <dt className="text-sm text-muted">Abonnement</dt>
+                      <dd className="text-xl font-bold">
+                        {formatCurrency(komplet.monthlyPrice)}
+                        <span className="text-sm font-normal text-muted">
+                          /md
+                        </span>
+                      </dd>
+                    </div>
+                  ) : null}
+                </dl>
+                <p className="mt-4 text-sm text-muted">
+                  Alle priser er ex moms. Køber du flere standere, falder prisen
+                  pr. stk.
+                </p>
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                  <ButtonLink href={`/produkter/${komplet.slug}`} size="lg">
+                    Se {komplet.name}
+                  </ButtonLink>
+                  <ButtonLink href="/produkter" variant="outline" size="lg">
+                    Sammenlign alle priser
+                  </ButtonLink>
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : null}
+
+        {/* ---------------------------------------------------------------- FAQ */}
+        <section className="border-t border-border bg-muted-bg">
           <div className="mx-auto max-w-3xl px-4 py-16">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              Ofte stillede spørgsmål
+              Ofte stillede spørgsmål om digitale stempelkort
             </h2>
             <div className="mt-8 divide-y divide-border border-y border-border">
               {FAQ.map((item) => (
-                <div key={item.q} className="py-5">
-                  <h3 className="font-bold">{item.q}</h3>
-                  <p className="mt-2 leading-relaxed text-muted">{item.a}</p>
-                </div>
+                <details key={item.q} className="group py-4">
+                  <summary className="cursor-pointer list-none font-bold tracking-tight marker:content-none">
+                    <span className="flex items-start justify-between gap-4">
+                      {item.q}
+                      <span
+                        className="mt-1 shrink-0 text-accent transition-transform group-open:rotate-45"
+                        aria-hidden="true"
+                      >
+                        +
+                      </span>
+                    </span>
+                  </summary>
+                  <p className="mt-3 leading-relaxed text-muted">{item.a}</p>
+                </details>
               ))}
             </div>
+
             <p className="mt-8 text-sm text-muted">
-              Vil du også have flere anmeldelser? Se vores{" "}
-              <Link href="/reviewstander" className="font-medium text-accent">
-                reviewstander
+              Læs videre:{" "}
+              <Link
+                href="/blog/digitalt-stempelkort-faa-kunder-til-at-komme-igen"
+                className="font-medium text-accent"
+              >
+                sådan får et digitalt stempelkort kunderne til at komme igen
               </Link>{" "}
-              — eller få det hele med{" "}
-              <Link href="/produkter/loyalsum-komplet" className="font-medium text-accent">
-                LoyalSum Komplet
+              eller{" "}
+              <Link
+                href="/blog/kundeklub-uden-app-guide"
+                className="font-medium text-accent"
+              >
+                guiden til en kundeklub uden app
               </Link>
               .
             </p>
           </div>
         </section>
 
-        {/* CTA */}
+        {/* --------------------------------------------------------- final CTA */}
         <section className="border-t border-border bg-dark text-dark-fg">
           <div className="mx-auto max-w-6xl px-4 py-20 text-center">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              Klar til flere faste kunder?
+              Giv kunderne en grund til at komme igen
             </h2>
             <p className="mx-auto mt-3 max-w-lg text-white/70">
-              Kom i gang med et digitalt stempelkort i dag — og gør engangskunder
-              til gengangere.
+              Opret dit digitale stempelkort med LoyalSum, og begynd at gøre
+              flere førstegangskunder til stamkunder.
             </p>
-            <div className="mt-6">
-              <ButtonLink href="/produkter/loyalsum-komplet" size="lg">
-                Se LoyalSum Komplet
+            <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+              <ButtonLink href="/signup" size="lg">
+                Kom i gang
+              </ButtonLink>
+              <ButtonLink
+                href="/produkter/loyalsum-komplet"
+                variant="outline-invert"
+                size="lg"
+              >
+                Se priser
               </ButtonLink>
             </div>
           </div>
