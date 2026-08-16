@@ -2,92 +2,168 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { Pricing } from "@/components/pricing";
 import { ButtonLink } from "@/components/ui/button";
+import { StanderPlaceholder } from "@/components/product-placeholder";
+import { getProduct } from "@/lib/constants";
+import { formatCurrency } from "@/lib/utils";
+import { getSiteUrl } from "@/lib/site";
+
+/**
+ * Produkt- og SEO-landingsside for reviewstanderen.
+ *
+ * TO REGLER FOR DENNE SIDE:
+ *
+ * 1. Kun funktioner der findes. Verificeret i `src/lib/stands.ts`,
+ *    `/r/[slug]` (scan-flowet), stand-indstillingerne i dashboardet og
+ *    produktdata i `src/lib/constants.ts`.
+ *
+ * 2. INGEN review gating. Siden må aldrig antyde, at utilfredse kunder holdes
+ *    væk fra offentlige anmeldelser. Det ville være i strid med Googles og
+ *    Trustpilots retningslinjer og kan koste virksomheden dens anmeldelser.
+ *    Produktet er også bygget sådan: `resolvePublicDestination()` falder
+ *    tilbage til første tilgængelige link, og i `review-flow.tsx` har ALLE
+ *    kunder adgang til det offentlige link uanset antal stjerner. Privat
+ *    feedback er et TILBUD ved siden af — ikke en spærring.
+ */
+
+const title = "Reviewstander med NFC og QR";
+const description =
+  "Gør det nemt for kunderne at anmelde dig. Kunden holder mobilen hen til standeren eller scanner QR-koden og kommer direkte videre. Se hvordan den virker og hvad den koster.";
 
 export const metadata: Metadata = {
-  title: "Reviewstander til Google-anmeldelser (QR + NFC)",
-  description:
-    "En reviewstander gør det nemt for dine kunder at anmelde din forretning med et scan eller tap. QR + NFC, dynamisk link og privat feedback. Se priser og kom i gang.",
+  title,
+  description,
+  keywords: [
+    "reviewstander",
+    "review stander",
+    "anmeldelsesstander",
+    "stander til anmeldelser",
+    "Google review stander",
+    "stander til Google anmeldelser",
+    "NFC stander",
+    "QR stander",
+    "få flere Google anmeldelser",
+  ],
   alternates: { canonical: "/reviewstander" },
+  openGraph: {
+    type: "website",
+    title: `${title} — gør det nemt at anmelde dig`,
+    description,
+    url: "/reviewstander",
+  },
 };
+
+/* ------------------------------------------------------------------- data */
 
 const STEPS = [
   {
-    title: "Kunden scanner eller tapper",
-    body: "Gæsten holder telefonen mod standeren (NFC) eller scanner QR-koden ved kassen eller bordet.",
+    title: "Tap eller scan",
+    body: "Kunden holder mobilen hen til standeren eller scanner QR-koden med kameraet. Der skal ikke hentes en app.",
   },
   {
-    title: "Giver en vurdering",
-    body: "Anmeldelsessiden åbner med det samme — kunden giver 1-5 stjerner på få sekunder.",
+    title: "Del oplevelsen",
+    body: "Din anmeldelsesside åbner med det samme på kundens telefon, og de kan gå videre til den platform, du har valgt.",
   },
   {
-    title: "Du får flere anmeldelser",
-    body: "Glade kunder sendes til Google. Kritik kan fanges privat, før den bliver offentlig.",
+    title: "Styrk din forretning",
+    body: "Flere kunder får mulighed for at fortælle om deres oplevelse — og du kan se aktiviteten i dit dashboard.",
   },
 ];
 
-const BENEFITS = [
-  {
-    title: "QR + NFC i én stander",
-    body: "Virker på alle telefoner — både scan med kamera og tap med NFC.",
-  },
-  {
-    title: "Dynamisk link",
-    body: "Skift destination når som helst — uden at genoptrykke standeren.",
-  },
-  {
-    title: "Privat feedback",
-    body: "Fang utilfredse kunder internt, før de skriver en offentlig 1-stjerne.",
-  },
-  {
-    title: "Dit eget design",
-    body: "Tilpas standeren med dit logo, så den matcher din forretning.",
-  },
+const PLACES = [
+  { name: "Café og kaffebar", where: "Ved kassen, mens kunden venter på kaffen." },
+  { name: "Restaurant", where: "Ved betalingen eller på vej ud ad døren." },
+  { name: "Frisør og barber", where: "I receptionen, når kunden betaler." },
+  { name: "Klinik og skønhed", where: "I receptionen efter behandlingen." },
+  { name: "Butik", where: "Ved kassen, lige efter købet." },
+  { name: "Værksted", where: "Ved udlevering af bilen." },
 ];
 
 const FAQ = [
   {
     q: "Hvad er en reviewstander?",
-    a: "En reviewstander er en lille fysisk stander til kassen eller bordet, der lader dine kunder anmelde din forretning med et enkelt scan eller tap. Den fjerner besværet ved at finde frem til din Google-profil.",
+    a: "En reviewstander er en lille fysisk stander til disken, bordet eller receptionen. Den har både en QR-kode og NFC, så kunden kan komme videre til din anmeldelsesside med et enkelt scan eller tap — uden selv at skulle finde din forretning frem.",
   },
   {
-    q: "Hvordan virker NFC og QR?",
-    a: "Standeren har både en QR-kode, kunden scanner med kameraet, og NFC — samme teknologi som mobilbetaling. Kunden holder blot telefonen mod standeren, og anmeldelsessiden åbner automatisk. NFC virker på alle iPhones fra XR og frem samt de fleste Android-telefoner.",
+    q: "Hvordan virker NFC?",
+    a: "NFC er den samme teknologi, telefonen bruger til kontaktløs betaling. Kunden holder blot toppen af telefonen mod standeren, og siden åbner af sig selv. Der skal hverken hentes en app eller parres noget.",
   },
   {
-    q: "Kan jeg ændre, hvor kunderne sendes hen?",
-    a: "Ja. Med et dynamisk link kan du skifte destination — fx Google, Trustpilot eller Facebook — uden at genoptrykke standeren.",
+    q: "Virker den på både iPhone og Android?",
+    a: "QR-koden virker på alle telefoner med et kamera. NFC virker på nyere iPhones og de fleste Android-telefoner. Derfor sidder begge dele på standeren — kan telefonen ikke tappe, scanner kunden i stedet.",
   },
   {
-    q: "Hvad koster en reviewstander?",
-    a: "Der findes en engangspris for selve standeren og et abonnement, hvis du vil have dashboard, statistik og dynamiske links. Se de tre niveauer nedenfor.",
+    q: "Skal kunden downloade en app?",
+    a: "Nej. Anmeldelsessiden er en helt almindelig webside, der åbner i telefonens browser.",
+  },
+  {
+    q: "Kan jeg bruge den til Google-anmeldelser?",
+    a: "Ja. Du sætter selv linket til din Google-profil. Med Reviewstander Pro kan du vælge flere platforme — Google, Trustpilot og Facebook — og kunden vælger selv, hvor de vil skrive.",
+  },
+  {
+    q: "Kan standeren få mit logo?",
+    a: "Ja. Du lægger dit logo op i dit dashboard, og det vises på den side, kunden lander på. Standeren leveres med QR-kode og NFC klar til brug.",
+  },
+  {
+    q: "Kan jeg ændre linket senere?",
+    a: "Med Reviewstander Pro kan du skifte destination når som helst fra dit dashboard — standeren skal ikke trykkes om. Vælger du den enkle Reviewstander uden abonnement, sættes linket ved opsætningen.",
+  },
+  {
+    q: "Kræver reviewstanderen et abonnement?",
+    a: "Nej. Den enkle Reviewstander er en engangspris uden abonnement. Vil du have din egen anmeldelsesside, flere platforme, dynamiske links, privat feedback og statistik, er det Reviewstander Pro, der har et månedligt abonnement.",
+  },
+  {
+    q: "Hvor bør jeg placere standeren?",
+    a: "Der hvor den gode oplevelse slutter — typisk ved kassen, i receptionen eller på bordet. Pointen er, at kunden ser den i det øjeblik, hvor oplevelsen er frisk.",
+  },
+  {
+    q: "Hvad sker der, hvis en kunde er utilfreds?",
+    a: "Kunden vælger selv. Både den offentlige anmeldelse og muligheden for at sende feedback direkte til dig står åben — uanset hvad kunden har givet i stjerner. Feedback er et tilbud om at fortælle dig noget, du kan handle på, ikke en måde at holde kritik væk fra offentlige platforme.",
   },
 ];
 
+/* ------------------------------------------------------------------- page */
+
 export default function ReviewstanderPage() {
-  const faqJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: FAQ.map((item) => ({
-      "@type": "Question",
-      name: item.q,
-      acceptedAnswer: { "@type": "Answer", text: item.a },
-    })),
-  };
+  const basis = getProduct("reviewstander");
+  const pro = getProduct("reviewstander-pro");
+  const base = getSiteUrl();
+
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: FAQ.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      })),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Forside", item: base },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Reviewstander",
+          item: `${base}/reviewstander`,
+        },
+      ],
+    },
+  ];
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <SiteHeader />
 
       <main>
-        {/* Hero */}
-        {/* Foto af standeren i en café — flyttet hertil fra forsiden, hvor det
-            gjorde LoyalSum til et hardware-brand. Her er det præcis på budskab. */}
+        {/* ---------------------------------------------------------- hero */}
         <section className="relative isolate overflow-hidden border-b border-border bg-dark text-dark-fg">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -102,112 +178,361 @@ export default function ReviewstanderPage() {
           />
           <div className="mx-auto max-w-6xl px-4 py-20 sm:py-28">
             <div className="max-w-2xl">
-              <span className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white">
-                <span
-                  className="h-1.5 w-1.5 rounded-full bg-secondary"
-                  aria-hidden="true"
-                />
-                QR- &amp; NFC-reviewstander
-              </span>
-              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-                Reviewstander til{" "}
-                <span className="text-secondary">flere Google-anmeldelser</span>
+              <p className="text-sm font-semibold text-secondary">
+                LoyalSum Reviewstander
+              </p>
+              <h1 className="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">
+                Få flere anmeldelser —{" "}
+                <span className="text-secondary">direkte fra disken</span>
               </h1>
               <p className="mt-5 max-w-xl text-lg text-white/70">
-                Gør det nemt for dine kunder at anmelde din forretning med et
-                enkelt scan eller tap. Én stander ved kassen — flere anmeldelser,
-                mere tillid og bedre lokal synlighed.
+                Gør det nemt for dine kunder at dele deres oplevelse. De holder
+                mobilen hen til standeren eller scanner QR-koden — og kommer
+                direkte videre på deres telefon.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <ButtonLink href="/produkter" size="lg">
-                  Se priser
+                <ButtonLink href="/produkter/reviewstander" size="lg">
+                  Bestil reviewstander
                 </ButtonLink>
-                <ButtonLink href="/#saadan" variant="outline-invert" size="lg">
-                  Sådan virker det
+                <ButtonLink
+                  href="#saadan"
+                  variant="outline-invert"
+                  size="lg"
+                >
+                  Se hvordan den virker
                 </ButtonLink>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Hvad er en reviewstander */}
-        <section className="bg-background">
-          <div className="mx-auto max-w-3xl px-4 py-16">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              Hvad er en reviewstander?
-            </h2>
-            <p className="mt-4 leading-relaxed text-foreground/90">
-              En <strong>reviewstander</strong> er en lille fysisk stander til
-              kassen eller bordet, der lader dine kunder anmelde din forretning
-              med et enkelt scan eller tap. Den fjerner besværet ved at finde
-              frem til din Google-profil — og det er netop besværet, der ellers
-              koster dig de fleste anmeldelser.
-            </p>
-            <p className="mt-4 leading-relaxed text-foreground/90">
-              I stedet for at bede personalet spørge hver kunde, står
-              reviewstanderen der altid, ser professionel ud og virker på det
-              rigtige tidspunkt — lige når kunden betaler.
-            </p>
-          </div>
-        </section>
-
-        {/* Sådan virker det */}
-        <section className="border-t border-border bg-background">
-          <div className="mx-auto max-w-6xl px-4 py-16">
-            <h2 className="text-center text-2xl font-bold tracking-tight sm:text-3xl">
-              Sådan virker en reviewstander
-            </h2>
-            <div className="mt-10 grid gap-6 md:grid-cols-3">
-              {STEPS.map((s, i) => (
-                <div key={s.title} className="p-2">
-                  <div className="grid h-10 w-10 place-items-center rounded-full bg-accent text-accent-fg font-semibold">
-                    {i + 1}
-                  </div>
-                  <h3 className="mt-4 text-lg font-bold">{s.title}</h3>
-                  <p className="mt-2 text-sm text-muted">{s.body}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Fordele */}
-        <section className="border-t border-border bg-dark text-dark-fg">
-          <div className="mx-auto max-w-6xl px-4 py-16">
-            <h2 className="mb-10 text-center text-2xl font-bold tracking-tight sm:text-3xl">
-              Derfor virker den
-            </h2>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {BENEFITS.map((b) => (
-                <div
-                  key={b.title}
-                  className="box-shape border border-white/10 bg-white/5 p-5"
-                >
-                  <h3 className="font-bold">{b.title}</h3>
-                  <p className="mt-2 text-sm text-white/70">{b.body}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Priser */}
-        <section className="border-t border-border bg-background">
-          <div className="mx-auto max-w-6xl px-4 py-16">
-            <div className="mb-10 text-center">
-              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-                Vælg din reviewstander
-              </h2>
-              <p className="mx-auto mt-2 max-w-xl text-muted">
-                Fra en simpel reviewstander til hele LoyalSum med digitalt
-                stempelkort. Køb op til 30 stk. med mængderabat.
+              <p className="mt-5 text-sm text-white/50">
+                QR og NFC i samme stander · ingen app for dine kunder
               </p>
             </div>
-            <Pricing />
           </div>
         </section>
 
-        {/* FAQ */}
+        {/* -------------------------------------------------- sådan virker den */}
+        <section id="saadan" className="bg-background">
+          <div className="mx-auto max-w-6xl px-4 py-16">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Sådan virker den
+            </h2>
+            <div className="mt-10 grid gap-8 md:grid-cols-3">
+              {STEPS.map((s, i) => (
+                <div key={s.title}>
+                  <div
+                    className="btn-shape grid h-10 w-10 place-items-center bg-accent font-bold text-accent-fg"
+                    aria-hidden="true"
+                  >
+                    {i + 1}
+                  </div>
+                  <h3 className="mt-4 text-lg font-bold tracking-tight">
+                    {s.title}
+                  </h3>
+                  <p className="mt-2 leading-relaxed text-muted">{s.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ------------------------------------------------------- problemet */}
+        <section className="border-t border-border bg-muted-bg">
+          <div className="mx-auto max-w-3xl px-4 py-16">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              De fleste tilfredse kunder anmelder dig aldrig
+            </h2>
+            <p className="mt-4 leading-relaxed text-foreground/90">
+              Ikke fordi de ikke vil. De bliver bare aldrig mindet om det. Og
+              skal man selv finde forretningen frem på Google, logge ind og
+              formulere noget, mens man står med indkøbsposerne, så sker det
+              ikke.
+            </p>
+            <p className="mt-4 leading-relaxed text-foreground/90">
+              En stander på disken rammer det ene øjeblik, hvor oplevelsen er
+              frisk og telefonen alligevel er fremme.{" "}
+              <strong>
+                Den gør vejen fra god oplevelse til anmeldelse kortere.
+              </strong>
+            </p>
+            <p className="mt-4 text-sm text-muted">
+              Vil du have hele billedet først, så læs guiden til{" "}
+              <Link
+                href="/blog/saadan-faar-du-flere-google-anmeldelser"
+                className="font-medium text-accent"
+              >
+                hvordan du får flere Google-anmeldelser
+              </Link>{" "}
+              — inklusive de tre ting, du aldrig skal gøre.
+            </p>
+          </div>
+        </section>
+
+        {/* ------------------------------------------------ google-anmeldelser */}
+        <section className="border-t border-border bg-background">
+          <div className="mx-auto max-w-4xl px-4 py-16">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Gør vejen til din Google-profil kortere
+            </h2>
+            <p className="mt-4 max-w-2xl leading-relaxed text-foreground/90">
+              Kunden skal ikke selv søge din forretning frem, finde den rigtige
+              profil og lede efter anmeldelsesknappen. Du sætter linket én gang,
+              og kunden lander det rigtige sted efter ét tap.
+            </p>
+            <p className="mt-4 max-w-2xl leading-relaxed text-foreground/90">
+              Anmeldelser på Google er offentlige og skrives af kunden selv — vi
+              hverken skriver, redigerer eller udvælger dem. Standeren gør kun
+              det ene: at fjerne besværet for den kunde, der gerne vil.
+            </p>
+
+            <div className="mt-8 box-shape border border-border bg-card p-6">
+              <h3 className="font-bold tracking-tight">
+                Feedback du kan handle på
+              </h3>
+              <p className="mt-2 leading-relaxed text-muted">
+                Ved siden af den offentlige anmeldelse kan kunden vælge at sende
+                dig feedback direkte. Det er et tilbud til den kunde, der hellere
+                vil sige tingene til dig end på nettet — ikke en spærring.{" "}
+                <strong>
+                  Alle kunder har adgang til det offentlige anmeldelseslink,
+                  uanset hvad de svarer.
+                </strong>{" "}
+                Sådan er produktet bygget, og sådan skal det være: at sortere
+                kritik fra er i strid med både Googles og Trustpilots regler og
+                kan koste dig dine anmeldelser.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* --------------------------------------------------------- NFC + QR */}
+        <section className="border-t border-border bg-dark text-dark-fg">
+          <div className="mx-auto max-w-4xl px-4 py-16">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Ét tap. Eller ét scan.
+            </h2>
+            <div className="mt-8 grid gap-6 sm:grid-cols-2">
+              <div className="box-shape border border-white/10 bg-white/5 p-6">
+                <h3 className="font-bold">Tap med NFC</h3>
+                <p className="mt-2 text-sm leading-relaxed text-white/70">
+                  Samme teknologi som kontaktløs betaling. Kunden holder toppen
+                  af telefonen mod standeren, og siden åbner af sig selv. Ingen
+                  app, ingen parring.
+                </p>
+              </div>
+              <div className="box-shape border border-white/10 bg-white/5 p-6">
+                <h3 className="font-bold">Scan QR-koden</h3>
+                <p className="mt-2 text-sm leading-relaxed text-white/70">
+                  Har telefonen ikke NFC, peger kunden bare kameraet på
+                  QR-koden. Begge dele sidder på standeren, så det virker for
+                  alle.
+                </p>
+              </div>
+            </div>
+            <p className="mt-6 text-white/70">
+              Ingen app. Ingen søgning. Ingen lange links.
+            </p>
+          </div>
+        </section>
+
+        {/* --------------------------------------------------------- placering */}
+        <section className="border-t border-border bg-background">
+          <div className="mx-auto max-w-6xl px-4 py-16">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Placér den dér, hvor den gode oplevelse slutter
+            </h2>
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {PLACES.map((p) => (
+                <div
+                  key={p.name}
+                  className="box-shape border border-border bg-card p-5"
+                >
+                  <h3 className="font-bold tracking-tight">{p.name}</h3>
+                  <p className="mt-1 text-sm text-muted">{p.where}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ------------------------------------------ reviewstander + LoyalSum */}
+        <section className="border-t border-border bg-muted-bg">
+          <div className="mx-auto max-w-4xl px-4 py-16">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Reviewstanderen er kun begyndelsen
+            </h2>
+            <p className="mt-4 max-w-2xl leading-relaxed text-foreground/90">
+              En anmeldelse hjælper dig med at blive valgt af den næste kunde.
+              Men kunden, der lige har stået ved disken, kan blive mere værd end
+              det — hvis du får en anledning til at se dem igen.
+            </p>
+
+            <ol className="mt-8 grid gap-3 sm:grid-cols-4">
+              {["Anmeldelse", "Feedback", "Loyalitet", "Genbesøg"].map(
+                (step, i) => (
+                  <li
+                    key={step}
+                    className="box-shape border border-border bg-card p-4 text-center"
+                  >
+                    <span className="text-xs font-medium text-muted">
+                      {i + 1}
+                    </span>
+                    <p className="mt-1 font-bold tracking-tight">{step}</p>
+                  </li>
+                ),
+              )}
+            </ol>
+
+            <p className="mt-8 max-w-2xl leading-relaxed text-foreground/90">
+              Med LoyalSum kan den samme stander også være indgangen til dit{" "}
+              <Link href="/stempelkort" className="font-medium text-accent">
+                digitale stempelkort
+              </Link>
+              : kunden tilmelder sig selv, samler stempler og optjener en
+              belønning, du selv vælger. Så bliver det fysiske touchpoint ved
+              disken til en kunderelation i stedet for et enkelt klik.
+            </p>
+
+            <p className="mt-6">
+              <Link href="/" className="font-medium text-accent">
+                Se hele LoyalSum →
+              </Link>
+            </p>
+          </div>
+        </section>
+
+        {/* ------------------------------------------------- produkt og priser */}
+        <section className="border-t border-border bg-background">
+          <div className="mx-auto max-w-6xl px-4 py-16">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              To måder at få standeren på
+            </h2>
+            <p className="mt-3 max-w-2xl text-muted">
+              Begge er den samme fysiske stander med QR og NFC. Forskellen er,
+              hvad der sker, når kunden har tappet.
+            </p>
+
+            <div className="mt-10 grid gap-6 lg:grid-cols-2">
+              {[basis, pro].map((p) =>
+                p ? (
+                  <div
+                    key={p.slug}
+                    className="box-shape flex flex-col overflow-hidden border border-border bg-card"
+                  >
+                    <StanderPlaceholder
+                      className="aspect-[16/9]"
+                      iconClassName="h-20 w-20"
+                    />
+                    <div className="flex flex-1 flex-col p-6">
+                      <h3 className="text-lg font-bold tracking-tight">
+                        {p.name}
+                      </h3>
+                      <p className="mt-1 text-sm text-muted">{p.tagline}</p>
+
+                      <div className="mt-4">
+                        <p className="text-2xl font-bold">
+                          {formatCurrency(p.price)}
+                        </p>
+                        {p.setupPrice ? (
+                          <p className="text-sm text-muted">
+                            + {formatCurrency(p.setupPrice)} i opsætning
+                            (engangs)
+                          </p>
+                        ) : null}
+                        {p.monthlyPrice ? (
+                          <p className="text-sm text-muted">
+                            + {formatCurrency(p.monthlyPrice)}/md i abonnement
+                          </p>
+                        ) : (
+                          <p className="text-sm text-muted">Intet abonnement</p>
+                        )}
+                        <p className="mt-1 text-xs text-muted">
+                          Priser ex moms · fri fragt i Danmark
+                        </p>
+                      </div>
+
+                      <ul className="mt-5 flex-1 space-y-2 text-sm text-muted">
+                        {p.features.map((f) => (
+                          <li key={f}>{f}</li>
+                        ))}
+                      </ul>
+
+                      <div className="mt-6">
+                        <ButtonLink
+                          href={`/produkter/${p.slug}`}
+                          size="lg"
+                          variant={p.slug === "reviewstander" ? "primary" : "outline"}
+                          className="w-full"
+                        >
+                          Se {p.name}
+                        </ButtonLink>
+                      </div>
+                    </div>
+                  </div>
+                ) : null,
+              )}
+            </div>
+
+            <p className="mt-6 text-sm text-muted">
+              Vil du også have stempelkort og opslag med, samler{" "}
+              <Link
+                href="/produkter/loyalsum-komplet"
+                className="font-medium text-accent"
+              >
+                LoyalSum Komplet
+              </Link>{" "}
+              det hele på én stander. Se{" "}
+              <Link href="/produkter" className="font-medium text-accent">
+                alle priser
+              </Link>
+              .
+            </p>
+          </div>
+        </section>
+
+        {/* -------------------------------------------------- produktdetaljer */}
+        <section className="border-t border-border bg-muted-bg">
+          <div className="mx-auto max-w-4xl px-4 py-16">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Produktdetaljer
+            </h2>
+            <dl className="mt-8 grid gap-6 sm:grid-cols-2">
+              {[
+                {
+                  t: "Bordstander i sort akryl",
+                  d: "Står selv på disken, bordet eller i receptionen.",
+                },
+                {
+                  t: "QR-kode og NFC",
+                  d: "Begge dele på samme stander, så alle telefoner kan komme videre.",
+                },
+                {
+                  t: "Dit logo",
+                  d: "Vises på den side, kunden lander på, når du har lagt det op i dashboardet.",
+                },
+                {
+                  t: "Klar til brug",
+                  d: "Sæt den på disken og den virker — der skal ikke installeres noget.",
+                },
+              ].map((item) => (
+                <div key={item.t}>
+                  <dt className="font-bold tracking-tight">{item.t}</dt>
+                  <dd className="mt-1 text-sm text-muted">{item.d}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="mt-8 text-sm text-muted">
+              Køber du flere standere, falder prisen pr. stk. — se{" "}
+              <Link
+                href="/produkter/reviewstander"
+                className="font-medium text-accent"
+              >
+                mængderabatten på produktsiden
+              </Link>
+              .
+            </p>
+          </div>
+        </section>
+
+        {/* ---------------------------------------------------------------- FAQ */}
         <section className="border-t border-border bg-background">
           <div className="mx-auto max-w-3xl px-4 py-16">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
@@ -215,39 +540,45 @@ export default function ReviewstanderPage() {
             </h2>
             <div className="mt-8 divide-y divide-border border-y border-border">
               {FAQ.map((item) => (
-                <div key={item.q} className="py-5">
-                  <h3 className="font-bold">{item.q}</h3>
-                  <p className="mt-2 leading-relaxed text-muted">{item.a}</p>
-                </div>
+                <details key={item.q} className="group py-4">
+                  <summary className="cursor-pointer list-none font-bold tracking-tight marker:content-none">
+                    <span className="flex items-start justify-between gap-4">
+                      {item.q}
+                      <span
+                        className="mt-1 shrink-0 text-accent transition-transform group-open:rotate-45"
+                        aria-hidden="true"
+                      >
+                        +
+                      </span>
+                    </span>
+                  </summary>
+                  <p className="mt-3 leading-relaxed text-muted">{item.a}</p>
+                </details>
               ))}
             </div>
-            <p className="mt-8 text-sm text-muted">
-              Vil du også have flere faste kunder? Se vores{" "}
-              <Link href="/stempelkort" className="font-medium text-accent">
-                digitale stempelkort
-              </Link>{" "}
-              — eller få det hele med{" "}
-              <Link href="/produkter/loyalsum-komplet" className="font-medium text-accent">
-                LoyalSum Komplet
-              </Link>
-              .
-            </p>
           </div>
         </section>
 
-        {/* CTA */}
+        {/* --------------------------------------------------------- final CTA */}
         <section className="border-t border-border bg-dark text-dark-fg">
           <div className="mx-auto max-w-6xl px-4 py-20 text-center">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              Klar til flere anmeldelser?
+              Gør det nemt for kunderne at anmelde dig
             </h2>
             <p className="mx-auto mt-3 max-w-lg text-white/70">
-              Kom i gang med en reviewstander i dag — og gør det nemt for dine
-              kunder at anbefale dig.
+              Sæt en reviewstander på disken, og giv den tilfredse kunde en
+              chance for at sige det højt.
             </p>
-            <div className="mt-6">
-              <ButtonLink href="/produkter" size="lg">
-                Se produkterne
+            <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+              <ButtonLink href="/produkter/reviewstander" size="lg">
+                Bestil reviewstander
+              </ButtonLink>
+              <ButtonLink
+                href="/signup"
+                variant="outline-invert"
+                size="lg"
+              >
+                Kom i gang med LoyalSum
               </ButtonLink>
             </div>
           </div>
