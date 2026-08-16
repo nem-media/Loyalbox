@@ -535,8 +535,8 @@ export default function StempelkortPage() {
                 </p>
                 <h3 className="mt-1 font-bold">Anmeldelser og synlighed</h3>
                 <p className="mt-2 text-sm text-white/70">
-                  Standeren gør det let for glade kunder at anmelde dig, og
-                  kritik lander privat hos dig i stedet for offentligt.
+                  Standeren gør det let for kunden at anmelde dig — eller sende
+                  dig feedback direkte, hvis de hellere vil det.
                 </p>
               </div>
               <div className="box-shape border border-white/10 bg-white/5 p-6">
