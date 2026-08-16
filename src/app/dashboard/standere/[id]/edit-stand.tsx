@@ -35,7 +35,7 @@ export function EditStand({
         <>
           <Field
             label="Primær destination"
-            hint="Hvor glade kunder (4-5 stjerner) sendes hen som standard."
+            hint="Hvor kunden sendes hen som standard, når de vil skrive en offentlig anmeldelse."
           >
             <select
               name="destination_type"

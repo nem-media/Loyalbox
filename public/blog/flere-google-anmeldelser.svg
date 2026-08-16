@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Kunde ved disken der giver fem stjerner på sin telefon efter at have scannet en stander">
+  <rect width="1200" height="630" fill="#f6f4ee"/>
+
+  <!-- Disk -->
+  <rect x="80" y="486" width="1040" height="20" rx="10" fill="#19375c" opacity="0.15"/>
+  <rect x="140" y="506" width="60" height="70" fill="#19375c" opacity="0.08"/>
+  <rect x="1000" y="506" width="60" height="70" fill="#19375c" opacity="0.08"/>
+
+  <!-- Stander -->
+  <g>
+    <rect x="200" y="216" width="200" height="250" rx="8" fill="#19375c"/>
+    <rect x="226" y="248" width="90" height="10" rx="5" fill="#ffffff" opacity="0.45"/>
+    <rect x="226" y="270" width="148" height="14" rx="7" fill="#ffffff" opacity="0.85"/>
+    <rect x="240" y="306" width="120" height="120" rx="6" fill="#ffffff"/>
+    <g fill="#19375c">
+      <rect x="254" y="320" width="28" height="28" rx="4"/>
+      <rect x="318" y="320" width="28" height="28" rx="4"/>
+      <rect x="254" y="384" width="28" height="28" rx="4"/>
+      <rect x="292" y="320" width="12" height="12"/><rect x="292" y="344" width="12" height="12"/>
+      <rect x="306" y="370" width="12" height="12"/><rect x="330" y="370" width="12" height="12"/>
+      <rect x="292" y="396" width="12" height="12"/><rect x="330" y="396" width="12" height="12"/>
+    </g>
+    <path d="M236 466l-22 40h172l-22-40z" fill="#0f2440"/>
+  </g>
+
+  <!-- Bue fra stander til telefon -->
+  <path d="M430 300 C 540 220, 620 220, 700 268" stroke="#1b916a" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="2 22"/>
+
+  <!-- Telefon med anmeldelse -->
+  <g>
+    <rect x="700" y="150" width="270" height="380" rx="32" fill="#19375c"/>
+    <rect x="716" y="166" width="238" height="348" rx="22" fill="#ffffff"/>
+
+    <!-- Firmalinje -->
+    <circle cx="758" cy="212" r="20" fill="#1b916a"/>
+    <rect x="790" y="200" width="120" height="12" rx="6" fill="#19375c" opacity="0.7"/>
+    <rect x="790" y="220" width="80" height="10" rx="5" fill="#19375c" opacity="0.3"/>
+
+    <!-- Fem stjerner -->
+    <g fill="#ffb700">
+      <path d="M752 288l9 19 21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z"/>
+      <path d="M800 288l9 19 21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z"/>
+      <path d="M848 288l9 19 21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z"/>
+      <path d="M896 288l9 19 21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z"/>
+      <path d="M944 288l9 19 21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z"/>
+    </g>
+
+    <!-- Anmeldelsestekst -->
+    <rect x="740" y="368" width="190" height="12" rx="6" fill="#19375c" opacity="0.25"/>
+    <rect x="740" y="392" width="160" height="12" rx="6" fill="#19375c" opacity="0.25"/>
+    <rect x="740" y="416" width="120" height="12" rx="6" fill="#19375c" opacity="0.25"/>
+
+    <!-- Knap -->
+    <rect x="740" y="452" width="190" height="42" rx="8" fill="#1b916a"/>
+    <rect x="778" y="468" width="114" height="12" rx="6" fill="#ffffff" opacity="0.9"/>
+  </g>
+</svg>

@@ -23,7 +23,7 @@ export default async function FeedbackPage() {
         <UpgradeNotice
           requiredTier="pro"
           title="Privat feedback-indbakke"
-          description="Fang kritik internt, før den bliver en offentlig 1-stjerne. Den private feedback-indbakke er en del af Pro-abonnementet."
+          description="Feedback kunden har valgt at sende direkte til dig i stedet for at skrive offentligt. Den private feedback-indbakke er en del af Pro-abonnementet."
         />
       </>
     );
