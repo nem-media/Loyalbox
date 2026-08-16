@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Digitalt stempelkort med ti felter, hvoraf syv er stemplet, og en belønning i det tiende">
+  <rect width="1200" height="630" fill="#f6f4ee"/>
+
+  <!-- Kortet -->
+  <rect x="180" y="120" width="840" height="390" rx="10" fill="#19375c"/>
+  <rect x="180" y="120" width="840" height="390" rx="10" fill="none" stroke="#0f2440" stroke-width="2"/>
+
+  <!-- Overskrift på kortet -->
+  <rect x="230" y="170" width="150" height="12" rx="6" fill="#ffffff" opacity="0.35"/>
+  <rect x="230" y="198" width="280" height="20" rx="8" fill="#ffffff" opacity="0.85"/>
+
+  <!-- Stempelrække: 5 + 5 -->
+  <g>
+    <!-- Række 1 — alle fyldt -->
+    <g fill="#1b916a">
+      <circle cx="272" cy="310" r="36"/><circle cx="368" cy="310" r="36"/>
+      <circle cx="464" cy="310" r="36"/><circle cx="560" cy="310" r="36"/>
+      <circle cx="656" cy="310" r="36"/>
+    </g>
+    <g fill="#ffb700">
+      <path d="M272 292l7 15 16 2-12 11 3 16-14-8-14 8 3-16-12-11 16-2z"/>
+      <path d="M368 292l7 15 16 2-12 11 3 16-14-8-14 8 3-16-12-11 16-2z"/>
+      <path d="M464 292l7 15 16 2-12 11 3 16-14-8-14 8 3-16-12-11 16-2z"/>
+      <path d="M560 292l7 15 16 2-12 11 3 16-14-8-14 8 3-16-12-11 16-2z"/>
+      <path d="M656 292l7 15 16 2-12 11 3 16-14-8-14 8 3-16-12-11 16-2z"/>
+    </g>
+
+    <!-- Række 2 — to fyldte, to tomme, og belønningen -->
+    <g fill="#1b916a">
+      <circle cx="272" cy="410" r="36"/><circle cx="368" cy="410" r="36"/>
+    </g>
+    <g fill="#ffb700">
+      <path d="M272 392l7 15 16 2-12 11 3 16-14-8-14 8 3-16-12-11 16-2z"/>
+      <path d="M368 392l7 15 16 2-12 11 3 16-14-8-14 8 3-16-12-11 16-2z"/>
+    </g>
+    <g fill="none" stroke="#ffffff" stroke-width="3" opacity="0.45">
+      <circle cx="464" cy="410" r="36"/><circle cx="560" cy="410" r="36"/>
+    </g>
+    <text x="464" y="422" font-family="system-ui, sans-serif" font-size="30" fill="#ffffff" opacity="0.6" text-anchor="middle">8</text>
+    <text x="560" y="422" font-family="system-ui, sans-serif" font-size="30" fill="#ffffff" opacity="0.6" text-anchor="middle">9</text>
+
+    <!-- Felt 10: belønningen -->
+    <circle cx="656" cy="410" r="40" fill="#ffb700"/>
+    <text x="656" y="423" font-family="system-ui, sans-serif" font-size="32" font-weight="700" fill="#19375c" text-anchor="middle">10</text>
+  </g>
+
+  <!-- Belønningsetiket -->
+  <rect x="740" y="380" width="230" height="60" rx="8" fill="#ffffff" opacity="0.12"/>
+  <rect x="766" y="398" width="24" height="24" rx="4" fill="#ffb700"/>
+  <rect x="806" y="402" width="140" height="16" rx="8" fill="#ffffff" opacity="0.8"/>
+
+  <!-- Fremdriftstekst -->
+  <rect x="740" y="290" width="180" height="14" rx="7" fill="#ffffff" opacity="0.5"/>
+  <rect x="740" y="316" width="120" height="14" rx="7" fill="#ffffff" opacity="0.3"/>
+</svg>

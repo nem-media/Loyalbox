@@ -23,6 +23,15 @@ export interface BlogPost {
   date: string; // ISO
   readingMinutes: number;
   excerpt: string;
+  /** Artikelbillede under /public. Bruges som topbillede, kort i oversigten og OG-billede. */
+  image: string;
+  /**
+   * Alt-tekst: beskriver hvad billedet VISER, ikke hvad artiklen handler om.
+   * Skriv den som du ville forklare billedet i telefonen — det er både det,
+   * skærmlæsere oplæser, og det Google bruger i billedsøgning. Ingen søgeord
+   * stoppet ind, ingen "billede af".
+   */
+  imageAlt: string;
   body: BlogBlock[];
 }
 
@@ -38,6 +47,9 @@ export const POSTS: BlogPost[] = [
     readingMinutes: 4,
     excerpt:
       "Sætter du tallet for højt, giver kunden op. Sætter du det for lavt, forærer du penge væk. Her er den regnemetode, der giver dig det rigtige antal stempler til netop din forretning.",
+    image: "/blog/stempelkort-antal-stempler.svg",
+    imageAlt:
+      "Digitalt stempelkort med ti felter, hvor syv er stemplet og det tiende felt er belønningen",
     body: [
       {
         type: "p",
@@ -111,6 +123,9 @@ export const POSTS: BlogPost[] = [
     readingMinutes: 6,
     excerpt:
       "De store kæder har kundeklubber med apps og point. Men som lokal forretning har du en fordel, de ikke har — og du behøver hverken app eller stort budget. Her er guiden.",
+    image: "/blog/kundeklub-uden-app.svg",
+    imageAlt:
+      "Skilt med QR-kode på en disk ved siden af en telefon, der viser kundens stempelkort i browseren",
     body: [
       {
         type: "p",
@@ -154,76 +169,84 @@ export const POSTS: BlogPost[] = [
   },
   {
     slug: "saadan-faar-du-flere-google-anmeldelser",
-    title: "Sådan får du flere Google-anmeldelser (der virker i 2026)",
-    metaTitle: "Sådan får du flere Google-anmeldelser — guide 2026",
+    title: "Sådan får du flere Google-anmeldelser",
+    metaTitle: "Sådan får du flere Google-anmeldelser — guide til lokale forretninger",
     description:
-      "Vil du have flere Google-anmeldelser? Her er de metoder der faktisk virker for lokale forretninger — og den nemmeste vej til flere 5-stjernede anmeldelser.",
+      "Dine tilfredse kunder anmelder dig sjældent — de bliver ikke mindet om det. Her er de metoder der virker for en lokal forretning, og de tre ting du aldrig må gøre.",
     keyword: "få flere google anmeldelser",
     date: "2026-07-06",
     readingMinutes: 6,
     excerpt:
-      "Flere Google-anmeldelser giver mere tillid, bedre lokal placering og flere kunder. Her er de metoder der virker — og den nemmeste af dem alle.",
+      "Det handler sjældent om, at kunderne er utilfredse. De glemmer det, det er besværligt, og de bliver ikke spurgt på det rigtige tidspunkt. Her er hvad du gør ved det.",
+    image: "/blog/flere-google-anmeldelser.svg",
+    imageAlt:
+      "Kunde ved disken der giver fem stjerner på sin telefon efter at have scannet en stander",
     body: [
       {
         type: "p",
-        html: "Næsten alle tjekker anmeldelser, før de vælger en lokal forretning. Undersøgelser viser, at op mod 86&nbsp;% af forbrugerne læser anmeldelser af lokale virksomheder, og blandt de 18-34-årige stoler 91&nbsp;% lige så meget på online anmeldelser som på en personlig anbefaling. Flere gode Google-anmeldelser betyder derfor både mere tillid, en bedre placering i den lokale Google-søgning — og i sidste ende flere kunder.",
+        html: "De fleste tjekker anmeldelser, før de vælger en café, en frisør eller et værksted, de ikke har prøvet før. Har du fem anmeldelser og konkurrenten hundrede, taber du valget, før nogen har smagt din kaffe.",
       },
       {
         type: "p",
-        html: "Alligevel kæmper de fleste forretninger med at få dem. Her er hvorfor — og hvad du kan gøre ved det.",
+        html: "Alligevel kæmper næsten alle lokale forretninger med at få dem. Det handler sjældent om utilfredse kunder — det handler om, at ingen nogensinde bad dem om det på det rigtige tidspunkt.",
       },
       { type: "h2", text: "Derfor anmelder dine kunder ikke" },
       {
         type: "p",
-        html: "Det handler sjældent om, at kunderne er utilfredse. De tre reelle årsager er næsten altid de samme:",
+        html: "Tre årsager går igen, og de har alle en praktisk løsning:",
       },
       {
         type: "ul",
         items: [
-          "De <strong>glemmer det</strong>, når de er kommet hjem.",
-          "Det er <strong>for besværligt</strong> at finde frem til anmeldelsessiden.",
-          "De <strong>bliver ikke spurgt</strong> på det rigtige tidspunkt.",
+          "De <strong>glemmer det</strong>, så snart de er ude ad døren.",
+          "Det er <strong>for besværligt</strong> at finde din profil frem og navigere til anmeldelsesfeltet.",
+          "De <strong>bliver aldrig spurgt</strong> — eller de bliver spurgt en uge senere i en mail, de ikke åbner.",
         ],
-      },
-      {
-        type: "p",
-        html: "Løser du de tre ting, stiger antallet af anmeldelser markant. Her er fem konkrete måder.",
       },
       { type: "h2", text: "1. Spørg mens oplevelsen er frisk" },
       {
         type: "p",
-        html: "Det bedste tidspunkt er lige efter et godt køb eller måltid — mens kunden stadig er i lokalet og har den positive følelse. En dag senere er momentet væk.",
+        html: "Det bedste tidspunkt er, mens kunden stadig står i lokalet med den gode følelse i behold. En dag senere er momentet væk, og med det også lysten til at skrive noget pænt.",
       },
-      { type: "h2", text: "2. Fjern al friktion" },
+      { type: "h2", text: "2. Fjern hvert eneste klik" },
       {
         type: "p",
-        html: "Hvert ekstra klik koster anmeldelser. Send kunden <strong>direkte</strong> til anmeldelsesfeltet — ikke til din forside. En QR-kode eller et NFC-tap, der åbner Google-anmeldelsen med det samme, gør det til en 10-sekunders opgave.",
+        html: "Hvert ekstra trin koster anmeldelser. Send kunden <strong>direkte</strong> til anmeldelsesfeltet — ikke til din forside, og ikke til en Google-søgning på dit navn. Kan kunden skrive og sende på under et minut, gør mange det. Skal de først lede, gør næsten ingen det.",
       },
-      { type: "h2", text: "3. Gør det synligt ved kassen" },
+      { type: "h2", text: "3. Gør det synligt dér hvor kunden betaler" },
       {
         type: "p",
-        html: "En lille skiltevenlig stander ved kassen eller på bordet minder kunden om at anmelde — uden at personalet skal spørge hver gang. Det er præcis dét, en <a href=\"/produkter\">anmeldelsesstander</a> er lavet til.",
+        html: "Personalet glemmer at spørge, når der er travlt — og de fleste har det akavet med at bede om det. Et skilt gør det for dem, hver eneste gang, uden at nogen skal sige noget. Det er præcis dét, en <a href=\"/reviewstander\">reviewstander</a> er lavet til: kunden tapper eller scanner ved disken og er inde på din anmeldelsesside med det samme.",
       },
-      { type: "h2", text: "4. Fang kritik privat først" },
+      { type: "h2", text: "4. Giv kunden et alternativ til den offentlige anmeldelse" },
       {
         type: "p",
-        html: "Utilfredse kunder skal helst fanges internt, før de skriver en offentlig 1-stjerne. Et smart flow sender glade kunder videre til Google, mens kritik lander privat hos dig, så du kan rette op. Læs mere i vores guide om <a href=\"/blog/google-review-stander-guide\">Google review-standere</a>.",
+        html: "Nogle kunder vil hellere sige tingene til dig end på nettet. Får de muligheden for at sende dig feedback direkte, hører du om problemet, mens du stadig kan nå at rette op — og kunden føler sig hørt. Men det offentlige link skal stå åbent for alle uanset hvad de mener. At sortere kritik fra er i strid med Googles retningslinjer, og det er en dårlig forretning: en profil uden en eneste kritisk anmeldelse ser falsk ud.",
       },
-      { type: "h2", text: "5. Køb aldrig anmeldelser" },
+      { type: "h2", text: "5. Tre ting du aldrig skal gøre" },
+      {
+        type: "ul",
+        items: [
+          "<strong>Køb aldrig anmeldelser.</strong> Falske anmeldelser er i strid med Googles retningslinjer og kan koste dig hele profilen — ikke bare de købte.",
+          "<strong>Beløn aldrig en anmeldelse.</strong> Rabat eller gratis kaffe mod en anmeldelse er ikke tilladt. Du må gerne belønne et genbesøg — bare ikke det, kunden skriver.",
+          "<strong>Spørg ikke kun de glade.</strong> Vurderer du på forhånd, hvem der må anmelde dig, bryder du reglerne, og resultatet holder ikke.",
+        ],
+      },
+      { type: "h2", text: "Hvor mange anmeldelser skal du have?" },
       {
         type: "p",
-        html: "Det er fristende, men falske anmeldelser er i strid med Googles retningslinjer og kan koste dig hele din profil. Byg ægte anmeldelser fra rigtige kunder — det holder i længden.",
+        html: "Der findes ikke et magisk tal, men to ting betyder mere end mængden: at anmeldelserne er <strong>nye</strong>, og at der kommer nogle ind <strong>løbende</strong>. Halvtreds anmeldelser fra i år vejer tungere hos en kunde end to hundrede fra 2019. Derfor er en fast, lille strøm bedre end en kampagne, der giver tredive på en uge og ingenting bagefter.",
       },
-      { type: "h2", text: "Den nemmeste metode samlet" },
+      { type: "h2", text: "Den nemmeste måde at få det til at ske" },
       {
         type: "p",
-        html: "Vil du kombinere det hele — rigtigt tidspunkt, nul friktion, synlighed ved kassen og privat feedback — så er en fysisk anmeldelsesstander med QR og NFC den enkleste vej. Kunden scanner eller tapper, giver sin vurdering på sekunder, og du får flere anmeldelser uden at løfte en finger.",
+        html: "Skal du kun gøre én ting, så gør det synligt ved kassen og fjern klikkene. En stander med QR og NFC løser begge dele på én gang: kunden ser den i det rigtige øjeblik og er ét tap fra at kunne skrive. Resten — tidspunktet, tonen, opfølgningen — kommer af sig selv, når vejen er kort nok.",
       },
       {
         type: "cta",
-        text: "Se hvordan LoyalSum-standeren giver dig flere Google-anmeldelser automatisk.",
-        href: "/produkter",
-        label: "Se produkterne",
+        text: "Gør det nemt for kunderne at anmelde dig.",
+        href: "/reviewstander",
+        label: "Se reviewstanderen",
       },
     ],
   },
@@ -238,6 +261,9 @@ export const POSTS: BlogPost[] = [
     readingMinutes: 5,
     excerpt:
       "En review-stander gør det nemt for kunder at anmelde din forretning med et enkelt tap eller scan. Her er alt du skal vide, før du vælger en.",
+    image: "/blog/review-stander-qr-nfc.svg",
+    imageAlt:
+      "Reviewstander med QR-kode og NFC-felt, mens en telefon holdes hen til NFC-feltet",
     body: [
       {
         type: "p",
@@ -259,7 +285,7 @@ export const POSTS: BlogPost[] = [
         items: [
           "<strong>Både QR og NFC</strong> — så alle kunder kan bruge den.",
           "<strong>Dynamisk link</strong> du kan ændre uden at genoptrykke standeren.",
-          "<strong>Privat feedback</strong>, så kritik fanges internt før den bliver offentlig.",
+          "<strong>Privat feedback</strong> som et alternativ, kunden selv kan vælge — så du hører om en dårlig oplevelse og kan rette op.",
           "<strong>Eget design/logo</strong>, så standeren matcher din forretning.",
           "<strong>Statistik</strong>, så du kan se scanninger og effekt.",
         ],
@@ -292,6 +318,9 @@ export const POSTS: BlogPost[] = [
     readingMinutes: 5,
     excerpt:
       "Du kan lave en gratis QR-kode til dine Google-anmeldelser på få minutter. Her er trinene — og de vigtige begrænsninger du bør kende.",
+    image: "/blog/qr-kode-anmeldelser.svg",
+    imageAlt:
+      "QR-kode der scannes med en telefons kamera og fører direkte til virksomhedens anmeldelsesside",
     body: [
       {
         type: "p",

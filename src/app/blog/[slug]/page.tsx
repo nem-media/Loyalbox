@@ -30,6 +30,9 @@ export async function generateMetadata({
       description: post.description,
       url: `/blog/${post.slug}`,
       publishedTime: post.date,
+      images: [
+        { url: post.image, width: 1200, height: 630, alt: post.imageAlt },
+      ],
     },
   };
 }
@@ -58,6 +61,7 @@ export default async function BlogPostPage({
       // Mørk variant: strukturdata-logoer vises på hvid baggrund hos Google.
       logo: { "@type": "ImageObject", url: `${base}/loyalsum-logo-dark.png` },
     },
+    image: `${base}${post.image}`,
     mainEntityOfPage: `${base}/blog/${post.slug}`,
   };
 
@@ -87,6 +91,18 @@ export default async function BlogPostPage({
             <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
               {post.title}
             </h1>
+            {/* Topbillede. Faste dimensioner + aspect-ratio, så der ikke sker
+                layoutskift, mens det hentes. Ingen lazy loading her — billedet
+                er over folden og er sidens LCP-element. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={post.image}
+              alt={post.imageAlt}
+              width={1200}
+              height={630}
+              fetchPriority="high"
+              className="box-shape mt-8 aspect-[1200/630] w-full border border-border bg-muted-bg"
+            />
           </header>
 
           <ArticleBody blocks={post.body} />
