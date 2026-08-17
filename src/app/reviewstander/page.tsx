@@ -7,6 +7,16 @@ import { StanderPlaceholder } from "@/components/product-placeholder";
 import { getProduct } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 import { getSiteUrl } from "@/lib/site";
+import {
+  TapIcon,
+  ShareExperienceIcon,
+  GrowthIcon,
+  NewCustomersIcon,
+  FeedbackIcon,
+  ReturningIcon,
+  NfcIcon,
+  QrIcon,
+} from "@/components/illustrations";
 
 /**
  * Produkt- og SEO-landingsside for reviewstanderen.
@@ -57,14 +67,17 @@ export const metadata: Metadata = {
 
 const STEPS = [
   {
+    Icon: TapIcon,
     title: "Tap eller scan",
     body: "Kunden holder mobilen hen til standeren eller scanner QR-koden med kameraet. Der skal ikke hentes en app.",
   },
   {
+    Icon: ShareExperienceIcon,
     title: "Del oplevelsen",
     body: "Din anmeldelsesside åbner med det samme på kundens telefon, og de kan gå videre til den platform, du har valgt.",
   },
   {
+    Icon: GrowthIcon,
     title: "Styrk din forretning",
     body: "Flere kunder får mulighed for at fortælle om deres oplevelse — og du kan se aktiviteten i dit dashboard.",
   },
@@ -218,11 +231,14 @@ export default function ReviewstanderPage() {
             <div className="mt-10 grid gap-8 md:grid-cols-3">
               {STEPS.map((s, i) => (
                 <div key={s.title}>
-                  <div
-                    className="btn-shape grid h-10 w-10 place-items-center bg-accent font-bold text-accent-fg"
-                    aria-hidden="true"
-                  >
-                    {i + 1}
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="btn-shape grid h-10 w-10 shrink-0 place-items-center bg-accent font-bold text-accent-fg"
+                      aria-hidden="true"
+                    >
+                      {i + 1}
+                    </div>
+                    <s.Icon className="h-10 w-10 text-accent" />
                   </div>
                   <h3 className="mt-4 text-lg font-bold tracking-tight">
                     {s.title}
@@ -311,7 +327,8 @@ export default function ReviewstanderPage() {
             </h2>
             <div className="mt-8 grid gap-6 sm:grid-cols-2">
               <div className="box-shape border border-white/10 bg-white/5 p-6">
-                <h3 className="font-bold">Tap med NFC</h3>
+                <NfcIcon className="h-9 w-9 text-secondary" />
+                <h3 className="mt-3 font-bold">Tap med NFC</h3>
                 <p className="mt-2 text-sm leading-relaxed text-white/70">
                   Samme teknologi som kontaktløs betaling. Kunden holder toppen
                   af telefonen mod standeren, og siden åbner af sig selv. Ingen
@@ -319,7 +336,8 @@ export default function ReviewstanderPage() {
                 </p>
               </div>
               <div className="box-shape border border-white/10 bg-white/5 p-6">
-                <h3 className="font-bold">Scan QR-koden</h3>
+                <QrIcon className="h-9 w-9 text-secondary" />
+                <h3 className="mt-3 font-bold">Scan QR-koden</h3>
                 <p className="mt-2 text-sm leading-relaxed text-white/70">
                   Har telefonen ikke NFC, peger kunden bare kameraet på
                   QR-koden. Begge dele sidder på standeren, så det virker for
@@ -366,19 +384,21 @@ export default function ReviewstanderPage() {
             </p>
 
             <ol className="mt-8 grid gap-3 sm:grid-cols-4">
-              {["Anmeldelse", "Feedback", "Loyalitet", "Genbesøg"].map(
-                (step, i) => (
-                  <li
-                    key={step}
-                    className="box-shape border border-border bg-card p-4 text-center"
-                  >
-                    <span className="text-xs font-medium text-muted">
-                      {i + 1}
-                    </span>
-                    <p className="mt-1 font-bold tracking-tight">{step}</p>
-                  </li>
-                ),
-              )}
+              {[
+                { label: "Anmeldelse", Icon: NewCustomersIcon },
+                { label: "Feedback", Icon: FeedbackIcon },
+                { label: "Loyalitet", Icon: ReturningIcon },
+                { label: "Genbesøg", Icon: GrowthIcon },
+              ].map((step, i) => (
+                <li
+                  key={step.label}
+                  className="box-shape border border-border bg-card p-4 text-center"
+                >
+                  <span className="text-xs font-medium text-muted">{i + 1}</span>
+                  <step.Icon className="mx-auto mt-1 h-8 w-8 text-accent" />
+                  <p className="mt-1 font-bold tracking-tight">{step.label}</p>
+                </li>
+              ))}
             </ol>
 
             <p className="mt-8 max-w-2xl leading-relaxed text-foreground/90">

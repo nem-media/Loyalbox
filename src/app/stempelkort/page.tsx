@@ -6,6 +6,15 @@ import { ButtonLink } from "@/components/ui/button";
 import { getProduct } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 import { getSiteUrl } from "@/lib/site";
+import {
+  CreateCardIcon,
+  ScanIcon,
+  StampIcon,
+  RewardIcon,
+  ReturnVisitIcon,
+  ProgressIcon,
+  ReturningIcon,
+} from "@/components/illustrations";
 
 /**
  * SEO-landingsside for "stempelkort" / "digitalt stempelkort".
@@ -55,22 +64,27 @@ export const metadata: Metadata = {
 /** Trin-for-trin. Rækkefølgen matcher det faktiske flow i produktet. */
 const STEPS = [
   {
+    Icon: CreateCardIcon,
     title: "Du opretter stempelkortet",
     body: "Vælg hvor mange stempler der skal til, hvad kunden optjener, og hvad kortet hedder. Du vælger farve og en kort tekst, så kortet ligner din forretning. Skal du hurtigt i gang, kan du starte fra en færdig skabelon til café, restaurant, frisør eller klinik.",
   },
   {
+    Icon: ScanIcon,
     title: "Kunden får sit kort ved at scanne",
     body: "Gæsten scanner QR-koden på din stander og opretter kortet på få sekunder. Kortet er en helt almindelig webside — der er ingen app at hente og ingen konto, kunden skal oprette først.",
   },
   {
+    Icon: StampIcon,
     title: "Personalet giver et stempel",
     body: "Kunden viser sit kort, personalet åbner det og trykker én gang. Stemplet lander med det samme, og kunden ser fremgangen på sin egen skærm. Kun personale med adgang til din forretning kan stemple.",
   },
   {
+    Icon: RewardIcon,
     title: "Kunden låser belønningen op",
     body: "Når kortet er fuldt, står belønningen klar på kundens kort. Personalet indløser den, når kunden bruger den, og kortet starter forfra efter de regler, du har valgt.",
   },
   {
+    Icon: ReturnVisitIcon,
     title: "Og har en grund til at komme igen",
     body: "Kunden går ud ad døren med fremskridt mod noget, de kun kan hente hos dig. Det er hele pointen: næste gang står valget ikke længere mellem dig og de andre på lige fod.",
   },
@@ -323,19 +337,22 @@ export default function StempelkortPage() {
             </p>
 
             <ol className="mt-10 grid gap-3 sm:grid-cols-5">
-              {["Besøg", "Stempel", "Fremskridt", "Belønning", "Næste besøg"].map(
-                (step, i) => (
-                  <li
-                    key={step}
-                    className="box-shape border border-border bg-card p-4 text-center"
-                  >
-                    <span className="text-xs font-medium text-muted">
-                      {i + 1}
-                    </span>
-                    <p className="mt-1 font-bold tracking-tight">{step}</p>
-                  </li>
-                ),
-              )}
+              {[
+                { label: "Besøg", Icon: ReturnVisitIcon },
+                { label: "Stempel", Icon: StampIcon },
+                { label: "Fremskridt", Icon: ProgressIcon },
+                { label: "Belønning", Icon: RewardIcon },
+                { label: "Næste besøg", Icon: ReturningIcon },
+              ].map((step, i) => (
+                <li
+                  key={step.label}
+                  className="box-shape border border-border bg-card p-4 text-center"
+                >
+                  <span className="text-xs font-medium text-muted">{i + 1}</span>
+                  <step.Icon className="mx-auto mt-1 h-8 w-8 text-accent" />
+                  <p className="mt-1 font-bold tracking-tight">{step.label}</p>
+                </li>
+              ))}
             </ol>
           </div>
         </section>
@@ -359,6 +376,7 @@ export default function StempelkortPage() {
                   >
                     {i + 1}
                   </div>
+                  <s.Icon className="hidden h-10 w-10 shrink-0 text-accent sm:block" />
                   <div>
                     <h3 className="text-lg font-bold tracking-tight">
                       {s.title}
