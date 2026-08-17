@@ -14,7 +14,7 @@ import {
 export const metadata = {
   title: "Standere og materialer til din forretning",
   description:
-    "Bestil din LoyalSum-reviewstander med QR og NFC — op til 30 stk. med mængderabat. Flere materialer til disken, døren og bordet er på vej.",
+    "Bestil din LoyalSum-reviewstander med QR og NFC — med mængderabat fra 3 stk. Flere materialer til disken, døren og bordet er på vej.",
   alternates: { canonical: "/produkter" },
 };
 
@@ -43,7 +43,7 @@ export default function ProductsPage() {
               Kan bestilles nu
             </h2>
             <p className="text-xs text-muted">
-              Alle priser er ex moms · op til 30 stk. med mængderabat
+              Alle priser er ex moms · mængderabat fra 3 stk.
             </p>
           </div>
 

@@ -168,7 +168,7 @@ const FAQ = [
   },
   {
     q: "Hvad koster et digitalt stempelkort?",
-    a: "Stempelkortet er en del af LoyalSum Komplet. Du betaler for standeren én gang, en opsætning og et fast månedligt abonnement — se de aktuelle priser på produktsiden.",
+    a: "Stempelkortet er en del af LoyalSum Komplet. Du betaler for standeren én gang og et fast månedligt abonnement — se de aktuelle priser på produktsiden.",
   },
 ];
 

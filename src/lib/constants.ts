@@ -149,8 +149,12 @@ export const COMMERCE = {
 // produktsider og checkout.
 // ===========================================================================
 
-/** Maksimalt antal standere pr. ordre. */
-export const MAX_QTY = 30;
+/**
+ * Maksimalt antal standere i selvbetjeningen. Ikke en forretningsgrænse, men en
+ * sikkerhedsventil: større ordrer skal aftales med os, ikke klikkes igennem.
+ * Antalsvælgeren viser en kontaktbesked, når loftet er nået.
+ */
+export const MAX_QTY = 100;
 
 /**
  * Mængderabat: rabat pr. stander når man køber mindst `minQty` stk. Rediger frit
@@ -159,9 +163,9 @@ export const MAX_QTY = 30;
  */
 export const VOLUME_DISCOUNTS: { minQty: number; discountPct: number }[] = [
   { minQty: 1, discountPct: 0 },
-  { minQty: 3, discountPct: 5 },
-  { minQty: 10, discountPct: 10 },
-  { minQty: 20, discountPct: 15 },
+  { minQty: 3, discountPct: 10 },
+  { minQty: 10, discountPct: 15 },
+  { minQty: 20, discountPct: 20 },
 ];
 
 /** Alle priser i shoppen vises ex moms. */
@@ -206,7 +210,6 @@ export const PRODUCTS: Product[] = [
     price: 399,
     interval: "one_time",
     monthlyPrice: 99,
-    setupPrice: 495,
     includesLoyalSum: false,
     tagline: "Egen anmeldelsesside + dynamiske links",
     description:
@@ -232,7 +235,6 @@ export const PRODUCTS: Product[] = [
     price: 399,
     interval: "one_time",
     monthlyPrice: 399,
-    setupPrice: 950,
     includesLoyalSum: true,
     featured: true,
     tagline: "Hele platformen — reviews + stempelkort",
