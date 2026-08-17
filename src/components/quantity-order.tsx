@@ -11,7 +11,7 @@ import {
 import { formatCurrency } from "@/lib/utils";
 
 /**
- * Buy-box med antal-vælger (1–30) og live mængderabat. Kun standerprisen ganges
+ * Buy-box med antal-vælger og live mængderabat. Kun standerprisen ganges
  * med antal; abonnement og opsætning er faste — uafhængigt af antal.
  * Bruges på produktsiden (mode="order" → /bestil) og bestil-siden
  * (mode="checkout" → /signup). Product er et rent objekt (server → client OK).
@@ -45,7 +45,7 @@ export function QuantityOrder({
       <div className="flex items-center justify-between gap-4">
         <div>
           <p className="text-sm font-medium">Antal standere</p>
-          <p className="text-xs text-muted">Op til {MAX_QTY} stk.</p>
+          <p className="text-xs text-muted">Mængderabat fra 3 stk.</p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -77,6 +77,20 @@ export function QuantityOrder({
           </button>
         </div>
       </div>
+
+      {/* Ved loftet: en vej videre i stedet for en grå knap uden forklaring. */}
+      {qty >= MAX_QTY ? (
+        <p className="mt-3 box-shape border border-secondary/30 bg-secondary/10 p-3 text-sm">
+          Skal du bruge mere end {MAX_QTY} standere?{" "}
+          <a
+            href="mailto:kontakt@loyalsum.dk?subject=Bestilling%20af%20flere%20standere"
+            className="font-medium text-accent"
+          >
+            Skriv til os
+          </a>
+          , så laver vi en aftale.
+        </p>
+      ) : null}
 
       {/* Pris */}
       <div className="mt-4 space-y-1.5 border-t border-border pt-4 text-sm">

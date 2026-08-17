@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 export const metadata = {
   title: "Bestil din stander",
   description:
-    "Bestil din LoyalSum-stander — vælg antal op til 30 stk. med mængderabat. Reviewstander, Reviewstander Pro eller LoyalSum Komplet med digitalt stempelkort.",
+    "Bestil din LoyalSum-stander med mængderabat. Reviewstander, Reviewstander Pro eller LoyalSum Komplet med digitalt stempelkort.",
   alternates: { canonical: "/bestil" },
 };
 
@@ -64,8 +64,8 @@ export default async function OrderPage({
                 Bestil din stander
               </h1>
               <p className="mt-2 text-muted">
-                Vælg det produkt der passer til din forretning — og antal op til
-                30 stk. med mængderabat.
+                Vælg det produkt der passer til din forretning — og hvor mange
+                du skal bruge. Jo flere standere, jo lavere pris pr. stk.
               </p>
             </div>
             <Pricing />
