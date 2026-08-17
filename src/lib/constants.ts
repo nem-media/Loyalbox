@@ -107,8 +107,10 @@ export interface Product {
   // --- Betaling (Stripe) — udfyldes når Stripe-kontoen er oprettet ---
   /** Stripe Product-ID (prod_…). Tomt indtil produktet er oprettet i Stripe. */
   stripeProductId?: string;
-  /** Stripe Price-ID (price_…). Én pris pr. produkt/interval. */
+  /** Stripe Price-ID for engangsbeløbet (standeren). */
   stripePriceId?: string;
+  /** Stripe Price-ID for det månedlige abonnement. Kun på abonnementsvarer. */
+  stripeMonthlyPriceId?: string;
 
   // --- Google Shopping / Merchant Center ---
   /** Med i et Google Shopping-feed? Som udgangspunkt kun fysiske engangsprodukter. */
