@@ -7,6 +7,11 @@ import { LoyalsumLoop } from "@/components/home/loyalsum-loop";
 import { PlatformShowcase } from "@/components/home/platform-showcase";
 import { SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import { getSiteUrl } from "@/lib/site";
+import {
+  SetupIcon,
+  InviteIcon,
+  AutomationIcon,
+} from "@/components/illustrations";
 
 /* ------------------------------------------------------------------ icons */
 
@@ -62,14 +67,17 @@ const IconRepeat = (
 
 const SETUP_STEPS = [
   {
+    Icon: SetupIcon,
     title: "Sæt LoyalSum op",
     body: "Vi hjælper dig i gang med din forretning, dine anmeldelseslinks, dit loyalitetsprogram og din branding.",
   },
   {
+    Icon: InviteIcon,
     title: "Invitér kunderne ind",
     body: "Kunderne møder LoyalSum gennem QR, NFC, links og de kontaktpunkter, du allerede har i forvejen.",
   },
   {
+    Icon: AutomationIcon,
     title: "LoyalSum arbejder videre",
     body: "Anmeldelser, feedback, genbesøg, opslag og indsigt løber ind ét sted — også når du har travlt.",
   },
@@ -348,8 +356,11 @@ export default function LandingPage() {
             <ol className="mt-12 grid gap-8 md:grid-cols-3">
               {SETUP_STEPS.map((s, i) => (
                 <li key={s.title}>
-                  <div className="btn-shape grid h-10 w-10 place-items-center bg-accent font-bold text-accent-fg">
-                    {i + 1}
+                  <div className="flex items-center gap-3">
+                    <div className="btn-shape grid h-10 w-10 shrink-0 place-items-center bg-accent font-bold text-accent-fg">
+                      {i + 1}
+                    </div>
+                    <s.Icon className="h-10 w-10 text-accent" />
                   </div>
                   <h3 className="mt-4 text-lg font-bold">{s.title}</h3>
                   <p className="mt-2 text-sm text-muted">{s.body}</p>
