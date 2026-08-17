@@ -3,7 +3,6 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ButtonLink } from "@/components/ui/button";
-import { StampCardPreview } from "@/components/loyalty/stamp-card-preview";
 import { getProduct } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 import { getSiteUrl } from "@/lib/site";
@@ -245,17 +244,19 @@ export default function StempelkortPage() {
               </p>
             </div>
 
-            {/* Kundens faktiske kort — samme komponent som i produktet */}
+            {/* Skærmbillede fra det rigtige produkt — ikke en illustration.
+                Faste dimensioner mod layoutskift; høj prioritet, da det er
+                heroens LCP-element. */}
             <div className="lg:justify-self-end lg:pl-8">
-              <div className="mx-auto w-full max-w-[300px]">
-                <StampCardPreview
-                  companyName="Café Aurora"
-                  name="Kaffekort"
-                  color="#1b916a"
-                  requiredStamps={10}
-                  filled={7}
-                  rewardName="Gratis kaffe"
-                  cardText="Køb 9 kaffe — få den 10. gratis"
+              <div className="mx-auto w-full max-w-[330px]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/stempelkort-app.webp"
+                  alt="Kundens stempelkort på telefonen: Kaffekort hos Testcafe med 7 af 10 stempler samlet og belønningen gratis kaffe"
+                  width={660}
+                  height={720}
+                  fetchPriority="high"
+                  className="box-shape w-full border border-white/10 bg-white shadow-[0_30px_60px_-25px_rgba(0,0,0,0.6)]"
                 />
                 <p className="mt-3 text-center text-xs text-white/50">
                   Sådan ser kundens kort ud på telefonen
