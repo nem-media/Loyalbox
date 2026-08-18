@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand";
-import { SITE_NAME, SITE_TAGLINE, PRODUCTS } from "@/lib/constants";
+import { SITE_NAME, SITE_TAGLINE, PRODUCTS, COMPANY, mangler } from "@/lib/constants";
 
 interface FooterLink {
   href: string;
@@ -71,9 +71,34 @@ export function SiteFooter() {
           ))}
         </div>
 
-        <div className="mt-12 border-t border-border pt-6 text-sm text-muted">
-          © {new Date().getFullYear()} {SITE_NAME} · Flere nye kunder og flere
-          genbesøg for lokale forretninger.
+        {/* Selskabsoplysninger er et lovkrav (e-handelsloven) og noget Stripe
+            kontrollerer ved godkendelse — derfor i footeren på hver side. */}
+        <div className="mt-12 flex flex-col gap-4 border-t border-border pt-6 text-sm text-muted sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p>
+              © {new Date().getFullYear()} {SITE_NAME} · Flere nye kunder og
+              flere genbesøg for lokale forretninger.
+            </p>
+            <p className="mt-2">
+              {COMPANY.legalName}
+              {mangler(COMPANY.cvr) ? null : ` · CVR ${COMPANY.cvr}`}
+              {mangler(COMPANY.address)
+                ? null
+                : ` · ${COMPANY.address}, ${COMPANY.postalCode} ${COMPANY.city}`}
+              {" · "}
+              <a href={`mailto:${COMPANY.email}`} className="hover:text-accent">
+                {COMPANY.email}
+              </a>
+            </p>
+          </div>
+          <nav aria-label="Juridisk" className="flex gap-4 sm:shrink-0">
+            <Link href="/handelsbetingelser" className="hover:text-accent">
+              Handelsbetingelser
+            </Link>
+            <Link href="/privatliv" className="hover:text-accent">
+              Privatlivspolitik
+            </Link>
+          </nav>
         </div>
       </div>
     </footer>
