@@ -5,6 +5,7 @@ import { Pricing } from "@/components/pricing";
 import { QuantityOrder } from "@/components/quantity-order";
 import { PRODUCTS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
+import { PurchaseNotice } from "@/components/purchase-notice";
 
 export const metadata = {
   title: "Bestil din stander",
@@ -42,16 +43,13 @@ export default async function OrderPage({
               ))}
             </ul>
 
+            <PurchaseNotice />
+
             <QuantityOrder
               product={selected}
               initialQty={initialQty}
               mode="checkout"
             />
-
-            <div className="box-shape border border-accent/20 bg-accent/5 p-4 text-sm text-muted">
-              Betaling med kort er på vej (Stripe). Opret din konto nu, så står
-              din bestilling klar.
-            </div>
 
             <Link href="/bestil" className="inline-block text-sm font-medium text-accent">
               ← Se alle produkter

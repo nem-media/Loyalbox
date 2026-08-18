@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { PRODUCTS, UPCOMING_MERCH } from "@/lib/constants";
 import { ProductPrice } from "@/components/product-price";
+import { PurchaseNotice } from "@/components/purchase-notice";
 import {
   PlaceholderPanel,
   StanderPlaceholder,
@@ -46,6 +47,8 @@ export default function ProductsPage() {
               Alle priser er ex moms · mængderabat fra 3 stk.
             </p>
           </div>
+
+          <PurchaseNotice className="mb-6" />
 
           <div className="grid gap-6 md:grid-cols-3">
             {PRODUCTS.map((p) => (
