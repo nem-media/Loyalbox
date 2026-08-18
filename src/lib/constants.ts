@@ -3,6 +3,34 @@ export const SITE_TAGLINE =
   "Anmeldelser, loyalitet, feedback og synlighed samlet i én platform — så lokale forretninger får flere nye kunder og flere genbesøg.";
 
 /**
+ * SELSKABSOPLYSNINGER — UDFYLD FØR LIVE
+ *
+ * Det er et lovkrav (e-handelsloven), at selskabsnavn, CVR og adresse fremgår
+ * af sitet, og Stripe kontrollerer det samme, når en konto skal godkendes til
+ * rigtige betalinger. Felter markeret UDFYLD vises som en tydelig markering på
+ * siderne i stedet for at blive udeladt i stilhed — så kan de ikke glemmes.
+ *
+ * Bruges af footeren, handelsbetingelserne og privatlivspolitikken.
+ */
+export const COMPANY = {
+  legalName: "Nem Media ApS",
+  cvr: "UDFYLD",
+  address: "UDFYLD",
+  postalCode: "UDFYLD",
+  city: "UDFYLD",
+  email: "kontakt@loyalsum.dk",
+  /** Tom = telefon vises ikke. */
+  phone: "",
+  /** Hvor lang tid går der typisk, fra bestilling til standeren er sendt? */
+  deliveryDays: "UDFYLD",
+} as const;
+
+/** True hvis feltet stadig venter på en rigtig værdi. */
+export function mangler(v: string): boolean {
+  return !v || v === "UDFYLD";
+}
+
+/**
  * Målsøgeord kunder skal finde os på (organisk + Shopping). Dækker begge motorer:
  * loyalitet/stempelkort OG anmeldelser. Væves naturligt ind i titler/beskrivelser
  * — ikke keyword-stuffing.

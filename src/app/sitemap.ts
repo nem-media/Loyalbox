@@ -26,6 +26,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
     },
     {
+      url: `${base}/handelsbetingelser`,
+      changeFrequency: "yearly",
+      priority: 0.3,
+      lastModified,
+    },
+    {
+      url: `${base}/privatliv`,
+      changeFrequency: "yearly",
+      priority: 0.3,
+      lastModified,
+    },
+    {
       url: `${base}/reviewstander`,
       changeFrequency: "monthly",
       priority: 0.9,
