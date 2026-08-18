@@ -6,6 +6,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { getProduct } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 import { getSiteUrl } from "@/lib/site";
+import { PurchaseNotice } from "@/components/purchase-notice";
 import {
   CreateCardIcon,
   ScanIcon,
@@ -590,7 +591,9 @@ export default function StempelkortPage() {
                 samler stempelkort, anmeldelser og opslag på én stander.
               </p>
 
-              <div className="mt-8 box-shape border border-border bg-card p-6">
+              <PurchaseNotice className="mt-8" />
+
+              <div className="mt-4 box-shape border border-border bg-card p-6">
                 <dl className="grid gap-4 sm:grid-cols-3">
                   <div>
                     <dt className="text-sm text-muted">Stander</dt>

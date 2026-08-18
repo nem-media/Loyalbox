@@ -8,6 +8,7 @@ import { PRODUCTS, getProduct } from "@/lib/constants";
 import { toProductJsonLd } from "@/lib/commerce";
 import { formatCurrency } from "@/lib/utils";
 import { QuantityOrder } from "@/components/quantity-order";
+import { PurchaseNotice } from "@/components/purchase-notice";
 import { StanderPlaceholder } from "@/components/product-placeholder";
 
 export function generateStaticParams() {
@@ -110,7 +111,9 @@ export default async function ProductPage({
               ))}
             </ul>
 
-            <div className="mt-8">
+            <PurchaseNotice className="mt-8" />
+
+            <div className="mt-4">
               <QuantityOrder product={product} mode="order" />
             </div>
             <div className="mt-3">

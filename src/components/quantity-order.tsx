@@ -36,7 +36,9 @@ export function QuantityOrder({
       ? `/bestil?produkt=${product.slug}&antal=${qty}`
       : "/signup";
   const label =
-    ctaLabel ?? (mode === "order" ? "Bestil" : "Opret konto & bestil");
+    // "Opret konto & bestil" lovede en bestilling, der ikke findes: signup
+    // opretter en virksomhed, ikke en ordre. Rettes tilbage når betaling åbner.
+    ctaLabel ?? (mode === "order" ? "Se pris og bestil" : "Opret konto");
   const tiers = VOLUME_DISCOUNTS.filter((v) => v.discountPct > 0);
 
   return (
