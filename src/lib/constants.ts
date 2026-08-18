@@ -271,6 +271,18 @@ export const PRODUCTS: Product[] = [
   },
 ];
 
+/**
+ * Har virksomheden købt et produkt, der indeholder stempelkortet?
+ *
+ * `plan` kan ikke svare på det: både Reviewstander Pro og LoyalSum Komplet er
+ * niveau `pro`, fordi de har samme review-funktioner. Forskellen er netop
+ * stempelkortet, og den kendes kun via det købte produkt.
+ */
+export function hasLoyaltyAccess(productSlug: string | null | undefined): boolean {
+  if (!productSlug) return false;
+  return Boolean(getProduct(productSlug)?.includesLoyalSum);
+}
+
 export function getProduct(slug: string): Product | undefined {
   return PRODUCTS.find((p) => p.slug === slug);
 }

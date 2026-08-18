@@ -5,6 +5,7 @@ import { PurchaseNotice } from "@/components/purchase-notice";
 import {
   CAPABILITY_LABELS,
   CAPABILITY_ORDER,
+  getProduct,
   PRODUCTS,
   TIER_LABELS,
   tierCan,
@@ -33,6 +34,17 @@ export default async function SubscriptionPage() {
 
   /** Abonnementsvarerne — dem der faktisk koster noget om måneden. */
   const subscriptions = PRODUCTS.filter((p) => p.monthlyPrice);
+
+  /**
+   * Har kunden allerede købt et produkt, har de også allerede en stander og et
+   * abonnement. Så er den reelle pris for at gå op forskellen mellem de to
+   * månedspriser — ikke fuld pris forfra. `product_slug` (migration 0008)
+   * gør det muligt at regne det præcist frem for at gætte ud fra niveauet.
+   */
+  const nuvaerende = company?.product_slug
+    ? getProduct(company.product_slug)
+    : undefined;
+  const betalerAllerede = nuvaerende?.monthlyPrice ?? 0;
 
   return (
     <>
@@ -87,7 +99,9 @@ export default async function SubscriptionPage() {
           </p>
 
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            {subscriptions.map((p) => (
+            {subscriptions
+              .filter((p) => p.slug !== nuvaerende?.slug)
+              .map((p) => (
               <div
                 key={p.slug}
                 className="box-shape flex flex-col border border-border bg-card p-5"
@@ -100,9 +114,21 @@ export default async function SubscriptionPage() {
                     /md ex moms
                   </span>
                 </p>
-                <p className="text-sm text-muted">
-                  + {formatCurrency(p.price)} for standeren
-                </p>
+                {betalerAllerede && p.monthlyPrice! > betalerAllerede ? (
+                  <p className="mt-1 text-sm text-accent">
+                    Du betaler {formatCurrency(betalerAllerede)}/md i dag, så
+                    opgraderingen koster{" "}
+                    <strong>
+                      {formatCurrency(p.monthlyPrice! - betalerAllerede)}/md
+                      mere
+                    </strong>{" "}
+                    — og du beholder din stander.
+                  </p>
+                ) : (
+                  <p className="text-sm text-muted">
+                    + {formatCurrency(p.price)} for standeren
+                  </p>
+                )}
                 <Link
                   href={`/produkter/${p.slug}`}
                   className="mt-4 text-sm font-medium text-accent"
@@ -110,7 +136,7 @@ export default async function SubscriptionPage() {
                   Se {p.name} →
                 </Link>
               </div>
-            ))}
+              ))}
           </div>
 
           <PurchaseNotice className="mt-5" />

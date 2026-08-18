@@ -60,6 +60,8 @@ export interface Database {
           user_id: string | null;
           name: string;
           plan: CompanyPlan;
+          /** Slug fra PRODUCTS. Styrer adgang til stempelkort (migration 0008). */
+          product_slug: string | null;
           logo_url: string | null;
           contact_email: string | null;
           phone: string | null;
@@ -72,6 +74,7 @@ export interface Database {
           user_id?: string | null;
           name: string;
           plan?: CompanyPlan;
+          product_slug?: string | null;
           logo_url?: string | null;
           contact_email?: string | null;
           phone?: string | null;

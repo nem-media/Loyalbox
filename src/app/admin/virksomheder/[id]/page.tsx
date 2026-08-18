@@ -8,6 +8,7 @@ import { CompanyInfo } from "./company-info";
 import { AdminStandLinks } from "./admin-stand-links";
 import { AddStand } from "./add-stand";
 import { PlanSelect } from "./plan-select";
+import { ProductSelect } from "./product-select";
 
 export const metadata = { title: "Admin — Virksomhed" };
 
@@ -59,15 +60,27 @@ export default async function AdminCompanyDetail({
       />
 
       <Card className="mb-6">
-        <CardBody className="flex flex-wrap items-center justify-between gap-3">
+        <CardBody className="grid gap-6 md:grid-cols-2">
           <div>
             <CardTitle>Plan / abonnement</CardTitle>
-            <p className="mt-1 text-sm text-muted">
-              Op- eller nedgrader kundens løsning. Ændringen slår igennem med det
-              samme i kundens kontrolpanel.
+            <p className="mt-1 mb-3 text-sm text-muted">
+              Styrer review-funktionerne: eget logo, dynamiske links, feedback
+              og statistik. Slår igennem med det samme i kundens panel.
             </p>
+            <PlanSelect companyId={company.id} plan={company.plan} />
           </div>
-          <PlanSelect companyId={company.id} plan={company.plan} />
+          <div>
+            <CardTitle>Købt produkt</CardTitle>
+            <p className="mt-1 mb-3 text-sm text-muted">
+              Afgør om <strong>stempelkortet</strong> er låst op. Begge
+              abonnementsvarer er niveau Pro — det er produktet, der skiller
+              dem. Sælger du LoyalSum Komplet manuelt, sættes adgangen her.
+            </p>
+            <ProductSelect
+              companyId={company.id}
+              productSlug={company.product_slug ?? null}
+            />
+          </div>
         </CardBody>
       </Card>
 

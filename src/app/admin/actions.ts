@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { generateSlug } from "@/lib/utils";
-import { TIER_ORDER, type Tier } from "@/lib/constants";
+import { TIER_ORDER, PRODUCTS, type Tier } from "@/lib/constants";
 import type {
   CompanyPlan,
   DestinationType,
@@ -133,6 +133,32 @@ export async function setCompanyPlan(formData: FormData): Promise<void> {
 
   const supabase = await createClient();
   await supabase.from("companies").update({ plan }).eq("id", id);
+  revalidatePath(`/admin/virksomheder/${id}`);
+  revalidatePath("/admin/virksomheder");
+}
+
+/**
+ * Admin sætter hvilket produkt virksomheden har købt.
+ *
+ * Det er IKKE det samme som planen: `plan` styrer review-funktionerne, mens
+ * `product_slug` afgør, om stempelkortet er låst op — begge abonnementsvarer
+ * er niveau `pro`, og det er produktet, der skiller dem. Sælges LoyalSum
+ * Komplet manuelt, er det her, adgangen gives.
+ *
+ * Tom værdi rydder feltet (ingen registreret vare).
+ */
+export async function setCompanyProduct(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = String(formData.get("company_id") ?? "");
+  const slug = String(formData.get("product_slug") ?? "");
+  if (!id) return;
+  if (slug && !PRODUCTS.some((p) => p.slug === slug)) return;
+
+  const supabase = await createClient();
+  await supabase
+    .from("companies")
+    .update({ product_slug: slug || null })
+    .eq("id", id);
   revalidatePath(`/admin/virksomheder/${id}`);
   revalidatePath("/admin/virksomheder");
 }
