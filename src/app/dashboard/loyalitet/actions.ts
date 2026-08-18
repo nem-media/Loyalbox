@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCompanyAccess } from "@/lib/loyalty/access";
+import { hasLoyaltyAccess } from "@/lib/constants";
 import {
   giveStamp,
   redeemReward,
@@ -38,6 +39,26 @@ function numOrNull(v: FormDataEntryValue | null): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+
+/**
+ * Er stempelkortet med i virksomhedens abonnement?
+ *
+ * Layoutet spærrer allerede dashboardet, men UI er ikke sikkerhed: uden dette
+ * tjek kunne en POST direkte mod en server-action oprette et program alligevel.
+ *
+ * Bevidst kun på ADMINISTRATION (opret/redigér program og rabatter). Stempling
+ * og indløsning af eksisterende kort er ikke spærret — en kunde med et halvt
+ * fyldt kort skal ikke stå med et dødt kort, hvis abonnementet falder.
+ */
+async function loyaltyInPlan(companyId: string): Promise<boolean> {
+  const { data } = await createAdminClient()
+    .from("companies")
+    .select("product_slug")
+    .eq("id", companyId)
+    .maybeSingle();
+  return hasLoyaltyAccess(data?.product_slug);
+}
+
 /**
  * Opretter et stempelkort (program + primær belønning). Config skrives af ejer
  * via RLS. Kun brugere med canManage må oprette.
@@ -49,6 +70,9 @@ export async function createProgram(
   const access = await getCompanyAccess();
   if (!access || !access.permissions.canManage) {
     return { error: "Du har ikke adgang til at oprette stempelkort." };
+  }
+  if (!(await loyaltyInPlan(access.companyId))) {
+    return { error: "Stempelkort er ikke med i dit abonnement." };
   }
 
   const name = str(formData.get("name"));
@@ -122,6 +146,7 @@ export async function createProgram(
 export async function setProgramStatus(formData: FormData): Promise<void> {
   const access = await getCompanyAccess();
   if (!access || !access.permissions.canManage) return;
+  if (!(await loyaltyInPlan(access.companyId))) return;
 
   const id = str(formData.get("program_id"));
   const status = str(formData.get("status")) as ProgramStatus;
@@ -305,6 +330,9 @@ export async function createDiscount(
   if (!access || !access.permissions.canManage) {
     return { error: "Du har ikke adgang til at oprette rabatter." };
   }
+  if (!(await loyaltyInPlan(access.companyId))) {
+    return { error: "Rabatter er en del af LoyalSum Komplet." };
+  }
   const name = str(formData.get("name"));
   if (!name) return { error: "Giv rabatten et navn." };
 
@@ -332,6 +360,7 @@ export async function createDiscount(
 export async function setDiscountStatus(formData: FormData): Promise<void> {
   const access = await getCompanyAccess();
   if (!access || !access.permissions.canManage) return;
+  if (!(await loyaltyInPlan(access.companyId))) return;
   const id = str(formData.get("discount_id"));
   const status = str(formData.get("status")) as DiscountStatus;
   if (!id) return;

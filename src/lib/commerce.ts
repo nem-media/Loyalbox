@@ -6,11 +6,36 @@
  * de kan tages i brug uændret, når integrationerne bygges.
  */
 import { getSiteUrl } from "@/lib/site";
-import { COMMERCE, type Product } from "@/lib/constants";
+import {
+  COMMERCE,
+  type Product,
+  type StripeIds,
+  type StripeMode,
+} from "@/lib/constants";
 
 /** True hvis Stripe-nøglen er sat i miljøet (server-only). */
 export function isStripeConfigured(): boolean {
   return Boolean(process.env.STRIPE_SECRET_KEY);
+}
+
+/**
+ * Hvilken Stripe-tilstand kører vi i? Afgøres af nøglen, ikke af en separat
+ * indstilling — så kan de to ikke komme i utakt.
+ */
+export function stripeMode(): StripeMode {
+  return process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_") ? "live" : "test";
+}
+
+/**
+ * Produktets Stripe-id'er for den aktuelle tilstand.
+ *
+ * Returnerer undefined, hvis produktet ikke er oprettet i den tilstand — fx
+ * hvis man skifter til live-nøglen uden at have kørt
+ * scripts/setup-stripe-products.mjs med den. Checkout skal fejle tydeligt dér
+ * frem for at sende et test-id til live-API'et.
+ */
+export function stripeIdsFor(product: Product): StripeIds | undefined {
+  return product.stripe?.[stripeMode()];
 }
 
 /**

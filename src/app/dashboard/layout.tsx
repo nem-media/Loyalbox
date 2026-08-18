@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { getCompanyAccess } from "@/lib/loyalty/access";
-import { userHasCards } from "@/lib/loyalty/member-account";
 import { DashboardShell, type NavItem } from "@/components/dashboard-shell";
 import { TIER_LABELS, tierCan, type Tier } from "@/lib/constants";
 
@@ -14,9 +13,19 @@ export default async function DashboardLayout({
   if (!user) redirect("/login?next=/dashboard");
   if (user.role === "admin") redirect("/admin");
 
-  // Slutkunder har hverken virksomhed eller medarbejderrolle — de hører hjemme
-  // ved deres stempelkort, ikke på et tomt dashboard.
-  if (!user.company && !(await getCompanyAccess()) && (await userHasCards(user.id))) {
+  // Dashboardet er ejer-only. Alle andre uden virksomhed skal videre — ellers
+  // lander de på "Du har endnu ingen virksomhed. Kontakt support", som er en
+  // blindgyde for både personale og slutkunder.
+  if (!user.company) {
+    const access = await getCompanyAccess();
+
+    // Medarbejder: har adgang via en employees-række, men intet dashboard.
+    // Personalesiden er deres arbejdsflade.
+    if (access) redirect("/personale");
+
+    // Slutkunde: hører hjemme ved sine stempelkort. Har de ingen endnu, er
+    // /mine-kort stadig det rigtige sted — siden forklarer selv, hvordan man
+    // får sit første kort, i stedet for at bede folk kontakte supporten.
     redirect("/mine-kort");
   }
 

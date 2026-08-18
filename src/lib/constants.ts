@@ -96,6 +96,16 @@ export type Platform =
   | "facebook"
   | "multi";
 
+export type StripeMode = "test" | "live";
+
+export interface StripeIds {
+  productId: string;
+  /** Engangsbeløbet (standeren). */
+  priceId: string;
+  /** Det månedlige abonnement. Kun på abonnementsvarer. */
+  monthlyPriceId?: string;
+}
+
 export interface Product {
   slug: string;
   platform: Platform;
@@ -119,13 +129,15 @@ export interface Product {
   features: string[];
   featured?: boolean;
 
-  // --- Betaling (Stripe) — udfyldes når Stripe-kontoen er oprettet ---
-  /** Stripe Product-ID (prod_…). Tomt indtil produktet er oprettet i Stripe. */
-  stripeProductId?: string;
-  /** Stripe Price-ID for engangsbeløbet (standeren). */
-  stripePriceId?: string;
-  /** Stripe Price-ID for det månedlige abonnement. Kun på abonnementsvarer. */
-  stripeMonthlyPriceId?: string;
+  // --- Betaling (Stripe) ---
+  /**
+   * Stripe-id'er PR. TILSTAND. Test og live har hver deres id'er — bruges et
+   * test-id med live-nøglen, fejler checkout. Derfor er de adskilt her frem
+   * for i ét felt, der skal huskes udskiftet ved go-live.
+   *
+   * Oprettes med `node scripts/setup-stripe-products.mjs`, som printer dem.
+   */
+  stripe?: Partial<Record<StripeMode, StripeIds>>;
 
   // --- Google Shopping / Merchant Center ---
   /** Med i et Google Shopping-feed? Som udgangspunkt kun fysiske engangsprodukter. */
@@ -215,6 +227,12 @@ export const PRODUCTS: Product[] = [
       "Klar til brug — ingen abonnement",
     ],
     shoppable: true,
+    stripe: {
+      test: {
+        productId: "prod_V60HuKNAn27bkH",
+        priceId: "price_1U5oH7Rr2uZmH0wdNTNoPm6T",
+      },
+    },
     mpn: "LS-REVIEW",
     productType: "LoyalSum > Standere > Reviewstander",
   },
@@ -240,6 +258,13 @@ export const PRODUCTS: Product[] = [
       "Privat feedback-indbakke & statistik",
     ],
     shoppable: false,
+    stripe: {
+      test: {
+        productId: "prod_V60HMfPVGevsVG",
+        priceId: "price_1U5oH8Rr2uZmH0wdDsW9uYPy",
+        monthlyPriceId: "price_1U5oH8Rr2uZmH0wdyDTaXF1J",
+      },
+    },
     mpn: "LS-REVIEW-PRO",
     productType: "LoyalSum > Abonnement > Reviewstander Pro",
   },
@@ -266,10 +291,29 @@ export const PRODUCTS: Product[] = [
       "Kundeklub & belønninger",
     ],
     shoppable: false,
+    stripe: {
+      test: {
+        productId: "prod_V60HgN0EFCzxre",
+        priceId: "price_1U5oH9Rr2uZmH0wdOE6p6lJ1",
+        monthlyPriceId: "price_1U5oH9Rr2uZmH0wdVzW1v3Wc",
+      },
+    },
     mpn: "LS-KOMPLET",
     productType: "LoyalSum > Abonnement > LoyalSum Komplet",
   },
 ];
+
+/**
+ * Har virksomheden købt et produkt, der indeholder stempelkortet?
+ *
+ * `plan` kan ikke svare på det: både Reviewstander Pro og LoyalSum Komplet er
+ * niveau `pro`, fordi de har samme review-funktioner. Forskellen er netop
+ * stempelkortet, og den kendes kun via det købte produkt.
+ */
+export function hasLoyaltyAccess(productSlug: string | null | undefined): boolean {
+  if (!productSlug) return false;
+  return Boolean(getProduct(productSlug)?.includesLoyalSum);
+}
 
 export function getProduct(slug: string): Product | undefined {
   return PRODUCTS.find((p) => p.slug === slug);
