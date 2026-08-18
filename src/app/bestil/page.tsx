@@ -6,6 +6,9 @@ import { QuantityOrder } from "@/components/quantity-order";
 import { PRODUCTS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { PurchaseNotice } from "@/components/purchase-notice";
+import { CheckoutButton } from "@/components/checkout-button";
+import { getCurrentUser } from "@/lib/auth";
+import { canStartCheckout } from "@/lib/commerce";
 
 export const metadata = {
   title: "Bestil din stander",
@@ -22,6 +25,12 @@ export default async function OrderPage({
   const { produkt, antal } = await searchParams;
   const selected = PRODUCTS.find((p) => p.slug === produkt);
   const initialQty = Number(antal) || 1;
+
+  // Betalingsknappen vises kun, når den rent faktisk virker for den besøgende.
+  // Samme regel som /api/checkout håndhæver — ét sted, så de ikke kan komme i
+  // utakt: knappen må aldrig vises til nogen, ruten vil afvise.
+  const user = await getCurrentUser();
+  const canPay = canStartCheckout(user);
 
   return (
     <>
@@ -43,7 +52,18 @@ export default async function OrderPage({
               ))}
             </ul>
 
-            <PurchaseNotice />
+            {canPay ? (
+              <div className="box-shape border border-accent/30 bg-accent/5 p-4">
+                <p className="text-sm font-medium">Klar til betaling</p>
+                <p className="mt-1 mb-3 text-sm text-muted">
+                  Du betaler standeren nu. Abonnementet trækkes den 20. hver
+                  måned for den kommende måned.
+                </p>
+                <CheckoutButton slug={selected.slug} qty={initialQty} />
+              </div>
+            ) : (
+              <PurchaseNotice />
+            )}
 
             <QuantityOrder
               product={selected}

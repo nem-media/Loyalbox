@@ -315,6 +315,30 @@ export function hasLoyaltyAccess(productSlug: string | null | undefined): boolea
   return Boolean(getProduct(productSlug)?.includesLoyalSum);
 }
 
+/**
+ * Fast dansk moms pr. Stripe-tilstand.
+ *
+ * BEVIDST ikke Stripe Tax (`automatic_tax`): den kræver en aktiv
+ * momsregistrering i Stripe, og uden den opkræver Stripe slet ingen moms —
+ * uden at fejle. En fast sats kan ikke fejle stille. Oprettes af
+ * scripts/setup-stripe-products.mjs.
+ */
+export const STRIPE_TAX_RATES: Partial<Record<StripeMode, string>> = {
+  test: "txr_1U5oRfRr2uZmH0wdIbfWhyuN",
+};
+
+/**
+ * Hvilket adgangsniveau følger med et produkt?
+ *
+ * Reviewstander uden abonnement giver ingen dashboardfunktioner — standeren
+ * virker med sit eget link. Begge abonnementsvarer giver Pro; forskellen på
+ * dem er stempelkortet, som styres af product_slug (se hasLoyaltyAccess).
+ */
+export function planForProduct(slug: string | null | undefined): Tier {
+  const p = slug ? getProduct(slug) : undefined;
+  return p?.monthlyPrice ? "pro" : "basic";
+}
+
 export function getProduct(slug: string): Product | undefined {
   return PRODUCTS.find((p) => p.slug === slug);
 }

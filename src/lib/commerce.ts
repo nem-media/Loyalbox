@@ -27,6 +27,33 @@ export function stripeMode(): StripeMode {
 }
 
 /**
+ * Seed-testdomænet. Så længe Stripe kører på testnøglen, accepterer checkouten
+ * kun testkort — en rigtig besøgende ville indtaste sit eget kort og få det
+ * afvist. Derfor er betaling i testtilstand forbeholdt testkontiene.
+ */
+const TEST_BUYER_DOMAIN = "@loyalbox.test";
+
+/** Er e-mailen en testkonto fra seed-data? */
+export function isTestBuyer(email: string | null | undefined): boolean {
+  return Boolean(email?.toLowerCase().endsWith(TEST_BUYER_DOMAIN));
+}
+
+/**
+ * Må brugeren starte en betaling?
+ *
+ * Der kræves en virksomhed at knytte købet til — uden den ved vi ikke, hvem der
+ * skal have adgangen bagefter. Bemærk at rollen IKKE kan bruges her: admin er
+ * ikke knyttet til en virksomhed (se getCurrentUser i src/lib/auth.ts), så et
+ * admin-krav i testtilstand ville lukke for alle.
+ */
+export function canStartCheckout(
+  user: { email: string; company: object | null } | null | undefined,
+): boolean {
+  if (!user?.company) return false;
+  return stripeMode() === "live" || isTestBuyer(user.email);
+}
+
+/**
  * Produktets Stripe-id'er for den aktuelle tilstand.
  *
  * Returnerer undefined, hvis produktet ikke er oprettet i den tilstand — fx

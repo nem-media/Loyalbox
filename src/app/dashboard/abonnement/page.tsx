@@ -13,6 +13,7 @@ import {
 } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 import { PlanPicker } from "./plan-picker";
+import { PortalButton } from "./portal-button";
 
 export const metadata = { title: "Abonnement" };
 
@@ -79,6 +80,17 @@ export default async function SubscriptionPage() {
           })}
         </ul>
 
+        {company?.stripe_customer_id ? (
+          <div className="mt-6 border-t border-border pt-5">
+            <p className="text-sm font-medium">Betaling og bilag</p>
+            <p className="mt-1 mb-3 text-sm text-muted">
+              Skift betalingskort, ret fakturamailen til bogholderiet, hent
+              kvitteringer eller opsig — det hele sker sikkert hos Stripe.
+            </p>
+            <PortalButton />
+          </div>
+        ) : null}
+
         {plan === "basic" ? (
           <p className="mt-5 text-sm text-muted">
             Din stander virker som den skal med det link, du har sat på den.
@@ -144,19 +156,27 @@ export default async function SubscriptionPage() {
       ) : null}
 
       {/* ------------------------------------------------ midlertidigt skift */}
-      <section className="mt-10 border-t border-border pt-8">
-        <h2 className="text-lg font-bold tracking-tight">
-          Skift niveau (midlertidigt)
-        </h2>
-        <p className="mt-1 max-w-2xl text-sm text-muted">
-          Indtil betaling åbner, kan du sætte dit niveau selv, så du kan prøve
-          funktionerne af. Når betalingen er på plads, følger niveauet
-          automatisk dit abonnement.
-        </p>
-        <div className="mt-5">
-          <PlanPicker currentPlan={plan} />
-        </div>
-      </section>
+      {/*
+        Kun for virksomheder UDEN abonnement. Har de først betalt, sættes
+        niveauet af Stripe-webhooken, og en selvbetjent skifter ville lade en
+        betalende kunde klikke sig til Pro gratis — eller ryge ned på Basic
+        uden at abonnementet fulgte med.
+      */}
+      {company?.stripe_subscription_id ? null : (
+        <section className="mt-10 border-t border-border pt-8">
+          <h2 className="text-lg font-bold tracking-tight">
+            Skift niveau (midlertidigt)
+          </h2>
+          <p className="mt-1 max-w-2xl text-sm text-muted">
+            Indtil betaling åbner, kan du sætte dit niveau selv, så du kan prøve
+            funktionerne af. Når betalingen er på plads, følger niveauet
+            automatisk dit abonnement.
+          </p>
+          <div className="mt-5">
+            <PlanPicker currentPlan={plan} />
+          </div>
+        </section>
+      )}
     </>
   );
 }

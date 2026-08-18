@@ -62,6 +62,11 @@ export interface Database {
           plan: CompanyPlan;
           /** Slug fra PRODUCTS. Styrer adgang til stempelkort (migration 0008). */
           product_slug: string | null;
+          /** Stripe-kunde, så historik og kundecenter hænger sammen (0009). */
+          stripe_customer_id: string | null;
+          stripe_subscription_id: string | null;
+          /** Fakturamail til bogholderiet. Tom = brug contact_email (0009). */
+          billing_email: string | null;
           logo_url: string | null;
           contact_email: string | null;
           phone: string | null;
@@ -75,6 +80,9 @@ export interface Database {
           name: string;
           plan?: CompanyPlan;
           product_slug?: string | null;
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
+          billing_email?: string | null;
           logo_url?: string | null;
           contact_email?: string | null;
           phone?: string | null;
@@ -214,6 +222,8 @@ export interface Database {
           id: string;
           company_id: string | null;
           stripe_session_id: string | null;
+          stripe_payment_intent: string | null;
+          product_slug: string | null;
           product_name: string;
           quantity: number;
           status: OrderStatus;
@@ -224,6 +234,8 @@ export interface Database {
           id?: string;
           company_id?: string | null;
           stripe_session_id?: string | null;
+          stripe_payment_intent?: string | null;
+          product_slug?: string | null;
           product_name: string;
           quantity?: number;
           status?: OrderStatus;
