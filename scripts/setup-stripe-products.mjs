@@ -213,6 +213,36 @@ for (const p of products) {
   console.log("");
 }
 
+/* ------------------------------------------------------------------- moms */
+
+// Fast dansk moms som en Tax Rate. BEVIDST ikke Stripe Tax (automatic_tax):
+// den kræver en aktiv momsregistrering i Stripe, og uden den opkræver Stripe
+// slet ingen moms — uden at fejle. En fast sats kan ikke fejle stille.
+//
+// En Tax Rates procent kan ikke redigeres, kun erstattes, så den slås op først.
+let taxRateId = null;
+if (!dryRun) {
+  const existing = await stripe("tax_rates?active=true&limit=100", null, "GET");
+  const found = existing.data?.find(
+    (t) => Number(t.percentage) === 25 && t.country === "DK" && !t.inclusive,
+  );
+  if (found) {
+    taxRateId = found.id;
+    console.log(`Moms findes: 25 % DK -> ${found.id}\n`);
+  } else {
+    const created = await stripe("tax_rates", {
+      display_name: "Moms",
+      description: "Dansk moms 25 %",
+      percentage: 25,
+      inclusive: false,
+      country: "DK",
+      tax_type: "vat",
+    });
+    taxRateId = created.id;
+    console.log(`Moms oprettet: 25 % DK -> ${created.id}\n`);
+  }
+}
+
 if (result.length) {
   const mode = live ? "live" : "test";
   console.log(
@@ -229,6 +259,11 @@ if (result.length) {
     console.log("    },");
     console.log("  },");
     console.log("");
+  }
+  if (taxRateId) {
+    console.log("  // STRIPE_TAX_RATES i src/lib/constants.ts");
+    console.log(`  ${mode}: "${taxRateId}",
+`);
   }
   console.log(
     "Bemærk: test- og live-id'er er forskellige. Tilføj den nye tilstand ved\n" +

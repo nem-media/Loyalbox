@@ -63,6 +63,16 @@ export async function changePlan(
   const user = await getCurrentUser();
   if (!user?.company) return { error: "Ingen virksomhed fundet." };
 
+  // Betaler virksomheden, ejes niveauet af Stripe-webhooken. Uden denne spærre
+  // kunne en betalende kunde POSTe sig til Pro gratis — brugerfladen skjuler
+  // skifteren, men det er ikke i sig selv en begrænsning.
+  if (user.company.stripe_subscription_id) {
+    return {
+      error:
+        "Dit niveau følger dit abonnement. Ret det i Betaling og kvitteringer.",
+    };
+  }
+
   const plan = String(formData.get("plan") ?? "") as CompanyPlan;
   if (!TIER_ORDER.includes(plan as Tier)) return { error: "Ugyldig plan." };
 
