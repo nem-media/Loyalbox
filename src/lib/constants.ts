@@ -14,15 +14,15 @@ export const SITE_TAGLINE =
  */
 export const COMPANY = {
   legalName: "Nem Media ApS",
-  cvr: "UDFYLD",
-  address: "UDFYLD",
-  postalCode: "UDFYLD",
-  city: "UDFYLD",
+  cvr: "37811769",
+  address: "Spotorno Allé 4",
+  postalCode: "2630",
+  city: "Høje Taastrup",
   email: "kontakt@loyalsum.dk",
   /** Tom = telefon vises ikke. */
   phone: "",
   /** Hvor lang tid går der typisk, fra bestilling til standeren er sendt? */
-  deliveryDays: "UDFYLD",
+  deliveryDays: "3–5 hverdage",
 } as const;
 
 /** True hvis feltet stadig venter på en rigtig værdi. */
