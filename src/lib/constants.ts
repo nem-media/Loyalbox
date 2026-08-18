@@ -61,6 +61,21 @@ export const TIER_CAPABILITIES: Record<Tier, Record<Capability, boolean>> = {
   },
 };
 
+/** Danske labels til hvad et niveau låser op — vises i dashboardet. */
+export const CAPABILITY_LABELS: Record<Capability, string> = {
+  customBranding: "Eget logo og design på kundens side",
+  feedbackInbox: "Privat feedback-indbakke",
+  statistics: "Statistik i realtid",
+  dynamicLinks: "Skift links når som helst + flere platforme",
+};
+
+export const CAPABILITY_ORDER: Capability[] = [
+  "customBranding",
+  "dynamicLinks",
+  "feedbackInbox",
+  "statistics",
+];
+
 export const TIER_LABELS: Record<Tier, string> = {
   basic: "Basic",
   premium: "Premium",
