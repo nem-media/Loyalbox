@@ -30,7 +30,7 @@ export default async function OrderPage({
   // Samme regel som /api/checkout håndhæver — ét sted, så de ikke kan komme i
   // utakt: knappen må aldrig vises til nogen, ruten vil afvise.
   const user = await getCurrentUser();
-  const canPay = canStartCheckout(user);
+  const canPay = canStartCheckout(user, selected);
 
   return (
     <>

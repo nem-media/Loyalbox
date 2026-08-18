@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { stripe, nextBillingAnchor, INTEGRATION_ID } from "@/lib/stripe";
-import { stripeIdsFor, stripeMode, isTestBuyer } from "@/lib/commerce";
+import { stripeIdsFor, stripeMode, isTestBuyer, canSell } from "@/lib/commerce";
 import {
   getProduct,
   priceFor,
@@ -55,8 +55,9 @@ export async function POST(request: NextRequest) {
   }
 
   const qty = Math.max(1, Math.min(MAX_QTY, Number(body.antal) || 1));
-  const ids = stripeIdsFor(product);
-  if (!ids) {
+  // Varen skal være fuldt oprettet i den aktuelle tilstand — produkt, månedspris
+  // OG momssats. Uden spærren ville et manglende led fejle stille; se canSell.
+  if (!canSell(product)) {
     return NextResponse.json(
       {
         error:
@@ -65,11 +66,14 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
+  const ids = stripeIdsFor(product)!;
 
-  const taxRate = STRIPE_TAX_RATES[stripeMode()];
+  // canSell har allerede slået fast, at satsen og månedsprisen findes i denne
+  // tilstand — derfor er det trygt at kræve dem her.
+  const taxRate = STRIPE_TAX_RATES[stripeMode()]!;
   const pricing = priceFor(product, qty);
   const base = getSiteUrl();
-  const sub = Boolean(product.monthlyPrice && ids.monthlyPriceId);
+  const sub = Boolean(product.monthlyPrice);
 
   // Standeren sendes som price_data med den rabatterede enhedspris, så
   // mængderabatten kun findes ét sted (VOLUME_DISCOUNTS). Produktet peger på
@@ -77,7 +81,7 @@ export async function POST(request: NextRequest) {
   const lineItems: Record<string, unknown>[] = [
     {
       quantity: qty,
-      ...(taxRate ? { tax_rates: [taxRate] } : {}),
+      tax_rates: [taxRate],
       price_data: {
         currency: "dkk",
         product: ids.productId,
@@ -90,7 +94,7 @@ export async function POST(request: NextRequest) {
     lineItems.push({
       price: ids.monthlyPriceId,
       quantity: 1,
-      ...(taxRate ? { tax_rates: [taxRate] } : {}),
+      tax_rates: [taxRate],
     });
   }
 

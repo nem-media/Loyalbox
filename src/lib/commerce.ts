@@ -8,6 +8,7 @@
 import { getSiteUrl } from "@/lib/site";
 import {
   COMMERCE,
+  STRIPE_TAX_RATES,
   type Product,
   type StripeIds,
   type StripeMode,
@@ -39,17 +40,43 @@ export function isTestBuyer(email: string | null | undefined): boolean {
 }
 
 /**
- * Må brugeren starte en betaling?
+ * Kan varen overhovedet sælges i den aktuelle Stripe-tilstand?
+ *
+ * Tilstandene er adskilte verdener: id'er oprettet med testnøglen findes ikke i
+ * live. Skifter man nøgle uden først at køre scripts/setup-stripe-products.mjs,
+ * fejler salget — og de tre måder det fejler på er alle STILLE, hvilket er
+ * derfor de spærres her frem for at blive opdaget på en faktura:
+ *
+ *  1. Produktet mangler   → checkout kan slet ikke oprettes.
+ *  2. Månedsprisen mangler → købet bliver et ENGANGSKØB. Kunden betaler for
+ *     standeren, får Pro-adgang via webhooken og trækkes aldrig igen.
+ *  3. Momssatsen mangler  → der lægges INGEN moms på. Vi ville skylde SKAT 25 %
+ *     af hvert salg uden at have opkrævet dem.
+ */
+export function canSell(product: Product): boolean {
+  const ids = stripeIdsFor(product);
+  if (!ids) return false;
+  if (product.monthlyPrice && !ids.monthlyPriceId) return false;
+  return Boolean(STRIPE_TAX_RATES[stripeMode()]);
+}
+
+/**
+ * Må brugeren starte en betaling for denne vare?
  *
  * Der kræves en virksomhed at knytte købet til — uden den ved vi ikke, hvem der
  * skal have adgangen bagefter. Bemærk at rollen IKKE kan bruges her: admin er
  * ikke knyttet til en virksomhed (se getCurrentUser i src/lib/auth.ts), så et
  * admin-krav i testtilstand ville lukke for alle.
+ *
+ * Varen skal desuden være klar i den aktuelle tilstand, jf. canSell — ellers
+ * ville live-nøglen åbne en købsknap, der fejler for enhver rigtig kunde.
  */
 export function canStartCheckout(
   user: { email: string; company: object | null } | null | undefined,
+  product: Product | undefined,
 ): boolean {
-  if (!user?.company) return false;
+  if (!user?.company || !product) return false;
+  if (!canSell(product)) return false;
   return stripeMode() === "live" || isTestBuyer(user.email);
 }
 
