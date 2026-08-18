@@ -214,13 +214,24 @@ for (const p of products) {
 }
 
 if (result.length) {
-  console.log("Indsæt i src/lib/constants.ts på hvert produkt:\n");
+  const mode = live ? "live" : "test";
+  console.log(
+    `Indsæt i src/lib/constants.ts på hvert produkt (tilstand: ${mode}):\n`,
+  );
   for (const r of result) {
     console.log(`  // ${r.slug}`);
-    console.log(`  stripeProductId: "${r.productId}",`);
-    if (r.priceId) console.log(`  stripePriceId: "${r.priceId}",`);
+    console.log("  stripe: {");
+    console.log(`    ${mode}: {`);
+    console.log(`      productId: "${r.productId}",`);
+    if (r.priceId) console.log(`      priceId: "${r.priceId}",`);
     if (r.monthlyPriceId)
-      console.log(`  stripeMonthlyPriceId: "${r.monthlyPriceId}",`);
+      console.log(`      monthlyPriceId: "${r.monthlyPriceId}",`);
+    console.log("    },");
+    console.log("  },");
     console.log("");
   }
+  console.log(
+    "Bemærk: test- og live-id'er er forskellige. Tilføj den nye tilstand ved\n" +
+      "siden af den gamle i stedet for at erstatte den — så virker begge dele.",
+  );
 }
