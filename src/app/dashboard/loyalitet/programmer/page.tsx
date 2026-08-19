@@ -3,6 +3,7 @@ import { getCompanyAccess } from "@/lib/loyalty/access";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/dashboard-shell";
 import { Card, CardBody } from "@/components/ui/card";
+import { GuideHint } from "@/components/guide";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import {
@@ -59,6 +60,7 @@ export default async function ProgramsPage() {
             <p className="mt-1 text-sm text-muted">
               Kom i gang på få minutter — vælg en skabelon og en belønning.
             </p>
+            <GuideHint id="stempelkort" className="mx-auto mt-3 max-w-md" />
             <div className="mt-4">
               <ButtonLink href="/dashboard/loyalitet/programmer/nyt">
                 Opret dit første stempelkort

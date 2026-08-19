@@ -8,6 +8,8 @@ import { FeedbackList } from "@/components/feedback-list";
 import { ButtonLink } from "@/components/ui/button";
 import { UpgradeNotice } from "@/components/upgrade-notice";
 import { tierCan, type Tier } from "@/lib/constants";
+import { GuideCard } from "@/components/guide";
+import { getGuide } from "@/lib/guides";
 
 export const metadata = { title: "Oversigt" };
 
@@ -47,6 +49,15 @@ export default async function DashboardPage() {
           </ButtonLink>
         }
       />
+
+      {/* Har forretningen ingen stander endnu, er statistik tomme tal. Så er
+          det vigtigste på siden at komme i gang — derfor står vejledningen
+          øverst, indtil den første stander er oprettet. */}
+      {stats.standCount === 0 ? (
+        <div className="mb-6">
+          <GuideCard guide={getGuide("kom-i-gang")!} />
+        </div>
+      ) : null}
 
       {canSeeStats ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

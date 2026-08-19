@@ -41,6 +41,7 @@ export default async function DashboardLayout({
       : []),
     { href: "/dashboard/profil", label: "Virksomhedsprofil" },
     { href: "/dashboard/abonnement", label: "Abonnement" },
+    { href: "/dashboard/hjaelp", label: "Hjælp" },
   ];
 
   return (

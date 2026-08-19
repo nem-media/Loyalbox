@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/dashboard-shell";
 import { Card, CardBody } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CreateStand } from "./create-stand";
+import { GuideHint } from "@/components/guide";
 
 export const metadata = { title: "Standere" };
 
@@ -28,6 +29,8 @@ export default async function StandsPage() {
         title="Standere"
         description="Hver stander har sit eget dynamiske link og QR-kode."
       />
+
+      <GuideHint id="standere" className="mb-6" />
 
       <Card className="mb-6">
         <CardBody>

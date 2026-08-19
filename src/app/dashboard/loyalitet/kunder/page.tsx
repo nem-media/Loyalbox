@@ -3,6 +3,7 @@ import { getCompanyAccess } from "@/lib/loyalty/access";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/dashboard-shell";
 import { Card, CardBody } from "@/components/ui/card";
+import { GuideHint } from "@/components/guide";
 import { Input } from "@/components/ui/input";
 import { Button, ButtonLink } from "@/components/ui/button";
 
@@ -70,6 +71,7 @@ export default async function CustomersPage({
                   Del QR-koden eller brug din LoyalSum-stander for at få de første
                   medlemmer.
                 </p>
+                <GuideHint id="kunder" className="mx-auto mt-3 max-w-md" />
               </>
             )}
           </CardBody>
