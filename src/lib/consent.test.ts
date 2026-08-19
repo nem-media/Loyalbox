@@ -7,6 +7,7 @@ import {
   mayLoadStatistics,
   mayLoadMarketing,
   CONSENT_VERSION,
+  isValidLogEntry,
 } from "./consent";
 
 const ALT = serializeConsent({ statistics: true, marketing: true });
@@ -97,5 +98,39 @@ describe("hvad der må indlæses", () => {
     const nej = parseConsent(INTET);
     expect(mayLoadStatistics("G-123", nej)).toBe(false);
     expect(mayLoadMarketing("AW-456", nej)).toBe(false);
+  });
+});
+
+describe("isValidLogEntry", () => {
+  const gyldig = {
+    consentId: "0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0",
+    version: CONSENT_VERSION,
+    statistics: true,
+    marketing: false,
+    decidedAt: "2026-08-19T20:00:00.000Z",
+    path: "/priser",
+  };
+
+  it("accepterer en rigtig post", () => {
+    expect(isValidLogEntry(gyldig)).toBe(true);
+  });
+
+  it("afviser skrald — endpointet er åbent for alle", () => {
+    expect(isValidLogEntry(null)).toBe(false);
+    expect(isValidLogEntry("nej")).toBe(false);
+    expect(isValidLogEntry({})).toBe(false);
+    expect(isValidLogEntry({ ...gyldig, consentId: "ikke-et-uuid" })).toBe(false);
+    expect(isValidLogEntry({ ...gyldig, statistics: "ja" })).toBe(false);
+    expect(isValidLogEntry({ ...gyldig, decidedAt: "i går" })).toBe(false);
+  });
+
+  it("afviser en anden version end den gældende", () => {
+    expect(isValidLogEntry({ ...gyldig, version: CONSENT_VERSION - 1 })).toBe(false);
+  });
+
+  it("afviser en sti, der ikke er intern", () => {
+    // Ellers kunne loggen fyldes med fremmede adresser.
+    expect(isValidLogEntry({ ...gyldig, path: "https://eksempel.dk" })).toBe(false);
+    expect(isValidLogEntry({ ...gyldig, path: "x".repeat(300) })).toBe(false);
   });
 });

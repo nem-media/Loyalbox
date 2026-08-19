@@ -21,6 +21,15 @@
 export const CONSENT_KEY = "loyalsum-samtykke";
 
 /**
+ * Tilfældigt id for den enkelte browser.
+ *
+ * Bruges alene til at se, at en senere ændring kommer fra samme besøgende, så
+ * loggen ikke ser ud som to forskellige mennesker. Det er IKKE personhenførbart
+ * og må aldrig kobles til en bruger, en e-mail eller en IP.
+ */
+export const CONSENT_ID_KEY = "loyalsum-samtykke-id";
+
+/**
  * Hæves, når vi begynder at spørge om noget nyt — så bliver et gammelt valg
  * ugyldigt, og der spørges igen. Version 1 spurgte kun om statistik; version 2
  * skelner mellem statistik og marketing, og et gammelt ja til statistik må
@@ -126,4 +135,35 @@ export function mayLoadMarketing(
   stored: Consent | null,
 ): boolean {
   return Boolean(adsId) && stored?.marketing === true;
+}
+
+/**
+ * Det, der sendes til loggen. Holdes bevidst minimalt: uden IP, uden
+ * user-agent og uden hele URL'en.
+ */
+export interface ConsentLogEntry {
+  consentId: string;
+  version: number;
+  statistics: boolean;
+  marketing: boolean;
+  decidedAt: string;
+  path: string;
+}
+
+/** Er en indkommen post gyldig? Bruges af API'et, så der ikke skrives skrald. */
+export function isValidLogEntry(v: unknown): v is ConsentLogEntry {
+  if (typeof v !== "object" || v === null) return false;
+  const e = v as Partial<ConsentLogEntry>;
+  return (
+    typeof e.consentId === "string" &&
+    /^[0-9a-f-]{36}$/.test(e.consentId) &&
+    e.version === CONSENT_VERSION &&
+    typeof e.statistics === "boolean" &&
+    typeof e.marketing === "boolean" &&
+    typeof e.decidedAt === "string" &&
+    !Number.isNaN(Date.parse(e.decidedAt)) &&
+    typeof e.path === "string" &&
+    e.path.startsWith("/") &&
+    e.path.length <= 200
+  );
 }

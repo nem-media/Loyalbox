@@ -5,6 +5,8 @@ import Script from "next/script";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 import {
   CONSENT_KEY,
+  CONSENT_ID_KEY,
+  CONSENT_VERSION,
   CONSENT_CATEGORIES,
   parseConsent,
   serializeConsent,
@@ -49,9 +51,44 @@ function getServerSnapshot(): string {
   return UKENDT;
 }
 
+/**
+ * Et tilfældigt id for denne browser, så en senere ændring kan ses som samme
+ * besøgende og ikke som en ny. Det siger intet om, hvem personen er.
+ */
+function samtykkeId(): string {
+  const gemt = window.localStorage.getItem(CONSENT_ID_KEY);
+  if (gemt) return gemt;
+  const nyt = crypto.randomUUID();
+  window.localStorage.setItem(CONSENT_ID_KEY, nyt);
+  return nyt;
+}
+
 function gem(valg: Pick<Consent, "statistics" | "marketing">): void {
-  window.localStorage.setItem(CONSENT_KEY, serializeConsent(valg));
+  const raw = serializeConsent(valg);
+  window.localStorage.setItem(CONSENT_KEY, raw);
   window.dispatchEvent(new Event(AENDRET));
+
+  // Valget skal også registreres hos os: GDPR kræver, at et samtykke kan
+  // PÅVISES, og en post i den besøgendes egen browser er ikke bevis, vi råder
+  // over. Kaldet er bevidst uden await — valget gælder med det samme, uanset om
+  // loggen svarer, og en fejl her må aldrig stå i vejen for brugeren.
+  const decidedAt = JSON.parse(raw).decidedAt as string;
+  void fetch("/api/samtykke", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      consentId: samtykkeId(),
+      version: CONSENT_VERSION,
+      statistics: valg.statistics,
+      marketing: valg.marketing,
+      decidedAt,
+      // Kun stien — aldrig hele URL'en, som kan indeholde parametre.
+      path: window.location.pathname,
+    }),
+  }).catch(() => {
+    // Netværksfejl er uinteressant for den besøgende. Serverens egen log
+    // fanger de fejl, vi kan gøre noget ved.
+  });
 }
 
 /**
