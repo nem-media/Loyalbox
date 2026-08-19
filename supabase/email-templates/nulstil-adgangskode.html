@@ -19,14 +19,14 @@
         </tr>
         <tr>
           <td style="padding:24px 28px 8px;">
-            <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#1b916a;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;padding:13px 26px;border-radius:0 6px 6px 6px;">Vælg ny adgangskode</a>
+            <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=recovery&amp;next=/nulstil-adgangskode" style="display:inline-block;background:#1b916a;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;padding:13px 26px;border-radius:0 6px 6px 6px;">Vælg ny adgangskode</a>
           </td>
         </tr>
         <tr>
           <td style="padding:16px 28px 32px;">
             <p style="margin:0;font-size:13px;line-height:1.6;color:#767676;">
               Virker knappen ikke, så kopier denne adresse ind i din browser:<br />
-              <a href="{{ .ConfirmationURL }}" style="color:#1b916a;word-break:break-all;">{{ .ConfirmationURL }}</a>
+              <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=recovery&amp;next=/nulstil-adgangskode" style="color:#1b916a;word-break:break-all;">{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/nulstil-adgangskode</a>
             </p>
             <p style="margin:16px 0 0;font-size:13px;line-height:1.6;color:#767676;">
               Har du ikke bedt om at nulstille din adgangskode, så gør ingenting — din nuværende kode virker fortsat.

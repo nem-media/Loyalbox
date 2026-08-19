@@ -12,9 +12,21 @@ kan ses i git.
 Øvrige skabeloner (Magic Link, Invite, Change Email) bruges ikke af appen og
 står på Supabases standard.
 
-`{{ .ConfirmationURL }}` udfyldes af Supabase og peger på `/auth/callback`,
-som veksler koden til en session. Ændres den rute, skal `emailRedirectTo` i
-`src/app/(auth)/actions.ts` følge med.
+## Linkene peger på `/auth/confirm` — og det er med vilje
+
+Skabelonerne bruger `{{ .TokenHash }}` og ikke `{{ .ConfirmationURL }}`.
+
+`{{ .ConfirmationURL }}` sender brugeren gennem `/auth/callback`, som bruger
+PKCE: koden kan KUN veksles i den browser, der bestilte mailen, fordi
+hemmeligheden blev lagt dér. Bestiller kunden nulstilling på computeren og
+åbner mailen på telefonen — den mest almindelige måde folk læser mail på —
+fejler linket med "Linket virkede ikke længere".
+
+`{{ .TokenHash }}` bærer i stedet et engangstoken, som `/auth/confirm`
+verificerer direkte hos Supabase. Intet skal huskes i browseren, så linket
+virker uanset enhed. Skift ikke tilbage.
+
+`/auth/callback` bevares til allerede udsendte links.
 
 ## SMTP
 
