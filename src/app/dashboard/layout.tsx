@@ -39,6 +39,7 @@ export default async function DashboardLayout({
     ...(tierCan(plan, "feedbackInbox")
       ? [{ href: "/dashboard/feedback", label: "Feedback" }]
       : []),
+    { href: "/dashboard/personale", label: "Personale" },
     { href: "/dashboard/profil", label: "Virksomhedsprofil" },
     { href: "/dashboard/abonnement", label: "Abonnement" },
     { href: "/dashboard/hjaelp", label: "Hjælp" },
