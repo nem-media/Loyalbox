@@ -1,26 +1,32 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Script from "next/script";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 import {
   CONSENT_KEY,
+  CONSENT_CATEGORIES,
   parseConsent,
   serializeConsent,
   shouldAskForConsent,
-  mayLoadAnalytics,
+  hasSomethingToAskAbout,
+  mayLoadStatistics,
+  mayLoadMarketing,
+  type Consent,
+  type ConsentCategory,
 } from "@/lib/consent";
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+const ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
+const IDS = { ga: GA_ID, ads: ADS_ID };
 
 /** Besked om at valget er ændret i DENNE fane. */
 const AENDRET = "loyalsum:samtykke";
 
 /**
- * Serveren kan ikke se localStorage. Havde vi ladet den svare "intet valgt",
- * ville banneret blive tegnet på serveren og først forsvinde efter hydrering
- * — altså blinke frem hos alle, også dem der for længst har taget stilling.
- * Derfor et selvstændigt "ved det ikke endnu".
+ * Serveren kan ikke se localStorage. Havde den svaret "intet valgt", ville
+ * banneret blive tegnet på serveren og først forsvinde efter hydrering — altså
+ * blinke frem hos alle, også dem der for længst har taget stilling.
  */
 const UKENDT = "?";
 
@@ -43,76 +49,193 @@ function getServerSnapshot(): string {
   return UKENDT;
 }
 
-function vaelg(analytics: boolean): void {
-  window.localStorage.setItem(CONSENT_KEY, serializeConsent(analytics));
+function gem(valg: Pick<Consent, "statistics" | "marketing">): void {
+  window.localStorage.setItem(CONSENT_KEY, serializeConsent(valg));
   window.dispatchEvent(new Event(AENDRET));
 }
 
 /**
- * Statistik og samtykke.
+ * Statistik, annoncering og samtykke.
  *
- * Vercel Analytics kører altid: den er cookiefri og sætter intet på enheden.
- * Google Analytics rendres slet ikke, før der er sagt ja — så der sendes
- * ingenting til Google i mellemtiden. Det er derfor vi ikke bruger Consent
- * Mode: dér ville scriptet køre først og spørge bagefter.
+ * Vercel Analytics kører altid: cookiefri, sætter intet på enheden. Google
+ * Analytics og Google Ads rendres slet ikke, før den enkelte kategori er sagt
+ * ja til — så der sendes ingenting til Google i mellemtiden.
  */
 export function Analytics() {
   const raw = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const kendt = raw !== UKENDT;
   const consent = kendt ? parseConsent(raw) : null;
 
+  const statistik = kendt && mayLoadStatistics(GA_ID, consent);
+  const marketing = kendt && mayLoadMarketing(ADS_ID, consent);
+
+  // Begge tjenester bruger gtag.js, så biblioteket hentes kun én gang.
+  const gtagId = statistik ? GA_ID : marketing ? ADS_ID : null;
+
+  // Konfigurationen sker HER og ikke i et inline-script. next/script genbruger
+  // et allerede indsat script med samme id, så en kunde, der først siger ja til
+  // statistik og bagefter tilføjer marketing, ville aldrig få Ads konfigureret
+  // uden at genindlæse siden. Set i browseren, inden det blev lavet om.
+  //
+  // gtag() må gerne kaldes, før biblioteket er hentet: kaldene lægges i
+  // dataLayer og bliver afviklet, når det lander.
+  const konfigureret = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    const w = window as typeof window & {
+      dataLayer?: unknown[];
+      gtag?: (...args: unknown[]) => void;
+    };
+    if (!statistik && !marketing) return;
+
+    if (!w.gtag) {
+      w.dataLayer = w.dataLayer ?? [];
+      w.gtag = function gtag(...args: unknown[]) {
+        w.dataLayer!.push(args);
+      };
+      w.gtag("js", new Date());
+    }
+
+    for (const id of [statistik ? GA_ID : null, marketing ? ADS_ID : null]) {
+      if (id && !konfigureret.current.has(id)) {
+        w.gtag("config", id);
+        konfigureret.current.add(id);
+      }
+    }
+  }, [statistik, marketing]);
+
   return (
     <>
       <VercelAnalytics />
 
-      {kendt && mayLoadAnalytics(GA_ID, consent) ? (
-        <>
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-            strategy="afterInteractive"
-          />
-          <Script id="ga-init" strategy="afterInteractive">
-            {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-gtag('js',new Date());gtag('config','${GA_ID}',{anonymize_ip:true});`}
-          </Script>
-        </>
+      {gtagId ? (
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${gtagId}`}
+          strategy="afterInteractive"
+        />
       ) : null}
 
-      {kendt && shouldAskForConsent(GA_ID, consent) ? <ConsentBanner /> : null}
+      {kendt && shouldAskForConsent(IDS, consent) ? <ConsentDialog /> : null}
     </>
   );
 }
 
-function ConsentBanner() {
+function ConsentDialog() {
+  // Kun kategorier, der faktisk er sat op, kan vælges. Ellers ville folk sige
+  // ja til noget, der ikke findes.
+  const tilgaengelige = CONSENT_CATEGORIES.filter((c) =>
+    c.key === "statistics" ? Boolean(GA_ID) : Boolean(ADS_ID),
+  );
+
+  const [valgt, setValgt] = useState<Record<ConsentCategory, boolean>>({
+    statistics: false,
+    marketing: false,
+  });
+
+  const alle = () => gem({ statistics: Boolean(GA_ID), marketing: Boolean(ADS_ID) });
+  const ingen = () => gem({ statistics: false, marketing: false });
+  const valgte = () =>
+    gem({
+      statistics: Boolean(GA_ID) && valgt.statistics,
+      marketing: Boolean(ADS_ID) && valgt.marketing,
+    });
+
   return (
-    <div
-      role="dialog"
-      aria-label="Samtykke til statistik"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background p-4 shadow-lg"
-    >
-      <div className="mx-auto flex max-w-4xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm leading-relaxed">
-          Vi tæller besøg uden cookies. Må vi også bruge Google Analytics? Det
-          sætter cookies og hjælper os med at se, hvilke annoncer der virker.{" "}
-          <a href="/privatliv" className="font-medium text-accent underline">
-            Læs mere
-          </a>
-        </p>
-        <div className="flex shrink-0 gap-2">
-          <button
-            type="button"
-            onClick={() => vaelg(false)}
-            className="btn-shape h-10 border border-border px-4 text-sm font-medium hover:bg-muted-bg"
-          >
-            Nej tak
-          </button>
-          <button
-            type="button"
-            onClick={() => vaelg(true)}
-            className="btn-shape h-10 bg-accent px-4 text-sm font-medium text-accent-fg hover:bg-accent-hover"
-          >
-            Ja tak
-          </button>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-dark/40 p-4 sm:items-center">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="samtykke-titel"
+        className="box-shape w-full max-w-lg overflow-hidden border border-border bg-background shadow-xl"
+      >
+        <div className="flex items-center justify-between bg-dark px-5 py-4">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/loyalsum-logo.png"
+            alt="LoyalSum"
+            width={1450}
+            height={340}
+            className="h-7 w-auto"
+          />
+          <span className="text-xs text-white/60">Cookies</span>
+        </div>
+
+        <div className="space-y-4 p-5">
+          <div>
+            <h2 id="samtykke-titel" className="font-bold tracking-tight">
+              Vi bruger cookies
+            </h2>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted">
+              Nogle er nødvendige, for at du kan logge ind. Resten er op til
+              dig. Vi tæller altid besøg uden cookies — det kan ikke bruges til
+              at genkende dig. Læs mere i vores{" "}
+              <a href="/privatliv" className="font-medium text-accent underline">
+                privatlivspolitik
+              </a>
+              .
+            </p>
+          </div>
+
+          <ul className="divide-y divide-border border-y border-border">
+            <li className="flex items-start justify-between gap-4 py-3">
+              <div>
+                <p className="text-sm font-medium">Nødvendige</p>
+                <p className="text-xs leading-relaxed text-muted">
+                  Holder dig logget ind. Kan ikke fravælges.
+                </p>
+              </div>
+              <span className="shrink-0 pt-0.5 text-xs font-medium text-muted">
+                Altid til
+              </span>
+            </li>
+
+            {tilgaengelige.map((c) => (
+              <li key={c.key} className="flex items-start justify-between gap-4 py-3">
+                <div>
+                  <p className="text-sm font-medium">{c.label}</p>
+                  <p className="text-xs leading-relaxed text-muted">
+                    {c.description}
+                  </p>
+                </div>
+                <label className="relative inline-flex shrink-0 cursor-pointer items-center pt-0.5">
+                  <span className="sr-only">{c.label}</span>
+                  <input
+                    type="checkbox"
+                    className="peer sr-only"
+                    checked={valgt[c.key]}
+                    onChange={(e) =>
+                      setValgt((v) => ({ ...v, [c.key]: e.target.checked }))
+                    }
+                  />
+                  <span className="h-6 w-11 rounded-full bg-border transition-colors peer-checked:bg-accent peer-focus-visible:ring-2 peer-focus-visible:ring-accent peer-focus-visible:ring-offset-2" />
+                  <span className="pointer-events-none absolute left-1 top-1.5 h-4 w-4 rounded-full bg-white transition-transform peer-checked:translate-x-5" />
+                </label>
+              </li>
+            ))}
+          </ul>
+
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <button
+              type="button"
+              onClick={ingen}
+              className="btn-shape h-10 flex-1 border border-border px-4 text-sm font-medium hover:bg-muted-bg"
+            >
+              Afvis
+            </button>
+            <button
+              type="button"
+              onClick={valgte}
+              className="btn-shape h-10 flex-1 border border-border px-4 text-sm font-medium hover:bg-muted-bg"
+            >
+              Tillad valgte
+            </button>
+            <button
+              type="button"
+              onClick={alle}
+              className="btn-shape h-10 flex-1 bg-accent px-4 text-sm font-medium text-accent-fg hover:bg-accent-hover"
+            >
+              Tillad alle
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -123,11 +246,11 @@ function ConsentBanner() {
  * Lader en besøgende ombestemme sig. Et samtykke skal kunne trækkes tilbage
  * lige så let, som det blev givet.
  *
- * GA_ID er en NEXT_PUBLIC-variabel og kendes derfor både på server og klient —
- * så den kan afgøres direkte i render uden risiko for hydreringsfejl.
+ * Id'erne er NEXT_PUBLIC-variabler og kendes derfor både på server og klient —
+ * så det kan afgøres direkte i render uden risiko for hydreringsfejl.
  */
 export function ConsentSettingsLink() {
-  if (!GA_ID) return null;
+  if (!hasSomethingToAskAbout(IDS)) return null;
 
   return (
     <button

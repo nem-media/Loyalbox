@@ -147,12 +147,20 @@ export default function PrivacyPage() {
             samtykke.
           </p>
           <p>
-            <strong>Google Analytics:</strong> bruges kun, hvis du siger ja.
-            Scriptet indlæses slet ikke, før du har givet samtykke, og siger du
-            nej, sendes der ingenting til Google. Du kan altid ombestemme dig
-            via “Cookieindstillinger” nederst på siden. Google er databehandler
-            for os, og oplysninger kan blive overført til USA på grundlag af
-            EU-U.S. Data Privacy Framework.
+            <strong>Statistik (Google Analytics):</strong> bruges kun, hvis du
+            siger ja. Den hjælper os med at se, hvilke sider der bliver læst.
+          </p>
+          <p>
+            <strong>Marketing (Google Ads):</strong> bruges kun, hvis du siger
+            ja. Den måler, hvilke annoncer der fører til et køb, og lader os
+            vise annoncer til folk, der har besøgt siden.
+          </p>
+          <p>
+            De to kan vælges hver for sig. Scripterne indlæses slet ikke, før du
+            har givet samtykke — siger du nej, sendes der ingenting til Google.
+            Du kan altid ombestemme dig via “Cookieindstillinger” nederst på
+            siden. Google er databehandler for os, og oplysninger kan blive
+            overført til USA på grundlag af EU-U.S. Data Privacy Framework.
           </p>
         </LegalSection>
 
