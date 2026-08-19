@@ -260,6 +260,10 @@ export const PRODUCTS: Product[] = [
         productId: "prod_V60HuKNAn27bkH",
         priceId: "price_1U5oH7Rr2uZmH0wdNTNoPm6T",
       },
+      live: {
+        productId: "prod_V60HuKNAn27bkH",
+        priceId: "price_1U5tgC2LQpGDZNEWAR6ngZBB",
+      },
     },
     mpn: "LS-REVIEW",
     productType: "LoyalSum > Standere > Reviewstander",
@@ -291,6 +295,11 @@ export const PRODUCTS: Product[] = [
         productId: "prod_V60HMfPVGevsVG",
         priceId: "price_1U5oH8Rr2uZmH0wdDsW9uYPy",
         monthlyPriceId: "price_1U5oH8Rr2uZmH0wdyDTaXF1J",
+      },
+      live: {
+        productId: "prod_V60HMfPVGevsVG",
+        priceId: "price_1U5tg72LQpGDZNEWcadzuRAa",
+        monthlyPriceId: "price_1U5tg72LQpGDZNEW8omPhStB",
       },
     },
     mpn: "LS-REVIEW-PRO",
@@ -325,6 +334,11 @@ export const PRODUCTS: Product[] = [
         priceId: "price_1U5oH9Rr2uZmH0wdOE6p6lJ1",
         monthlyPriceId: "price_1U5oH9Rr2uZmH0wdVzW1v3Wc",
       },
+      live: {
+        productId: "prod_V60HgN0EFCzxre",
+        priceId: "price_1U5tg82LQpGDZNEWOBzAMmvu",
+        monthlyPriceId: "price_1U5tg82LQpGDZNEWTFSgdiEe",
+      },
     },
     mpn: "LS-KOMPLET",
     productType: "LoyalSum > Abonnement > LoyalSum Komplet",
@@ -353,6 +367,7 @@ export function hasLoyaltyAccess(productSlug: string | null | undefined): boolea
  */
 export const STRIPE_TAX_RATES: Partial<Record<StripeMode, string>> = {
   test: "txr_1U5oRfRr2uZmH0wdIbfWhyuN",
+  live: "txr_1U64CL2LQpGDZNEWyQ4Ty36P",
 };
 
 /**
