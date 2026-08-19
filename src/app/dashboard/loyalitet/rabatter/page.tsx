@@ -2,6 +2,7 @@ import { getCompanyAccess } from "@/lib/loyalty/access";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/dashboard-shell";
 import { Card, CardBody } from "@/components/ui/card";
+import { GuideHint } from "@/components/guide";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
@@ -42,6 +43,8 @@ export default async function DiscountsPage() {
           </ButtonLink>
         }
       />
+
+      <GuideHint id="rabatter" className="mb-6" />
 
       {!discounts || discounts.length === 0 ? (
         <Card>

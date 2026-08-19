@@ -2,6 +2,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/dashboard-shell";
 import { Card, CardBody } from "@/components/ui/card";
+import { GuideHint } from "@/components/guide";
 import { Composer } from "./composer";
 
 export const metadata = { title: "Opslag" };
@@ -52,6 +53,8 @@ export default async function OpslagPage() {
         title="Opslag"
         description="Lav et delbart opslag ud af jeres 5-stjernede anmeldelser — vælg tekst og baggrund, download og del selv."
       />
+
+      <GuideHint id="opslag" className="mb-6" />
       {company ? (
         <Composer
           companyName={company.name}
