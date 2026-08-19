@@ -147,12 +147,88 @@ export default function PrivacyPage() {
             samtykke.
           </p>
           <p>
-            <strong>Google Analytics:</strong> bruges kun, hvis du siger ja.
-            Scriptet indlæses slet ikke, før du har givet samtykke, og siger du
-            nej, sendes der ingenting til Google. Du kan altid ombestemme dig
-            via “Cookieindstillinger” nederst på siden. Google er databehandler
-            for os, og oplysninger kan blive overført til USA på grundlag af
-            EU-U.S. Data Privacy Framework.
+            <strong>Statistik (Google Analytics):</strong> bruges kun, hvis du
+            siger ja. Den hjælper os med at se, hvilke sider der bliver læst.
+          </p>
+          <p>
+            <strong>Marketing (Google Ads):</strong> bruges kun, hvis du siger
+            ja. Den måler, hvilke annoncer der fører til et køb, og lader os
+            vise annoncer til folk, der har besøgt siden.
+          </p>
+          <div className="overflow-x-auto">
+            <table className="mt-2 w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-border text-left">
+                  <th className="py-2 pr-3 font-semibold">Navn</th>
+                  <th className="py-2 pr-3 font-semibold">Formål</th>
+                  <th className="py-2 font-semibold">Varighed</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-border/60">
+                  <td className="py-2 pr-3 align-top font-mono text-xs">
+                    sb-…-auth-token
+                  </td>
+                  <td className="py-2 pr-3 align-top">
+                    Nødvendig. Holder dig logget ind.
+                  </td>
+                  <td className="py-2 align-top">400 dage</td>
+                </tr>
+                <tr className="border-b border-border/60">
+                  <td className="py-2 pr-3 align-top font-mono text-xs">
+                    sb-…-auth-token-code-verifier
+                  </td>
+                  <td className="py-2 pr-3 align-top">
+                    Nødvendig. Bruges under login og ved nulstilling af
+                    adgangskode.
+                  </td>
+                  <td className="py-2 align-top">Slettes efter login</td>
+                </tr>
+                <tr className="border-b border-border/60">
+                  <td className="py-2 pr-3 align-top font-mono text-xs">
+                    loyalsum-samtykke
+                  </td>
+                  <td className="py-2 pr-3 align-top">
+                    Nødvendig. Husker dit valg herunder, så du ikke bliver
+                    spurgt igen. Gemmes i browserens lager, ikke som en cookie.
+                  </td>
+                  <td className="py-2 align-top">Til du rydder browseren</td>
+                </tr>
+                <tr className="border-b border-border/60">
+                  <td className="py-2 pr-3 align-top font-mono text-xs">
+                    _ga, _ga_…
+                  </td>
+                  <td className="py-2 pr-3 align-top">
+                    Statistik. Google Analytics — kun hvis du siger ja.
+                  </td>
+                  <td className="py-2 align-top">2 år</td>
+                </tr>
+                <tr className="border-b border-border/60">
+                  <td className="py-2 pr-3 align-top font-mono text-xs">
+                    _gcl_au
+                  </td>
+                  <td className="py-2 pr-3 align-top">
+                    Marketing. Google Ads — kun hvis du siger ja.
+                  </td>
+                  <td className="py-2 align-top">90 dage</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>
+            Når du tager stilling, gemmer vi dit valg hos os sammen med et
+            tilfældigt id, tidspunktet og hvilken version du svarede på. Det er
+            for at kunne dokumentere samtykket, som loven kræver. Registreringen
+            indeholder hverken din IP-adresse eller andet, der peger på dig.
+          </p>
+
+          <p>
+            De to kan vælges hver for sig. Scripterne indlæses slet ikke, før du
+            har givet samtykke — siger du nej, sendes der ingenting til Google.
+            Du kan altid ombestemme dig via “Cookieindstillinger” nederst på
+            siden. Google er databehandler for os, og oplysninger kan blive
+            overført til USA på grundlag af EU-U.S. Data Privacy Framework.
           </p>
         </LegalSection>
 

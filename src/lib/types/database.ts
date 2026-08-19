@@ -222,6 +222,37 @@ export interface Database {
           },
         ];
       };
+      /**
+       * Cookiesamtykker fra hjemmesidens besøgende (0011). Ingen
+       * personoplysninger. IKKE det samme som `consent_records`, der handler om
+       * butikkens egne kunders samtykke til markedsføring fra butikken.
+       */
+      consent_log: {
+        Row: {
+          id: string;
+          consent_id: string;
+          version: number;
+          statistics: boolean;
+          marketing: boolean;
+          decided_at: string;
+          path: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          consent_id: string;
+          version: number;
+          statistics: boolean;
+          marketing: boolean;
+          decided_at: string;
+          path?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          path?: string | null;
+        };
+        Relationships: [];
+      };
       orders: {
         Row: {
           id: string;
