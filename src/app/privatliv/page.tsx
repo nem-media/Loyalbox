@@ -21,9 +21,10 @@ import { COMPANY, SITE_NAME } from "@/lib/constants";
  * Supabase (database + login), Vercel (hosting) og Stripe (betaling). Tages en
  * ny tjeneste i brug, skal den tilføjes her.
  *
- * COOKIES: sitet har ingen analytics og ingen tredjepartssporing. Derfor er
- * der heller ingen samtykkebanner — den ville være et krav, i samme øjeblik
- * der tilføjes sporing.
+ * COOKIES: besøgsstatistik uden cookies (Vercel Analytics) kører altid og
+ * kræver ikke samtykke. Google Analytics indlæses FØRST efter et aktivt ja —
+ * se src/lib/consent.ts. Ændres det, skal afsnittet herunder følge med, ellers
+ * lover politikken noget andet end det, der sker.
  *
  * JURIDISK GENNEMSYN: skrevet ud fra hvordan systemet faktisk virker, ikke af
  * en advokat. Bemærk især, at en databehandleraftale med hver butik er et
@@ -133,11 +134,25 @@ export default function PrivacyPage() {
           </p>
         </LegalSection>
 
-        <LegalSection id="cookies" title="6. Cookies">
+        <LegalSection id="cookies" title="6. Cookies og statistik">
           <p>
-            Vi bruger kun en enkelt nødvendig cookie: den, der holder dig logget
-            ind. Der er <strong>ingen analytics, reklamer eller sporing</strong>{" "}
-            fra tredjepart på sitet, og derfor heller ingen samtykkebanner.
+            <strong>Nødvendige:</strong> vi bruger en enkelt cookie, der holder
+            dig logget ind. Den kan ikke fravælges, for uden den virker login
+            ikke.
+          </p>
+          <p>
+            <strong>Besøgsstatistik uden cookies:</strong> vi tæller sidevisninger
+            gennem Vercel Analytics. Det sætter ingenting på din enhed og kan
+            ikke bruges til at genkende dig — derfor kræver det ikke dit
+            samtykke.
+          </p>
+          <p>
+            <strong>Google Analytics:</strong> bruges kun, hvis du siger ja.
+            Scriptet indlæses slet ikke, før du har givet samtykke, og siger du
+            nej, sendes der ingenting til Google. Du kan altid ombestemme dig
+            via “Cookieindstillinger” nederst på siden. Google er databehandler
+            for os, og oplysninger kan blive overført til USA på grundlag af
+            EU-U.S. Data Privacy Framework.
           </p>
         </LegalSection>
 

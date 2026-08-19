@@ -21,4 +21,6 @@ This version has breaking changes — APIs, conventions, and file structure may 
   2. Redirect'en `/produkter/loyalbox-komplet` i `next.config.ts` — den holder gamle links i live.
   3. Mappen `C:\Users\Admin\loyalbox` og GitHub-repoet `nem-media/Loyalbox` — omdøbning ville bryde lokale stier, remotes og `.claude/settings.local.json`.
 
+- **Statistik og samtykke:** Vercel Analytics er cookiefri og kører altid. Google Analytics indlæses FØRST efter et aktivt ja — scriptet rendres slet ikke før da (`src/components/analytics.tsx`, regler i `src/lib/consent.ts`). Brug IKKE Consent Mode til at indlæse GA "begrænset" på forhånd; så kører scriptet før samtykket. GA slås til med `NEXT_PUBLIC_GA_ID`; er den tom, vises intet banner, for så er der intet at samtykke til. Ændres noget af dette, skal cookieafsnittet i `/privatliv` følge med.
+
 - **Etisk regel (håndhæves i koden):** belønninger/stempler/rabatter må ALDRIG betinges af en offentlig anmeldelse. Review- og loyalitets-flows holdes adskilt (se `REVIEW_INDEPENDENCE_NOTICE` i constants).

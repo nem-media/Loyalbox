@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand";
+import { ConsentSettingsLink } from "@/components/analytics";
 import { SITE_NAME, SITE_TAGLINE, PRODUCTS, COMPANY, mangler } from "@/lib/constants";
 
 interface FooterLink {
@@ -101,6 +102,7 @@ export function SiteFooter() {
             <Link href="/databehandleraftale" className="hover:text-accent">
               Databehandleraftale
             </Link>
+            <ConsentSettingsLink />
           </nav>
         </div>
       </div>
