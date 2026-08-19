@@ -10,6 +10,7 @@ import {
   STRIPE_TAX_RATES,
 } from "@/lib/constants";
 import { getSiteUrl } from "@/lib/site";
+import { DPA_VERSION, requiresDpa } from "@/lib/dpa";
 
 /**
  * Starter en betaling og sender kunden til Stripe Checkout.
@@ -96,6 +97,35 @@ export async function POST(request: NextRequest) {
       quantity: 1,
       tax_rates: [taxRate],
     });
+  }
+
+  // Databehandleraftalen indgås som en del af købet, når varen giver adgang
+  // til at indsamle oplysninger om butikkens egne kunder. Accepten stemples
+  // FØR betalingen sættes i gang: fejler betalingen, har kunden ikke fået
+  // noget, og en accept uden køb er harmløs — modsat et køb uden accept.
+  if (requiresDpa(product)) {
+    const { error: dpaError } = await createAdminClient()
+      .from("companies")
+      .update({
+        dpa_accepted_at: new Date().toISOString(),
+        dpa_version: DPA_VERSION,
+      })
+      .eq("id", company.id)
+      // Kun hvis den gældende version ikke allerede er accepteret, så en
+      // gentagen bestilling ikke flytter datoen for den oprindelige accept.
+      .or(`dpa_version.is.null,dpa_version.neq.${DPA_VERSION}`);
+
+    // Købet stoppes ikke af dette: aftalen er indgået i kraft af teksten ved
+    // købsknappen, uanset om vi fik skrevet datoen ned. Men fejlen skal ses —
+    // mangler kolonnen (migration 0010 ikke kørt), står kunden ellers uden
+    // registreret accept, og ingen ville opdage det.
+    if (dpaError) {
+      console.error(
+        "[dpa] kunne ikke registrere accept for virksomhed",
+        company.id,
+        dpaError.message,
+      );
+    }
   }
 
   const session = await stripe().checkout.sessions.create({

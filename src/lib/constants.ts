@@ -167,6 +167,14 @@ export interface Product {
    */
   stripe?: Partial<Record<StripeMode, StripeIds>>;
 
+  /**
+   * Sæt kun denne, hvis varen IKKE giver adgang til at indsamle oplysninger om
+   * butikkens egne kunder. Alle nuværende varer indeholder en stander, der
+   * tager imod feedback med navn og fritekst, så de kræver alle en
+   * databehandleraftale. Se requiresDpa() i src/lib/dpa.ts.
+   */
+  noPersonalData?: boolean;
+
   // --- Google Shopping / Merchant Center ---
   /** Med i et Google Shopping-feed? Som udgangspunkt kun fysiske engangsprodukter. */
   shoppable?: boolean;

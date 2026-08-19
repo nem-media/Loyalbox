@@ -67,6 +67,9 @@ export interface Database {
           stripe_subscription_id: string | null;
           /** Fakturamail til bogholderiet. Tom = brug contact_email (0009). */
           billing_email: string | null;
+          /** Accept af databehandleraftalen (0010). Null = ikke accepteret. */
+          dpa_accepted_at: string | null;
+          dpa_version: string | null;
           logo_url: string | null;
           contact_email: string | null;
           phone: string | null;
@@ -83,6 +86,8 @@ export interface Database {
           stripe_customer_id?: string | null;
           stripe_subscription_id?: string | null;
           billing_email?: string | null;
+          dpa_accepted_at?: string | null;
+          dpa_version?: string | null;
           logo_url?: string | null;
           contact_email?: string | null;
           phone?: string | null;

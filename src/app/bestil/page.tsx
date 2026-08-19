@@ -9,6 +9,7 @@ import { PurchaseNotice } from "@/components/purchase-notice";
 import { CheckoutButton } from "@/components/checkout-button";
 import { getCurrentUser } from "@/lib/auth";
 import { canStartCheckout } from "@/lib/commerce";
+import { requiresDpa } from "@/lib/dpa";
 
 export const metadata = {
   title: "Bestil din stander",
@@ -60,6 +61,26 @@ export default async function OrderPage({
                   måned for den kommende måned.
                 </p>
                 <CheckoutButton slug={selected.slug} qty={initialQty} />
+                {requiresDpa(selected) ? (
+                  <p className="mt-3 text-xs leading-relaxed text-muted">
+                    Når du køber, indgås samtidig vores{" "}
+                    <Link
+                      href="/databehandleraftale"
+                      className="font-medium text-accent"
+                    >
+                      databehandleraftale
+                    </Link>{" "}
+                    og{" "}
+                    <Link
+                      href="/handelsbetingelser"
+                      className="font-medium text-accent"
+                    >
+                      handelsbetingelser
+                    </Link>
+                    . Aftalen er lovpligtig, fordi vi behandler oplysninger om
+                    dine kunder på dine vegne.
+                  </p>
+                ) : null}
               </div>
             ) : (
               <PurchaseNotice />

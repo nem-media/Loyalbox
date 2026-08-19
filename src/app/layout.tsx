@@ -4,6 +4,7 @@ import "./globals.css";
 import { SITE_NAME, SEO_KEYWORDS } from "@/lib/constants";
 import { getSiteUrl } from "@/lib/site";
 import { PwaRegister } from "@/components/pwa-register";
+import { Analytics } from "@/components/analytics";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -67,6 +68,7 @@ export default function RootLayout({
       <body className="min-h-full">
         {children}
         <PwaRegister />
+        <Analytics />
       </body>
     </html>
   );

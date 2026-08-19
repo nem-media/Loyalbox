@@ -14,6 +14,8 @@ import {
 import { formatCurrency } from "@/lib/utils";
 import { PlanPicker } from "./plan-picker";
 import { PortalButton } from "./portal-button";
+import { DPA_VERSION, dpaIsCurrent } from "@/lib/dpa";
+import { formatDate } from "@/lib/utils";
 
 export const metadata = { title: "Abonnement" };
 
@@ -79,6 +81,31 @@ export default async function SubscriptionPage() {
             );
           })}
         </ul>
+
+        {/* Databehandleraftalen indgås ved købet. Den skal kunne findes igen
+            bagefter — ellers har kunden en aftale, de ikke kan læse. */}
+        {company?.dpa_accepted_at ? (
+          <div className="mt-6 border-t border-border pt-5">
+            <p className="text-sm font-medium">Databehandleraftale</p>
+            <p className="mt-1 text-sm text-muted">
+              Indgået {formatDate(company.dpa_accepted_at)}
+              {company.dpa_version ? ` · version ${company.dpa_version}` : null}.
+              {dpaIsCurrent(company.dpa_version) ? null : (
+                <>
+                  {" "}
+                  Der findes en nyere udgave (version {DPA_VERSION}) — læs den,
+                  og skriv til os, hvis du har spørgsmål.
+                </>
+              )}
+            </p>
+            <Link
+              href="/databehandleraftale"
+              className="mt-2 inline-block text-sm font-medium text-accent hover:underline"
+            >
+              Læs databehandleraftalen
+            </Link>
+          </div>
+        ) : null}
 
         {company?.stripe_customer_id ? (
           <div className="mt-6 border-t border-border pt-5">
