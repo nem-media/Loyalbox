@@ -1,5 +1,5 @@
 -- ============================================================================
--- LoyalBox — valgfri label til standerens eget/frie link
+-- LoyalSum — valgfri label til standerens eget/frie link
 -- Så en forretning kan navngive sit ekstra link, fx "Menukort" eller "Book bord",
 -- i stedet for et generisk "Se mere". Bruges på den offentlige review-side.
 -- ============================================================================

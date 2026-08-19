@@ -1,5 +1,5 @@
 -- ============================================================================
--- LoyalBox — medarbejder-login: læse-adgang til egen employees-række
+-- LoyalSum — medarbejder-login: læse-adgang til egen employees-række
 -- ============================================================================
 -- I 0004 kunne KUN virksomhedsejeren/admin læse `employees` (policy
 -- `employees_owner_all`). Det betød at en medarbejder ikke kunne slå sin EGEN

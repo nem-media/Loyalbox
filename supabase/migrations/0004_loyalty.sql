@@ -1,5 +1,5 @@
 -- ============================================================================
--- LoyalBox — Stempelkort & belønninger (Loyalty-modul)
+-- LoyalSum — Stempelkort & belønninger (Loyalty-modul)
 -- ============================================================================
 -- Bygger oven på 0001-0003. Org = companies. Reads via RLS (ejer/admin);
 -- transaktionelle writes sker via service-role i server actions efter app-
