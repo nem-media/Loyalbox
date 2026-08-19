@@ -11,6 +11,11 @@ import type { CompanyPlan, DestinationType } from "@/lib/types/database";
 export interface FormResult {
   ok?: boolean;
   error?: string;
+  /**
+   * Kvittering ved succes. Nogle handlinger gør noget, brugeren ikke kan se
+   * på skærmen — fx at der er sendt en mail — og så er "gemt" ikke nok.
+   */
+  message?: string;
 }
 
 /** Update the current customer's company profile. */

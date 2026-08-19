@@ -138,7 +138,28 @@ export const GUIDES: Guide[] = [
     ],
     notes: [
       "Historikken gemmes, så du altid kan se, hvad der er givet og indløst — og af hvem.",
-      "Medarbejderadgang oprettes i dag manuelt af os. Skriv til kontakt@loyalsum.dk med medarbejderens e-mail, så sætter vi den op.",
+      "Personalet skal have deres egen adgang — se vejledningen om personale. Del aldrig din egen adgangskode; så kan du hverken se hvem der har gjort hvad, eller lukke adgangen for én person.",
+    ],
+  },
+  {
+    id: "personale",
+    title: "Giv personalet adgang",
+    summary:
+      "Dine ansatte får deres eget login, så de kan stemple uden at kende din adgangskode.",
+    hint: "Hver medarbejder får sit eget login — del aldrig din egen adgangskode.",
+    href: "/dashboard/personale",
+    hrefLabel: "Gå til Personale",
+    steps: [
+      "Gå til Personale, og skriv medarbejderens navn og e-mail.",
+      "Vælg hvad de må: give stempler, indløse belønninger og eventuelt give rabatter.",
+      "Tryk tilføj. De får en mail med et link, hvor de vælger deres egen adgangskode.",
+      "Når de logger ind, lander de på personalesiden, hvor de kan finde en kundes kort og stemple.",
+    ],
+    notes: [
+      "Har medarbejderen allerede en LoyalSum-konto, bliver den brugt — der sendes ingen ny invitation.",
+      "Står der “Har ikke logget ind endnu”, har de ikke accepteret invitationen. Brug “Send login-link igen”.",
+      "Stopper en medarbejder, så luk adgangen. Historikken bliver stående, så du kan se hvad der er sket.",
+      "Medarbejdere kan ikke se dashboardet, tilføje andre medarbejdere eller ændre jeres abonnement.",
     ],
   },
   {

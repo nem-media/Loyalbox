@@ -8,9 +8,12 @@ kan ses i git.
 |---|---|---|
 | `bekraeft-email.html` | Confirm signup | Bekræft din e-mail hos LoyalSum |
 | `nulstil-adgangskode.html` | Reset password | Nulstil din adgangskode hos LoyalSum |
+| `invitation.html` | Invite user | Du er inviteret til LoyalSum |
 
-Øvrige skabeloner (Magic Link, Invite, Change Email) bruges ikke af appen og
-står på Supabases standard.
+Øvrige skabeloner (Magic Link, Change Email) bruges ikke af appen og står på
+Supabases standard.
+
+`invitation.html` bruges, når ejeren tilføjer en medarbejder under Personale.
 
 ## Linkene peger på `/auth/confirm` — og det er med vilje
 
