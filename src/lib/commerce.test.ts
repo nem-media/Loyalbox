@@ -13,9 +13,14 @@ import { getProduct, STRIPE_TAX_RATES, type Product } from "./constants";
 const KOMPLET = getProduct("loyalsum-komplet")!;
 const ejer = { email: "test-kunde@loyalbox.test", company: { id: "x" } };
 
-/** Samme vare, men uden id'er i den aktuelle tilstand. */
+/** Samme vare, men uden id'er i nogen tilstand. */
 function udenIds(p: Product): Product {
   return { ...p, stripe: undefined };
+}
+
+/** Samme vare, men kun oprettet i test — som før live-id'erne blev lagt ind. */
+function kunTest(p: Product): Product {
+  return { ...p, stripe: { test: p.stripe!.test } };
 }
 
 let oprindeligNøgle: string | undefined;
@@ -69,9 +74,14 @@ describe("canSell", () => {
     expect(canSell(KOMPLET)).toBe(false);
   });
 
-  it("nægter alt i live, så længe kun test-id'erne findes", () => {
+  it("nægter en vare der kun er oprettet i test, når vi kører live", () => {
     process.env.STRIPE_SECRET_KEY = "sk_live_abc";
-    expect(canSell(KOMPLET)).toBe(false);
+    expect(canSell(kunTest(KOMPLET))).toBe(false);
+  });
+
+  it("sælger i live, når varen er oprettet i live", () => {
+    process.env.STRIPE_SECRET_KEY = "sk_live_abc";
+    expect(canSell(KOMPLET)).toBe(true);
   });
 });
 
@@ -97,9 +107,18 @@ describe("canStartCheckout", () => {
     expect(canStartCheckout(ejer, undefined)).toBe(false);
   });
 
-  it("holder knappen lukket i live, indtil live-id'erne er lagt ind", () => {
+  it("holder knappen lukket i live for en vare, der kun findes i test", () => {
     process.env.STRIPE_SECRET_KEY = "sk_live_abc";
-    expect(canStartCheckout({ ...ejer, email: "cafe@eksempel.dk" }, KOMPLET)).toBe(false);
+    expect(
+      canStartCheckout({ ...ejer, email: "cafe@eksempel.dk" }, kunTest(KOMPLET)),
+    ).toBe(false);
+  });
+
+  it("lukker en helt almindelig kunde ind i live", () => {
+    process.env.STRIPE_SECRET_KEY = "sk_live_abc";
+    expect(
+      canStartCheckout({ ...ejer, email: "cafe@eksempel.dk" }, KOMPLET),
+    ).toBe(true);
   });
 });
 
