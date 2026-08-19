@@ -78,7 +78,14 @@ export async function signup(
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { role: "customer" } },
+    options: {
+      data: { role: "customer" },
+      // Bekræftelseslinket skal lande på /auth/callback, som veksler koden til
+      // en session. Uden dette peger linket på Site URL'ens rod, der ikke
+      // veksler noget: brugeren får bekræftet sin mail, men ender uden session
+      // på forsiden. Det ses først, når "Confirm email" slås til i Supabase.
+      emailRedirectTo: `${getSiteUrl()}/auth/callback`,
+    },
   });
 
   if (error) {
@@ -133,7 +140,14 @@ export async function signupCustomer(
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { role: "customer" } },
+    options: {
+      data: { role: "customer" },
+      // Bekræftelseslinket skal lande på /auth/callback, som veksler koden til
+      // en session. Uden dette peger linket på Site URL'ens rod, der ikke
+      // veksler noget: brugeren får bekræftet sin mail, men ender uden session
+      // på forsiden. Det ses først, når "Confirm email" slås til i Supabase.
+      emailRedirectTo: `${getSiteUrl()}/auth/callback`,
+    },
   });
 
   if (error) {
