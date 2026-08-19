@@ -20,24 +20,38 @@ som veksler koden til en session. Ændres den rute, skal `emailRedirectTo` i
 
 Supabase → Project Settings → Authentication → SMTP Settings.
 
-**Kendt problem:** `m736761.serverpark.dk` og `server7216.serverpark.dk`
-udleverer kun deres eget certifikat uden Let's Encrypts mellemcertifikat. Go
-(som Supabase er skrevet i) afviser dem med
-`x509: certificate signed by unknown authority`.
+**Status: der findes ingen brugbar serverpark-vært lige nu.** Verificeret
+2026-08-19.
 
-**Brug i stedet `mail.serverpark.dk:587`** — samme platform, men den udleverer
-den fulde kæde (leaf → Let's Encrypt YR2 → ISRG Root YR, `Verify return code: 0`)
-og tilbyder `AUTH PLAIN LOGIN` efter STARTTLS. Port 465 er lukket hos dem.
+`m736761.serverpark.dk` (= `server7216`) er kontoens egen maskine. Login og
+afsenderadresse virker dér — men den udleverer kun sit eget certifikat uden
+Let's Encrypts mellemcertifikat, og Go (som Supabase er skrevet i) afviser den
+med `x509: certificate signed by unknown authority`. Supabase har ingen
+mulighed for at springe den kontrol over.
 
-Tjek en vært før den tages i brug:
+`mail.serverpark.dk` (= `server1133`) udleverer den fulde kæde og verificerer
+fint — men det er en ANDEN maskine med sin egen brugerdatabase. Samme login
+afvises dér med `535 authentication failed`. Et gyldigt certifikat gør altså
+ikke en vært brugbar; postkassen skal ligge på den.
+
+| Vært | Certifikatkæde | Login for vores postkasse |
+|---|---|---|
+| `m736761` / `server7216` | 1 cert — afvises af Go | virker |
+| `mail.serverpark.dk` / `server1133` | 3 certs — ok | 535 afvist |
+
+**Vejen frem:** serverpark skal installere den fulde kæde (`fullchain.pem`) på
+server7216. Det er en lille rettelse i deres ende. Indtil da må mailen sendes
+gennem en anden udbyder — Brevo har spærret kontoen, så i praksis en ny
+(Resend, Postmark, SendGrid, Mailgun, SES).
+
+Tjek altid BEGGE dele, for kæden alene er ikke nok:
 
 ```sh
-echo | openssl s_client -starttls smtp -connect mail.serverpark.dk:587 -showcerts \
-  | grep -E "^ *[0-9] s:|Verify return code"
+echo | openssl s_client -starttls smtp -connect <vært>:587 -showcerts   | grep -E "^ *[0-9] s:|Verify return code"
 ```
 
-Tre certifikater og `code: 0` = brugbar. Ét certifikat og `code: 21` = Supabase
-vil afvise den.
+3 certifikater + `code: 0` = kæden er i orden. Derefter skal det bekræftes, at
+postkassen faktisk kan logge ind netop dér.
 
 ## Test at det virker
 
