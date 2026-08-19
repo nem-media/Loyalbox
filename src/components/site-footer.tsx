@@ -98,6 +98,9 @@ export function SiteFooter() {
             <Link href="/privatliv" className="hover:text-accent">
               Privatlivspolitik
             </Link>
+            <Link href="/databehandleraftale" className="hover:text-accent">
+              Databehandleraftale
+            </Link>
           </nav>
         </div>
       </div>

@@ -38,6 +38,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
     },
     {
+      url: `${base}/databehandleraftale`,
+      changeFrequency: "yearly",
+      priority: 0.3,
+      lastModified,
+    },
+    {
       url: `${base}/reviewstander`,
       changeFrequency: "monthly",
       priority: 0.9,
