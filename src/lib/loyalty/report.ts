@@ -3,24 +3,24 @@
  * Beregningerne er bevidst dokumenteret, så tallene er entydige.
  */
 import { createClient } from "@/lib/supabase/server";
+import { periodRange, previousRange, type Period } from "@/lib/period";
 
-export type Period = "today" | "7" | "30" | "90";
+export {
+  periodRange,
+  previousRange,
+  PERIOD_LABELS,
+  FORRIGE_LABEL,
+  parsePeriod,
+  PERIODS,
+  type Period,
+} from "@/lib/period";
 
-export const PERIOD_LABELS: Record<Period, string> = {
-  today: "I dag",
-  "7": "7 dage",
-  "30": "30 dage",
-  "90": "90 dage",
-};
-
-export function periodRange(period: Period): { from: string; to: string } {
-  const now = new Date();
-  const to = now.toISOString();
-  if (period === "today") {
-    return { from: now.toISOString().slice(0, 10) + "T00:00:00.000Z", to };
-  }
-  const days = parseInt(period, 10);
-  return { from: new Date(now.getTime() - days * 86400000).toISOString(), to };
+/** De fire tal, der sammenlignes. Resten ville blive støj. */
+export interface LoyaltyTrend {
+  newMembers: number;
+  activeMembers: number;
+  stampsGiven: number;
+  rewardsRedeemed: number;
 }
 
 export interface NamedCount {
@@ -233,5 +233,56 @@ export async function getLoyaltyReport(
     mostActive,
     nearReward: nearReward.slice(0, 6),
     recent,
+  };
+}
+
+/**
+ * Tallene for den FOREGÅENDE periode.
+ *
+ * Bevidst ikke bare `getLoyaltyReport` kørt to gange: den henter medlemmer,
+ * medlemskaber og belønninger for at kunne vise lister og navne, og intet af
+ * det skal bruges til en sammenligning. Her hentes kun de tre ting, de fire
+ * tal beregnes af.
+ */
+export async function getLoyaltyTrend(
+  companyId: string,
+  period: Period,
+): Promise<LoyaltyTrend> {
+  const { from, to } = previousRange(period);
+  const supabase = await createClient();
+
+  const [{ data: txns }, { count: nyeMedlemmer }, { data: belønninger }] =
+    await Promise.all([
+      supabase
+        .from("loyalty_transactions")
+        .select("member_id, stamps")
+        .eq("company_id", companyId)
+        .gte("created_at", from)
+        .lte("created_at", to),
+      supabase
+        .from("loyalty_members")
+        .select("*", { count: "exact", head: true })
+        .eq("company_id", companyId)
+        .gte("created_at", from)
+        .lte("created_at", to),
+      supabase
+        .from("customer_rewards")
+        .select("redeemed_at")
+        .eq("company_id", companyId)
+        .gte("redeemed_at", from)
+        .lte("redeemed_at", to),
+    ]);
+
+  const positive = (txns ?? []).filter((t) => t.stamps > 0);
+
+  return {
+    newMembers: nyeMedlemmer ?? 0,
+    // Samme definition som i rapporten: et medlem er aktivt, hvis det har
+    // fået mindst ét stempel. Ellers ville de to tal ikke kunne sammenlignes.
+    activeMembers: new Set(
+      positive.map((t) => t.member_id).filter(Boolean),
+    ).size,
+    stampsGiven: positive.reduce((s, t) => s + t.stamps, 0),
+    rewardsRedeemed: (belønninger ?? []).length,
   };
 }

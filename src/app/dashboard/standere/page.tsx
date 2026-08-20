@@ -7,6 +7,8 @@ import { Card, CardBody } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CreateStand } from "./create-stand";
 import { GuideHint } from "@/components/guide";
+import { EmptyState } from "@/components/ui/empty-state";
+import { StandIcon } from "@/components/nav-icons";
 
 export const metadata = { title: "Standere" };
 
@@ -62,11 +64,11 @@ export default async function StandsPage() {
           ))}
         </div>
       ) : (
-        <Card>
-          <CardBody className="text-center text-muted">
-            Ingen standere endnu. Opret din første ovenfor.
-          </CardBody>
-        </Card>
+        <EmptyState
+          icon={StandIcon}
+          title="Ingen standere endnu"
+          description="Opret din første ovenfor — giv den et navn du kan kende den på, fx “Disken”. Bagefter sætter du de links på, kunden skal kunne vælge imellem."
+        />
       )}
     </>
   );
