@@ -11,7 +11,7 @@ import { getProduct, STRIPE_TAX_RATES, type Product } from "./constants";
  */
 
 const KOMPLET = getProduct("loyalsum-komplet")!;
-const ejer = { email: "test-kunde@loyalbox.test", company: { id: "x" } };
+const ejer = { email: "komplet@loyalbox.test", company: { id: "x" } };
 
 /** Samme vare, men uden id'er i nogen tilstand. */
 function udenIds(p: Product): Product {
@@ -99,7 +99,7 @@ describe("canStartCheckout", () => {
   });
 
   it("afviser uden virksomhed — også admin, der aldrig har en", () => {
-    expect(canStartCheckout({ email: "test-admin@loyalbox.test", company: null }, KOMPLET)).toBe(false);
+    expect(canStartCheckout({ email: "admin@loyalbox.test", company: null }, KOMPLET)).toBe(false);
     expect(canStartCheckout(null, KOMPLET)).toBe(false);
   });
 
@@ -124,7 +124,7 @@ describe("canStartCheckout", () => {
 
 describe("isTestBuyer", () => {
   it("kender seed-domænet, uanset store bogstaver", () => {
-    expect(isTestBuyer("Test-Kunde@LoyalBox.test")).toBe(true);
+    expect(isTestBuyer("Komplet@LoyalBox.test")).toBe(true);
     expect(isTestBuyer("cafe@eksempel.dk")).toBe(false);
     expect(isTestBuyer(null)).toBe(false);
   });
