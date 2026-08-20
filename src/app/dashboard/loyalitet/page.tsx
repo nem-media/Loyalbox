@@ -4,13 +4,13 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/dashboard-shell";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Stat } from "@/components/ui/stat";
+import { PeriodPicker } from "@/components/period-picker";
 import { EmptyLine } from "@/components/ui/empty-state";
 import { ButtonLink } from "@/components/ui/button";
 import { TXN_TYPE_LABELS } from "@/lib/loyalty/constants";
 import {
   getLoyaltyReport,
   getLoyaltyTrend,
-  PERIOD_LABELS,
   FORRIGE_LABEL,
   type Period,
 } from "@/lib/loyalty/report";
@@ -79,23 +79,7 @@ export default async function LoyaltyOverviewPage({
         }
       />
 
-      {/* Periodefilter */}
-      <div className="box-shape mb-6 inline-flex flex-wrap gap-1 border border-border bg-muted-bg p-1">
-        {PERIODS.map((p) => (
-          <Link
-            key={p}
-            href={`/dashboard/loyalitet?period=${p}`}
-            className={
-              "box-shape px-3 py-1.5 text-sm transition-colors " +
-              (p === period
-                ? "bg-card font-medium text-foreground shadow-[0_1px_2px_rgba(25,55,92,0.06)]"
-                : "text-muted hover:text-foreground")
-            }
-          >
-            {PERIOD_LABELS[p]}
-          </Link>
-        ))}
-      </div>
+      <PeriodPicker basePath="/dashboard/loyalitet" current={period} />
 
       {/* Nøgletal — de fire man kom for. De otte stod før side om side i
           samme størrelse, og så læses siden som en rapport frem for et

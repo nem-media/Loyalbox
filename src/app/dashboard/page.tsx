@@ -10,10 +10,18 @@ import { UpgradeNotice } from "@/components/upgrade-notice";
 import { tierCan, type Tier } from "@/lib/constants";
 import { GuideCard } from "@/components/guide";
 import { getGuide } from "@/lib/guides";
+import { PeriodPicker } from "@/components/period-picker";
+import { parsePeriod, FORRIGE_LABEL } from "@/lib/period";
 
 export const metadata = { title: "Oversigt" };
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ period?: string }>;
+}) {
+  const period = parsePeriod((await searchParams).period);
+  const siden = FORRIGE_LABEL[period];
   const user = await getCurrentUser();
   const company = user!.company;
   const plan = (company?.plan ?? "basic") as Tier;
@@ -36,7 +44,7 @@ export default async function DashboardPage() {
     );
   }
 
-  const stats = await getCompanyStats(company.id);
+  const stats = await getCompanyStats(company.id, period);
 
   return (
     <>
@@ -60,20 +68,43 @@ export default async function DashboardPage() {
       ) : null}
 
       {canSeeStats ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Stat label="Scanninger" value={stats.scans} />
-          <Stat label="Feedbacks" value={stats.feedbackCount} />
-          <Stat
-            label="Klik til anmeldelse"
-            value={stats.clicks}
-            sub="Videre til offentlig anmeldelse"
-          />
-          <Stat
-            label="Gns. rating"
-            value={stats.avgRating ? stats.avgRating.toFixed(1) : "–"}
-            sub={stats.avgRating ? "af 5 stjerner" : "Ingen ratings endnu"}
-          />
-        </div>
+        <>
+          <PeriodPicker basePath="/dashboard" current={period} />
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Tallet er perioden, underteksten er totalen. Uden totalen ville
+                et skift til "7 dage" se ud som om noget var forsvundet. */}
+            <Stat
+              label="Scanninger"
+              value={stats.scans.period}
+              sub={`${stats.scans.total} i alt`}
+              trend={{ previous: stats.scans.previous, label: siden }}
+            />
+            <Stat
+              label="Feedbacks"
+              value={stats.feedback.period}
+              sub={`${stats.feedback.total} i alt`}
+              trend={{ previous: stats.feedback.previous, label: siden }}
+            />
+            <Stat
+              label="Klik til anmeldelse"
+              value={stats.clicks.period}
+              sub={`${stats.clicks.total} i alt`}
+              trend={{ previous: stats.clicks.previous, label: siden }}
+            />
+            {/* Ratingen får ingen pil: et gennemsnit svinger på decimaler, og
+                en pil på 4,3 mod 4,4 ville råbe op om ingenting. */}
+            <Stat
+              label="Gns. rating"
+              value={stats.avgRating ? stats.avgRating.toFixed(1) : "–"}
+              sub={
+                stats.avgRatingTotal
+                  ? `${stats.avgRatingTotal.toFixed(1)} i alt · af 5 stjerner`
+                  : "Ingen ratings endnu"
+              }
+            />
+          </div>
+        </>
       ) : (
         <UpgradeNotice
           requiredTier="pro"
