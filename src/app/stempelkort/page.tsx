@@ -7,6 +7,7 @@ import { getProduct } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 import { getSiteUrl } from "@/lib/site";
 import { PurchaseNotice } from "@/components/purchase-notice";
+import { IndustryBadge, type Branche } from "@/components/industry-icons";
 import {
   CreateCardIcon,
   ScanIcon,
@@ -102,34 +103,45 @@ const REWARDS = [
 ];
 
 /** Brancheeksempler. Tallene er de faktiske skabeloner i produktet. */
-const INDUSTRIES = [
+const INDUSTRIES: {
+  name: string;
+  branche: Branche;
+  body: string;
+  template: string;
+}[] = [
   {
     name: "Café og kaffebar",
+    branche: "cafe",
     body: "Et køb giver et stempel, og det tiende er gratis. Den klassiske kaffeaftale, bare uden papkort der falder fra hinanden i lommen.",
     template: "1 køb = 1 stempel · 10 stempler = gratis kaffe",
   },
   {
     name: "Restaurant og takeaway",
+    branche: "restaurant",
     body: "Et besøg giver et stempel. Efter otte besøg står der en dessert eller en ret klar til gæsten.",
     template: "1 besøg = 1 stempel · 8 stempler = gratis dessert",
   },
   {
     name: "Frisør og barber",
+    branche: "frisoer",
     body: "Klip nummer seks udløser en rabat. Det gør det lidt lettere for kunden at booke hos dig igen frem for at prøve en ny salon.",
     template: "1 besøg = 1 stempel · 6 stempler = 20 % rabat",
   },
   {
     name: "Klinik og skønhed",
+    branche: "skoenhed",
     body: "Behandlinger tæller op mod en bonus, kunden selv vælger. Passer til neglesalon, hudpleje og mindre klinikker med faste forløb.",
     template: "1 behandling = 1 stempel · 5 stempler = valgfri bonus",
   },
   {
     name: "Butik",
+    branche: "butik",
     body: "Beløn dem, der handler hos dig igen og igen. Du kan lade et stempel følge et køb, et besøg eller et beløb, kunden handler for.",
     template: "Du sætter selv antal og belønning",
   },
   {
     name: "Bilvask, værksted og fitness",
+    branche: "vaerksted",
     body: "Alt hvor den samme kunde kommer tilbage med jævne mellemrum. Er der genbesøg i din forretning, er der en grund til et stempelkort.",
     template: "Du sætter selv antal og belønning",
   },
@@ -522,8 +534,11 @@ export default function StempelkortPage() {
                   key={b.name}
                   className="box-shape flex flex-col border border-border bg-card p-6"
                 >
-                  <h3 className="font-bold tracking-tight">{b.name}</h3>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">
+                  <div className="flex items-center gap-3">
+                    <IndustryBadge branche={b.branche} size="md" />
+                    <h3 className="font-bold tracking-tight">{b.name}</h3>
+                  </div>
+                  <p className="mt-3 flex-1 text-sm leading-relaxed text-muted">
                     {b.body}
                   </p>
                   <p className="mt-4 text-xs font-medium text-accent">

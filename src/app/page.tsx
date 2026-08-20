@@ -12,6 +12,7 @@ import {
   InviteIcon,
   AutomationIcon,
 } from "@/components/illustrations";
+import { IndustryBadge, type Branche } from "@/components/industry-icons";
 
 /* ------------------------------------------------------------------ icons */
 
@@ -96,11 +97,6 @@ const IconAlert = (
   </Svg>
 );
 
-/** Samme tegninger i det format, brancheikonerne bruger. */
-function SvgLille({ children }: { children: React.ReactNode }) {
-  return <Svg className="h-[1.15rem] w-[1.15rem]">{children}</Svg>;
-}
-
 /* ------------------------------------------------------------------- data */
 
 const UDEN_SYSTEM = [
@@ -128,101 +124,17 @@ const SETUP_STEPS = [
   },
 ];
 
-/**
- * Brancherne med hvert sit ikon.
- *
- * Ikonet gør mere end at pynte: den besøgende skal kunne SCANNE rækken og
- * finde sig selv, og en form fanges hurtigere end et ord. Uden dem var det ni
- * ens tekstbobler, man læser fra ende til anden.
- *
- * Tegnet i samme stregstil som sidens øvrige ikoner (24 px, stregtykkelse 1,8)
- * og ikke hentet fra et bibliotek — et blandet ikonsæt er dét, der får en side
- * til at ligne noget, der er klippet sammen.
- */
-const INDUSTRIES: { navn: string; ikon: React.ReactNode }[] = [
-  {
-    navn: "Café",
-    ikon: (
-      <SvgLille>
-        <path d="M4 8h11v6a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V8Z" />
-        <path d="M15 9.5h2a2.5 2.5 0 0 1 0 5h-2" />
-        <path d="M7.5 2.5v2M11 2.5v2" />
-      </SvgLille>
-    ),
-  },
-  {
-    navn: "Restaurant",
-    ikon: (
-      <SvgLille>
-        <path d="M6 3v5a2 2 0 0 0 4 0V3" />
-        <path d="M8 3v18" />
-        <path d="M20 13.5h-2.2a2 2 0 0 1-2-2V7.8A4.8 4.8 0 0 1 20 3v10.5Z" />
-        <path d="M20 13.5V21" />
-      </SvgLille>
-    ),
-  },
-  {
-    navn: "Takeaway",
-    ikon: (
-      <SvgLille>
-        <path d="M5 8h14l-1.1 11.9a1.2 1.2 0 0 1-1.2 1.1H7.3a1.2 1.2 0 0 1-1.2-1.1L5 8Z" />
-        <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-      </SvgLille>
-    ),
-  },
-  {
-    navn: "Frisør",
-    ikon: (
-      <SvgLille>
-        <circle cx="6.5" cy="17.5" r="2.6" />
-        <circle cx="17.5" cy="17.5" r="2.6" />
-        <path d="M8.3 15.7 19 4M15.7 15.7 5 4" />
-      </SvgLille>
-    ),
-  },
-  {
-    navn: "Skønhedsklinik",
-    ikon: (
-      <SvgLille>
-        <path d="M11 3.5 12.7 8.3 17.5 10 12.7 11.7 11 16.5 9.3 11.7 4.5 10 9.3 8.3 11 3.5Z" />
-        <path d="M17.5 15.5 18.4 17.6 20.5 18.5 18.4 19.4 17.5 21.5 16.6 19.4 14.5 18.5 16.6 17.6 17.5 15.5Z" />
-      </SvgLille>
-    ),
-  },
-  {
-    navn: "Klinik",
-    ikon: (
-      <SvgLille>
-        <path d="M9.5 3h5v6.5H21v5h-6.5V21h-5v-6.5H3v-5h6.5V3Z" />
-      </SvgLille>
-    ),
-  },
-  {
-    navn: "Butik",
-    ikon: (
-      <SvgLille>
-        <path d="M4.5 9.5h15V20a1 1 0 0 1-1 1h-13a1 1 0 0 1-1-1V9.5Z" />
-        <path d="M3 9.5 4.6 4h14.8L21 9.5" />
-        <path d="M9.8 21v-6h4.4v6" />
-      </SvgLille>
-    ),
-  },
-  {
-    navn: "Værksted",
-    ikon: (
-      <SvgLille>
-        <path d="M15.2 3a5.6 5.6 0 0 0-5 8.1L3.6 17.7a2 2 0 0 0 2.8 2.8l6.6-6.6a5.6 5.6 0 0 0 7.2-6.7l-3.1 3.1-2.9-.8-.8-2.9 3.1-3.1A5.6 5.6 0 0 0 15.2 3Z" />
-      </SvgLille>
-    ),
-  },
-  {
-    navn: "Fitness",
-    ikon: (
-      <SvgLille>
-        <path d="M4 8.5v7M7.5 5v14M16.5 5v14M20 8.5v7M7.5 12h9" />
-      </SvgLille>
-    ),
-  },
+/** Brancherne. Tegningerne bor i industry-icons, fordi tre sider viser dem. */
+const INDUSTRIES: { navn: string; branche: Branche }[] = [
+  { navn: "Café", branche: "cafe" },
+  { navn: "Restaurant", branche: "restaurant" },
+  { navn: "Takeaway", branche: "takeaway" },
+  { navn: "Frisør", branche: "frisoer" },
+  { navn: "Skønhedsklinik", branche: "skoenhed" },
+  { navn: "Klinik", branche: "klinik" },
+  { navn: "Butik", branche: "butik" },
+  { navn: "Værksted", branche: "vaerksted" },
+  { navn: "Fitness", branche: "fitness" },
 ];
 
 const NEW_CUSTOMERS = [
@@ -543,9 +455,7 @@ export default function LandingPage() {
                   key={branche.navn}
                   className="btn-shape inline-flex items-center gap-2.5 border border-border bg-card py-2 pl-2.5 pr-4 text-sm font-medium shadow-[0_10px_24px_-20px_rgba(25,55,92,0.65)]"
                 >
-                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent">
-                    {branche.ikon}
-                  </span>
+                  <IndustryBadge branche={branche.branche} />
                   {branche.navn}
                 </li>
               ))}

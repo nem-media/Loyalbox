@@ -8,6 +8,7 @@ import { PurchaseNotice } from "@/components/purchase-notice";
 import { getProduct } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 import { getSiteUrl } from "@/lib/site";
+import { IndustryBadge, type Branche } from "@/components/industry-icons";
 import {
   TapIcon,
   ShareExperienceIcon,
@@ -84,13 +85,13 @@ const STEPS = [
   },
 ];
 
-const PLACES = [
-  { name: "Café og kaffebar", where: "Ved kassen, mens kunden venter på kaffen." },
-  { name: "Restaurant", where: "Ved betalingen eller på vej ud ad døren." },
-  { name: "Frisør og barber", where: "I receptionen, når kunden betaler." },
-  { name: "Klinik og skønhed", where: "I receptionen efter behandlingen." },
-  { name: "Butik", where: "Ved kassen, lige efter købet." },
-  { name: "Værksted", where: "Ved udlevering af bilen." },
+const PLACES: { name: string; branche: Branche; where: string }[] = [
+  { name: "Café og kaffebar", branche: "cafe", where: "Ved kassen, mens kunden venter på kaffen." },
+  { name: "Restaurant", branche: "restaurant", where: "Ved betalingen eller på vej ud ad døren." },
+  { name: "Frisør og barber", branche: "frisoer", where: "I receptionen, når kunden betaler." },
+  { name: "Klinik og skønhed", branche: "skoenhed", where: "I receptionen efter behandlingen." },
+  { name: "Butik", branche: "butik", where: "Ved kassen, lige efter købet." },
+  { name: "Værksted", branche: "vaerksted", where: "Ved udlevering af bilen." },
 ];
 
 const FAQ = [
@@ -364,8 +365,11 @@ export default function ReviewstanderPage() {
                   key={p.name}
                   className="box-shape border border-border bg-card p-5"
                 >
-                  <h3 className="font-bold tracking-tight">{p.name}</h3>
-                  <p className="mt-1 text-sm text-muted">{p.where}</p>
+                  <div className="flex items-center gap-3">
+                    <IndustryBadge branche={p.branche} size="md" />
+                    <h3 className="font-bold tracking-tight">{p.name}</h3>
+                  </div>
+                  <p className="mt-3 text-sm text-muted">{p.where}</p>
                 </div>
               ))}
             </div>
