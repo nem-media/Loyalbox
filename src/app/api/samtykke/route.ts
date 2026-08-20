@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isValidLogEntry } from "@/lib/consent";
+import { noterFejl } from "@/lib/drift";
 
 /**
  * Modtager og gemmer et cookiesamtykke.
@@ -34,6 +35,7 @@ export async function POST(request: NextRequest) {
     // browseren og respekteres uanset hvad. Men den skal ses, for uden loggen
     // kan vi ikke dokumentere samtykket.
     console.error("[samtykke] kunne ikke gemme:", error.message);
+    await noterFejl("samtykke", `Kunne ikke gemme samtykke: ${error.message}`);
     return NextResponse.json({ error: "kunne ikke gemmes" }, { status: 500 });
   }
 

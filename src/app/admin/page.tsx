@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/dashboard-shell";
 import { Stat } from "@/components/ui/stat";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { FeedbackList } from "@/components/feedback-list";
+import { DriftStatus } from "@/components/drift-status";
 
 export const metadata = { title: "Admin — Oversigt" };
 
@@ -56,6 +57,8 @@ export default async function AdminOverviewPage() {
         <Stat label="Aktive virksomheder" value={activeCompanies} />
         <Stat label="Samlede scanninger" value={totalScans} />
       </div>
+
+      <DriftStatus />
 
       <Card className="mt-6">
         <CardHeader className="flex items-center justify-between">

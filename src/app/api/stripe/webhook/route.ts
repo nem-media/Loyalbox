@@ -3,6 +3,7 @@ import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { planForProduct } from "@/lib/constants";
+import { noterFejl } from "@/lib/drift";
 
 /**
  * Betalingens id, så en ordre kan spores tilbage til pengene i Stripe.
@@ -53,6 +54,7 @@ export async function POST(request: NextRequest) {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!secret) {
     console.error("[stripe] STRIPE_WEBHOOK_SECRET mangler");
+    await noterFejl("stripe-webhook", "STRIPE_WEBHOOK_SECRET mangler — betalinger registreres ikke");
     return NextResponse.json({ error: "ikke konfigureret" }, { status: 500 });
   }
 
@@ -150,6 +152,10 @@ export async function POST(request: NextRequest) {
     // 500 får Stripe til at prøve igen — det er det rigtige ved en midlertidig
     // fejl i vores ende (fx databasen nede).
     console.error("[stripe] fejl under behandling af", event.type, err);
+    await noterFejl(
+      "stripe-webhook",
+      `Fejl under behandling af ${event.type}: ${(err as Error).message}`,
+    );
     return NextResponse.json({ error: "behandlingsfejl" }, { status: 500 });
   }
 

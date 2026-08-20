@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { noterKoersel, noterFejl } from "@/lib/drift";
 
 /**
  * Den natlige oprydning.
@@ -39,13 +40,16 @@ export async function GET(request: NextRequest) {
   );
 
   if (error) {
-    // Skal ses: en oprydning, der stille holder op med at køre, opdages ellers
-    // først den dag nogen spørger, hvorfor der ligger fem år gamle kort.
     console.error("[oprydning] fejlede:", error.message);
+    await noterFejl("oprydning", error.message);
     return NextResponse.json({ error: "fejlede" }, { status: 500 });
   }
 
+  // Også de gode kørsler noteres. Det er dét, der gør en STOPPET oprydning
+  // synlig: uden en linje hver nat kan panelet ikke se forskel på "alt er
+  // fint" og "den har ikke kørt siden marts".
   console.log("[oprydning]", JSON.stringify(data));
+  if (!toerloeb) await noterKoersel("oprydning", data);
   return NextResponse.json(data);
 }
 

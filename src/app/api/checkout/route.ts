@@ -11,6 +11,7 @@ import {
 } from "@/lib/constants";
 import { getSiteUrl } from "@/lib/site";
 import { DPA_VERSION, requiresDpa } from "@/lib/dpa";
+import { noterFejl } from "@/lib/drift";
 
 /**
  * Starter en betaling og sender kunden til Stripe Checkout.
@@ -124,6 +125,10 @@ export async function POST(request: NextRequest) {
         "[dpa] kunne ikke registrere accept for virksomhed",
         company.id,
         dpaError.message,
+      );
+      await noterFejl(
+        "dpa-accept",
+        `Kunne ikke registrere accept for virksomhed ${company.id}: ${dpaError.message}`,
       );
     }
   }
