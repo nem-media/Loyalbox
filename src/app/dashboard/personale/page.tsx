@@ -4,6 +4,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/dashboard-shell";
 import { Card, CardBody } from "@/components/ui/card";
 import { GuideHint } from "@/components/guide";
+import { EmptyState } from "@/components/ui/empty-state";
+import { StaffIcon } from "@/components/nav-icons";
 import { EmployeeForm } from "./employee-form";
 import { EmployeeCard, type EmployeeRow } from "./employee-card";
 
@@ -79,15 +81,11 @@ export default async function StaffAdminPage() {
       </Card>
 
       {rows.length === 0 ? (
-        <Card>
-          <CardBody className="py-10 text-center">
-            <p className="font-medium">Du har endnu ingen medarbejdere.</p>
-            <p className="mt-1 text-sm text-muted">
-              Du kan sagtens køre videre alene — som ejer kan du selv stemple.
-              Tilføj personale, når nogen andre skal kunne betjene kortene.
-            </p>
-          </CardBody>
-        </Card>
+        <EmptyState
+          icon={StaffIcon}
+          title="Du har endnu ingen medarbejdere"
+          description="Du kan sagtens køre videre alene — som ejer kan du selv stemple. Tilføj personale, når nogen andre skal kunne betjene kortene."
+        />
       ) : (
         <div className="space-y-4">
           {rows.map((e) => (

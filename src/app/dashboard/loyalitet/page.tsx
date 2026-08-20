@@ -4,11 +4,14 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/dashboard-shell";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Stat } from "@/components/ui/stat";
+import { EmptyLine } from "@/components/ui/empty-state";
 import { ButtonLink } from "@/components/ui/button";
 import { TXN_TYPE_LABELS } from "@/lib/loyalty/constants";
 import {
   getLoyaltyReport,
+  getLoyaltyTrend,
   PERIOD_LABELS,
+  FORRIGE_LABEL,
   type Period,
 } from "@/lib/loyalty/report";
 import { LoyaltyOnboarding } from "./onboarding";
@@ -56,7 +59,13 @@ export default async function LoyaltyOverviewPage({
   const period: Period = (PERIODS as string[]).includes(sp.period ?? "")
     ? (sp.period as Period)
     : "30";
-  const r = await getLoyaltyReport(access.companyId, period);
+  // Rapporten og den foregående periode hentes samtidig — den ene venter
+  // ikke på den anden.
+  const [r, forrige] = await Promise.all([
+    getLoyaltyReport(access.companyId, period),
+    getLoyaltyTrend(access.companyId, period),
+  ]);
+  const siden = FORRIGE_LABEL[period];
 
   return (
     <>
@@ -92,10 +101,10 @@ export default async function LoyaltyOverviewPage({
           samme størrelse, og så læses siden som en rapport frem for et
           overblik. */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Nye medlemmer" value={r.newMembers} sub={`${r.totalMembers} i alt`} />
-        <Stat label="Aktive medlemmer" value={r.activeMembers} sub="Med stempel i perioden" />
-        <Stat label="Stempler givet" value={r.stampsGiven} sub={r.stampsRemoved ? `${r.stampsRemoved} fjernet` : undefined} />
-        <Stat label="Belønninger indløst" value={r.rewardsRedeemed} sub={`${r.rewardsEarned} optjent`} />
+        <Stat label="Nye medlemmer" value={r.newMembers} sub={`${r.totalMembers} i alt`} trend={{ previous: forrige.newMembers, label: siden }} />
+        <Stat label="Aktive medlemmer" value={r.activeMembers} sub="Med stempel i perioden" trend={{ previous: forrige.activeMembers, label: siden }} />
+        <Stat label="Stempler givet" value={r.stampsGiven} sub={r.stampsRemoved ? `${r.stampsRemoved} fjernet` : undefined} trend={{ previous: forrige.stampsGiven, label: siden }} />
+        <Stat label="Belønninger indløst" value={r.rewardsRedeemed} sub={`${r.rewardsEarned} optjent`} trend={{ previous: forrige.rewardsRedeemed, label: siden }} />
       </div>
 
       {/* De fire der uddyber. Mindre, fordi de forklarer de første. */}
@@ -127,7 +136,7 @@ export default async function LoyaltyOverviewPage({
           </CardHeader>
           <CardBody className="pt-2">
             {r.nearReward.length === 0 ? (
-              <p className="text-sm text-muted">Ingen kunder mangler kun 1-2 stempler lige nu.</p>
+              <EmptyLine>Ingen kunder mangler kun 1-2 stempler lige nu.</EmptyLine>
             ) : (
               <ul className="divide-y divide-border text-sm">
                 {r.nearReward.map((m) => (
@@ -155,7 +164,7 @@ export default async function LoyaltyOverviewPage({
           </CardHeader>
           <CardBody className="pt-2">
             {r.mostActive.length === 0 ? (
-              <p className="text-sm text-muted">Ingen aktivitet i perioden.</p>
+              <EmptyLine>Ingen aktivitet i perioden.</EmptyLine>
             ) : (
               <ul className="divide-y divide-border text-sm">
                 {r.mostActive.map((m) => (
@@ -179,7 +188,7 @@ export default async function LoyaltyOverviewPage({
         </CardHeader>
         <CardBody className="pt-2">
           {r.recent.length === 0 ? (
-            <p className="text-sm text-muted">Ingen aktivitet i perioden.</p>
+            <EmptyLine>Ingen aktivitet i perioden.</EmptyLine>
           ) : (
             <ul className="divide-y divide-border text-sm">
               {r.recent.map((t) => (

@@ -2,8 +2,9 @@ import Link from "next/link";
 import { getCompanyAccess } from "@/lib/loyalty/access";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/dashboard-shell";
-import { Card, CardBody } from "@/components/ui/card";
 import { GuideHint } from "@/components/guide";
+import { EmptyState } from "@/components/ui/empty-state";
+import { StampCardIcon } from "@/components/nav-icons";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import {
@@ -54,20 +55,21 @@ export default async function ProgramsPage() {
       />
 
       {!programs || programs.length === 0 ? (
-        <Card>
-          <CardBody className="py-10 text-center">
-            <p className="font-medium">Du har endnu ikke oprettet et stempelkort.</p>
-            <p className="mt-1 text-sm text-muted">
+        <EmptyState
+          icon={StampCardIcon}
+          title="Du har endnu ikke oprettet et stempelkort"
+          description={
+            <>
               Kom i gang på få minutter — vælg en skabelon og en belønning.
-            </p>
-            <GuideHint id="stempelkort" className="mx-auto mt-3 max-w-md" />
-            <div className="mt-4">
-              <ButtonLink href="/dashboard/loyalitet/programmer/nyt">
-                Opret dit første stempelkort
-              </ButtonLink>
-            </div>
-          </CardBody>
-        </Card>
+              <GuideHint id="stempelkort" className="mt-2 block" />
+            </>
+          }
+          action={
+            <ButtonLink href="/dashboard/loyalitet/programmer/nyt">
+              Opret dit første stempelkort
+            </ButtonLink>
+          }
+        />
       ) : (
         <div className="divide-y divide-border border-y border-border">
           {programs.map((p) => {

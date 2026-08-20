@@ -2,8 +2,9 @@ import Link from "next/link";
 import { getCompanyAccess } from "@/lib/loyalty/access";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/dashboard-shell";
-import { Card, CardBody } from "@/components/ui/card";
 import { GuideHint } from "@/components/guide";
+import { EmptyState } from "@/components/ui/empty-state";
+import { SearchIcon, StaffIcon } from "@/components/nav-icons";
 import { Input } from "@/components/ui/input";
 import { Button, ButtonLink } from "@/components/ui/button";
 
@@ -58,24 +59,30 @@ export default async function CustomersPage({
       </form>
 
       {!members || members.length === 0 ? (
-        <Card>
-          <CardBody className="py-10 text-center text-muted">
-            {term ? (
-              <p>Ingen kunder matchede søgningen.</p>
-            ) : (
+        term ? (
+          <EmptyState
+            icon={SearchIcon}
+            title="Ingen kunder matchede søgningen"
+            description="Prøv med et navn, en e-mail eller et telefonnummer."
+          />
+        ) : (
+          <EmptyState
+            icon={StaffIcon}
+            title="Ingen kunder er tilmeldt endnu"
+            description={
               <>
-                <p className="font-medium text-foreground">
-                  Ingen kunder er tilmeldt endnu.
-                </p>
-                <p className="mt-1 text-sm">
-                  Del QR-koden eller brug din LoyalSum-stander for at få de første
-                  medlemmer.
-                </p>
-                <GuideHint id="kunder" className="mx-auto mt-3 max-w-md" />
+                Kunderne tilmelder sig selv ved at scanne QR-koden på din
+                stander — eller du kan oprette kortet ved disken.
+                <GuideHint id="kunder" className="mt-2 block" />
               </>
-            )}
-          </CardBody>
-        </Card>
+            }
+            action={
+              <ButtonLink href="/dashboard/loyalitet/kunder/ny" variant="outline">
+                Opret kunde ved disken
+              </ButtonLink>
+            }
+          />
+        )
       ) : (
         <div className="divide-y divide-border border-y border-border">
           {members.map((m) => (
