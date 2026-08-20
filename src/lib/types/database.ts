@@ -747,6 +747,29 @@ export interface Database {
         >;
         Relationships: [];
       };
+      /** Se supabase/migrations/0013_drift_log.sql. Kun service-role. */
+      drift_log: {
+        Row: {
+          id: string;
+          opgave: string;
+          ok: boolean;
+          resultat: Record<string, unknown> | null;
+          besked: string | null;
+          alarmeret: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          opgave: string;
+          ok: boolean;
+          resultat?: Record<string, unknown> | null;
+          besked?: string | null;
+          alarmeret?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["drift_log"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
