@@ -28,7 +28,7 @@ const admin = createClient(
   { auth: { autoRefreshToken: false, persistSession: false } },
 );
 
-const EMAIL = "test-slutkunde@loyalbox.test";
+const EMAIL = "kunde@loyalbox.test";
 const PASSWORD = process.env.TEST_CUSTOMER_PASSWORD;
 if (!PASSWORD) {
   console.error("Mangler TEST_CUSTOMER_PASSWORD i miljøet.");
