@@ -63,7 +63,41 @@ const IconRepeat = (
   </Svg>
 );
 
+/**
+ * Modstykket til fluebenet. Listerne med flueben er sidens sprog for "det du
+ * får"; den her linje handler om det, du mister, og skal derfor kunne læses
+ * som det modsatte uden at nogen skal tænke over det.
+ */
+const IconCross = (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2.4}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="h-4 w-4"
+    aria-hidden="true"
+  >
+    <path d="M7 7l10 10M17 7L7 17" />
+  </svg>
+);
+
+const IconAlert = (
+  <Svg>
+    <path d="M10.3 4.3 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 4.3a2 2 0 0 0-3.4 0Z" />
+    <path d="M12 9v4M12 17h.01" />
+  </Svg>
+);
+
 /* ------------------------------------------------------------------- data */
+
+const UDEN_SYSTEM = [
+  "De glade kunder glemmer at anmelde dig.",
+  "De utilfredse siger det først offentligt.",
+  "Førstegangskunderne kommer aldrig igen.",
+  "Og du kan ikke se, hvad der egentlig virker.",
+];
 
 const SETUP_STEPS = [
   {
@@ -227,15 +261,32 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              <div className="box-shape border border-border bg-card p-7">
-                <p className="text-sm font-semibold tracking-tight">
+              {/*
+                Kortet følger SAMME opbygning som de to kort i "To ting, der
+                får din forretning til at vokse": ikonfelt, rigtig overskrift,
+                liste, skygge. Før var det en tynd kasse med grå småtekst i
+                toppen og luft i bunden — den lignede noget, der ikke var
+                færdigt, netop fordi den var det eneste kort på siden, der ikke
+                fulgte mønsteret.
+
+                Ikonet er dæmpet gult og ikke fyldt: det skal signalere, at her
+                er noget at være opmærksom på, uden at stjæle blikket fra
+                overskriften til venstre, som er sektionens egentlige budskab.
+              */}
+              <div className="box-shape border border-border bg-card p-7 shadow-[0_20px_40px_-28px_rgba(25,55,92,0.4)]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary/15 text-dark">
+                  {IconAlert}
+                </div>
+                <h3 className="mt-5 text-xl font-bold tracking-tight">
                   Uden et system sker det tilfældigt
-                </p>
-                <ul className="mt-4 space-y-3 text-sm text-muted">
-                  <li>De glade kunder glemmer at anmelde dig.</li>
-                  <li>De utilfredse siger det først offentligt.</li>
-                  <li>Førstegangskunderne kommer aldrig igen.</li>
-                  <li>Og du kan ikke se, hvad der egentlig virker.</li>
+                </h3>
+                <ul className="mt-5 divide-y divide-border/70">
+                  {UDEN_SYSTEM.map((t) => (
+                    <li key={t} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
+                      <span className="mt-0.5 shrink-0 text-muted">{IconCross}</span>
+                      <span className="text-sm">{t}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
