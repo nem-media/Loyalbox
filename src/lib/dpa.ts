@@ -20,8 +20,8 @@ import { COMPANY, type Product } from "@/lib/constants";
  * hvad den enkelte kunde faktisk sagde ja til. Ændres teksten materielt, skal
  * versionen hæves — ellers ser en gammel accept ud til at dække ny tekst.
  */
-export const DPA_VERSION = "1.0";
-export const DPA_DATE = "2026-08-19";
+export const DPA_VERSION = "1.1";
+export const DPA_DATE = "2026-08-20";
 
 /** Felter der endnu ikke er verificeret, vises som en tydelig markering. */
 export const DPA_UDFYLD = "UDFYLD";
@@ -45,14 +45,13 @@ export const SUBPROCESSORS: SubProcessor[] = [
   {
     name: "Supabase",
     purpose: "Database og brugerlogin",
-    location: DPA_UDFYLD,
-    note: "Regionen står i Supabase → Project Settings → General.",
+    location: "EU (Irland, eu-west-1)",
   },
   {
     name: "Vercel",
     purpose: "Hosting og afvikling af hjemmesiden",
-    location: "USA (us-east-1)",
-    note: "Serverfunktionerne kører i dag i USA. Flyttes de til en europæisk region, skal denne linje rettes.",
+    location: "EU (Irland, dub1)",
+    note: "Regionen er låst i vercel.json. Ændres den, skal denne linje og afsnittet om tredjelande rettes med.",
   },
   {
     name: "Resend (Amazon SES)",
@@ -146,8 +145,8 @@ export const DPA_SECTIONS: DpaSection[] = [
     id: "tredjelande",
     title: "8. Overførsel til tredjelande",
     paragraphs: [
-      "Sker der overførsel af personoplysninger til lande uden for EU/EØS, sker det på grundlag af EU-Kommissionens standardkontraktbestemmelser eller en gyldig beslutning om tilstrækkeligt beskyttelsesniveau, herunder EU-U.S. Data Privacy Framework.",
-      "Se skemaet over underdatabehandlere for, hvor behandlingen konkret finder sted.",
+      "Al behandling af personoplysninger sker inden for EU/EØS. Både database, hosting og udsendelse af e-mails ligger i Irland, som det fremgår af skemaet ovenfor.",
+      "Skulle det blive nødvendigt at overføre personoplysninger til et land uden for EU/EØS, sker det alene på grundlag af EU-Kommissionens standardkontraktbestemmelser eller en gyldig beslutning om tilstrækkeligt beskyttelsesniveau, og kunden får besked forinden.",
     ],
   },
   {
