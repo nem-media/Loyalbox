@@ -33,15 +33,27 @@ export function DashboardShell({
       <aside className="flex shrink-0 flex-col border-b border-white/10 bg-dark text-dark-fg md:w-64 md:border-b-0 md:border-r">
         <div className="flex items-center justify-between p-4 md:pb-2">
           <Logo image="light" />
-          <Badge tone="accent" className="md:hidden">
-            {roleLabel}
-          </Badge>
+
+          {/* På mobil er brugerblokken i bunden skjult, og dermed var der
+              INGEN vej ud af sin egen konto på en telefon. Niveau og Log ud
+              står derfor her, hvor der er plads. */}
+          <div className="flex items-center gap-2 md:hidden">
+            <Badge tone="accent">{roleLabel}</Badge>
+            <form action={signout}>
+              <button className="box-shape px-2.5 py-1.5 text-xs text-white/70 transition-colors hover:bg-white/10 hover:text-white">
+                Log ud
+              </button>
+            </form>
+          </div>
         </div>
 
         {/* Den hyppigste handling i en travl hverdag: find kunden, giv
             stemplet. Den lå tre klik nede under Stempelkort → Kunder → søg. */}
+        {/* Vises OGSÅ på mobil: det er ved disken med en telefon i hånden, at
+            personalet skal finde en kunde. Den var skjult netop dér, hvor den
+            er mest værd. */}
         {quickAction ? (
-          <div className="hidden px-3 pb-1 md:block">
+          <div className="px-3 pb-2 md:pb-1">
             <Link
               href={quickAction.href}
               className="btn-shape flex items-center justify-center gap-2 bg-accent px-3 py-2.5 text-sm font-medium text-accent-fg transition-colors hover:bg-accent-hover"
