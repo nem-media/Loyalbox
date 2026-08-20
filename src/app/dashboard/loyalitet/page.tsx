@@ -71,16 +71,16 @@ export default async function LoyaltyOverviewPage({
       />
 
       {/* Periodefilter */}
-      <div className="mb-6 flex flex-wrap gap-1">
+      <div className="box-shape mb-6 inline-flex flex-wrap gap-1 border border-border bg-muted-bg p-1">
         {PERIODS.map((p) => (
           <Link
             key={p}
             href={`/dashboard/loyalitet?period=${p}`}
             className={
-              "box-shape px-3 py-1.5 text-sm " +
+              "box-shape px-3 py-1.5 text-sm transition-colors " +
               (p === period
-                ? "bg-accent text-accent-fg"
-                : "text-muted hover:bg-muted-bg")
+                ? "bg-card font-medium text-foreground shadow-[0_1px_2px_rgba(25,55,92,0.06)]"
+                : "text-muted hover:text-foreground")
             }
           >
             {PERIOD_LABELS[p]}
@@ -88,21 +88,30 @@ export default async function LoyaltyOverviewPage({
         ))}
       </div>
 
-      {/* Nøgletal */}
+      {/* Nøgletal — de fire man kom for. De otte stod før side om side i
+          samme størrelse, og så læses siden som en rapport frem for et
+          overblik. */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Nye medlemmer" value={r.newMembers} sub={`${r.totalMembers} i alt`} />
         <Stat label="Aktive medlemmer" value={r.activeMembers} sub="Med stempel i perioden" />
         <Stat label="Stempler givet" value={r.stampsGiven} sub={r.stampsRemoved ? `${r.stampsRemoved} fjernet` : undefined} />
         <Stat label="Belønninger indløst" value={r.rewardsRedeemed} sub={`${r.rewardsEarned} optjent`} />
-        <Stat label="Indløsningsrate" value={`${r.redemptionRate}%`} sub="Indløst / optjent" />
-        <Stat label="Genbesøgsrate" value={`${r.revisitRate}%`} sub="≥2 besøgsdage" />
-        <Stat label="Gns. stempler/kunde" value={r.avgStamps} sub="Aktuel saldo" />
-        <Stat label="Rabatter indløst" value={r.discountsRedeemed} />
+      </div>
+
+      {/* De fire der uddyber. Mindre, fordi de forklarer de første. */}
+      <p className="mt-6 mb-2 text-xs font-semibold uppercase tracking-wider text-muted">
+        Nøgletal
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <Stat size="sm" label="Indløsningsrate" value={`${r.redemptionRate}%`} sub="Indløst / optjent" />
+        <Stat size="sm" label="Genbesøgsrate" value={`${r.revisitRate}%`} sub="≥2 besøgsdage" />
+        <Stat size="sm" label="Gns. stempler/kunde" value={r.avgStamps} sub="Aktuel saldo" />
+        <Stat size="sm" label="Rabatter indløst" value={r.discountsRedeemed} />
       </div>
 
       {/* Handlinger */}
-      <div className="mt-6 flex flex-wrap gap-2">
-        <ButtonLink href="/dashboard/loyalitet/kunder" variant="outline" size="sm">
+      <div className="mt-8 flex flex-wrap gap-2">
+        <ButtonLink href="/dashboard/loyalitet/kunder" size="sm">
           Giv stempel / find kunde
         </ButtonLink>
         <ButtonLink href="/dashboard/loyalitet/rabatter/ny" variant="outline" size="sm">

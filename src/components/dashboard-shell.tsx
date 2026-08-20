@@ -2,58 +2,87 @@ import Link from "next/link";
 import { Logo } from "@/components/brand";
 import { signout } from "@/app/(auth)/actions";
 import { Badge } from "@/components/ui/badge";
+import { SearchIcon } from "@/components/nav-icons";
+import { DashboardNav, type NavSection } from "@/components/dashboard-nav";
 
-export interface NavItem {
-  href: string;
-  label: string;
-}
+export type { NavItem, NavSection } from "@/components/dashboard-nav";
 
 export function DashboardShell({
-  nav,
+  sections,
   email,
   roleLabel,
+  companyName,
+  quickAction,
   children,
 }: {
-  nav: NavItem[];
+  sections: NavSection[];
   email: string;
   roleLabel: string;
+  companyName?: string | null;
+  /** Den daglige handling. Udelades, hvis virksomheden ikke har stempelkort. */
+  quickAction?: { href: string; label: string };
   children: React.ReactNode;
 }) {
+  const initialer = (companyName ?? email)
+    .trim()
+    .slice(0, 2)
+    .toUpperCase();
+
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
-      {/* Sidebar */}
-      <aside className="flex shrink-0 flex-col border-b border-white/10 bg-dark text-dark-fg md:w-60 md:border-b-0 md:border-r">
-        <div className="flex items-center justify-between p-4">
+      <aside className="flex shrink-0 flex-col border-b border-white/10 bg-dark text-dark-fg md:w-64 md:border-b-0 md:border-r">
+        <div className="flex items-center justify-between p-4 md:pb-2">
           <Logo image="light" />
           <Badge tone="accent" className="md:hidden">
             {roleLabel}
           </Badge>
         </div>
-        <nav className="flex gap-1 overflow-x-auto px-2 pb-2 md:flex-col md:overflow-visible md:px-3 md:pb-0">
-          {nav.map((item) => (
+
+        {/* Den hyppigste handling i en travl hverdag: find kunden, giv
+            stemplet. Den lå tre klik nede under Stempelkort → Kunder → søg. */}
+        {quickAction ? (
+          <div className="hidden px-3 pb-1 md:block">
             <Link
-              key={item.href}
-              href={item.href}
-              className="box-shape whitespace-nowrap px-3 py-2 text-sm text-white/70 hover:bg-white/10 hover:text-white"
+              href={quickAction.href}
+              className="btn-shape flex items-center justify-center gap-2 bg-accent px-3 py-2.5 text-sm font-medium text-accent-fg transition-colors hover:bg-accent-hover"
             >
-              {item.label}
+              <SearchIcon className="h-[18px] w-[18px]" />
+              {quickAction.label}
             </Link>
-          ))}
-        </nav>
+          </div>
+        ) : null}
+
+        <DashboardNav sections={sections} />
+
         <div className="mt-auto hidden border-t border-white/10 p-3 md:block">
-          <p className="truncate px-1 text-xs text-white/60">{email}</p>
-          <Badge tone="neutral" className="mt-2">
-            {roleLabel}
-          </Badge>
-          <form action={signout} className="mt-3">
-            <button className="box-shape w-full px-3 py-2 text-left text-sm text-white/70 hover:bg-white/10 hover:text-white">
-              Log ud
-            </button>
-          </form>
+          <div className="flex items-center gap-2.5 px-1">
+            <span
+              aria-hidden="true"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/10 text-xs font-semibold text-white"
+            >
+              {initialer}
+            </span>
+            <div className="min-w-0">
+              {companyName ? (
+                <p className="truncate text-sm font-medium text-white">
+                  {companyName}
+                </p>
+              ) : null}
+              <p className="truncate text-xs text-white/50">{email}</p>
+            </div>
+          </div>
+
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <Badge tone="neutral">{roleLabel}</Badge>
+            <form action={signout}>
+              <button className="box-shape px-2.5 py-1.5 text-xs text-white/60 transition-colors hover:bg-white/10 hover:text-white">
+                Log ud
+              </button>
+            </form>
+          </div>
         </div>
       </aside>
 
-      {/* Content */}
       <main className="flex-1 bg-background">
         <div className="mx-auto max-w-5xl p-4 md:p-8">{children}</div>
       </main>
@@ -78,7 +107,7 @@ export function PageHeader({
           <p className="mt-1 text-sm text-muted">{description}</p>
         ) : null}
       </div>
-      {action}
+      {action ? <div className="shrink-0">{action}</div> : null}
     </div>
   );
 }

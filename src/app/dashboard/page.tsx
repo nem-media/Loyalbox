@@ -82,7 +82,7 @@ export default async function DashboardPage() {
         />
       )}
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
+      <div className="mt-6 grid items-start gap-6 lg:grid-cols-3">
         {canSeeFeedback ? (
           <Card className="lg:col-span-2">
             <CardHeader className="flex items-center justify-between">

@@ -16,27 +16,37 @@ export function LoyaltySubnav() {
   const path = usePathname();
   const items = LOYALTY_NAV.filter((i) => BUILT.has(i.href));
   return (
-    <nav className="mb-6 flex flex-wrap gap-1 border-b border-border pb-3">
-      {items.map((i) => {
-        const active =
-          i.href === "/dashboard/loyalitet"
-            ? path === i.href
-            : path.startsWith(i.href);
-        return (
-          <Link
-            key={i.href}
-            href={i.href}
-            className={
-              "box-shape px-3 py-1.5 text-sm " +
-              (active
-                ? "bg-accent text-accent-fg"
-                : "text-muted hover:bg-muted-bg hover:text-foreground")
-            }
-          >
-            {i.label}
-          </Link>
-        );
-      })}
-    </nav>
+    // Sektionens navn står OVER fanerne, så man kan se hvor man er, uden at
+    // skulle udlede det af hvilken fane der lyser. Fanerne er samtidig gjort
+    // rolige: de er navigation inde i en sektion, ikke en handling, og skal
+    // derfor ikke råbe lige så højt som en grøn knap.
+    <div className="mb-6">
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">
+        Stempelkort
+      </p>
+      <nav className="box-shape inline-flex flex-wrap gap-1 border border-border bg-muted-bg p-1">
+        {items.map((i) => {
+          const active =
+            i.href === "/dashboard/loyalitet"
+              ? path === i.href
+              : path.startsWith(i.href);
+          return (
+            <Link
+              key={i.href}
+              href={i.href}
+              aria-current={active ? "page" : undefined}
+              className={
+                "box-shape px-3 py-1.5 text-sm transition-colors " +
+                (active
+                  ? "bg-card font-medium text-foreground shadow-[0_1px_2px_rgba(25,55,92,0.06)]"
+                  : "text-muted hover:text-foreground")
+              }
+            >
+              {i.label}
+            </Link>
+          );
+        })}
+      </nav>
+    </div>
   );
 }

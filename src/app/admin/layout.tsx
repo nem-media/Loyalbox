@@ -1,12 +1,16 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
-import { DashboardShell, type NavItem } from "@/components/dashboard-shell";
+import { DashboardShell, type NavSection } from "@/components/dashboard-shell";
 
-const NAV: NavItem[] = [
-  { href: "/admin", label: "Oversigt" },
-  { href: "/admin/virksomheder", label: "Virksomheder" },
-  { href: "/admin/ordrer", label: "Ordrer" },
-  { href: "/admin/feedback", label: "Feedback" },
+const SECTIONS: NavSection[] = [
+  {
+    items: [
+      { href: "/admin", label: "Oversigt", icon: "overview" },
+      { href: "/admin/virksomheder", label: "Virksomheder", icon: "store" },
+      { href: "/admin/ordrer", label: "Ordrer", icon: "billing" },
+      { href: "/admin/feedback", label: "Feedback", icon: "feedback" },
+    ],
+  },
 ];
 
 export default async function AdminLayout({
@@ -19,7 +23,7 @@ export default async function AdminLayout({
   if (user.role !== "admin") redirect("/dashboard");
 
   return (
-    <DashboardShell nav={NAV} email={user.email} roleLabel="Admin">
+    <DashboardShell sections={SECTIONS} email={user.email} roleLabel="Admin">
       {children}
     </DashboardShell>
   );
