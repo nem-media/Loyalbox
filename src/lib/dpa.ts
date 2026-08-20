@@ -1,4 +1,5 @@
 import { COMPANY, type Product } from "@/lib/constants";
+import { FRISTER } from "@/lib/opbevaring";
 
 /**
  * Databehandleraftale (DPA).
@@ -20,7 +21,7 @@ import { COMPANY, type Product } from "@/lib/constants";
  * hvad den enkelte kunde faktisk sagde ja til. Ændres teksten materielt, skal
  * versionen hæves — ellers ser en gammel accept ud til at dække ny tekst.
  */
-export const DPA_VERSION = "1.1";
+export const DPA_VERSION = "1.2";
 export const DPA_DATE = "2026-08-20";
 
 /** Felter der endnu ikke er verificeret, vises som en tydelig markering. */
@@ -177,16 +178,26 @@ export const DPA_SECTIONS: DpaSection[] = [
     ],
   },
   {
-    id: "sletning",
-    title: "12. Sletning ved ophør",
+    id: "opbevaring",
+    title: "12. Opbevaring og sletning undervejs",
     paragraphs: [
-      "Ved aftalens ophør sletter LoyalSum efter kundens valg alle personoplysninger eller leverer dem tilbage, medmindre lovgivningen kræver, at de gemmes.",
+      "LoyalSum sletter automatisk personoplysninger efter faste frister. Oprydningen kører hver nat.",
+      "Kunden er dataansvarlig og kan fastsætte andre frister for sine egne kunders oplysninger. Sker det ikke, gælder disse som instruks:",
+    ],
+    list: FRISTER.map((frist) => `${frist.hvad}: ${frist.naar.toLowerCase()}.`),
+  },
+  {
+    id: "sletning",
+    title: "13. Sletning ved ophør",
+    paragraphs: [
+      "Ved aftalens ophør sletter LoyalSum efter kundens valg alle personoplysninger eller leverer dem tilbage senest 30 dage efter ophøret, medmindre lovgivningen kræver, at de gemmes.",
+      "Fristen på 30 dage giver plads til at fortryde en opsigelse. Ønsker kunden sletning med det samme, sker det på anmodning.",
       "Kunden kan til enhver tid slette oplysninger om en enkelt af sine kunder direkte i systemet.",
     ],
   },
   {
     id: "oevrigt",
-    title: "13. Ændringer, ansvar og lovvalg",
+    title: "14. Ændringer, ansvar og lovvalg",
     paragraphs: [
       "Kræver ny lovgivning eller praksis ændringer i aftalen, varsles de senest 30 dage før.",
       "Aftalen er underlagt dansk ret, og tvister afgøres ved de danske domstole.",

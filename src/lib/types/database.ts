@@ -749,7 +749,20 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      /** Se supabase/migrations/0012_opbevaring.sql. Kun service-role. */
+      ryd_op_efter_frister: {
+        Args: { p_toerloeb: boolean };
+        Returns: {
+          toerloeb: boolean;
+          feedback_navn: number;
+          feedback_kommentar: number;
+          medlemmer: number;
+          samtykkelog: number;
+          revisionslog: number;
+        };
+      };
+    };
     Enums: {
       user_role: UserRole;
       company_plan: CompanyPlan;

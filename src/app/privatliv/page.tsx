@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { LegalSection, CompanyDetails } from "@/components/legal";
 import { COMPANY, SITE_NAME } from "@/lib/constants";
+import { FRISTER, OPRYDNING_KADENCE } from "@/lib/opbevaring";
 
 /**
  * Privatlivspolitik.
@@ -112,7 +113,45 @@ export default function PrivacyPage() {
           </p>
         </LegalSection>
 
-        <LegalSection id="underdatabehandlere" title="5. Hvem vi deler data med">
+        <LegalSection id="opbevaring" title="5. Hvor længe vi gemmer">
+          <p>
+            Oplysninger, der peger på en person, slettes, når formålet med dem
+            er udtømt. Tal, der ikke peger på nogen, bliver liggende, så
+            butikken beholder sin historik. Oprydningen kører automatisk{" "}
+            {OPRYDNING_KADENCE}.
+          </p>
+          <div className="-mx-1 overflow-x-auto">
+            <table className="w-full min-w-[34rem] border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-border text-left">
+                  <th className="py-2 pr-4 font-medium">Oplysning</th>
+                  <th className="py-2 pr-4 font-medium">Slettes</th>
+                  <th className="py-2 font-medium">Hvorfor</th>
+                </tr>
+              </thead>
+              <tbody>
+                {FRISTER.map((frist) => (
+                  <tr key={frist.hvad} className="border-b border-border/60">
+                    <td className="py-2 pr-4 align-top">{frist.hvad}</td>
+                    <td className="py-2 pr-4 align-top whitespace-nowrap">
+                      {frist.naar}
+                    </td>
+                    <td className="py-2 align-top text-muted">
+                      {frist.hvorfor}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Fristerne er vores standard. Er du butiksejer og har brug for en
+            anden frist for dine egne kunders oplysninger, er det dig, der
+            bestemmer som dataansvarlig — skriv til {COMPANY.email}.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="underdatabehandlere" title="6. Hvem vi deler data med">
           <p>
             Vi sælger aldrig personoplysninger. Vi bruger disse leverandører til
             at drive tjenesten:
@@ -134,7 +173,7 @@ export default function PrivacyPage() {
           </p>
         </LegalSection>
 
-        <LegalSection id="cookies" title="6. Cookies og statistik">
+        <LegalSection id="cookies" title="7. Cookies og statistik">
           <p>
             <strong>Nødvendige:</strong> vi bruger en enkelt cookie, der holder
             dig logget ind. Den kan ikke fravælges, for uden den virker login
@@ -232,7 +271,7 @@ export default function PrivacyPage() {
           </p>
         </LegalSection>
 
-        <LegalSection id="rettigheder" title="7. Dine rettigheder">
+        <LegalSection id="rettigheder" title="8. Dine rettigheder">
           <p>
             Du har ret til indsigt i dine oplysninger, til at få rettet
             forkerte oplysninger, til at få slettet data, til at begrænse
@@ -249,7 +288,7 @@ export default function PrivacyPage() {
           </p>
         </LegalSection>
 
-        <LegalSection id="sikkerhed" title="8. Sikkerhed">
+        <LegalSection id="sikkerhed" title="9. Sikkerhed">
           <p>
             Data sendes krypteret, adgangskoder gemmes aldrig i klartekst, og
             adgangen til den enkelte butiks data er teknisk afgrænset, så én
