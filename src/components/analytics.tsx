@@ -209,9 +209,8 @@ function ConsentDialog() {
               Vi bruger cookies
             </h2>
             <p className="mt-1.5 text-sm leading-relaxed text-muted">
-              Nogle er nødvendige, for at du kan logge ind. Resten er op til
-              dig. Vi tæller altid besøg uden cookies — det kan ikke bruges til
-              at genkende dig. Læs mere i vores{" "}
+              Vi bruger visse nødvendige cookies til at levere vores tjenester.
+              Læs mere i vores{" "}
               <a href="/privatliv" className="font-medium text-accent underline">
                 privatlivspolitik
               </a>
@@ -224,7 +223,7 @@ function ConsentDialog() {
               <div>
                 <p className="text-sm font-medium">Nødvendige</p>
                 <p className="text-xs leading-relaxed text-muted">
-                  Holder dig logget ind. Kan ikke fravælges.
+                  Kan ikke fravælges.
                 </p>
               </div>
               <span className="shrink-0 pt-0.5 text-xs font-medium text-muted">
