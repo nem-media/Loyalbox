@@ -177,14 +177,21 @@ function ConsentDialog() {
     });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-dark/40 p-4 sm:items-center">
+    // Dialogen er højere end en lille telefonskærm. Uden en grænse og en
+    // rullebar midte blev toppen klippet af, og på en lav skærm kunne "Afvis"
+    // havne uden for rækkevidde — man kunne ikke sige nej.
+    //
+    // dvh og ikke vh: på mobil skifter den synlige højde, når browserlinjen
+    // glider væk, og vh regner med den STØRSTE højde. Med vh ville bunden
+    // stikke ud under adresselinjen, netop hvor knapperne sidder.
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-dark/40 p-3 sm:items-center sm:p-4">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="samtykke-titel"
-        className="box-shape w-full max-w-lg overflow-hidden border border-border bg-background shadow-xl"
+        className="box-shape flex max-h-[calc(100dvh-1.5rem)] w-full max-w-lg flex-col overflow-hidden border border-border bg-background shadow-xl sm:max-h-[calc(100dvh-2rem)]"
       >
-        <div className="flex items-center justify-between bg-dark px-5 py-4">
+        <div className="flex shrink-0 items-center justify-between bg-dark px-5 py-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/loyalsum-logo.png"
@@ -196,7 +203,7 @@ function ConsentDialog() {
           <span className="text-xs text-white/60">Cookies</span>
         </div>
 
-        <div className="space-y-4 p-5">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-5">
           <div>
             <h2 id="samtykke-titel" className="font-bold tracking-tight">
               Vi bruger cookies
@@ -250,6 +257,10 @@ function ConsentDialog() {
             ))}
           </ul>
 
+        </div>
+
+        {/* Knapperne står uden for det rullende felt, så de altid kan nås. */}
+        <div className="shrink-0 border-t border-border p-4">
           <div className="flex flex-col gap-2 sm:flex-row">
             <button
               type="button"
