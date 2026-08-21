@@ -23,9 +23,11 @@ export interface Frist {
    */
   interval: string | null;
   /**
-   * Navnet på variablen i `ryd_op_efter_frister()`. Sat på præcis de frister,
-   * oprydningen håndhæver automatisk — testen kræver, at de to lister passer
-   * én til én, så en ny frist i SQL'en ikke kan forblive udokumenteret.
+   * Navnet på `frist_`-variablen i SQL'en — enten i `ryd_op_efter_frister()`
+   * (migration 0012) eller i `afslut_ophoerte_aftaler()` (migration 0014).
+   * Sat på præcis de frister, oprydningen håndhæver automatisk. Testen læser
+   * BEGGE migrationer og kræver, at listerne passer én til én, så en ny frist
+   * i SQL'en ikke kan forblive udokumenteret — og omvendt.
    */
   sql?: string;
   hvorfor: string;
@@ -99,9 +101,18 @@ export const FRISTER: Frist[] = [
     hvorfor: "Bogføringsloven kræver det.",
   },
   {
+    hvad: "Alt ved manglende betaling",
+    naar: "6 måneder",
+    interval: "6 months",
+    sql: "frist_suspension",
+    hvorfor:
+      "Manglende betaling er ikke det samme som at forlade os. Butikken beholder sine kunder og deres stempler imens, og butikkens egne kunder mister ikke stempler, de har gjort sig fortjent til.",
+  },
+  {
     hvad: "Alt ved aftalens ophør",
     naar: "30 dage",
-    interval: null,
+    interval: "30 days",
+    sql: "frist_efter_ophoer",
     hvorfor:
       "Der er plads til at fortryde en opsigelse, uden at oplysningerne bliver liggende bagefter.",
   },

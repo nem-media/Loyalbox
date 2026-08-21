@@ -9,6 +9,7 @@ import {
   PRODUCTS,
   TIER_LABELS,
   tierCan,
+  TERMS_VERSION,
   type Tier,
 } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
@@ -107,6 +108,33 @@ export default async function SubscriptionPage() {
           </div>
         ) : null}
 
+        {/* Accepten af handelsbetingelserne vises af samme grund som
+            databehandleraftalens: kunden skal kunne se, hvad de sagde ja til,
+            og finde teksten igen. */}
+        {company?.terms_accepted_at ? (
+          <div className="mt-6 border-t border-border pt-5">
+            <p className="text-sm font-medium">Handelsbetingelser</p>
+            <p className="mt-1 text-sm text-muted">
+              Accepteret {formatDate(company.terms_accepted_at)}
+              {company.terms_version ? ` · version ${company.terms_version}` : null}
+              .
+              {company.terms_version === TERMS_VERSION ? null : (
+                <>
+                  {" "}
+                  Der findes en nyere udgave (version {TERMS_VERSION}) — læs
+                  den, og skriv til os, hvis du har spørgsmål.
+                </>
+              )}
+            </p>
+            <Link
+              href="/handelsbetingelser"
+              className="mt-2 inline-block text-sm font-medium text-accent hover:underline"
+            >
+              Læs handelsbetingelserne
+            </Link>
+          </div>
+        ) : null}
+
         {company?.stripe_customer_id ? (
           <div className="mt-6 border-t border-border pt-5">
             <p className="text-sm font-medium">Betaling og bilag</p>
@@ -124,6 +152,23 @@ export default async function SubscriptionPage() {
             Abonnementet giver dig dashboardet oveni.
           </p>
         ) : null}
+
+        {/* Sletningen ligger HER og ikke i menuen. Den skal kunne findes af
+            den, der leder efter den, og ikke rammes af den, der ikke gør. */}
+        <div className="mt-6 border-t border-border pt-5">
+          <p className="text-sm font-medium">Dine data</p>
+          <p className="mt-1 mb-3 text-sm text-muted">
+            Dine kunders oplysninger er dine. Vil du af med dem permanent, kan
+            du selv sætte det i gang — det kræver en bekræftelse på mail og
+            kan fortrydes i syv dage.
+          </p>
+          <Link
+            href="/dashboard/abonnement/slet"
+            className="text-sm font-medium text-accent hover:underline"
+          >
+            Slet alle data →
+          </Link>
+        </div>
       </div>
 
       {/* -------------------------------------------------- sådan får du mere */}

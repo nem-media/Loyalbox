@@ -3,12 +3,12 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Pricing } from "@/components/pricing";
 import { QuantityOrder } from "@/components/quantity-order";
-import { PRODUCTS } from "@/lib/constants";
+import { PRODUCTS, LEVERINGSLAND_NAVN } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { PurchaseNotice } from "@/components/purchase-notice";
 import { CheckoutButton } from "@/components/checkout-button";
 import { getCurrentUser } from "@/lib/auth";
-import { canStartCheckout } from "@/lib/commerce";
+import { koebSpaerre } from "@/lib/commerce";
 import { requiresDpa } from "@/lib/dpa";
 
 export const metadata = {
@@ -30,8 +30,12 @@ export default async function OrderPage({
   // Betalingsknappen vises kun, når den rent faktisk virker for den besøgende.
   // Samme regel som /api/checkout håndhæver — ét sted, så de ikke kan komme i
   // utakt: knappen må aldrig vises til nogen, ruten vil afvise.
+  //
+  // koebSpaerre() giver en GRUND og ikke bare et ja/nej, så beskeden kan blive
+  // brugbar. En knap, der forsvinder, forklarer ingenting — og "du mangler et
+  // CVR-nummer" er en helt anden besked end "vi har ikke åbnet for salg".
   const user = await getCurrentUser();
-  const canPay = canStartCheckout(user, selected);
+  const spaerre = koebSpaerre(user, selected);
 
   return (
     <>
@@ -53,34 +57,46 @@ export default async function OrderPage({
               ))}
             </ul>
 
-            {canPay ? (
+            {spaerre === null ? (
               <div className="box-shape border border-accent/30 bg-accent/5 p-4">
                 <p className="text-sm font-medium">Klar til betaling</p>
                 <p className="mt-1 mb-3 text-sm text-muted">
                   Du betaler standeren nu. Abonnementet trækkes den 20. hver
                   måned for den kommende måned.
                 </p>
-                <CheckoutButton slug={selected.slug} qty={initialQty} />
+                <CheckoutButton
+                  slug={selected.slug}
+                  qty={initialQty}
+                  kraeverDpa={requiresDpa(selected)}
+                />
                 {requiresDpa(selected) ? (
                   <p className="mt-3 text-xs leading-relaxed text-muted">
-                    Når du køber, indgås samtidig vores{" "}
-                    <Link
-                      href="/databehandleraftale"
-                      className="font-medium text-accent"
-                    >
-                      databehandleraftale
-                    </Link>{" "}
-                    og{" "}
-                    <Link
-                      href="/handelsbetingelser"
-                      className="font-medium text-accent"
-                    >
-                      handelsbetingelser
-                    </Link>
-                    . Aftalen er lovpligtig, fordi vi behandler oplysninger om
-                    dine kunder på dine vegne.
+                    Databehandleraftalen er lovpligtig, fordi vi behandler
+                    oplysninger om dine kunder på dine vegne.
                   </p>
                 ) : null}
+                <p className="mt-2 text-xs leading-relaxed text-muted">
+                  Vi sælger kun til virksomheder og leverer i{" "}
+                  {LEVERINGSLAND_NAVN}. Priserne er uden moms, og der er ikke
+                  fortrydelsesret ved erhvervskøb.
+                </p>
+              </div>
+            ) : spaerre === "cvr-mangler" ? (
+              <div className="box-shape border border-secondary/50 bg-secondary/10 p-4 text-sm">
+                <p className="font-bold tracking-tight">
+                  Vi mangler dit CVR-nummer
+                </p>
+                <p className="mt-1 text-muted">
+                  LoyalSum sælges kun til virksomheder — priserne er uden moms,
+                  og der er ikke fortrydelsesret. Skriv nummeret under
+                  Virksomhedsprofil, så er du klar til at bestille.
+                </p>
+                <Link
+                  href="/dashboard/profil"
+                  className="mt-3 inline-block font-medium text-accent hover:underline"
+                >
+                  Udfyld CVR-nummer →
+                </Link>
               </div>
             ) : (
               <PurchaseNotice />

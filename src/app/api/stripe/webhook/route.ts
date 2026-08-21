@@ -3,6 +3,7 @@ import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { planForProduct } from "@/lib/constants";
+import { erBetalende } from "@/lib/abonnement";
 import { noterFejl } from "@/lib/drift";
 
 /**
@@ -96,6 +97,15 @@ export async function POST(request: NextRequest) {
               typeof session.subscription === "string"
                 ? session.subscription
                 : null,
+            // Et gennemført køb ophæver enhver suspension: uret nulstilles, og
+            // et ophør, der endnu ikke er nået at blive slettet, fortrydes.
+            // Rækkefølgen er vigtig — købet er nyere end alt det gamle.
+            stripe_status: session.subscription ? "active" : null,
+            suspenderet_siden: null,
+            ophoert_den: null,
+            sletning_bestilt_den: null,
+            sletning_token: null,
+            sletning_udfoeres_den: null,
           })
           .eq("id", companyId);
 
@@ -116,30 +126,52 @@ export async function POST(request: NextRequest) {
       case "customer.subscription.deleted": {
         const sub = event.data.object;
         const companyId = sub.metadata?.company_id;
-
-        // Aktiv og prøveperiode giver adgang. Alt andet — unpaid, past_due
-        // efter sidste forsøg, canceled — falder til Basic.
-        const stillPaying = sub.status === "active" || sub.status === "trialing";
-
         const slug = sub.metadata?.product_slug;
-        const changes = stillPaying
-          ? slug
-            ? { product_slug: slug, plan: planForProduct(slug) }
-            : null
-          : // Falder til Basic: standeren virker videre med sit eget link,
-            // men dashboard, statistik og stempelkort lukkes.
-            {
-              plan: "basic" as const,
-              product_slug: null,
-              stripe_subscription_id: null,
-            };
 
-        if (changes) {
-          const q = admin.from("companies").update(changes);
-          await (companyId
-            ? q.eq("id", companyId)
-            : q.eq("stripe_subscription_id", sub.id));
+        // Virksomheden findes på sit id, eller — mangler metadataen — på
+        // abonnementet. Nøglen udregnes én gang og bruges til hver opdatering.
+        const noegle: ["id", string] | ["stripe_subscription_id", string] =
+          companyId ? ["id", companyId] : ["stripe_subscription_id", sub.id];
+
+        if (erBetalende(sub.status)) {
+          // Betalingen er på plads: adgangen tilbage, og uret nulstilles. Et
+          // ophør, der endnu ikke er nået at blive udført, fortrydes her.
+          await admin
+            .from("companies")
+            .update({
+              ...(slug ? { product_slug: slug, plan: planForProduct(slug) } : {}),
+              stripe_status: sub.status,
+              suspenderet_siden: null,
+              ophoert_den: null,
+            })
+            .eq(noegle[0], noegle[1]);
+          break;
         }
+
+        // SUSPENSION — ikke ophør. Adgangen til dashboardets indsigt falder til
+        // Basic, men alt ved skranken kører videre, og der slettes ingenting i
+        // seks måneder. Se src/lib/abonnement.ts for hvorfor.
+        //
+        // `stripe_subscription_id` nulstilles IKKE længere. Uden den kunne vi
+        // ikke se forskel på et abonnement, der kan reddes med et nyt kort, og
+        // et der er lukket — og kunden ville få den forkerte knap.
+        //
+        // `product_slug` bliver også stående: det er kvitteringen for, hvad
+        // kunden købte, og uden den kan et abonnement ikke genoptages.
+        await admin
+          .from("companies")
+          .update({ plan: "basic" as const, stripe_status: sub.status })
+          .eq(noegle[0], noegle[1]);
+
+        // Starttidspunktet sættes KUN, hvis der ikke allerede står et. Stripe
+        // sender flere opdateringer på vej gennem rykkerforløbet, og uden
+        // filteret ville hver af dem skubbe de seks måneder foran sig — så
+        // ville fristen aldrig løbe ud, og aftalen aldrig ophøre.
+        await admin
+          .from("companies")
+          .update({ suspenderet_siden: new Date().toISOString() })
+          .eq(noegle[0], noegle[1])
+          .is("suspenderet_siden", null);
         break;
       }
 

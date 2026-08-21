@@ -3,8 +3,23 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { LegalSection, CompanyDetails, Udfyld } from "@/components/legal";
-import { COMPANY, mangler, PRODUCTS, VOLUME_DISCOUNTS, MAX_QTY, SITE_NAME } from "@/lib/constants";
+import {
+  COMPANY,
+  mangler,
+  PRODUCTS,
+  VOLUME_DISCOUNTS,
+  MAX_QTY,
+  SITE_NAME,
+  TERMS_VERSION,
+  TERMS_DATE,
+  LEVERINGSLAND_NAVN,
+} from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
+import {
+  SUSPENSION_MAANEDER,
+  SLETNING_EFTER_OPHOER_DAGE,
+  SLETNING_ANGREFRIST_DAGE,
+} from "@/lib/abonnement";
 
 /**
  * Handelsbetingelser.
@@ -15,6 +30,11 @@ import { formatCurrency } from "@/lib/utils";
  * (VOLUME_DISCOUNTS), at adgangen falder til Basic ved manglende betaling
  * (webhooken i src/app/api/stripe/webhook/route.ts), og at standeren virker
  * videre med sit eget link. Ændres et af de steder, skal teksten følge med.
+ *
+ * FRISTERNE I AFSNIT 7 HENTES FRA src/lib/abonnement.ts og skrives ikke som
+ * tal her. De samme tal står i databehandleraftalen og i privatlivspolitikken,
+ * og tre steder med håndskrevne tal ville før eller siden blive til tre
+ * forskellige løfter om det samme.
  *
  * JURIDISK GENNEMSYN: teksten er skrevet ud fra produktets faktiske
  * funktion, ikke af en advokat. Få den læst igennem, før den sendes til
@@ -46,18 +66,35 @@ export default function TermsPage() {
           {title}
         </h1>
         <p className="mt-3 leading-relaxed text-muted">
-          Vilkårene gælder for alle køb på {SITE_NAME}. Køber du som
-          virksomhed, indgår du aftalen på virksomhedens vegne.
+          Vilkårene gælder for alle køb på {SITE_NAME}. Du indgår aftalen på
+          virksomhedens vegne.
+        </p>
+        <p className="mt-2 text-sm text-muted">
+          Version {TERMS_VERSION} · gældende fra {TERMS_DATE}.
         </p>
 
-        <LegalSection id="saelger" title="1. Sælger">
+        <LegalSection id="saelger" title="1. Sælger og hvem vi sælger til">
           <CompanyDetails />
+          <p>
+            <strong>Vi sælger kun til virksomheder.</strong> Derfor kræver vi et
+            gyldigt CVR-nummer, både når du opretter din konto og før du kan
+            købe. Priserne vises uden moms, og der er ikke fortrydelsesret — se
+            afsnit 2 og 5. Er du privatperson, kan du ikke handle her.
+          </p>
+          <p>
+            Aftalen indgås på dansk. Du bestiller ved at vælge produkt og antal,
+            acceptere disse betingelser og gennemføre betalingen hos Stripe. Du
+            kan rette antal og oplysninger hele vejen frem til betalingen
+            gennemføres. Vi gemmer din accept med den version, du sagde ja til,
+            og betingelserne kan altid læses her på siden.
+          </p>
         </LegalSection>
 
         <LegalSection id="priser" title="2. Priser og moms">
           <p>
-            Alle priser på sitet er angivet <strong>uden moms</strong>. Dansk
-            moms på 25 % lægges oveni ved betaling og fremgår af fakturaen.
+            Alle priser på sitet er angivet <strong>uden moms</strong>, fordi vi
+            sælger til virksomheder. Dansk moms på 25 % lægges oveni ved
+            betaling og fremgår af fakturaen sammen med dit CVR-nummer.
           </p>
           <p>
             Standeren betales som et engangsbeløb. Abonnementet er en fast
@@ -98,7 +135,8 @@ export default function TermsPage() {
         <LegalSection id="levering" title="4. Levering">
           <p>
             Standeren fremstilles til dig med dit logo og dine links og sendes
-            derefter til den adresse, du oplyser.{" "}
+            derefter til den leveringsadresse, du oplyser ved betalingen.{" "}
+            <strong>Vi leverer kun i {LEVERINGSLAND_NAVN}.</strong>{" "}
             {mangler(COMPANY.deliveryDays) ? (
               <>
                 Forventet leveringstid: <Udfyld hvad="leveringstid" />
@@ -111,6 +149,11 @@ export default function TermsPage() {
             Din adgang til dashboardet åbnes, så snart betalingen er
             gennemført — du kan altså gå i gang med at sætte op, mens standeren
             er undervejs.
+          </p>
+          <p>
+            Risikoen for standeren overgår til dig, når den er overgivet til
+            fragtføreren. Er den beskadiget ved modtagelsen, gælder afsnit 8 —
+            skriv til os, så finder vi en løsning.
           </p>
         </LegalSection>
 
@@ -141,40 +184,249 @@ export default function TermsPage() {
             refunderer ikke en påbegyndt periode.
           </p>
           <p>
-            Når abonnementet ophører, lukkes dashboard, statistik og
-            stempelkort. <strong>Standeren virker videre</strong> — den sender
-            fortsat dine kunder hen til det link, den peger på.
+            Derefter lukkes dashboardets indsigt og redigering: statistik,
+            feedback-indbakken og muligheden for at ændre logo og links.{" "}
+            <strong>Alt det, dine kunder mærker, kører videre</strong> —
+            standeren sender som altid, stempelkortene virker, og personalet kan
+            stadig give og indløse stempler.
+          </p>
+          <p>
+            Der slettes ikke noget med det samme. Hvad der sker med dine data,
+            og hvornår, står i afsnit 7.
           </p>
         </LegalSection>
 
-        <LegalSection id="manglende-betaling" title="7. Manglende betaling">
+        <LegalSection
+          id="manglende-betaling"
+          title="7. Manglende betaling — og hvad der sker med dine data"
+        >
           <p>
             Kan betalingen ikke gennemføres, forsøger Stripe igen og sender dig
             besked. Lykkes det ikke, falder din adgang til det gratis niveau,
-            indtil betalingen er på plads. Dine data slettes ikke af den grund.
+            som beskrevet i afsnit 6.
           </p>
-        </LegalSection>
-
-        <LegalSection id="reklamation" title="8. Reklamation">
           <p>
-            Er standeren defekt eller beskadiget ved modtagelsen, så skriv til
-            os hurtigst muligt med et billede, så sender vi en ny. Der gælder de
-            almindelige regler i købeloven.
+            <strong>
+              Manglende betaling er ikke det samme som at forlade os, og der
+              slettes ingenting.
+            </strong>{" "}
+            Dit kundeforhold består i {SUSPENSION_MAANEDER} måneder. Dine
+            kunders stempelkort, deres stempler, dine belønninger, din feedback
+            og dine standere er urørte hele perioden, og alt kommer tilbage i
+            samme øjeblik betalingen er på plads. Vi gør det, fordi dine kunder
+            ikke har gjort noget forkert — de skal ikke miste stempler, de har
+            gjort sig fortjent til, fordi et betalingskort er udløbet.
+          </p>
+          <p>
+            Går der {SUSPENSION_MAANEDER} måneder uden betaling, ophører aftalen.
+            Vi sletter derefter alle personoplysninger inden for{" "}
+            {SLETNING_EFTER_OPHOER_DAGE} dage, som vores{" "}
+            <Link href="/databehandleraftale" className="font-medium text-accent">
+              databehandleraftale
+            </Link>{" "}
+            kræver. Standerne holder op med at virke, når det sker.
+          </p>
+          <p>
+            Vil du af med dine data før det, bestemmer du selv: under Abonnement
+            i dashboardet kan du bestille sletning af alt. Vi sender en
+            bekræftelse til virksomhedens mailadresse, og derefter går der{" "}
+            {SLETNING_ANGREFRIST_DAGE} dage, hvor du kan fortryde. Du er
+            velkommen til at skrive til{" "}
+            <a href={`mailto:${COMPANY.email}`} className="font-medium text-accent">
+              {COMPANY.email}
+            </a>{" "}
+            i stedet — så bekræfter vi først, hvem der spørger, og klarer det
+            for dig.
+          </p>
+          <p>
+            Uanset hvad gemmer vi fakturaerne. Det er ikke et valg fra vores
+            side: bogføringsloven kræver regnskabsmateriale gemt i fem år efter
+            regnskabsårets udløb. De indeholder virksomhedens navn og adresse og
+            intet om dine kunder.
           </p>
         </LegalSection>
 
-        <LegalSection id="aendringer" title="9. Ændringer af priser og vilkår">
+        <LegalSection id="reklamation" title="8. Reklamation og mangler">
+          <p>
+            Undersøg standeren, når du modtager den. Er den defekt eller
+            beskadiget, så skriv til os hurtigst muligt med et billede — og
+            under alle omstændigheder uden ugrundet ophold efter, at du har
+            opdaget det. Reklamerer du senere, mister du retten til at gøre
+            manglen gældende. Der kan ikke reklameres mere end to år efter
+            leveringen.
+          </p>
+          <p>
+            Vi afhjælper en mangel ved at reparere eller sende en ny stander.
+            Lykkes det ikke inden for rimelig tid, kan du hæve købet af den
+            pågældende stander og få pengene tilbage. Da du køber som
+            virksomhed, gælder købelovens regler om handelskøb — ikke
+            forbrugerkøbsreglerne.
+          </p>
+          <p>
+            Virker noget ikke i selve tjenesten, hører vi også gerne fra dig.
+            Det håndteres efter afsnit 11.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="brug" title="9. Sådan må du bruge LoyalSum">
+          <p>
+            Du bestemmer selv, hvad du bruger tjenesten til, så længe det er
+            lovligt og loyalt over for dine egne kunder. Konkret må du ikke:
+          </p>
+          <ul className="space-y-1">
+            <li>
+              gøre en belønning, et stempel eller en rabat betinget af, at
+              kunden skriver, ændrer eller sletter en offentlig anmeldelse
+            </li>
+            <li>
+              bede om anmeldelser selektivt — altså kun spørge dem, du regner
+              med er tilfredse
+            </li>
+            <li>
+              indsamle oplysninger om dine kunder til noget, du ikke har fortalt
+              dem, eller uden et lovligt grundlag
+            </li>
+            <li>bruge tjenesten til at genere, spamme eller vildlede nogen</li>
+          </ul>
+          <p>
+            De to første er ikke husregler: markedsføringsloven forbyder at give
+            urigtige oplysninger om forbrugeranmeldelser for at fremme et
+            produkt, og anmeldelsesplatformene kan fjerne dine anmeldelser, hvis
+            det sker. Derfor er vores eget flow bygget, så alle kunder får det
+            samme tilbud uanset hvor mange stjerner de giver.
+          </p>
+          <p>
+            Du er dataansvarlig for dine egne kunders oplysninger. Det betyder,
+            at du selv skal have et lovligt grundlag for at indsamle dem og selv
+            skal oplyse dine kunder om det. Vores rolle og dine forpligtelser
+            står i{" "}
+            <Link href="/databehandleraftale" className="font-medium text-accent">
+              databehandleraftalen
+            </Link>
+            .
+          </p>
+          <p>
+            Bruges tjenesten i strid med dette, kan vi lukke adgangen. Er der
+            tale om noget, der kan rettes, siger vi altid til først og giver dig
+            rimelig tid til det.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="rettigheder" title="10. Logo og rettigheder">
+          <p>
+            Du giver os ret til at bruge dit logo og dit virksomhedsnavn i det
+            omfang, det er nødvendigt for at levere det, du har købt: at trykke
+            det på standeren og vise det på dine kunders sider. Ikke andet — vi
+            bruger det ikke i vores egen markedsføring uden at spørge dig først.
+          </p>
+          <p>
+            Du indestår for, at du har ret til det materiale, du lægger op. Får
+            vi et krav fra en tredjepart, fordi et logo eller andet materiale,
+            du har lagt op, krænker deres rettigheder, holder du os skadesløse.
+          </p>
+          <p>
+            Alle rettigheder til LoyalSum — softwaren, designet og indholdet —
+            forbliver hos os. Du får en brugsret, så længe abonnementet løber,
+            ikke ejendomsret. Dine egne data og dine kunders oplysninger er
+            derimod dine; se afsnit 12 om, hvordan du får dem med dig.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="drift" title="11. Drift, support og vedligehold">
+          <p>
+            Vi gør vores bedste for at holde tjenesten kørende, men vi garanterer
+            ikke en bestemt oppetid. Tjenesten leveres, som den er og
+            forefindes.
+          </p>
+          <p>
+            Planlagt vedligehold varsler vi på forhånd, når det kan påvirke dig,
+            og lægger det uden for almindelig åbningstid, hvor vi kan. Akutte
+            indgreb kan ske uden varsel.
+          </p>
+          <p>
+            Support fås på{" "}
+            <a href={`mailto:${COMPANY.email}`} className="font-medium text-accent">
+              {COMPANY.email}
+            </a>
+            . Vi svarer normalt inden for én hverdag.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="skift" title="12. Skift til en anden leverandør">
+          <p>
+            Du kan når som helst opsige og tage dine data med dig. Beder du om
+            det, udleverer vi dine oplysninger og dine kunders oplysninger i et
+            almindeligt maskinlæsbart format, uden beregning og senest 30 dage
+            efter din anmodning. Vi hjælper med det, vi kan, undervejs.
+          </p>
+          <p>
+            Er du gået over til en anden leverandør, sletter vi det, vi ikke
+            skal gemme efter afsnit 7. Vi opkræver ikke gebyr for at skifte.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="ansvar" title="13. Ansvar">
+          <p>
+            Vi er ansvarlige efter dansk rets almindelige regler, men med disse
+            begrænsninger:
+          </p>
+          <ul className="space-y-1">
+            <li>
+              Vi er ikke ansvarlige for indirekte tab, herunder driftstab,
+              mistet omsætning, tabt goodwill eller tab af data.
+            </li>
+            <li>
+              Vores samlede ansvar over for dig kan ikke overstige det beløb, du
+              har betalt os i de seneste 12 måneder.
+            </li>
+          </ul>
+          <p>
+            Begrænsningerne gælder ikke ved forsæt eller grov uagtsomhed. De
+            begrænser heller ikke dit eller dine kunders krav efter
+            databeskyttelsesforordningens artikel 82 — det kan de ikke, og de
+            skal ikke se ud til at kunne.
+          </p>
+          <p>
+            Du er selv ansvarlig for det indhold, du lægger op, for hvordan du
+            bruger tjenesten over for dine egne kunder, og for at overholde
+            afsnit 9.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="force-majeure" title="14. Force majeure">
+          <p>
+            Ingen af os er ansvarlig for manglende opfyldelse, der skyldes
+            forhold uden for vores rimelige kontrol — herunder nedbrud hos vores
+            underleverandører, svigt i internetforbindelser, strømafbrydelser,
+            cyberangreb, brand, krig, myndighedsindgreb eller naturkatastrofer.
+          </p>
+          <p>
+            Varer forholdet mere end 30 dage, kan hver af os opsige aftalen uden
+            varsel. Har du betalt for en periode, du ikke har kunnet bruge,
+            refunderer vi den forholdsmæssigt.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="aendringer" title="15. Ændringer, overdragelse">
           <p>
             Vi kan ændre priser og vilkår. Ændringer varsles på mail senest 30
             dage før, de træder i kraft for dit abonnement, og du kan altid
-            opsige inden da.
+            opsige inden da. Det samme gælder, hvis databehandleraftalen ændres
+            materielt.
+          </p>
+          <p>
+            Vi kan overdrage aftalen til en anden virksomhed, fx hvis LoyalSum
+            sælges. Du får besked, og dine vilkår ændrer sig ikke af den grund.
+            Du kan overdrage din aftale med vores accept, som ikke nægtes uden
+            saglig grund.
           </p>
         </LegalSection>
 
-        <LegalSection id="tvister" title="10. Lovvalg og tvister">
+        <LegalSection id="tvister" title="16. Lovvalg og tvister">
           <p>
             Aftalen er underlagt dansk ret. Kan en uenighed ikke løses i
-            mindelighed, afgøres den ved de danske domstole.
+            mindelighed, afgøres den ved de danske domstole med Retten i
+            Glostrup som første instans.
           </p>
         </LegalSection>
 

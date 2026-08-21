@@ -13,6 +13,7 @@ import {
   type StripeIds,
   type StripeMode,
 } from "@/lib/constants";
+import { erGyldigtCvr } from "@/lib/cvr";
 
 /** True hvis Stripe-nøglen er sat i miljøet (server-only). */
 export function isStripeConfigured(): boolean {
@@ -70,14 +71,54 @@ export function canSell(product: Product): boolean {
  *
  * Varen skal desuden være klar i den aktuelle tilstand, jf. canSell — ellers
  * ville live-nøglen åbne en købsknap, der fejler for enhver rigtig kunde.
+ *
+ * Og virksomheden skal have et gyldigt CVR: betingelserne forudsætter et
+ * erhvervskøb, og /api/checkout afviser uden. Stod kravet kun i ruten, ville
+ * knappen blive vist til nogen, ruten afviser — og det er netop den utakt,
+ * denne funktion findes for at forhindre.
  */
+export type KoebSpaerre =
+  /** Ingen virksomhed at knytte købet til. */
+  | "ingen-virksomhed"
+  /** Virksomheden mangler et gyldigt CVR — vi sælger kun til virksomheder. */
+  | "cvr-mangler"
+  /** Varen er ikke klar i denne tilstand, eller salget er ikke åbnet endnu. */
+  | "ikke-aabnet";
+
+/**
+ * Hvad spærrer for et køb — eller null, hvis der ikke er noget i vejen.
+ *
+ * ÉN funktion, fordi knappen og ruten ellers kommer i utakt. Returnerer den en
+ * GRUND og ikke bare falsk, kan /bestil skrive noget brugbart: "du mangler et
+ * CVR-nummer" er en anden besked end "vi har ikke åbnet for salg endnu", og en
+ * knap, der bare forsvinder, forklarer ingen af delene.
+ */
+export function koebSpaerre(
+  user:
+    | { email: string; company: { cvr?: string | null } | null }
+    | null
+    | undefined,
+  product: Product | undefined,
+): KoebSpaerre | null {
+  if (!user?.company) return "ingen-virksomhed";
+  if (!product || !canSell(product)) return "ikke-aabnet";
+  if (stripeMode() !== "live" && !isTestBuyer(user.email)) return "ikke-aabnet";
+
+  // CVR-spærren står SIDST, så en besøgende ikke får at vide, at de mangler et
+  // nummer, i et miljø hvor de alligevel ikke kunne købe.
+  if (!erGyldigtCvr(user.company.cvr)) return "cvr-mangler";
+
+  return null;
+}
+
 export function canStartCheckout(
-  user: { email: string; company: object | null } | null | undefined,
+  user:
+    | { email: string; company: { cvr?: string | null } | null }
+    | null
+    | undefined,
   product: Product | undefined,
 ): boolean {
-  if (!user?.company || !product) return false;
-  if (!canSell(product)) return false;
-  return stripeMode() === "live" || isTestBuyer(user.email);
+  return koebSpaerre(user, product) === null;
 }
 
 /**

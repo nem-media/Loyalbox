@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { canSell, canStartCheckout, isTestBuyer, stripeMode } from "./commerce";
+import {
+  canSell,
+  canStartCheckout,
+  koebSpaerre,
+  isTestBuyer,
+  stripeMode,
+} from "./commerce";
 import { getProduct, STRIPE_TAX_RATES, type Product } from "./constants";
 
 /**
@@ -11,7 +17,11 @@ import { getProduct, STRIPE_TAX_RATES, type Product } from "./constants";
  */
 
 const KOMPLET = getProduct("loyalsum-komplet")!;
-const ejer = { email: "komplet@loyalbox.test", company: { id: "x" } };
+/** CVR'et er med, fordi købsspærren nu kræver et gyldigt — se koebSpaerre. */
+const ejer = {
+  email: "komplet@loyalbox.test",
+  company: { cvr: "37811769" },
+};
 
 /** Samme vare, men uden id'er i nogen tilstand. */
 function udenIds(p: Product): Product {
@@ -119,6 +129,45 @@ describe("canStartCheckout", () => {
     expect(
       canStartCheckout({ ...ejer, email: "cafe@eksempel.dk" }, KOMPLET),
     ).toBe(true);
+  });
+
+  it("afviser en virksomhed uden gyldigt CVR", () => {
+    // Vi sælger kun til virksomheder. Stod kravet kun i /api/checkout, ville
+    // knappen blive vist til nogen, ruten afviser.
+    for (const cvr of [null, undefined, "", "1234", "37811768"]) {
+      expect(
+        canStartCheckout({ ...ejer, company: { cvr } }, KOMPLET),
+        String(cvr),
+      ).toBe(false);
+    }
+  });
+});
+
+describe("koebSpaerre", () => {
+  beforeEach(() => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_abc";
+  });
+
+  it("siger hvad der er i vejen, så beskeden kan blive brugbar", () => {
+    expect(koebSpaerre(ejer, KOMPLET)).toBeNull();
+    expect(koebSpaerre({ ...ejer, company: null }, KOMPLET)).toBe(
+      "ingen-virksomhed",
+    );
+    expect(koebSpaerre(ejer, undefined)).toBe("ikke-aabnet");
+    expect(
+      koebSpaerre({ ...ejer, company: { cvr: null } }, KOMPLET),
+    ).toBe("cvr-mangler");
+  });
+
+  it("nævner ikke CVR i et miljø, hvor der alligevel ikke kan købes", () => {
+    // En rigtig besøgende i testtilstand skal ikke sendes ud at finde sit
+    // CVR-nummer for derefter at få at vide, at salget ikke er åbnet.
+    expect(
+      koebSpaerre(
+        { email: "cafe@eksempel.dk", company: { cvr: null } },
+        KOMPLET,
+      ),
+    ).toBe("ikke-aabnet");
   });
 });
 

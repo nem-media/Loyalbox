@@ -52,6 +52,18 @@ export function SignupForm() {
           <Field label="Firmanavn">
             <Input name="company_name" required />
           </Field>
+          <Field
+            label="CVR-nummer"
+            hint="Otte cifre. LoyalSum sælges kun til virksomheder — priserne er uden moms."
+          >
+            <Input
+              name="cvr"
+              inputMode="numeric"
+              autoComplete="off"
+              placeholder="12345678"
+              required
+            />
+          </Field>
           <Field label="E-mail">
             <Input type="email" name="email" autoComplete="email" required />
           </Field>

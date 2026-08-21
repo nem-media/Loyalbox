@@ -70,6 +70,29 @@ export interface Database {
           /** Accept af databehandleraftalen (0010). Null = ikke accepteret. */
           dpa_accepted_at: string | null;
           dpa_version: string | null;
+          /**
+           * Suspension og ophør (0014). Se src/lib/abonnement.ts — manglende
+           * betaling er suspension, ikke ophør, og der slettes intet før
+           * `ophoert_den` plus 30 dage.
+           */
+          stripe_status: string | null;
+          suspenderet_siden: string | null;
+          ophoert_den: string | null;
+          /** Selvbetjent sletning (0014): bestilt, bekræftet, udføres. */
+          sletning_bestilt_den: string | null;
+          sletning_token: string | null;
+          sletning_udfoeres_den: string | null;
+          /** Sat når data FAKTISK er slettet. Rækken bliver liggende til bogføringen. */
+          slettet_den: string | null;
+          /**
+           * CVR-nummer, otte cifre uden mellemrum (0015). Frivilligt i
+           * databasen af hensyn til de konti, der blev oprettet før kravet —
+           * håndhæves ved oprettelse og ved køb. Se src/lib/cvr.ts.
+           */
+          cvr: string | null;
+          /** Accept af handelsbetingelserne, med version (0015). */
+          terms_accepted_at: string | null;
+          terms_version: string | null;
           logo_url: string | null;
           contact_email: string | null;
           phone: string | null;
@@ -88,6 +111,16 @@ export interface Database {
           billing_email?: string | null;
           dpa_accepted_at?: string | null;
           dpa_version?: string | null;
+          stripe_status?: string | null;
+          suspenderet_siden?: string | null;
+          ophoert_den?: string | null;
+          sletning_bestilt_den?: string | null;
+          sletning_token?: string | null;
+          sletning_udfoeres_den?: string | null;
+          slettet_den?: string | null;
+          cvr?: string | null;
+          terms_accepted_at?: string | null;
+          terms_version?: string | null;
           logo_url?: string | null;
           contact_email?: string | null;
           phone?: string | null;
@@ -784,6 +817,24 @@ export interface Database {
           samtykkelog: number;
           revisionslog: number;
         };
+      };
+      /** Se supabase/migrations/0014_suspension_og_ophoer.sql. Kun service-role. */
+      afslut_ophoerte_aftaler: {
+        Args: { p_toerloeb: boolean };
+        Returns: {
+          toerloeb: boolean;
+          /** Suspensioner der løb ud, og hvor aftalen dermed ophørte. */
+          ophoert: number;
+          /** Virksomheder hvis data blev slettet i denne kørsel. */
+          slettet: number;
+          /** Deres id'er, så logins og logoer kan ryddes bagefter. */
+          virksomheder: string[];
+        };
+      };
+      /** Se supabase/migrations/0014_suspension_og_ophoer.sql. Kun service-role. */
+      slet_virksomhedens_data: {
+        Args: { p_company_id: string };
+        Returns: undefined;
       };
     };
     Enums: {

@@ -25,6 +25,33 @@ export const COMPANY = {
   deliveryDays: "3–5 hverdage",
 } as const;
 
+/**
+ * Handelsbetingelsernes version og dato.
+ *
+ * Accepten gemmes MED versionen på virksomheden ved købet, præcis som
+ * databehandleraftalen (se DPA_VERSION). Uden det kan vi ikke svare på, hvilke
+ * vilkår en kunde faktisk sagde ja til — og et vilkår, ingen kan bevise blev
+ * accepteret, er ikke meget værd i en tvist.
+ *
+ * Hæv versionen, når et vilkår ændres materielt, og ret datoen med.
+ */
+export const TERMS_VERSION = "1.1";
+export const TERMS_DATE = "2026-08-21";
+
+/**
+ * Hvor vi sælger og leverer.
+ *
+ * Danmark alene, og det er et bevidst valg med to grunde. Momsen lægges på som
+ * en fast dansk sats (se STRIPE_TAX_RATES): sælges der til en momsregistreret
+ * køber i et andet EU-land, ville satsen være forkert, og fakturaen ubrugelig
+ * for begge parter. Og standeren er en fysisk vare, der skal sendes.
+ *
+ * Skal der sælges uden for Danmark en dag, er det ikke en linje her — det er
+ * momshåndtering og fragt, og begge dele skal bygges først.
+ */
+export const LEVERINGSLANDE = ["DK"] as const;
+export const LEVERINGSLAND_NAVN = "Danmark";
+
 /** True hvis feltet stadig venter på en rigtig værdi. */
 export function mangler(v: string): boolean {
   return !v || v === "UDFYLD";

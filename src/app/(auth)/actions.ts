@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveLandingPath } from "@/lib/auth";
 import { claimCardForUser } from "@/lib/loyalty/member-account";
 import { getSiteUrl } from "@/lib/site";
+import { erGyldigtCvr, normaliserCvr, CVR_FEJL } from "@/lib/cvr";
 
 export interface AuthState {
   error?: string;
@@ -66,13 +67,22 @@ export async function signup(
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const companyName = String(formData.get("company_name") ?? "").trim();
+  const cvrRaw = String(formData.get("cvr") ?? "");
 
-  if (!email || !password || !companyName) {
+  if (!email || !password || !companyName || !cvrRaw.trim()) {
     return { error: "Udfyld alle felter." };
   }
   if (password.length < 6) {
     return { error: "Adgangskoden skal være mindst 6 tegn." };
   }
+
+  // LoyalSum sælges kun til virksomheder — priserne er uden moms, og der er
+  // ingen fortrydelsesret. Uden CVR er det bare en påstand i en tekst. Se
+  // src/lib/cvr.ts.
+  if (!erGyldigtCvr(cvrRaw)) {
+    return { error: CVR_FEJL };
+  }
+  const cvr = normaliserCvr(cvrRaw);
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
@@ -100,11 +110,25 @@ export async function signup(
   // e-mailbekræftelse slået til i Supabase, kommer der INGEN session med
   // signup, og en RLS-tjekket insert ville blive afvist — så ville brugeren
   // stå med en konto uden virksomhed efter at have bekræftet sin mail.
-  await createAdminClient().from("companies").insert({
-    user_id: data.user.id,
-    name: companyName,
-    contact_email: email,
-  });
+  const { error: firmaFejl } = await createAdminClient()
+    .from("companies")
+    .insert({
+      user_id: data.user.id,
+      name: companyName,
+      cvr,
+      contact_email: email,
+    });
+
+  // Den hyppigste årsag er, at CVR-nummeret allerede er i brug — der er et
+  // unikt indeks på det. Brugeren skal have det at vide her og ikke opdage
+  // det som en konto uden virksomhed efter at have bekræftet sin mail.
+  if (firmaFejl) {
+    return {
+      error: /duplicate|unique/i.test(firmaFejl.message)
+        ? "Der findes allerede en konto med dette CVR-nummer. Log ind i stedet, eller skriv til os."
+        : "Virksomheden kunne ikke oprettes. Prøv igen, eller skriv til os.",
+    };
+  }
 
   // Uden session venter Supabase på, at e-mailen bekræftes.
   if (!data.session) return { needsConfirmation: true };

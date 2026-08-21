@@ -1,5 +1,10 @@
 import { COMPANY, type Product } from "@/lib/constants";
 import { FRISTER } from "@/lib/opbevaring";
+import {
+  SUSPENSION_MAANEDER,
+  SLETNING_EFTER_OPHOER_DAGE,
+  SLETNING_ANGREFRIST_DAGE,
+} from "@/lib/abonnement";
 
 /**
  * Databehandleraftale (DPA).
@@ -21,8 +26,8 @@ import { FRISTER } from "@/lib/opbevaring";
  * hvad den enkelte kunde faktisk sagde ja til. Ændres teksten materielt, skal
  * versionen hæves — ellers ser en gammel accept ud til at dække ny tekst.
  */
-export const DPA_VERSION = "1.2";
-export const DPA_DATE = "2026-08-20";
+export const DPA_VERSION = "1.3";
+export const DPA_DATE = "2026-08-21";
 
 /** Felter der endnu ikke er verificeret, vises som en tydelig markering. */
 export const DPA_UDFYLD = "UDFYLD";
@@ -111,6 +116,7 @@ export const DPA_SECTIONS: DpaSection[] = [
       "LoyalSum behandler kun personoplysninger efter dokumenteret instruks fra kunden. Denne aftale, sammen med den brug kunden gør af systemet, udgør instruksen.",
       "Oplysningerne bruges ikke til egne formål, videresælges ikke og bruges ikke til at træne kunstig intelligens.",
       "Mener LoyalSum, at en instruks strider mod databeskyttelsesreglerne, gives der besked med det samme.",
+      "Kunden indestår for at have et lovligt grundlag for den behandling, der instrueres om, og for selv at oplyse sine egne kunder efter forordningens artikel 13. Det følger af rollen som dataansvarlig, men står her, fordi det er den forpligtelse, der oftest overses — og fordi den ikke er vores at opfylde på kundens vegne.",
     ],
   },
   {
@@ -139,6 +145,7 @@ export const DPA_SECTIONS: DpaSection[] = [
     title: "7. Underdatabehandlere",
     paragraphs: [
       "Kunden giver hermed generel tilladelse til, at LoyalSum benytter de underdatabehandlere, der er anført nedenfor.",
+      "LoyalSum pålægger hver underdatabehandler de samme databeskyttelsesforpligtelser, som følger af denne aftale, og LoyalSum hæfter fuldt ud over for kunden for underdatabehandlerens opfyldelse af dem. Opfylder underdatabehandleren ikke sine forpligtelser, er det altså os, kunden skal holde sig til.",
       "Ændres listen, får kunden besked senest 30 dage før, og kunden kan gøre indsigelse. Kan der ikke findes en løsning, kan kunden opsige abonnementet.",
     ],
   },
@@ -173,8 +180,9 @@ export const DPA_SECTIONS: DpaSection[] = [
     id: "revision",
     title: "11. Tilsyn",
     paragraphs: [
-      "LoyalSum stiller på anmodning de oplysninger til rådighed, der er nødvendige for at vise, at denne aftale overholdes, og gør det muligt at gennemføre revision, herunder inspektion, ved kunden eller en revisor udpeget af kunden.",
-      "Anmodning varsles med rimeligt varsel og må ikke forstyrre driften unødigt. Kunden afholder egne omkostninger.",
+      "LoyalSum stiller på anmodning de oplysninger til rådighed, der er nødvendige for at vise, at denne aftale overholdes, og besvarer kundens spørgsmål om behandlingen.",
+      "Er dokumentationen ikke tilstrækkelig til at vise, at aftalen overholdes, kan kunden lade en uafhængig revisor gennemføre en revision, herunder inspektion. Det kan ske højst én gang årligt, varsles med mindst 30 dages varsel og må ikke forstyrre driften unødigt. Kunden afholder egne omkostninger og revisorens honorar.",
+      "Trappen findes, fordi en ubegrænset ret til fysisk inspektion er en reel byrde for en tjeneste af vores størrelse — og fordi de spørgsmål, en revision skal besvare, næsten altid kan besvares på skrift. Er svarene ikke gode nok, står døren åben.",
     ],
   },
   {
@@ -182,26 +190,30 @@ export const DPA_SECTIONS: DpaSection[] = [
     title: "12. Opbevaring og sletning undervejs",
     paragraphs: [
       "LoyalSum sletter automatisk personoplysninger efter faste frister. Oprydningen kører hver nat.",
-      "Kunden er dataansvarlig og kan fastsætte andre frister for sine egne kunders oplysninger. Sker det ikke, gælder disse som instruks:",
+      "Kunden er dataansvarlig for sine egne kunders oplysninger. Ønsker kunden en anden frist end nedenstående, aftales det konkret — skriv til os, så finder vi ud af, om det kan lade sig gøre. Sker det ikke, gælder disse frister som instruks:",
     ],
     list: FRISTER.map((frist) => `${frist.hvad}: ${frist.naar.toLowerCase()}.`),
   },
   {
     id: "sletning",
-    title: "13. Sletning ved ophør",
+    title: "13. Ophør og sletning",
     paragraphs: [
-      "Ved aftalens ophør sletter LoyalSum efter kundens valg alle personoplysninger eller leverer dem tilbage senest 30 dage efter ophøret, medmindre lovgivningen kræver, at de gemmes.",
-      "Fristen på 30 dage giver plads til at fortryde en opsigelse. Ønsker kunden sletning med det samme, sker det på anmodning.",
-      "Kunden kan til enhver tid slette oplysninger om en enkelt af sine kunder direkte i systemet.",
+      `Manglende betaling er IKKE aftalens ophør. Kan en betaling ikke gennemføres, suspenderes adgangen til dashboardets indsigt og redigering, men kundeforholdet består, denne aftale forbliver i kraft, og der slettes ingenting. Kundens egne kunder kan fortsat bruge deres stempelkort, og personalet kan fortsat give og indløse stempler.`,
+      `Suspensionen varer ${SUSPENSION_MAANEDER} måneder. Betales der inden da, gælder aftalen uændret videre, som var der ikke sket noget.`,
+      `Går der ${SUSPENSION_MAANEDER} måneder uden betaling, ophører aftalen. Ved ophør sletter LoyalSum efter kundens valg alle personoplysninger eller leverer dem tilbage senest ${SLETNING_EFTER_OPHOER_DAGE} dage efter ophøret.`,
+      `Undtaget er alene det, lovgivningen kræver gemt. I praksis er det fakturaerne med kundens navn og adresse, som bogføringsloven kræver opbevaret i fem år efter regnskabsårets udløb. De indeholder ingen oplysninger om kundens egne kunder.`,
+      `Kunden kan til enhver tid selv bestille sletning af alt uden at afvente fristerne. Det sker under Abonnement i dashboardet og kræver, at virksomhedens navn skrives, og at et link sendt til virksomhedens mailadresse bekræftes; derefter går der ${SLETNING_ANGREFRIST_DAGE} dage, hvor det kan fortrydes. Spærrerne findes, fordi en sletning ikke kan gøres om, og fordi den rammer kundens egne kunder samtidig. Kunden kan i stedet bede os om at gøre det — så bekræfter vi først, hvem der anmoder.`,
+      "Kunden kan til enhver tid slette oplysninger om en enkelt af sine egne kunder direkte i systemet.",
     ],
   },
   {
     id: "oevrigt",
     title: "14. Ændringer, ansvar og lovvalg",
     paragraphs: [
-      "Kræver ny lovgivning eller praksis ændringer i aftalen, varsles de senest 30 dage før.",
+      "Kræver ny lovgivning eller praksis ændringer i aftalen, varsles de senest 30 dage før. Hæves aftalens version, får kunden besked på mail.",
+      "Parterne hæfter over for hinanden efter dansk rets almindelige regler for tab, der skyldes en tilsidesættelse af denne aftale eller af databeskyttelsesforordningen. En ansvarsbegrænsning aftalt i handelsbetingelserne begrænser IKKE ansvaret over for de registrerede efter forordningens artikel 82 — det kan den ikke, og det skal den ikke se ud til at kunne.",
       "Aftalen er underlagt dansk ret, og tvister afgøres ved de danske domstole.",
-      `Spørgsmål til aftalen sendes til ${COMPANY.email}.`,
+      `Spørgsmål til aftalen og til behandlingen af personoplysninger sendes til ${COMPANY.email}, som er kundens kontaktpunkt hos os. LoyalSum har ikke pligt til at udpege en databeskyttelsesrådgiver og har ikke udpeget en.`,
     ],
   },
 ];

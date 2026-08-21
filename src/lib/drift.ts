@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendAlarm } from "@/lib/alarm";
+import { sendAlarm } from "@/lib/mail";
 
 /**
  * Driftslog.
