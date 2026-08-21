@@ -365,6 +365,11 @@ export interface Database {
           design_id: string | null;
           /** Kontaktmail paa en ordre uden konto (0019). */
           kontakt_email: string | null;
+          /**
+           * Leveringsadressen som Stripe gav den (0020). Saettes af webhooken,
+           * saa ordren kan ekspederes uden at slaa op i Stripe.
+           */
+          leveringsadresse: Record<string, string | null> | null;
           /** Kom ordren fra bestillingen uden konto? (0019) */
           uden_konto: boolean;
           /** Tillaeg for egen frontfarve paa netop denne ordre (0018). */
@@ -383,6 +388,7 @@ export interface Database {
           total_amount?: number;
           design_id?: string | null;
           kontakt_email?: string | null;
+          leveringsadresse?: Record<string, string | null> | null;
           uden_konto?: boolean;
           frontfarve_beloeb?: number;
           created_at?: string;
@@ -394,6 +400,15 @@ export interface Database {
             columns: ["company_id"];
             isOneToOne: false;
             referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+          {
+            // Uden denne kan den typede klient ikke oploese
+            // `design:designs(*)` og svarer med en SelectQueryError.
+            foreignKeyName: "orders_design_id_fkey";
+            columns: ["design_id"];
+            isOneToOne: false;
+            referencedRelation: "designs";
             referencedColumns: ["id"];
           },
         ];
