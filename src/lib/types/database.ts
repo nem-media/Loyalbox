@@ -146,6 +146,57 @@ export interface Database {
           },
         ];
       };
+      /** Trykvalg en butik har gemt (0018). Se src/lib/design.ts. */
+      designs: {
+        Row: {
+          id: string;
+          company_id: string;
+          navn: string;
+          stander_farve: "sort" | "hvid";
+          front_type: "matcher" | "egen";
+          /** Normaliseret hex med havelåge. Kun sat når front_type = "egen". */
+          front_hex: string | null;
+          logo_url: string | null;
+          logo_filnavn: string | null;
+          logo_mime: string | null;
+          logo_bytes: number | null;
+          logo_bredde: number | null;
+          logo_hoejde: number | null;
+          logo_transparent: boolean | null;
+          print_skabelon: string;
+          /** Er tillægget for egen frontfarve betalt for DETTE design? */
+          frontfarve_betalt: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          company_id: string;
+          navn: string;
+          stander_farve?: "sort" | "hvid";
+          front_type?: "matcher" | "egen";
+          front_hex?: string | null;
+          logo_url?: string | null;
+          logo_filnavn?: string | null;
+          logo_mime?: string | null;
+          logo_bytes?: number | null;
+          logo_bredde?: number | null;
+          logo_hoejde?: number | null;
+          logo_transparent?: boolean | null;
+          print_skabelon?: string;
+          frontfarve_betalt?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["designs"]["Insert"]>;
+        Relationships: [
+          {
+            foreignKeyName: "designs_company_id_fkey";
+            columns: ["company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       stands: {
         Row: {
           id: string;
@@ -159,6 +210,11 @@ export interface Database {
           custom_url: string | null;
           custom_label: string | null;
           is_active: boolean;
+          /**
+           * Sandt = /r/<slug> viderestiller uden at vise en side og uden at
+           * indsamle feedback (0019). Saettes ved bestilling uden konto.
+           */
+          kun_viderestilling: boolean;
           created_at: string;
         };
         Insert: {
@@ -173,6 +229,7 @@ export interface Database {
           custom_url?: string | null;
           custom_label?: string | null;
           is_active?: boolean;
+          kun_viderestilling?: boolean;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["stands"]["Insert"]>;
@@ -304,6 +361,14 @@ export interface Database {
           quantity: number;
           status: OrderStatus;
           total_amount: number;
+          /** Designet ordren blev trykt efter (0018). Null hvis det er slettet. */
+          design_id: string | null;
+          /** Kontaktmail paa en ordre uden konto (0019). */
+          kontakt_email: string | null;
+          /** Kom ordren fra bestillingen uden konto? (0019) */
+          uden_konto: boolean;
+          /** Tillaeg for egen frontfarve paa netop denne ordre (0018). */
+          frontfarve_beloeb: number;
           created_at: string;
         };
         Insert: {
@@ -316,6 +381,10 @@ export interface Database {
           quantity?: number;
           status?: OrderStatus;
           total_amount?: number;
+          design_id?: string | null;
+          kontakt_email?: string | null;
+          uden_konto?: boolean;
+          frontfarve_beloeb?: number;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["orders"]["Insert"]>;

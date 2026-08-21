@@ -1,3 +1,5 @@
+import { EGEN_FRONTFARVE_PRIS } from "@/lib/stander-tilvalg";
+
 export const SITE_NAME = "LoyalSum.dk";
 export const SITE_TAGLINE =
   "Anmeldelser, loyalitet, feedback og synlighed samlet i én platform — så lokale forretninger får flere nye kunder og flere genbesøg.";
@@ -204,6 +206,13 @@ export interface Product {
    * det vigtigste — se webhooken.
    */
   addon?: boolean;
+
+  /**
+   * Sæt kun denne, hvis varen IKKE sender et fysisk skilt. Så bortfalder
+   * farvevalg, logo-upload og leveringsadresse. Ingen nuværende vare er
+   * digital — flaget findes, så en fremtidig kan sige det udtrykkeligt.
+   */
+  kunDigital?: boolean;
 
   /**
    * Sæt kun denne, hvis varen IKKE giver adgang til at indsamle oplysninger om
@@ -554,7 +563,14 @@ export interface PriceBreakdown {
   monthly: number;
   /** Fast engangs opsætning (0 hvis ingen) — uafhængigt af antal. */
   setup: number;
-  /** Samlet engangsbeløb: standere + opsætning. */
+  /**
+   * Tillæg for egen farve på fronten (0 hvis ikke valgt).
+   *
+   * PR. ORDRE og UDEN mængderabat — det er én opsætning i trykket, uanset hvor
+   * mange skilte der laves af den. Derfor ganges den ikke med antallet.
+   */
+  frontfarve: number;
+  /** Samlet engangsbeløb: standere + opsætning + tilvalg. */
   oneTimeTotal: number;
 }
 
@@ -562,12 +578,28 @@ export interface PriceBreakdown {
  * Beregner prisen for et antal standere. Kun standerprisen ganges med antal
  * (og får mængderabat); abonnement og opsætning er faste — uafhængigt af antal.
  */
-export function priceFor(product: Product, qty: number): PriceBreakdown {
+/** Tilvalg der lægges på ORDREN og ikke på varen. */
+export interface Tilvalg {
+  /** Egen farve på den printede front. Fast pris pr. ordre. */
+  egenFrontfarve?: boolean;
+}
+
+export function priceFor(
+  product: Product,
+  qty: number,
+  tilvalg: Tilvalg = {},
+): PriceBreakdown {
   const q = Math.max(1, Math.min(MAX_QTY, Math.floor(qty) || 1));
   const pct = volumeDiscountPct(q);
   const standUnit = Math.round(product.price * (1 - pct / 100));
   const standTotal = standUnit * q;
   const setup = product.setupPrice ?? 0;
+
+  // Tilvalget lægges til ÉN gang og får ingen rabat: rabatten hører til
+  // enheden, og der er kun én opsætning i trykket.
+  const frontfarve =
+    tilvalg.egenFrontfarve && harFysiskSkilt(product) ? EGEN_FRONTFARVE_PRIS : 0;
+
   return {
     qty: q,
     discountPct: pct,
@@ -576,8 +608,21 @@ export function priceFor(product: Product, qty: number): PriceBreakdown {
     standTotal,
     monthly: product.monthlyPrice ?? 0,
     setup,
-    oneTimeTotal: standTotal + setup,
+    frontfarve,
+    oneTimeTotal: standTotal + setup + frontfarve,
   };
+}
+
+/**
+ * Sender varen et fysisk skilt med posten?
+ *
+ * Alle varer gør det i dag, og derfor er flaget en UNDTAGELSE frem for et
+ * krav: en ny vare er fysisk, medmindre nogen aktivt siger andet. Havde det
+ * været omvendt, ville en glemt markering stille fjerne farvevalget og
+ * logo-uploadet fra en vare, der skal sendes.
+ */
+export function harFysiskSkilt(product: Pick<Product, "kunDigital">): boolean {
+  return !product.kunDigital;
 }
 
 /**

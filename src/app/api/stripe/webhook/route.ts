@@ -2,7 +2,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { planForProduct } from "@/lib/constants";
+import { planForProduct, getProduct } from "@/lib/constants";
+import { sendIntern } from "@/lib/mail";
+import { ordrevarsel, type Koebstype } from "@/lib/ordrevarsel";
 import { erBetalende } from "@/lib/abonnement";
 import { noterFejl } from "@/lib/drift";
 
@@ -39,6 +41,78 @@ async function paymentIntentFor(
       err,
     );
     return null;
+  }
+}
+
+/**
+ * Sender varslet om et køb til os selv.
+ *
+ * Beløbet tages fra `amount_subtotal`, som er UDEN moms — det er de tal,
+ * priserne i constants.ts er sat i, og et varsel med momsen indregnet ville
+ * ikke kunne sammenlignes med varen.
+ *
+ * Leveringsadressen har flyttet sig mellem Stripes API-versioner. Begge steder
+ * læses derfor, frem for at varslet stille mister adressen den dag versionen
+ * hæves — og uden adresse kan ordren ikke pakkes.
+ *
+ * Funktionen kaster ALDRIG. Et varsel, der fejler, må ikke få webhooken til at
+ * svare 500 og få Stripe til at sende hændelsen igen: så ville kundeforholdet
+ * blive skrevet to gange for en mail, der alligevel ikke virkede.
+ */
+async function varslOmKoeb(
+  session: Stripe.Checkout.Session,
+  productSlug: string,
+  type: Koebstype,
+  firma: { name?: string | null; cvr?: string | null } | null,
+): Promise<void> {
+  try {
+    const vare = getProduct(productSlug);
+
+    const s = session as unknown as {
+      shipping_details?: { address?: Record<string, string | null> | null } | null;
+      collected_information?: {
+        shipping_details?: { address?: Record<string, string | null> | null } | null;
+      } | null;
+    };
+    const adresse =
+      s.collected_information?.shipping_details?.address ??
+      s.shipping_details?.address ??
+      null;
+
+    const leveringslinjer = adresse
+      ? [
+          session.customer_details?.name ?? firma?.name ?? "",
+          adresse.line1 ?? "",
+          adresse.line2 ?? "",
+          [adresse.postal_code, adresse.city].filter(Boolean).join(" "),
+          adresse.country ?? "",
+        ].filter((l) => l.trim().length > 0)
+      : [];
+
+    const antal = Number(session.metadata?.quantity ?? 1) || 1;
+
+    const { emne, tekst } = ordrevarsel({
+      type,
+      vare: vare?.name ?? productSlug,
+      antal,
+      // amount_subtotal er i oere og UDEN moms.
+      beloeb: Math.round((session.amount_subtotal ?? 0) / 100),
+      maanedligt: vare?.monthlyPrice ?? null,
+      firmanavn: firma?.name ?? session.customer_details?.name ?? null,
+      cvr: firma?.cvr ?? session.customer_details?.tax_ids?.[0]?.value ?? null,
+      email: session.customer_details?.email ?? null,
+      leveringslinjer,
+      sessionId: session.id,
+    });
+
+    if (!(await sendIntern(emne, tekst))) {
+      await noterFejl("ordrevarsel", `Kunne ikke sendes for ${session.id}`);
+    }
+  } catch (err) {
+    await noterFejl(
+      "ordrevarsel",
+      `Fejl under varsel for ${session.id}: ${(err as Error).message}`,
+    );
   }
 }
 
@@ -89,7 +163,49 @@ export async function POST(request: NextRequest) {
         const kundeId =
           typeof session.customer === "string" ? session.customer : null;
 
-        if (typeof session.subscription === "string") {
+        // Hentes FØR opdateringen: om der allerede var en vare, er det, der
+        // skiller et nyt abonnement fra en opgradering — og efter opdateringen
+        // er svaret altid "ja".
+        const { data: bestaaende } = await admin
+          .from("companies")
+          .select("name, cvr, product_slug, stripe_customer_id, contact_email")
+          .eq("id", companyId)
+          .maybeSingle();
+
+        // Tillaegget for egen frontfarve er nu betalt for DETTE design, og en
+        // genbestilling af det skal vaere gratis. Markeringen sker her og ikke
+        // i checkout, fordi checkout kun betyder "kunden gik til betaling" —
+        // en afbrudt betaling maa ikke goere farven gratis.
+        const designId = session.metadata?.design_id;
+        if (designId) {
+          const { error } = await admin
+            .from("designs")
+            .update({ frontfarve_betalt: true })
+            .eq("id", designId)
+            .eq("company_id", companyId);
+          if (error) {
+            await noterFejl(
+              "design",
+              `Kunne ikke markere frontfarve betalt for design ${designId}: ${error.message}`,
+            );
+          }
+        }
+
+        const erAbonnement = typeof session.subscription === "string";
+        const type: Koebstype = erAbonnement
+          ? bestaaende?.product_slug
+            ? "opgradering"
+            : "nyt-abonnement"
+          : getProduct(productSlug)?.addon
+            ? "tilkoeb"
+            : "engangskoeb";
+
+        // Varslet sendes UANSET hvad der sker nedenfor, og fejler det, ryger
+        // det i driftsloggen. En ordre, ingen ved noget om, er værre end en
+        // mail, der ikke kom af sted.
+        void varslOmKoeb(session, productSlug, type, bestaaende ?? null);
+
+        if (erAbonnement && typeof session.subscription === "string") {
           // ABONNEMENTSKØB. Det er her kundeforholdet sættes eller genoptages:
           // niveau, vare og abonnement følger den vare, der lige blev betalt,
           // og enhver suspension ophæves — købet er nyere end alt det gamle.
@@ -123,12 +239,6 @@ export async function POST(request: NextRequest) {
         // Reglen er derfor: et engangskøb ETABLERER et kundeforhold, hvis der
         // ikke er et, og rører det ellers ikke. Kun kundenummeret gemmes, så
         // kvitteringerne hænger sammen.
-        const { data: bestaaende } = await admin
-          .from("companies")
-          .select("product_slug, stripe_customer_id")
-          .eq("id", companyId)
-          .maybeSingle();
-
         if (!bestaaende?.product_slug) {
           await admin
             .from("companies")

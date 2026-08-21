@@ -10,6 +10,22 @@ const OLD_STAND_SLUGS = [
 ];
 
 const nextConfig: NextConfig = {
+  experimental: {
+    serverActions: {
+      /**
+       * Bestillingen uden konto sender logofilen med som en del af
+       * formularen. Standardgraensen er 1 MB, og logokravet er 5 MB —
+       * uden dette ville en gyldig fil blive afvist af rammeverket, foer
+       * vores egen kontrol naaede at se den, og fejlen ville ikke kunne
+       * forklares for kunden.
+       *
+       * Sat til 8 MB og ikke hoejere: der er kun ét felt, og 5 MB plus
+       * multipart-overhead er rigeligt.
+       */
+      bodySizeLimit: "8mb",
+    },
+  },
+
   async redirects() {
     return [
       // Gamle standalone-standere → den nye Reviewstander (selvvalgt link)

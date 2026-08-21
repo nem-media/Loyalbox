@@ -12,9 +12,63 @@ import {
   LEVERINGSLANDE,
 } from "@/lib/constants";
 import { erGyldigtCvr } from "@/lib/cvr";
+import { harFysiskSkilt } from "@/lib/constants";
+import {
+  erStanderFarve,
+  normaliserHex,
+  FRONT_TEKSTER,
+} from "@/lib/stander-tilvalg";
+import {
+  skalBetaleFrontfarve,
+  PRINT_SKABELON_VERSION,
+  type DesignValg,
+} from "@/lib/design";
 import { getSiteUrl } from "@/lib/site";
 import { DPA_VERSION, requiresDpa } from "@/lib/dpa";
 import { noterFejl } from "@/lib/drift";
+
+/**
+ * Læser og renser et design fra klienten.
+ *
+ * ALT VALIDERES HER. Klienten er en browser, og en browser kan sende hvad som
+ * helst — herunder `front_type: "egen"` uden en farve, hvilket ville trykke
+ * sort på sort, eller en hex, der ikke er en hex.
+ *
+ * Vælger kunden ikke en egen farve, nulstilles `front_hex` med vilje. Et
+ * felt, der er blevet stående efter tilvalget blev slået fra, må ikke kunne
+ * bestemme trykket senere.
+ *
+ * Returnerer null, hvis noget er så galt, at det ikke kan rettes op.
+ */
+function laesDesign(raw: Record<string, unknown>) {
+  const standerFarve = raw.stander_farve;
+  if (!erStanderFarve(standerFarve)) return null;
+
+  const vilEgen = raw.front_type === "egen";
+  const hex = vilEgen && typeof raw.front_hex === "string"
+    ? normaliserHex(raw.front_hex)
+    : null;
+
+  // "Egen farve" uden en gyldig farve er ikke et design, vi kan trykke.
+  if (vilEgen && !hex) return null;
+
+  const tal = (v: unknown) =>
+    typeof v === "number" && Number.isFinite(v) && v > 0 ? Math.round(v) : null;
+
+  return {
+    stander_farve: standerFarve,
+    front_type: hex ? ("egen" as const) : ("matcher" as const),
+    front_hex: hex,
+    logo_url: typeof raw.logo_url === "string" ? raw.logo_url : null,
+    logo_filnavn: typeof raw.logo_filnavn === "string" ? raw.logo_filnavn : null,
+    logo_mime: typeof raw.logo_mime === "string" ? raw.logo_mime : null,
+    logo_bytes: tal(raw.logo_bytes),
+    logo_bredde: tal(raw.logo_bredde),
+    logo_hoejde: tal(raw.logo_hoejde),
+    logo_transparent:
+      typeof raw.logo_transparent === "boolean" ? raw.logo_transparent : null,
+  };
+}
 
 /**
  * Starter en betaling og sender kunden til Stripe Checkout.
@@ -120,7 +174,77 @@ export async function POST(request: NextRequest) {
   // canSell har allerede slået fast, at satsen og månedsprisen findes i denne
   // tilstand — derfor er det trygt at kræve dem her.
   const taxRate = STRIPE_TAX_RATES[stripeMode()]!;
-  const pricing = priceFor(product, qty);
+
+  /**
+   * DESIGNET — trykvalgene bag skiltet.
+   *
+   * To veje ind: `design_id` genbruger et, kunden allerede har (og så er
+   * tillægget for egen frontfarve betalt), eller `design` opretter et nyt.
+   *
+   * PRISEN AFGØRES HER OG KUN HER. Klienten sender sine valg, aldrig et beløb
+   * — ellers kunne enhver sætte tillægget til nul i browseren. Om der skal
+   * betales, afgøres af `skalBetaleFrontfarve()` på det design, serveren selv
+   * har hentet eller lige har skrevet.
+   */
+  const admin = createAdminClient();
+  let design: (DesignValg & { id: string }) | null = null;
+
+  if (!genoptag && harFysiskSkilt(product)) {
+    const genbrug = typeof body.design_id === "string" ? body.design_id : null;
+
+    if (genbrug) {
+      const { data } = await admin
+        .from("designs")
+        .select("id, stander_farve, front_type, front_hex, frontfarve_betalt")
+        .eq("id", genbrug)
+        // Ejerskabet kontrolleres i forespørgslen og ikke bagefter: et design,
+        // der tilhører en anden butik, må ikke engang læses.
+        .eq("company_id", company.id)
+        .maybeSingle();
+
+      if (!data) {
+        return NextResponse.json(
+          { error: "Designet blev ikke fundet." },
+          { status: 400 },
+        );
+      }
+      design = data as DesignValg & { id: string };
+    } else if (body.design && typeof body.design === "object") {
+      const nyt = laesDesign(body.design as Record<string, unknown>);
+      if (!nyt) {
+        return NextResponse.json(
+          { error: "Designet kunne ikke læses. Prøv igen." },
+          { status: 400 },
+        );
+      }
+
+      const { data, error } = await admin
+        .from("designs")
+        .insert({
+          company_id: company.id,
+          navn: `${product.name} — ${new Date().toISOString().slice(0, 10)}`,
+          print_skabelon: PRINT_SKABELON_VERSION,
+          ...nyt,
+        })
+        .select("id, stander_farve, front_type, front_hex, frontfarve_betalt")
+        .single();
+
+      if (error || !data) {
+        await noterFejl(
+          "design",
+          `Kunne ikke gemmes for virksomhed ${company.id}: ${error?.message}`,
+        );
+        return NextResponse.json(
+          { error: "Designet kunne ikke gemmes. Prøv igen." },
+          { status: 500 },
+        );
+      }
+      design = data as DesignValg & { id: string };
+    }
+  }
+
+  const betalerFrontfarve = design ? skalBetaleFrontfarve(design) : false;
+  const pricing = priceFor(product, qty, { egenFrontfarve: betalerFrontfarve });
   const base = getSiteUrl();
   const sub = Boolean(product.monthlyPrice);
 
@@ -141,6 +265,23 @@ export async function POST(request: NextRequest) {
           },
         },
       ];
+  // Tillægget er ÉN linje, ikke en del af standerprisen: kunden skal kunne se
+  // på fakturaen, hvad de betalte for, og bogholderiet skal kunne kende det
+  // igen. Det sendes som price_data uden et Stripe-produkt, fordi det ikke ER
+  // en vare — det er en opsætning i trykket.
+  if (pricing.frontfarve > 0) {
+    lineItems.push({
+      quantity: 1,
+      tax_rates: [taxRate],
+      price_data: {
+        currency: "dkk",
+        unit_amount: Math.round(pricing.frontfarve * 100),
+        tax_behavior: "exclusive",
+        product_data: { name: FRONT_TEKSTER.tilvalg },
+      },
+    });
+  }
+
   if (sub) {
     lineItems.push({
       price: ids.monthlyPriceId,
@@ -159,7 +300,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { error: vilkaarFejl } = await createAdminClient()
+  const { error: vilkaarFejl } = await admin
     .from("companies")
     .update({
       terms_accepted_at: new Date().toISOString(),
@@ -182,7 +323,7 @@ export async function POST(request: NextRequest) {
   // FØR betalingen sættes i gang: fejler betalingen, har kunden ikke fået
   // noget, og en accept uden køb er harmløs — modsat et køb uden accept.
   if (requiresDpa(product)) {
-    const { error: dpaError } = await createAdminClient()
+    const { error: dpaError } = await admin
       .from("companies")
       .update({
         dpa_accepted_at: new Date().toISOString(),
@@ -241,6 +382,9 @@ export async function POST(request: NextRequest) {
       company_id: company.id,
       product_slug: product.slug,
       quantity: String(qty),
+      // Webhooken bruger den til at markere tillægget betalt, så en
+      // genbestilling af samme design er gratis.
+      ...(design ? { design_id: design.id } : {}),
     },
     ...(sub
       ? {
@@ -271,7 +415,7 @@ export async function POST(request: NextRequest) {
   // sendes en stander mere. Ellers ville admin-oversigten bede om at pakke en
   // vare, kunden allerede har stående på disken.
   if (!genoptag) {
-    await createAdminClient()
+    await admin
       .from("orders")
       .insert({
         company_id: company.id,
@@ -279,6 +423,10 @@ export async function POST(request: NextRequest) {
         product_slug: product.slug,
         quantity: qty,
         total_amount: pricing.oneTimeTotal,
+        design_id: design?.id ?? null,
+        // Står også på ordren, så beløbet kan læses uden at slå designet op —
+        // også efter designet er slettet.
+        frontfarve_beloeb: pricing.frontfarve,
         stripe_session_id: session.id,
       });
   }

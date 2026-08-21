@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolvePublicReviewLinks, resolveExtraLink } from "@/lib/stands";
 import { deviceTypeFromUA } from "@/lib/utils";
@@ -62,6 +62,30 @@ export default async function ReviewPage({
 
   const publicLinks = resolvePublicReviewLinks(stand);
   const extra = resolveExtraLink(stand);
+
+  /**
+   * SKILTE UDEN EN LOYALSUM-SIDE.
+   *
+   * Et skilt bestilt uden konto har ingen feedback-indbakke, ingen statistik og
+   * intet stempelkort. Viste vi anmeldelsesflowet, ville butikkens kunder skrive
+   * navn, e-mail og en kommentar ind i et system, butikken ALDRIG kan læse. Det
+   * er indsamling uden formål — og det var netop den fejl, denne ændring
+   * fjerner.
+   *
+   * QR'en peger stadig på os og ikke direkte på kundens link: det trykte skilt
+   * er permanent, og skal destinationen en dag skiftes, kan samme skilt pege et
+   * nyt sted hen. Men her sker der intet ud over at sende gæsten videre.
+   *
+   * Scanningen er allerede talt ovenfor. Den indeholder kun tidspunkt og
+   * enhedstype — ingen personoplysninger — og er butikkens eneste tal.
+   */
+  if (stand.kun_viderestilling) {
+    const maal = publicLinks[0]?.url ?? extra?.url;
+    // Uden en destination er der intet at sende videre til. En 404 er ærligere
+    // end en tom side: skiltet er ikke sat op endnu.
+    if (!maal) notFound();
+    redirect(maal);
+  }
 
   // Har virksomheden et aktivt stempelkort? Så vises "Hvad vil du?"-landingen.
   const { data: loyaltyProgram } = await supabase

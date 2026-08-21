@@ -101,6 +101,18 @@ export function koebSpaerre(
   product: Product | undefined,
 ): KoebSpaerre | null {
   if (!user?.company) return "ingen-virksomhed";
+
+  // FØRST AF ALT: findes der en Stripe-nøgle i dette miljø?
+  //
+  // Uden den kaster stripe() ved første kald, og /api/checkout svarer 500.
+  // canSell() fanger det IKKE: den kontrollerer kun, at id'erne og momssatsen
+  // står i constants.ts for den aktuelle tilstand — og stripeMode() falder
+  // tilbage til "test", netop når nøglen mangler. Resultatet var en købsknap,
+  // der så helt normal ud og fejlede for enhver, der trykkede på den.
+  //
+  // isStripeConfigured() har ligget i denne fil hele tiden uden at blive brugt.
+  if (!isStripeConfigured()) return "ikke-aabnet";
+
   if (!product || !canSell(product)) return "ikke-aabnet";
   if (stripeMode() !== "live" && !isTestBuyer(user.email)) return "ikke-aabnet";
 
