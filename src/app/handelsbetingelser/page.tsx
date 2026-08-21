@@ -19,6 +19,9 @@ import {
   SUSPENSION_MAANEDER,
   SLETNING_EFTER_OPHOER_DAGE,
   SLETNING_ANGREFRIST_DAGE,
+  SKIFT_VARSEL_MAANEDER,
+  SKIFT_OVERGANG_DAGE,
+  SKIFT_HENTEPERIODE_DAGE,
 } from "@/lib/abonnement";
 
 /**
@@ -218,6 +221,12 @@ export default function TermsPage() {
             gjort sig fortjent til, fordi et betalingskort er udløbet.
           </p>
           <p>
+            Har du bedt om at skifte til en anden leverandør, udskydes
+            sletningen, indtil du har haft den tid til at hente dine data, som
+            afsnit 12 giver dig. Loven kræver det, og vi må ikke slette
+            imens.
+          </p>
+          <p>
             Går der {SUSPENSION_MAANEDER} måneder uden betaling, ophører aftalen.
             Vi sletter derefter alle personoplysninger inden for{" "}
             {SLETNING_EFTER_OPHOER_DAGE} dage, som vores{" "}
@@ -354,14 +363,64 @@ export default function TermsPage() {
 
         <LegalSection id="skift" title="12. Skift til en anden leverandør">
           <p>
-            Du kan når som helst opsige og tage dine data med dig. Beder du om
-            det, udleverer vi dine oplysninger og dine kunders oplysninger i et
-            almindeligt maskinlæsbart format, uden beregning og senest 30 dage
-            efter din anmodning. Vi hjælper med det, vi kan, undervejs.
+            Du har ret til at skifte til en anden leverandør eller flytte alt
+            over på dit eget it-udstyr. Beder du om det, forløber det sådan:
+          </p>
+          <ul className="space-y-1">
+            <li>
+              <strong>Opsigelsesvarsel:</strong> højst {SKIFT_VARSEL_MAANEDER}{" "}
+              måned. Du sætter skiftet i gang ved at skrive til os.
+            </li>
+            <li>
+              <strong>Overgangsperiode:</strong> {SKIFT_OVERGANG_DAGE}{" "}
+              kalenderdage efter varslet udløber. Er det teknisk umuligt at nå,
+              siger vi det med en begrundelse og forlænger — aldrig mere end syv
+              måneder i alt.
+            </li>
+            <li>
+              <strong>Tid til at hente dine data:</strong> mindst{" "}
+              {SKIFT_HENTEPERIODE_DAGE} kalenderdage efter overgangsperioden
+              slutter. Har du brug for længere, aftaler vi det.
+            </li>
+            <li>
+              <strong>Pris:</strong> ingen. Vi opkræver ikke gebyr for at
+              skifte, og vi tager ikke betaling for at udlevere dine data.
+            </li>
+          </ul>
+          <p>
+            Når varslet er udløbet, vælger du selv: skifte til en anden
+            leverandør, flytte alt til dit eget udstyr, eller få det hele
+            slettet.
           </p>
           <p>
-            Er du gået over til en anden leverandør, sletter vi det, vi ikke
-            skal gemme efter afsnit 7. Vi opkræver ikke gebyr for at skifte.
+            <strong>Alt dette kan udføres</strong>, i et almindeligt
+            maskinlæsbart format:
+          </p>
+          <ul className="space-y-1">
+            <li>Din virksomhedsprofil: navn, CVR, kontaktoplysninger og logo</li>
+            <li>
+              Dine standere med deres links, QR-adresser og indstillinger
+            </li>
+            <li>
+              Dine stempelkort: programmer, belønninger, rabatter, medlemmer,
+              optjente og indløste stempler samt hele posteringshistorikken
+            </li>
+            <li>
+              Al feedback: bedømmelser, kommentarer og de kontaktoplysninger,
+              kunderne selv har skrevet
+            </li>
+            <li>Din statistik over scanninger</li>
+            <li>Dine medarbejdere og deres rettigheder</li>
+            <li>Dine ordrer og fakturaer</li>
+          </ul>
+          <p>
+            Det er alt, hvad vi har om dig og dine kunder. Undtaget er alene
+            vores egen software og opsætning, som ikke er dine data.
+          </p>
+          <p>
+            Bemærk at fristen i afsnit 7 udskydes, mens et skifte er i gang: vi
+            sletter først, når du har haft den tid til at hente dine data, som
+            står ovenfor.
           </p>
         </LegalSection>
 
@@ -376,10 +435,17 @@ export default function TermsPage() {
               mistet omsætning, tabt goodwill eller tab af data.
             </li>
             <li>
-              Vores samlede ansvar over for dig kan ikke overstige det beløb, du
-              har betalt os i de seneste 12 måneder.
+              Vores samlede ansvar over for dig kan ikke overstige det højeste
+              af (a) det beløb, du har betalt os i de seneste 12 måneder, og
+              (b) 12 måneders abonnement til den pris, du betaler i dag.
             </li>
           </ul>
+          <p>
+            Punkt (b) sikrer, at loftet ikke bliver urimeligt lavt, blot fordi
+            du er ny kunde. Havde vi kun regnet på det betalte, ville en butik,
+            der købte for to måneder siden, stå med et loft på et par hundrede
+            kroner.
+          </p>
           <p>
             Begrænsningerne gælder ikke ved forsæt eller grov uagtsomhed. De
             begrænser heller ikke dit eller dine kunders krav efter

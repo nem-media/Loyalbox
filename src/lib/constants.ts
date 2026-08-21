@@ -35,7 +35,7 @@ export const COMPANY = {
  *
  * Hæv versionen, når et vilkår ændres materielt, og ret datoen med.
  */
-export const TERMS_VERSION = "1.1";
+export const TERMS_VERSION = "1.2";
 export const TERMS_DATE = "2026-08-21";
 
 /**

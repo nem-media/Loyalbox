@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { FRISTER } from "./opbevaring";
 
 /**
@@ -9,16 +9,15 @@ import { FRISTER } from "./opbevaring";
  * systemet gør — og et brudt løfte i et juridisk dokument er værre end slet
  * ingen frist.
  *
- * BEGGE migrationer læses. 0012 rydder op undervejs, 0014 afslutter ophørte
- * aftaler — og en frist, der flyttede fra den ene til den anden fil, må ikke
- * kunne forsvinde ud af tilsynet på vejen.
+ * ALLE migrationer læses, ikke en fast liste. En funktion kan blive erstattet
+ * i en senere migration — 0017 erstatter fx 0014's oprydning — og en frist,
+ * der flyttede med, må ikke kunne forsvinde ud af tilsynet på vejen.
  */
-const SQL = [
-  "supabase/migrations/0012_opbevaring.sql",
-  "supabase/migrations/0014_suspension_og_ophoer.sql",
-]
-  .map((sti) => readFileSync(sti, "utf8"))
-  .join("\n");
+const MAPPE = "supabase/migrations";
+const FILER = readdirSync(MAPPE)
+  .filter((f) => f.endsWith(".sql"))
+  .sort();
+const SQL = FILER.map((f) => readFileSync(`${MAPPE}/${f}`, "utf8")).join("\n");
 
 /** `frist_feedback_navn constant interval := '12 months';` → navn og værdi. */
 function fristerISql(): Map<string, string> {
@@ -42,6 +41,25 @@ describe("opbevaringsfrister", () => {
       expect(vist.get(navn), `${navn} er ikke den samme to steder`).toBe(
         interval,
       );
+    }
+  });
+
+  it("bruger samme værdi for en frist, uanset hvilken migration den står i", () => {
+    // En funktion, der erstattes i en senere migration, tager sine
+    // frist-konstanter med. Skrives et andet tal dér, ville systemet slette
+    // efter én frist, mens dokumenterne lovede en anden — og Map'en ovenfor
+    // ville stille lade den sidste vinde.
+    const udtryk = /(frist_\w+)\s+constant\s+interval\s*:=\s*'([^']+)'/g;
+    const set = new Map<string, Set<string>>();
+    for (const [, navn, vaerdi] of SQL.matchAll(udtryk)) {
+      if (!set.has(navn)) set.set(navn, new Set());
+      set.get(navn)!.add(vaerdi);
+    }
+    for (const [navn, vaerdier] of set) {
+      expect(
+        [...vaerdier],
+        `${navn} har forskellige værdier i forskellige migrationer`,
+      ).toHaveLength(1);
     }
   });
 
