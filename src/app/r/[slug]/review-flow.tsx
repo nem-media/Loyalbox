@@ -31,8 +31,8 @@ interface Props {
 /**
  * Anmeldelsesflowet.
  *
- * Det egne link vises KUN paa kvitteringsskaermen til sidst. Som valg hoerer
- * det hjemme paa landingssiden ved siden af de andre — se stand-landing.tsx.
+ * Det egne link vises KUN på kvitteringsskærmen til sidst. Som valg hører
+ * det hjemme på landingssiden ved siden af de andre — se stand-landing.tsx.
  * Her er det en venlig udgang, ikke et valg der konkurrerer med at sende
  * feedback.
  *

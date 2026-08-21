@@ -417,10 +417,16 @@ export const PRODUCTS: Product[] = [
     ],
     shoppable: false,
     mpn: "LS-EKSTRA",
-    // Stripe-id'erne mangler med vilje: de oprettes af
-    // scripts/setup-stripe-products.mjs og skal indsættes herunder, ét sæt pr.
-    // tilstand. Indtil da svarer canSell() falsk, og købsknappen vises ikke —
-    // det er spærren, ikke en fejl.
+    stripe: {
+      test: {
+        productId: "prod_V77rcHM3RsTaUq",
+        priceId: "price_1U6tc6Rr2uZmH0wddf9e17pl",
+      },
+      // LIVE MANGLER MED VILJE. Live-tilstanden er ikke åbnet, og id'erne
+      // oprettes med scripts/setup-stripe-products.mjs og live-nøglen, når den
+      // dag kommer — TILFØJ dem her ved siden af test, erstat aldrig.
+      // Indtil da svarer canSell() falsk i live, og knappen vises ikke.
+    },
   },
 ];
 

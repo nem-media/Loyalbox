@@ -61,8 +61,8 @@ export default async function ProductPage({
 }) {
   const { slug } = await params;
   const product = getProduct(slug);
-  // Tilkoeb har ingen offentlig side. De staar ikke i generateStaticParams,
-  // men en direkte adresse ville ellers stadig kunne rendre en side, ingen
+  // Tilkøb har ingen offentlig side. De står ikke i generateStaticParams,
+  // men en direkte adresse ville ellers stadig kunne rendere en side, ingen
   // uden konto kan bruge til noget.
   if (!product || product.addon) notFound();
 

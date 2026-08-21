@@ -115,7 +115,7 @@ export default async function StandDetailPage({
         </Card>
       </div>
 
-      {/* Vejen fra en QR-adresse til det skilt, den skal sidde paa. */}
+      {/* Vejen fra en QR-adresse til det skilt, den skal sidde på. */}
       <BestilStander
         overskrift="Mangler du et skilt til denne?"
         className="mt-6"

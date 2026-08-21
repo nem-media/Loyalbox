@@ -98,8 +98,8 @@ export default async function ReviewPage({
           ) : null}
         </div>
 
-        {/* StandLanding er den eneste indgang. Den springer selv valgskaermen
-            over, naar der kun er anmeldelsen tilbage — se komponenten. */}
+        {/* StandLanding er den eneste indgang. Den springer selv valgskærmen
+            over, når der kun er anmeldelsen tilbage — se komponenten. */}
         <StandLanding
           enrollHref={hasLoyalty ? `/kort/tilmeld/${slug}` : null}
           standId={stand.id}

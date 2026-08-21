@@ -7,6 +7,7 @@ import {
   planForProduct,
   VOLUME_DISCOUNTS,
 } from "./constants";
+import { canSell } from "./commerce";
 
 /**
  * Reglerne for et tilkøb — en vare, en bestående kunde køber oveni.
@@ -71,11 +72,66 @@ describe("tilkøb", () => {
     expect(ekstra.mpn).not.toBe(getProduct("reviewstander")!.mpn);
   });
 
+  it("kan sælges i testtilstand", () => {
+    const foer = process.env.STRIPE_SECRET_KEY;
+    process.env.STRIPE_SECRET_KEY = "sk_test_abc";
+    try {
+      expect(canSell(ekstra)).toBe(true);
+    } finally {
+      process.env.STRIPE_SECRET_KEY = foer;
+    }
+  });
+
   it("ligger ikke i et Google Shopping-feed", () => {
     // Et tilkøb uden offentlig side må ikke annonceres — annoncen ville føre
     // til en side, der giver 404.
     for (const p of PRODUCTS.filter((p) => p.addon)) {
       expect(p.shoppable, p.slug).not.toBe(true);
+    }
+  });
+});
+
+/**
+ * Et halvfærdigt tilstandsskifte er den fejl, der koster mest og ses mindst:
+ * mangler en pris i den tilstand, nøglen peger på, bliver et abonnement til
+ * et engangskøb, og mangler momssatsen, opkræves der ingen moms.
+ *
+ * canSell() spærrer for det ved købet. Denne test spærrer for, at et
+ * ufuldstændigt sæt overhovedet når ind i constants.ts.
+ */
+describe("Stripe-id'er er komplette pr. tilstand", () => {
+  it("har baade produkt og pris, hvor en tilstand er sat", () => {
+    for (const p of PRODUCTS) {
+      for (const [mode, ids] of Object.entries(p.stripe ?? {})) {
+        expect(ids.productId, `${p.slug}/${mode}: produkt`).toBeTruthy();
+        expect(ids.priceId, `${p.slug}/${mode}: pris`).toBeTruthy();
+
+        // En vare med månedspris SKAL have en månedspris-id i hver tilstand,
+        // den overhovedet findes i. Ellers betaler kunden for standeren, får
+        // adgang, og trækkes aldrig igen.
+        if (p.monthlyPrice) {
+          expect(ids.monthlyPriceId, `${p.slug}/${mode}: månedspris`).toBeTruthy();
+        } else {
+          expect(ids.monthlyPriceId, `${p.slug}/${mode}`).toBeUndefined();
+        }
+      }
+    }
+  });
+
+  it("bruger ikke samme pris-id to gange", () => {
+    // Et copy-paste mellem to varer ville få den ene til at fakturere den
+    // andens beløb, og fakturaen ville se helt rigtig ud.
+    const set = new Map();
+    for (const p of PRODUCTS) {
+      for (const [mode, ids] of Object.entries(p.stripe ?? {})) {
+        for (const id of [ids.priceId, ids.monthlyPriceId]) {
+          if (!id) continue;
+          const noegle = `${mode}:${id}`;
+          expect(set.get(noegle), `${id} bruges både af ${set.get(noegle)} og ${p.slug}`)
+            .toBeUndefined();
+          set.set(noegle, p.slug);
+        }
+      }
     }
   });
 });
