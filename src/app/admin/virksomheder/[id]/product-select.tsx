@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { setCompanyProduct } from "../../actions";
-import { PRODUCTS } from "@/lib/constants";
+import { KATALOG } from "@/lib/constants";
 
 /**
  * Hvilket produkt virksomheden har købt.
@@ -31,7 +31,7 @@ export function ProductSelect({
         className="box-shape h-9 w-full border border-border bg-background px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
         <option value="">Intet produkt registreret</option>
-        {PRODUCTS.map((p) => (
+        {KATALOG.map((p) => (
           <option key={p.slug} value={p.slug}>
             {p.name}
             {p.includesLoyalSum ? " (inkl. stempelkort)" : ""}

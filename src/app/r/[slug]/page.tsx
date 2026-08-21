@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolvePublicReviewLinks, resolveExtraLink } from "@/lib/stands";
 import { deviceTypeFromUA } from "@/lib/utils";
-import { ReviewFlow } from "./review-flow";
 import { StandLanding } from "./stand-landing";
 import { Logo } from "@/components/brand";
 
@@ -99,22 +98,15 @@ export default async function ReviewPage({
           ) : null}
         </div>
 
-        {hasLoyalty ? (
-          <StandLanding
-            enrollHref={`/kort/tilmeld/${slug}`}
-            standId={stand.id}
-            companyId={company.id}
-            publicLinks={publicLinks}
-            extra={extra}
-          />
-        ) : (
-          <ReviewFlow
-            standId={stand.id}
-            companyId={company.id}
-            publicLinks={publicLinks}
-            extra={extra}
-          />
-        )}
+        {/* StandLanding er den eneste indgang. Den springer selv valgskaermen
+            over, naar der kun er anmeldelsen tilbage — se komponenten. */}
+        <StandLanding
+          enrollHref={hasLoyalty ? `/kort/tilmeld/${slug}` : null}
+          standId={stand.id}
+          companyId={company.id}
+          publicLinks={publicLinks}
+          extra={extra}
+        />
       </div>
 
       <div className="mt-8">

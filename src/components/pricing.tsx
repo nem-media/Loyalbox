@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PRODUCTS } from "@/lib/constants";
+import { KATALOG } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { ProductPrice } from "@/components/product-price";
 import { StanderPlaceholder } from "@/components/product-placeholder";
@@ -11,7 +11,7 @@ import { StanderPlaceholder } from "@/components/product-placeholder";
 export function Pricing() {
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {PRODUCTS.map((p) => (
+      {KATALOG.map((p) => (
         <Link
           key={p.slug}
           href={`/produkter/${p.slug}`}

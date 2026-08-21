@@ -195,6 +195,17 @@ export interface Product {
   stripe?: Partial<Record<StripeMode, StripeIds>>;
 
   /**
+   * TILKØB. Varen er ikke et selvstændigt tilbud, men noget en kunde, der
+   * allerede har en konto, køber oveni.
+   *
+   * Konsekvenserne er ens for alle tilkøb og hænger sammen: varen får ingen
+   * offentlig produktside, står ikke i katalog, footer eller sitemap, og et
+   * køb af den ændrer ALDRIG kundens niveau eller `product_slug`. Det sidste er
+   * det vigtigste — se webhooken.
+   */
+  addon?: boolean;
+
+  /**
    * Sæt kun denne, hvis varen IKKE giver adgang til at indsamle oplysninger om
    * butikkens egne kunder. Alle nuværende varer indeholder en stander, der
    * tager imod feedback med navn og fritekst, så de kræver alle en
@@ -378,7 +389,51 @@ export const PRODUCTS: Product[] = [
     mpn: "LS-KOMPLET",
     productType: "LoyalSum > Abonnement > LoyalSum Komplet",
   },
+
+  // -------------------------------------------------------------- TILKØB --
+  // Står i PRODUCTS og ikke for sig selv, fordi hele betalingsmaskineriet —
+  // priceFor, stripeIdsFor, canSell, mængderabatten — arbejder på `Product`.
+  // At lave en parallel type ville betyde en parallel checkout.
+  //
+  // `addon: true` er det, der holder den ude af de offentlige lister. Brug
+  // KATALOG dér, hvor kunder skal se varer; brug PRODUCTS til opslag og køb.
+  {
+    slug: "ekstra-stander",
+    platform: "multi",
+    name: "Ekstra stander",
+    keyword: "ekstra reviewstander",
+    price: 399,
+    interval: "one_time",
+    addon: true,
+    tagline: "Endnu et skilt til disken",
+    description:
+      "En stander mere til din forretning — samme sorte akryl med QR og NFC, med dit logo. Den kan pege på en ny QR-adresse eller på den samme som dine andre. Købes uanset hvilket abonnement du har, og ændrer ikke noget ved det.",
+    image: "/mockups/stander-reviewstander.svg",
+    features: [
+      "Samme stander som dine nuværende",
+      "QR + NFC",
+      "Dit logo",
+      "Påvirker ikke dit abonnement",
+    ],
+    shoppable: false,
+    mpn: "LS-EKSTRA",
+    // Stripe-id'erne mangler med vilje: de oprettes af
+    // scripts/setup-stripe-products.mjs og skal indsættes herunder, ét sæt pr.
+    // tilstand. Indtil da svarer canSell() falsk, og købsknappen vises ikke —
+    // det er spærren, ikke en fejl.
+  },
 ];
+
+/**
+ * Varerne kunder skal kunne SE.
+ *
+ * PRODUCTS er den fulde liste og bruges til opslag og køb. KATALOG er den
+ * offentlige delmængde og driver katalogside, produktsider, prissektion,
+ * footer og sitemap. Et tilkøb hører ingen af de steder hjemme: det giver kun
+ * mening for en, der allerede er kunde, og en produktside for "Ekstra stander"
+ * ville være en blindgyde for enhver anden.
+ */
+export const KATALOG: Product[] = PRODUCTS.filter((p) => !p.addon);
 
 /**
  * Har virksomheden købt et produkt, der indeholder stempelkortet?

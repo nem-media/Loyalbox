@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { reviewUrl } from "@/lib/site";
 import { qrDataUrl } from "@/lib/qr";
 import { PageHeader } from "@/components/dashboard-shell";
+import { BestilStander } from "@/components/bestil-stander";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Stat } from "@/components/ui/stat";
 import { CopyButton } from "@/components/copy-button";
@@ -113,6 +114,12 @@ export default async function StandDetailPage({
           </CardBody>
         </Card>
       </div>
+
+      {/* Vejen fra en QR-adresse til det skilt, den skal sidde paa. */}
+      <BestilStander
+        overskrift="Mangler du et skilt til denne?"
+        className="mt-6"
+      />
     </>
   );
 }

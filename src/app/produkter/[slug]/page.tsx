@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Badge } from "@/components/ui/badge";
-import { PRODUCTS, getProduct } from "@/lib/constants";
+import { KATALOG, getProduct } from "@/lib/constants";
 import { toProductJsonLd } from "@/lib/commerce";
 import { formatCurrency } from "@/lib/utils";
 import { QuantityOrder } from "@/components/quantity-order";
@@ -12,7 +12,7 @@ import { PurchaseNotice } from "@/components/purchase-notice";
 import { StanderPlaceholder } from "@/components/product-placeholder";
 
 export function generateStaticParams() {
-  return PRODUCTS.map((p) => ({ slug: p.slug }));
+  return KATALOG.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({
@@ -61,7 +61,10 @@ export default async function ProductPage({
 }) {
   const { slug } = await params;
   const product = getProduct(slug);
-  if (!product) notFound();
+  // Tilkoeb har ingen offentlig side. De staar ikke i generateStaticParams,
+  // men en direkte adresse ville ellers stadig kunne rendre en side, ingen
+  // uden konto kan bruge til noget.
+  if (!product || product.addon) notFound();
 
   return (
     <>

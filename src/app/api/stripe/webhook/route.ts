@@ -86,28 +86,67 @@ export async function POST(request: NextRequest) {
         const productSlug = session.metadata?.product_slug;
         if (!companyId || !productSlug) break;
 
-        await admin
+        const kundeId =
+          typeof session.customer === "string" ? session.customer : null;
+
+        if (typeof session.subscription === "string") {
+          // ABONNEMENTSKØB. Det er her kundeforholdet sættes eller genoptages:
+          // niveau, vare og abonnement følger den vare, der lige blev betalt,
+          // og enhver suspension ophæves — købet er nyere end alt det gamle.
+          await admin
+            .from("companies")
+            .update({
+              product_slug: productSlug,
+              plan: planForProduct(productSlug),
+              stripe_customer_id: kundeId,
+              stripe_subscription_id: session.subscription,
+              stripe_status: "active",
+              suspenderet_siden: null,
+              ophoert_den: null,
+              sletning_bestilt_den: null,
+              sletning_token: null,
+              sletning_udfoeres_den: null,
+            })
+            .eq("id", companyId);
+          break;
+        }
+
+        // ENGANGSKØB — en stander uden abonnement, enten den almindelige
+        // Reviewstander eller et tilkøb.
+        //
+        // ET ENGANGSKØB MÅ ALDRIG ÆNDRE ET BESTÅENDE KUNDEFORHOLD. Før gjorde
+        // det tre ting galt på én gang, hvis en Pro-kunde bestilte et skilt
+        // mere: niveauet faldt til basic (varen har ingen månedspris),
+        // `stripe_status` blev sat til null, og en igangværende suspension
+        // blev ophævet, selvom det manglende abonnement ikke var betalt.
+        //
+        // Reglen er derfor: et engangskøb ETABLERER et kundeforhold, hvis der
+        // ikke er et, og rører det ellers ikke. Kun kundenummeret gemmes, så
+        // kvitteringerne hænger sammen.
+        const { data: bestaaende } = await admin
           .from("companies")
-          .update({
-            product_slug: productSlug,
-            plan: planForProduct(productSlug),
-            stripe_customer_id:
-              typeof session.customer === "string" ? session.customer : null,
-            stripe_subscription_id:
-              typeof session.subscription === "string"
-                ? session.subscription
-                : null,
-            // Et gennemført køb ophæver enhver suspension: uret nulstilles, og
-            // et ophør, der endnu ikke er nået at blive slettet, fortrydes.
-            // Rækkefølgen er vigtig — købet er nyere end alt det gamle.
-            stripe_status: session.subscription ? "active" : null,
-            suspenderet_siden: null,
-            ophoert_den: null,
-            sletning_bestilt_den: null,
-            sletning_token: null,
-            sletning_udfoeres_den: null,
-          })
-          .eq("id", companyId);
+          .select("product_slug, stripe_customer_id")
+          .eq("id", companyId)
+          .maybeSingle();
+
+        if (!bestaaende?.product_slug) {
+          await admin
+            .from("companies")
+            .update({
+              product_slug: productSlug,
+              plan: planForProduct(productSlug),
+              stripe_customer_id: kundeId,
+            })
+            .eq("id", companyId);
+          break;
+        }
+
+        if (kundeId && !bestaaende.stripe_customer_id) {
+          await admin
+            .from("companies")
+            .update({ stripe_customer_id: kundeId })
+            .eq("id", companyId);
+        }
 
         await admin
           .from("orders")

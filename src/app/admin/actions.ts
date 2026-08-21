@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { generateSlug } from "@/lib/utils";
-import { TIER_ORDER, PRODUCTS, type Tier } from "@/lib/constants";
+import { TIER_ORDER, KATALOG, type Tier } from "@/lib/constants";
 import type {
   CompanyPlan,
   DestinationType,
@@ -152,7 +152,9 @@ export async function setCompanyProduct(formData: FormData): Promise<void> {
   const id = String(formData.get("company_id") ?? "");
   const slug = String(formData.get("product_slug") ?? "");
   if (!id) return;
-  if (slug && !PRODUCTS.some((p) => p.slug === slug)) return;
+  // Tilkøb kan ikke sættes som virksomhedens vare: de låser intet op, og
+  // et forsøg ville sænke niveauet til basic.
+  if (slug && !KATALOG.some((p) => p.slug === slug)) return;
 
   const supabase = await createClient();
   await supabase

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand";
 import { ConsentSettingsLink } from "@/components/analytics";
-import { SITE_NAME, SITE_TAGLINE, PRODUCTS, COMPANY, mangler } from "@/lib/constants";
+import { SITE_NAME, SITE_TAGLINE, KATALOG, COMPANY, mangler } from "@/lib/constants";
 
 interface FooterLink {
   href: string;
@@ -12,7 +12,7 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
   {
     title: "Produkter",
     links: [
-      ...PRODUCTS.map((p) => ({ href: `/produkter/${p.slug}`, label: p.name })),
+      ...KATALOG.map((p) => ({ href: `/produkter/${p.slug}`, label: p.name })),
       { href: "/produkter", label: "Alle produkter" },
     ],
   },
