@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { getProduct, hasLoyaltyAccess } from "@/lib/constants";
+import { abonnementTilstand } from "@/lib/abonnement";
 import { formatCurrency } from "@/lib/utils";
 import { PageHeader } from "@/components/dashboard-shell";
 import { LoyaltySubnav } from "./subnav";
@@ -17,6 +18,11 @@ import { LoyaltySubnav } from "./subnav";
  * Bemærk at spærringen kun dækker DASHBOARDET. Personalet kan fortsat stemple
  * eksisterende kort fra `/kort/[token]`, så en kunde med et halvt fyldt kort
  * ikke står tilbage med et dødt kort, hvis abonnementet falder.
+ *
+ * To forskellige spærringer, to forskellige beskeder: har butikken slet ikke
+ * købt stempelkortet, er det en salgssituation. Er abonnementet suspenderet,
+ * HAR de købt det — og skal ikke mødes af en reklame for noget, de allerede
+ * ejer, men af hvornår de har det tilbage.
  */
 export default async function LoyaltyLayout({
   children,
@@ -25,6 +31,36 @@ export default async function LoyaltyLayout({
 }) {
   const user = await getCurrentUser();
   const productSlug = user?.company?.product_slug ?? null;
+  const suspenderet =
+    user?.company != null && abonnementTilstand(user.company) !== "aktiv";
+
+  if (hasLoyaltyAccess(productSlug) && suspenderet) {
+    return (
+      <>
+        <PageHeader
+          title="Stempelkort"
+          description="Sat på pause, indtil betalingen er på plads."
+        />
+
+        <div className="box-shape max-w-2xl border border-border bg-card p-6">
+          <h2 className="text-lg font-bold tracking-tight">
+            Dine stempelkort kører videre — du kan bare ikke styre dem herfra
+          </h2>
+          <p className="mt-2 leading-relaxed text-muted">
+            Dine kunder samler stadig stempler, personalet kan stadig give og
+            indløse dem, og ingenting er slettet. Det er kun administrationen
+            her i panelet, der er lukket, mens betalingen mangler.
+          </p>
+          <Link
+            href="/dashboard/abonnement"
+            className="mt-4 inline-block font-medium text-accent hover:underline"
+          >
+            Se hvad der skal til →
+          </Link>
+        </div>
+      </>
+    );
+  }
 
   if (!hasLoyaltyAccess(productSlug)) {
     const komplet = getProduct("loyalsum-komplet");

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCompanyAccess } from "@/lib/loyalty/access";
 import { hasLoyaltyAccess } from "@/lib/constants";
+import { abonnementTilstand } from "@/lib/abonnement";
 import {
   giveStamp,
   redeemReward,
@@ -53,10 +54,17 @@ function numOrNull(v: FormDataEntryValue | null): number | null {
 async function loyaltyInPlan(companyId: string): Promise<boolean> {
   const { data } = await createAdminClient()
     .from("companies")
-    .select("product_slug")
+    .select(
+      "product_slug, stripe_subscription_id, stripe_status, suspenderet_siden, ophoert_den, sletning_udfoeres_den",
+    )
     .eq("id", companyId)
     .maybeSingle();
-  return hasLoyaltyAccess(data?.product_slug);
+
+  if (!data) return false;
+  // En suspenderet aftale spærrer administrationen på samme måde som en plan
+  // uden stempelkort. Kortene selv røres ikke — se src/lib/abonnement.ts.
+  if (abonnementTilstand(data) !== "aktiv") return false;
+  return hasLoyaltyAccess(data.product_slug);
 }
 
 /**

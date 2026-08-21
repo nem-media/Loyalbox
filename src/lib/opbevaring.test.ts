@@ -4,12 +4,21 @@ import { FRISTER } from "./opbevaring";
 
 /**
  * Fristerne står to steder: i FRISTER, som er dét kunderne får at se, og i
- * migration 0012, som er dét der faktisk sletter. Testen holder dem op mod
- * hinanden, for driver de fra hinanden, lover privatlivspolitikken noget
- * andet, end systemet gør — og et brudt løfte i et juridisk dokument er værre
- * end slet ingen frist.
+ * SQL'en, som er dét der faktisk sletter. Testen holder dem op mod hinanden,
+ * for driver de fra hinanden, lover privatlivspolitikken noget andet, end
+ * systemet gør — og et brudt løfte i et juridisk dokument er værre end slet
+ * ingen frist.
+ *
+ * BEGGE migrationer læses. 0012 rydder op undervejs, 0014 afslutter ophørte
+ * aftaler — og en frist, der flyttede fra den ene til den anden fil, må ikke
+ * kunne forsvinde ud af tilsynet på vejen.
  */
-const SQL = readFileSync("supabase/migrations/0012_opbevaring.sql", "utf8");
+const SQL = [
+  "supabase/migrations/0012_opbevaring.sql",
+  "supabase/migrations/0014_suspension_og_ophoer.sql",
+]
+  .map((sti) => readFileSync(sti, "utf8"))
+  .join("\n");
 
 /** `frist_feedback_navn constant interval := '12 months';` → navn og værdi. */
 function fristerISql(): Map<string, string> {

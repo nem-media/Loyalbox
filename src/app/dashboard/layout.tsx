@@ -12,6 +12,8 @@ import {
   hasLoyaltyAccess,
   type Tier,
 } from "@/lib/constants";
+import { abonnementTilstand } from "@/lib/abonnement";
+import { BetalingMangler } from "@/components/betaling-mangler";
 
 export default async function DashboardLayout({
   children,
@@ -39,7 +41,19 @@ export default async function DashboardLayout({
   }
 
   const plan = (user.company?.plan ?? "basic") as Tier;
-  const harStempelkort = hasLoyaltyAccess(user.company?.product_slug);
+
+  /**
+   * Under en suspension lukkes dashboardets stempelkort-afsnit sammen med
+   * resten af indsigten. Bemærk at det KUN er panelet: kortene selv, personalets
+   * scanning og kundernes stempler kører videre — se src/lib/abonnement.ts.
+   *
+   * Adgangen hænger på tilstanden og ikke på `product_slug`, som bevidst bliver
+   * stående. Slug'en er kvitteringen for, hvad kunden købte, og uden den kan et
+   * abonnement ikke genoptages.
+   */
+  const harStempelkort =
+    hasLoyaltyAccess(user.company?.product_slug) &&
+    abonnementTilstand(user.company) === "aktiv";
 
   /**
    * Menuen er delt i to, fordi punkterne bruges vidt forskelligt: Standere og
@@ -101,6 +115,9 @@ export default async function DashboardLayout({
           : undefined
       }
     >
+      {/* Beskeden om manglende betaling står øverst i HELE panelet, ikke kun
+          under Abonnement — se komponentens egen kommentar for hvorfor. */}
+      <BetalingMangler {...user.company} />
       {children}
     </DashboardShell>
   );
