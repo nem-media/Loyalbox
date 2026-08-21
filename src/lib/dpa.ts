@@ -17,8 +17,13 @@ import {
  * plejer at tage fejl. Ændres behandlingen, skal teksten og versionen følge
  * med, ellers har kunden accepteret noget andet end det, der sker.
  *
- * JURIDISK GENNEMSYN MANGLER. Den er skrevet ud fra systemets virkemåde, ikke
- * af en advokat.
+ * BRUDFRISTEN PÅ 72 TIMER (§ 10) er ikke tilfældig. Forordningen sætter ingen
+ * frist for databehandleren — kun "uden unødig forsinkelse" — men EDPB's
+ * retningslinjer 9/2022 anbefaler, at databehandlere sigter mod 72 timer, og
+ * at der underrettes i faser: først så snart beskeden er til at handle på,
+ * derefter med flere detaljer. Kundens egne 72 timer løber først fra det
+ * tidspunkt, kunden bliver bekendt med bruddet, og ikke fra vores opdagelse,
+ * så fristen forkorter ikke kundens eget vindue.
  */
 
 /**
@@ -26,7 +31,7 @@ import {
  * hvad den enkelte kunde faktisk sagde ja til. Ændres teksten materielt, skal
  * versionen hæves — ellers ser en gammel accept ud til at dække ny tekst.
  */
-export const DPA_VERSION = "1.4";
+export const DPA_VERSION = "1.5";
 export const DPA_DATE = "2026-08-21";
 
 /** Felter der endnu ikke er verificeret, vises som en tydelig markering. */
@@ -203,6 +208,7 @@ export const DPA_SECTIONS: DpaSection[] = [
       `Suspensionen varer ${SUSPENSION_MAANEDER} måneder. Betales der inden da, gælder aftalen uændret videre, som var der ikke sket noget.`,
       `Går der ${SUSPENSION_MAANEDER} måneder uden betaling, ophører aftalen. Ved ophør sletter LoyalSum efter kundens valg alle personoplysninger eller leverer dem tilbage senest ${SLETNING_EFTER_OPHOER_DAGE} dage efter ophøret.`,
       `Undtaget er alene det, lovgivningen kræver gemt. I praksis er det fakturaerne med kundens navn og adresse, som bogføringsloven kræver opbevaret i fem år efter regnskabsårets udløb. De indeholder ingen oplysninger om kundens egne kunder.`,
+      `Har kunden bedt om at skifte til en anden leverandør, udskydes sletningen, indtil kunden har haft den tid til at hente sine data, som dataforordningens artikel 25 giver — se handelsbetingelsernes § 12. Det er ikke en imødekommenhed, men et krav: forordningen om databeskyttelse tager selv forbehold for det, EU-retten kræver gemt.`,
       `Kunden kan til enhver tid selv bestille sletning af alt uden at afvente fristerne. Det sker under Abonnement i dashboardet og kræver, at virksomhedens navn skrives, og at et link sendt til virksomhedens mailadresse bekræftes; derefter går der ${SLETNING_ANGREFRIST_DAGE} dage, hvor det kan fortrydes. Spærrerne findes, fordi en sletning ikke kan gøres om, og fordi den rammer kundens egne kunder samtidig. Kunden kan i stedet bede os om at gøre det — så bekræfter vi først, hvem der anmoder.`,
       "Kunden kan til enhver tid slette oplysninger om en enkelt af sine egne kunder direkte i systemet.",
     ],

@@ -50,6 +50,42 @@ export const SLETNING_EFTER_OPHOER_DAGE = 30;
  */
 export const SLETNING_ANGREFRIST_DAGE = 7;
 
+/**
+ * LEVERANDØRSKIFTE — dataforordningen (EU) 2023/2854, artikel 25.
+ *
+ * Kapitlet om leverandørskifte har fundet anvendelse siden 12. september 2025
+ * og gælder udbydere af databehandlingstjenester, hvilket omfatter SaaS.
+ * DER ER INGEN UNDTAGELSE FOR SMÅ UDBYDERE i kapitel VI — det er værd at
+ * vide, fordi de øvrige kapitler har en. Digital Omnibus foreslår en lettere
+ * ordning for SMV'er, men kun for aftaler indgået SENEST 12. september 2025,
+ * og alle vores aftaler er nyere.
+ *
+ * De tre tal herunder er de eneste, forordningen sætter grænser for. Tallene
+ * vises i handelsbetingelsernes § 12 og må ikke skrives i hånden dér.
+ */
+
+/** Varsel til at sætte et skifte i gang. Artikel 25 tillader højst to måneder. */
+export const SKIFT_VARSEL_MAANEDER = 1;
+
+/**
+ * Overgangsperioden efter varslet. Artikel 25 sætter loftet ved 30
+ * kalenderdage; er det teknisk umuligt, må den forlænges til højst syv måneder
+ * mod en begrundelse.
+ */
+export const SKIFT_OVERGANG_DAGE = 30;
+
+/**
+ * Hvor længe kunden kan hente sine data EFTER overgangsperioden. Artikel 25
+ * kræver mindst 30 kalenderdage.
+ *
+ * FÆLDEN: sammen med overgangsperioden betyder det, at data skal være
+ * tilgængelige i op til 60 dage efter ophøret — altså LÆNGERE end de 30 dage,
+ * databehandleraftalen ellers lover sletning inden for. Derfor har
+ * `companies.dataudtraek_frist` (migration 0017) forrang for oprydningen:
+ * uden den ville vi slette midt i et lovsikret skifte.
+ */
+export const SKIFT_HENTEPERIODE_DAGE = 30;
+
 export type AbonnementTilstand = "aktiv" | "suspenderet" | "ophoert";
 
 /**
@@ -77,6 +113,13 @@ export interface AbonnementFelter {
   suspenderet_siden: string | null;
   ophoert_den: string | null;
   sletning_udfoeres_den: string | null;
+  /**
+   * Er et leverandørskifte i gang, står der en dato her, og INTET slettes før
+   * den. Se SKIFT_HENTEPERIODE_DAGE. Feltet er valgfrit i typen, så ældre
+   * kaldesteder ikke skal ændres for at kompilere — men oprydningen og
+   * sletningsdatoen respekterer det.
+   */
+  dataudtraek_frist?: string | null;
 }
 
 /** Betaler kunden lige nu? Prøveperiode tæller med. */
@@ -132,7 +175,18 @@ export function sletningSker(c: AbonnementFelter): Date | null {
   }
 
   if (datoer.length === 0) return null;
-  return datoer.reduce((a, b) => (a < b ? a : b));
+  const naermeste = datoer.reduce((a, b) => (a < b ? a : b));
+
+  // Et leverandørskifte skubber ALTID datoen. Kunden har krav på tiden til at
+  // hente sine data, og en sletning midt i den ville bryde både forordningen
+  // og det, § 12 lover. Derfor vinder fristen over enhver anden dato — også
+  // over en sletning, kunden selv har bestilt.
+  if (c.dataudtraek_frist) {
+    const frist = new Date(c.dataudtraek_frist);
+    if (!Number.isNaN(frist.getTime()) && frist > naermeste) return frist;
+  }
+
+  return naermeste;
 }
 
 /**

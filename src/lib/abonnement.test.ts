@@ -27,6 +27,7 @@ function firma(felter: Partial<AbonnementFelter> = {}): AbonnementFelter {
     suspenderet_siden: null,
     ophoert_den: null,
     sletning_udfoeres_den: null,
+    dataudtraek_frist: null,
     ...felter,
   };
 }
@@ -130,6 +131,64 @@ describe("fristerne", () => {
     expect(dageTil(new Date("2026-08-24T10:00:00.000Z"), nu)).toBe(3);
     expect(dageTil(new Date("2026-08-01T10:00:00.000Z"), nu)).toBe(0);
     expect(dageTil(null, nu)).toBeNull();
+  });
+});
+
+/**
+ * Dataforordningens artikel 25 giver kunden en overgangsperiode OG derefter
+ * mindst 30 dage til at hente sine data — tilsammen længere end de 30 dage,
+ * databehandleraftalen ellers lover sletning inden for. En sletning midt i et
+ * skifte ville bryde begge dele, og fejlen ville være tavs: oprydningen kører
+ * om natten, og kunden ville opdage det, når data var væk.
+ */
+describe("leverandørskifte udskyder sletningen", () => {
+  it("vinder over de 30 dage efter et ophør", () => {
+    const sletning = sletningSker(
+      firma({
+        stripe_status: "canceled",
+        ophoert_den: "2026-01-15T10:00:00.000Z",
+        dataudtraek_frist: "2026-03-20T10:00:00.000Z",
+      }),
+    );
+    expect(sletning?.toISOString().slice(0, 10)).toBe("2026-03-20");
+  });
+
+  it("vinder også over en sletning, kunden selv har bestilt", () => {
+    // Beder kunden om at skifte, EFTER de har bestilt en sletning, har de
+    // stadig krav på tiden til at hente. Fristen skal derfor slå den
+    // nærmeste dato, ikke bare indgå blandt kandidaterne.
+    const sletning = sletningSker(
+      firma({
+        sletning_udfoeres_den: "2026-02-01T10:00:00.000Z",
+        dataudtraek_frist: "2026-04-01T10:00:00.000Z",
+      }),
+    );
+    expect(sletning?.toISOString().slice(0, 10)).toBe("2026-04-01");
+  });
+
+  it("forkorter ingenting, hvis fristen allerede er passeret", () => {
+    const sletning = sletningSker(
+      firma({
+        ophoert_den: "2026-01-15T10:00:00.000Z",
+        dataudtraek_frist: "2026-01-01T10:00:00.000Z",
+      }),
+    );
+    // 30 dage efter ophøret — fristen ligger før og må ikke trække datoen ned.
+    expect(sletning?.toISOString().slice(0, 10)).toBe("2026-02-14");
+  });
+
+  it("skaber ikke en sletningsdato ud af ingenting", () => {
+    // En aktiv kunde, der beder om et dataudtræk, skal ikke pludselig se en
+    // dato for, hvornår alt bliver slettet. Fristen UDSKYDER en sletning; den
+    // sætter ikke en i gang.
+    expect(
+      sletningSker(
+        firma({
+          stripe_status: "active",
+          dataudtraek_frist: "2026-04-01T10:00:00.000Z",
+        }),
+      ),
+    ).toBeNull();
   });
 });
 

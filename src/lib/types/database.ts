@@ -85,6 +85,12 @@ export interface Database {
           /** Sat når data FAKTISK er slettet. Rækken bliver liggende til bogføringen. */
           slettet_den: string | null;
           /**
+           * Frist for et leverandørskifte (0017). Er den sat og ikke passeret,
+           * slettes der INTET for virksomheden — dataforordningens artikel 25
+           * giver kunden tid til at hente sine data. Se src/lib/abonnement.ts.
+           */
+          dataudtraek_frist: string | null;
+          /**
            * CVR-nummer, otte cifre uden mellemrum (0015). Frivilligt i
            * databasen af hensyn til de konti, der blev oprettet før kravet —
            * håndhæves ved oprettelse og ved køb. Se src/lib/cvr.ts.
@@ -118,6 +124,7 @@ export interface Database {
           sletning_token?: string | null;
           sletning_udfoeres_den?: string | null;
           slettet_den?: string | null;
+          dataudtraek_frist?: string | null;
           cvr?: string | null;
           terms_accepted_at?: string | null;
           terms_version?: string | null;
@@ -827,6 +834,8 @@ export interface Database {
           ophoert: number;
           /** Virksomheder hvis data blev slettet i denne kørsel. */
           slettet: number;
+          /** Holdt tilbage, fordi et leverandørskifte er i gang (0017). */
+          afventer_skifte: number;
           /** Deres id'er, så logins og logoer kan ryddes bagefter. */
           virksomheder: string[];
         };
