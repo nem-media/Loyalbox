@@ -143,6 +143,23 @@ describe("canStartCheckout", () => {
   });
 });
 
+describe("koebSpaerre og den manglende Stripe-nøgle", () => {
+  it("lukker for køb, når der slet ikke er en Stripe-nøgle", () => {
+    // DET VAR EN RIGTIG FEJL I DRIFT. Uden nøglen falder stripeMode() tilbage
+    // til "test", canSell() siger ja (id'erne står jo i constants.ts), og
+    // knappen så helt normal ud — men stripe() kaster ved første kald, og
+    // /api/checkout svarede 500 for enhver, der trykkede.
+    delete process.env.STRIPE_SECRET_KEY;
+    expect(koebSpaerre(ejer, KOMPLET)).toBe("ikke-aabnet");
+    expect(canStartCheckout(ejer, KOMPLET)).toBe(false);
+  });
+
+  it("åbner igen, så snart nøglen er der", () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_abc";
+    expect(koebSpaerre(ejer, KOMPLET)).toBeNull();
+  });
+});
+
 describe("koebSpaerre", () => {
   beforeEach(() => {
     process.env.STRIPE_SECRET_KEY = "sk_test_abc";

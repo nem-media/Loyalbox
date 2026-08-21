@@ -88,6 +88,11 @@ export default async function OrderPage({
       ? await hentDesign(designId, user.company.id)
       : null;
 
+  /** Har bestillingen sin egen antalsvælger og pris? Så skal der ikke være to. */
+  const viserDesigner = Boolean(
+    selected && spaerre === null && harFysiskSkilt(selected) && user?.company,
+  );
+
   return (
     <>
       <SiteHeader />
@@ -183,11 +188,20 @@ export default async function OrderPage({
               <PurchaseNotice />
             )}
 
-            <QuantityOrder
-              product={selected}
-              initialQty={initialQty}
-              mode="checkout"
-            />
+            {/* Antalsvælgeren er en PRISVISNING her, ikke en bestilling.
+                Bestillingen har sin egen — og stod den her også, ville siden
+                have to antalsfelter og to knapper, hvor den nederste sagde
+                "Opret konto" til en, der var logget ind.
+
+                Vises slet ikke, når designeren eller genbestillingen er på
+                skærmen: de ejer både antallet og prisen. */}
+            {gemt || viserDesigner ? null : (
+              <QuantityOrder
+                product={selected}
+                initialQty={initialQty}
+                mode={user ? "kun-pris" : "checkout"}
+              />
+            )}
 
             <Link href="/bestil" className="inline-block text-sm font-medium text-accent">
               ← Se alle produkter

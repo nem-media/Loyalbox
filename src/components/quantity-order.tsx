@@ -24,7 +24,14 @@ export function QuantityOrder({
 }: {
   product: Product;
   initialQty?: number;
-  mode?: "order" | "checkout";
+  /**
+   * "order"    → produktsiden: pris og et link videre til /bestil.
+   * "checkout" → /bestil for en udlogget gæst: pris og et link til oprettelse.
+   * "kun-pris" → pris UDEN knap. Bruges dér, hvor bestillingen allerede har
+   *              sin egen knap, så der ikke står to opfordringer på samme side
+   *              — og især ikke "Opret konto" til en, der er logget ind.
+   */
+  mode?: "order" | "checkout" | "kun-pris";
   ctaLabel?: string;
 }) {
   const clamp = (n: number) => Math.max(1, Math.min(MAX_QTY, Math.floor(n) || 1));
@@ -152,14 +159,16 @@ export function QuantityOrder({
         </p>
       ) : null}
 
-      {/* CTA */}
-      <Link
-        href={href}
-        className="btn-shape mt-4 flex h-12 w-full items-center justify-center gap-2 bg-accent px-7 text-base font-medium text-accent-fg transition-colors hover:bg-accent-hover"
-      >
-        {label}
-        {qty > 1 ? ` · ${qty} stk.` : ""}
-      </Link>
+      {/* CTA — udelades i "kun-pris", hvor bestillingen har sin egen knap. */}
+      {mode === "kun-pris" ? null : (
+        <Link
+          href={href}
+          className="btn-shape mt-4 flex h-12 w-full items-center justify-center gap-2 bg-accent px-7 text-base font-medium text-accent-fg transition-colors hover:bg-accent-hover"
+        >
+          {label}
+          {qty > 1 ? ` · ${qty} stk.` : ""}
+        </Link>
+      )}
     </div>
   );
 }
