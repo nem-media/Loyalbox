@@ -11,11 +11,11 @@
 -- faktura. Bemærk at et nummer, der består kontrollen, godt kan tilhøre en
 -- virkelig virksomhed — derfor må de kun stå på testkonti.
 --
--- SKAL UDFYLDES FØR KØRSEL: Frisør Nielsine er en rigtig kunde, og hendes
--- rigtige CVR-nummer skal ind. Linjen fejler med vilje, hvis den ikke rettes.
---
 -- Kør manuelt i Supabase → SQL Editor. Idempotent (opdaterer kun hvor cvr er
 -- tom, så et rettet nummer ikke bliver overskrevet ved en genkørsel).
+--
+-- SEKS AF SYV får et nummer. Frisør Nielsine står bevidst uden — se
+-- begrundelsen ved hendes navn nedenfor.
 -- ---------------------------------------------------------------------------
 
 -- --------------------------------------------------------- rigtige kunder --
@@ -26,14 +26,25 @@ update public.companies
  where name = 'Nem Media ApS'
    and cvr is null;
 
--- RIGTIG KUNDE — udskift 'UDFYLD' med hendes CVR-nummer, før du kører.
--- Står der stadig UDFYLD, afvises linjen af formatkontrollen fra 0015, og
--- resten af scriptet rulles tilbage. Det er med vilje: et gæt på en rigtig
--- kundes CVR ender på en rigtig faktura.
-update public.companies
-   set cvr = 'UDFYLD'
- where name = 'Frisør Nielsine'
-   and cvr is null;
+-- FRISØR NIELSINE FÅR BEVIDST INTET CVR. Hun ligger i Grønland
+-- (+299, Nuuk), og vi sender kun til Danmark. Hun kan derfor ikke købe
+-- gennem selvbetjeningen alligevel, og et nummer ville ikke låse noget op.
+--
+-- Det går ikke ud over hende: CVR-spærren rammer kun NYE køb. Hendes stander,
+-- hendes stempelkort og hendes dashboard kører uændret videre.
+--
+-- TO TING AT HUSKE, HVIS HUN EN DAG SKAL BETALE GENNEM SYSTEMET:
+--
+--   1. Momsen ville blive forkert. Momslovens afgiftsområde omfatter ikke
+--      Grønland. Standeren er udførsel efter momsloven § 34, stk. 1, nr. 5
+--      og skal være 0 %; abonnementet er en B2B-ydelse til en kunde uden for
+--      EU, hvor leveringsstedet er hos hende. Koden lægger 25 % på begge.
+--   2. Leveringslandet er låst til DK (se LEVERINGSLANDE i constants.ts), så
+--      checkout ville afvise hende ved adressen. Det er i dag en fordel: det
+--      spærrer for momsfejlen frem for at begå den.
+--
+-- Skal Grønland med en dag, er det ikke en linje her — det er en momssats
+-- mere, et landefelt på virksomheden og fragt, og alle tre skal bygges først.
 
 -- ------------------------------------------------------------- testkonti --
 -- Fiktive numre, kun til testtilstand. Må aldrig ende på en rigtig faktura.
@@ -64,7 +75,8 @@ update public.companies
    and cvr is null;
 
 -- ------------------------------------------------------------- kontrollen --
--- Kør denne bagefter. Alle syv skal have et nummer, og ingen må være ens.
+-- Kør denne bagefter. Seks skal have et nummer, ingen må være ens, og den
+-- eneste uden skal være Frisør Nielsine.
 --
 --   select name, cvr from public.companies order by name;
---   select count(*) as uden_cvr from public.companies where cvr is null;
+--   select name from public.companies where cvr is null;
