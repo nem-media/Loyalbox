@@ -924,6 +924,17 @@ export interface Database {
           virksomheder: string[];
         };
       };
+      /** Se supabase/migrations/0021_forladte_designs.sql. Kun service-role. */
+      ryd_forladte_designs: {
+        Args: { p_toerloeb: boolean };
+        Returns: {
+          toerloeb: boolean;
+          /** Designs uden en betalt ordre, aeldre end naadeperioden. */
+          forladte: number;
+          /** Deres logofiler, saa ruten kan fjerne dem fra lageret. */
+          logoer: string[];
+        };
+      };
       /** Se supabase/migrations/0014_suspension_og_ophoer.sql. Kun service-role. */
       slet_virksomhedens_data: {
         Args: { p_company_id: string };

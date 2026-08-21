@@ -92,6 +92,13 @@ export default async function AdminOrdersPage() {
                     <td className="p-4 text-muted">{formatDate(o.created_at)}</td>
                     <td className="p-4">
                       <OrderStatusSelect orderId={o.id} status={o.status} />
+                      {/* "new" betyder aldrig betalt. Uden markeringen ligner
+                          den en ordre, der venter på at blive ekspederet. */}
+                      {o.status === "new" ? (
+                        <span className="mt-1 block text-xs text-muted">
+                          Ikke betalt
+                        </span>
+                      ) : null}
                     </td>
                   </tr>
                 ))}
