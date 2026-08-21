@@ -145,6 +145,23 @@ export default async function OrderPage({
                   fortrydelsesret ved erhvervskøb.
                 </p>
               </div>
+            ) : spaerre === "ingen-virksomhed" && !selected.monthlyPrice ? (
+              <div className="box-shape border border-accent/30 bg-accent/5 p-5">
+                <p className="font-semibold tracking-tight">
+                  Du behøver ikke en konto
+                </p>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted">
+                  Denne stander kører uden abonnement. Vælg farve, upload dit
+                  logo og sæt linket — så sender vi skiltet. Der oprettes
+                  hverken login eller dashboard.
+                </p>
+                <Link
+                  href={`/bestil/uden-konto?produkt=${selected.slug}`}
+                  className="mt-3 inline-block font-medium text-accent hover:underline"
+                >
+                  Bestil uden konto →
+                </Link>
+              </div>
             ) : spaerre === "cvr-mangler" ? (
               <div className="box-shape border border-secondary/50 bg-secondary/10 p-4 text-sm">
                 <p className="font-bold tracking-tight">

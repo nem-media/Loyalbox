@@ -210,6 +210,11 @@ export interface Database {
           custom_url: string | null;
           custom_label: string | null;
           is_active: boolean;
+          /**
+           * Sandt = /r/<slug> viderestiller uden at vise en side og uden at
+           * indsamle feedback (0019). Saettes ved bestilling uden konto.
+           */
+          kun_viderestilling: boolean;
           created_at: string;
         };
         Insert: {
@@ -224,6 +229,7 @@ export interface Database {
           custom_url?: string | null;
           custom_label?: string | null;
           is_active?: boolean;
+          kun_viderestilling?: boolean;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["stands"]["Insert"]>;
@@ -357,6 +363,10 @@ export interface Database {
           total_amount: number;
           /** Designet ordren blev trykt efter (0018). Null hvis det er slettet. */
           design_id: string | null;
+          /** Kontaktmail paa en ordre uden konto (0019). */
+          kontakt_email: string | null;
+          /** Kom ordren fra bestillingen uden konto? (0019) */
+          uden_konto: boolean;
           /** Tillaeg for egen frontfarve paa netop denne ordre (0018). */
           frontfarve_beloeb: number;
           created_at: string;
@@ -372,6 +382,8 @@ export interface Database {
           status?: OrderStatus;
           total_amount?: number;
           design_id?: string | null;
+          kontakt_email?: string | null;
+          uden_konto?: boolean;
           frontfarve_beloeb?: number;
           created_at?: string;
         };
