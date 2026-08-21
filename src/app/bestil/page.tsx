@@ -5,6 +5,9 @@ import { Pricing } from "@/components/pricing";
 import { QuantityOrder } from "@/components/quantity-order";
 import { PRODUCTS, LEVERINGSLAND_NAVN, harFysiskSkilt } from "@/lib/constants";
 import { StanderDesigner } from "@/components/stander-designer";
+import { GenbestilDesign, type GemtDesign } from "@/components/genbestil-design";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { designFrontfarve } from "@/lib/design";
 import { Badge } from "@/components/ui/badge";
 import { PurchaseNotice } from "@/components/purchase-notice";
 import { CheckoutButton } from "@/components/checkout-button";
@@ -19,12 +22,46 @@ export const metadata = {
   alternates: { canonical: "/bestil" },
 };
 
+/**
+ * Henter et gemt design, hvis det tilhører butikken.
+ *
+ * Ejerskabet er en del af forespørgslen og ikke et tjek bagefter: så kan en
+ * fremtidig ændring ikke komme til at læse først og spørge senere.
+ */
+async function hentDesign(
+  id: string,
+  companyId: string,
+): Promise<GemtDesign | null> {
+  const { data } = await createAdminClient()
+    .from("designs")
+    .select(
+      "id, navn, stander_farve, front_type, front_hex, logo_url, frontfarve_betalt",
+    )
+    .eq("id", id)
+    .eq("company_id", companyId)
+    .maybeSingle();
+
+  if (!data) return null;
+
+  const front = designFrontfarve(data);
+  return {
+    id: data.id,
+    navn: data.navn,
+    stander_farve: data.stander_farve,
+    front_hex: front.hex,
+    front_beskrivelse: front.beskrivelse,
+    logo_url: data.logo_url,
+    frontfarve_betalt: data.frontfarve_betalt,
+    egen_frontfarve: front.egen,
+  };
+}
+
 export default async function OrderPage({
   searchParams,
 }: {
-  searchParams: Promise<{ produkt?: string; antal?: string }>;
+  searchParams: Promise<{ produkt?: string; antal?: string; design?: string }>;
 }) {
-  const { produkt, antal } = await searchParams;
+  const { produkt, antal, design: designId } = await searchParams;
   const selected = PRODUCTS.find((p) => p.slug === produkt);
   const initialQty = Number(antal) || 1;
 
@@ -37,6 +74,19 @@ export default async function OrderPage({
   // CVR-nummer" er en helt anden besked end "vi har ikke åbnet for salg".
   const user = await getCurrentUser();
   const spaerre = koebSpaerre(user, selected);
+
+  /**
+   * Genbestilling af et gemt design.
+   *
+   * Designet hentes med ejerskabet som en del af forespørgslen — et design,
+   * der tilhører en anden butik, må ikke engang læses. Findes det ikke, falder
+   * siden tilbage til den almindelige bestilling frem for at vise en fejl: en
+   * gammel bogmærket adresse skal ikke være en blindgyde.
+   */
+  const gemt =
+    designId && user?.company && spaerre === null
+      ? await hentDesign(designId, user.company.id)
+      : null;
 
   return (
     <>
@@ -58,7 +108,13 @@ export default async function OrderPage({
               ))}
             </ul>
 
-            {spaerre === null && harFysiskSkilt(selected) && user?.company ? (
+            {gemt ? (
+              <GenbestilDesign
+                product={selected}
+                design={gemt}
+                kraeverDpa={requiresDpa(selected)}
+              />
+            ) : spaerre === null && harFysiskSkilt(selected) && user?.company ? (
               <StanderDesigner
                 product={selected}
                 companyId={user.company.id}
