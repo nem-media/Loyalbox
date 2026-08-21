@@ -8,7 +8,10 @@ import {
   priceFor,
   MAX_QTY,
   STRIPE_TAX_RATES,
+  TERMS_VERSION,
+  LEVERINGSLANDE,
 } from "@/lib/constants";
+import { erGyldigtCvr } from "@/lib/cvr";
 import { getSiteUrl } from "@/lib/site";
 import { DPA_VERSION, requiresDpa } from "@/lib/dpa";
 import { noterFejl } from "@/lib/drift";
@@ -46,6 +49,25 @@ export async function POST(request: NextRequest) {
   if (!company) {
     return NextResponse.json(
       { error: "Din bruger er ikke knyttet til en virksomhed." },
+      { status: 400 },
+    );
+  }
+
+  /**
+   * CVR-SPÆRREN. Handelsbetingelserne forudsætter et erhvervskøb — priser uden
+   * moms, ingen fortrydelsesret. Uden et gyldigt CVR ved vi ikke, om det er
+   * sandt, og så ville vi sælge på vilkår, der ikke gjaldt.
+   *
+   * Kontrollen ligger HER og ikke kun ved oprettelsen: de konti, der blev
+   * oprettet før kravet, skal kunne bruge det, de allerede har — men de skal
+   * udfylde nummeret, før de kan købe mere.
+   */
+  if (!erGyldigtCvr(company.cvr)) {
+    return NextResponse.json(
+      {
+        error:
+          "Vi mangler dit CVR-nummer, før du kan købe. Du kan skrive det under Virksomhedsprofil i dashboardet.",
+      },
       { status: 400 },
     );
   }
@@ -127,6 +149,34 @@ export async function POST(request: NextRequest) {
     });
   }
 
+  // Accepten af handelsbetingelserne er nu et aktivt afkrydsningsfelt på
+  // /bestil og ikke en sætning, man kan læse hen over. Den gemmes MED sin
+  // version, så vi kan svare på, hvad kunden faktisk sagde ja til.
+  if (body.accepterVilkaar !== true) {
+    return NextResponse.json(
+      { error: "Du skal acceptere handelsbetingelserne for at gå videre." },
+      { status: 400 },
+    );
+  }
+
+  const { error: vilkaarFejl } = await createAdminClient()
+    .from("companies")
+    .update({
+      terms_accepted_at: new Date().toISOString(),
+      terms_version: TERMS_VERSION,
+    })
+    .eq("id", company.id);
+
+  if (vilkaarFejl) {
+    // Købet stoppes ikke: accepten er givet i kraft af afkrydsningsfeltet.
+    // Men mangler kolonnen, står kunden uden registreret accept, og ingen
+    // ville opdage det — derfor skal fejlen ud af systemet.
+    await noterFejl(
+      "vilkaar-accept",
+      `Kunne ikke registrere accept for virksomhed ${company.id}: ${vilkaarFejl.message}`,
+    );
+  }
+
   // Databehandleraftalen indgås som en del af købet, når varen giver adgang
   // til at indsamle oplysninger om butikkens egne kunder. Accepten stemples
   // FØR betalingen sættes i gang: fejler betalingen, har kunden ikke fået
@@ -169,6 +219,19 @@ export async function POST(request: NextRequest) {
     client_reference_id: company.id,
     locale: "da",
     billing_address_collection: "required",
+    // Leveringsadressen indsamles KUN ved et fysisk køb. Ved en genoptagelse
+    // sendes der ikke noget — standeren står allerede på disken.
+    //
+    // Uden dette blev der aldrig spurgt om en leveringsadresse nogen steder,
+    // mens handelsbetingelserne lovede levering "til den adresse, du oplyser".
+    // Landet er låst til Danmark; se LEVERINGSLANDE for hvorfor.
+    ...(genoptag
+      ? {}
+      : {
+          shipping_address_collection: {
+            allowed_countries: [...LEVERINGSLANDE],
+          },
+        }),
     // Momsnummer på fakturaen — dansk B2B skal kunne bogføre den.
     tax_id_collection: { enabled: true },
     ...(company.stripe_customer_id

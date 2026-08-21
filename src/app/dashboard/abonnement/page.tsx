@@ -9,6 +9,7 @@ import {
   PRODUCTS,
   TIER_LABELS,
   tierCan,
+  TERMS_VERSION,
   type Tier,
 } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
@@ -103,6 +104,33 @@ export default async function SubscriptionPage() {
               className="mt-2 inline-block text-sm font-medium text-accent hover:underline"
             >
               Læs databehandleraftalen
+            </Link>
+          </div>
+        ) : null}
+
+        {/* Accepten af handelsbetingelserne vises af samme grund som
+            databehandleraftalens: kunden skal kunne se, hvad de sagde ja til,
+            og finde teksten igen. */}
+        {company?.terms_accepted_at ? (
+          <div className="mt-6 border-t border-border pt-5">
+            <p className="text-sm font-medium">Handelsbetingelser</p>
+            <p className="mt-1 text-sm text-muted">
+              Accepteret {formatDate(company.terms_accepted_at)}
+              {company.terms_version ? ` · version ${company.terms_version}` : null}
+              .
+              {company.terms_version === TERMS_VERSION ? null : (
+                <>
+                  {" "}
+                  Der findes en nyere udgave (version {TERMS_VERSION}) — læs
+                  den, og skriv til os, hvis du har spørgsmål.
+                </>
+              )}
+            </p>
+            <Link
+              href="/handelsbetingelser"
+              className="mt-2 inline-block text-sm font-medium text-accent hover:underline"
+            >
+              Læs handelsbetingelserne
             </Link>
           </div>
         ) : null}

@@ -84,6 +84,15 @@ export interface Database {
           sletning_udfoeres_den: string | null;
           /** Sat når data FAKTISK er slettet. Rækken bliver liggende til bogføringen. */
           slettet_den: string | null;
+          /**
+           * CVR-nummer, otte cifre uden mellemrum (0015). Frivilligt i
+           * databasen af hensyn til de konti, der blev oprettet før kravet —
+           * håndhæves ved oprettelse og ved køb. Se src/lib/cvr.ts.
+           */
+          cvr: string | null;
+          /** Accept af handelsbetingelserne, med version (0015). */
+          terms_accepted_at: string | null;
+          terms_version: string | null;
           logo_url: string | null;
           contact_email: string | null;
           phone: string | null;
@@ -109,6 +118,9 @@ export interface Database {
           sletning_token?: string | null;
           sletning_udfoeres_den?: string | null;
           slettet_den?: string | null;
+          cvr?: string | null;
+          terms_accepted_at?: string | null;
+          terms_version?: string | null;
           logo_url?: string | null;
           contact_email?: string | null;
           phone?: string | null;

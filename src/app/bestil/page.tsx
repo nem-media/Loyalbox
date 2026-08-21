@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Pricing } from "@/components/pricing";
 import { QuantityOrder } from "@/components/quantity-order";
-import { PRODUCTS } from "@/lib/constants";
+import { PRODUCTS, LEVERINGSLAND_NAVN } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { PurchaseNotice } from "@/components/purchase-notice";
 import { CheckoutButton } from "@/components/checkout-button";
@@ -60,27 +60,22 @@ export default async function OrderPage({
                   Du betaler standeren nu. Abonnementet trækkes den 20. hver
                   måned for den kommende måned.
                 </p>
-                <CheckoutButton slug={selected.slug} qty={initialQty} />
+                <CheckoutButton
+                  slug={selected.slug}
+                  qty={initialQty}
+                  kraeverDpa={requiresDpa(selected)}
+                />
                 {requiresDpa(selected) ? (
                   <p className="mt-3 text-xs leading-relaxed text-muted">
-                    Når du køber, indgås samtidig vores{" "}
-                    <Link
-                      href="/databehandleraftale"
-                      className="font-medium text-accent"
-                    >
-                      databehandleraftale
-                    </Link>{" "}
-                    og{" "}
-                    <Link
-                      href="/handelsbetingelser"
-                      className="font-medium text-accent"
-                    >
-                      handelsbetingelser
-                    </Link>
-                    . Aftalen er lovpligtig, fordi vi behandler oplysninger om
-                    dine kunder på dine vegne.
+                    Databehandleraftalen er lovpligtig, fordi vi behandler
+                    oplysninger om dine kunder på dine vegne.
                   </p>
                 ) : null}
+                <p className="mt-2 text-xs leading-relaxed text-muted">
+                  Vi sælger kun til virksomheder og leverer i{" "}
+                  {LEVERINGSLAND_NAVN}. Priserne er uden moms, og der er ikke
+                  fortrydelsesret ved erhvervskøb.
+                </p>
               </div>
             ) : (
               <PurchaseNotice />

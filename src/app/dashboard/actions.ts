@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generateSlug } from "@/lib/utils";
 import { tierCan, TIER_ORDER, type Tier } from "@/lib/constants";
+import { erGyldigtCvr, normaliserCvr, CVR_FEJL } from "@/lib/cvr";
 import type { CompanyPlan, DestinationType } from "@/lib/types/database";
 
 export interface FormResult {
@@ -29,6 +30,16 @@ export async function updateCompany(
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return { error: "Firmanavn er påkrævet." };
 
+  /**
+   * CVR er obligatorisk ved nye oprettelser, men feltet kan være tomt på de
+   * konti, der blev oprettet før kravet. Her gælder derfor: er der skrevet
+   * noget, skal det være rigtigt — men et tomt felt låser ikke nogen ude af
+   * deres egen profil. Køb kræver til gengæld et gyldigt nummer, og det er
+   * dér, spærren hører hjemme.
+   */
+  const cvrRaw = String(formData.get("cvr") ?? "").trim();
+  if (cvrRaw && !erGyldigtCvr(cvrRaw)) return { error: CVR_FEJL };
+
   const plan = (user.company.plan ?? "basic") as Tier;
   const canBrand = tierCan(plan, "customBranding");
 
@@ -37,6 +48,7 @@ export async function updateCompany(
     .from("companies")
     .update({
       name,
+      cvr: cvrRaw ? normaliserCvr(cvrRaw) : null,
       contact_email: String(formData.get("contact_email") ?? "").trim() || null,
       phone: String(formData.get("phone") ?? "").trim() || null,
       address: String(formData.get("address") ?? "").trim() || null,
@@ -48,7 +60,13 @@ export async function updateCompany(
     })
     .eq("id", user.company.id);
 
-  if (error) return { error: error.message };
+  if (error) {
+    return {
+      error: /duplicate|unique/i.test(error.message)
+        ? "Der findes allerede en konto med dette CVR-nummer. Skriv til os, hvis det er en fejl."
+        : error.message,
+    };
+  }
 
   revalidatePath("/dashboard/profil");
   revalidatePath("/dashboard");

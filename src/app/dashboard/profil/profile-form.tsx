@@ -106,6 +106,18 @@ export function ProfileForm({ company }: { company: Company }) {
             )}
           </div>
 
+          <Field
+            label="CVR-nummer"
+            hint="Otte cifre. Står på fakturaen og er påkrævet for at kunne købe."
+          >
+            <Input
+              name="cvr"
+              defaultValue={company.cvr ?? ""}
+              inputMode="numeric"
+              autoComplete="off"
+              placeholder="12345678"
+            />
+          </Field>
           <Field label="Firmanavn">
             <Input name="name" defaultValue={company.name} required />
           </Field>
