@@ -137,7 +137,7 @@ export async function bestilUdenKonto(
   /* ------------------------------------------------------------ virksomhed */
   const { data: fundet } = await admin
     .from("companies")
-    .select("id, user_id")
+    .select("id, user_id, stripe_customer_id")
     .eq("cvr", v.cvr)
     .maybeSingle();
 
@@ -269,7 +269,25 @@ export async function bestilUdenKonto(
       integration_identifier: INTEGRATION_ID,
       client_reference_id: companyId,
       locale: "da",
-      customer_email: v.email,
+      /**
+       * Genbestiller samme CVR, genbruges kunden hos Stripe frem for at lave
+       * en ny. Ellers ville hver ordre give sin egen kunde, og hverken
+       * kvitteringer eller momsnumre ville hænge sammen.
+       *
+       * `customer_update` er PÅKRÆVET sammen med tax_id_collection, når der
+       * peges på en eksisterende kunde — Stripe skal have lov at opdatere
+       * navnet. Se den samme kommentar i /api/checkout.
+       */
+      ...(fundet?.stripe_customer_id
+        ? {
+            customer: fundet.stripe_customer_id,
+            customer_update: {
+              name: "auto" as const,
+              address: "auto" as const,
+              shipping: "auto" as const,
+            },
+          }
+        : { customer_email: v.email }),
       billing_address_collection: "required",
       shipping_address_collection: { allowed_countries: [...LEVERINGSLANDE] },
       tax_id_collection: { enabled: true },

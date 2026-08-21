@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { laesBetalingssvar } from "@/lib/betalingssvar";
 
 /**
  * Knappen der bringer kunden tilbage til fuld adgang.
@@ -41,13 +42,13 @@ export function GenoptagKnap({
               body: JSON.stringify({ produkt: slug, genoptag: true }),
             });
 
-      const data = await res.json();
-      if (!res.ok || !data.url) {
-        setError(data.error ?? "Betalingen kunne ikke åbnes. Prøv igen.");
+      const svar = await laesBetalingssvar(res);
+      if (!svar.url) {
+        setError(svar.fejl!);
         setPending(false);
         return;
       }
-      window.location.href = data.url;
+      window.location.href = svar.url;
     } catch {
       setError("Der opstod en fejl. Prøv igen, eller skriv til os.");
       setPending(false);

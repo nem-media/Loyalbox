@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { laesBetalingssvar } from "@/lib/betalingssvar";
 import { TERMS_VERSION } from "@/lib/constants";
 
 /**
@@ -50,13 +51,13 @@ export function CheckoutButton({
           accepterVilkaar: accepteret,
         }),
       });
-      const data = await res.json();
-      if (!res.ok || !data.url) {
-        setError(data.error ?? "Betalingen kunne ikke startes.");
+      const svar = await laesBetalingssvar(res);
+      if (!svar.url) {
+        setError(svar.fejl!);
         setPending(false);
         return;
       }
-      window.location.href = data.url;
+      window.location.href = svar.url;
     } catch {
       setError("Der opstod en fejl. Prøv igen.");
       setPending(false);

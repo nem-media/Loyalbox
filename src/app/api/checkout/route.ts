@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import type Stripe from "stripe";
 import { getCurrentUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { stripe, nextBillingAnchor, INTEGRATION_ID } from "@/lib/stripe";
@@ -351,7 +352,9 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const session = await stripe().checkout.sessions.create({
+  let session: Stripe.Checkout.Session;
+  try {
+    session = await stripe().checkout.sessions.create({
     mode: sub ? "subscription" : "payment",
     // payment_method_types sættes bevidst IKKE — Stripe vælger dynamisk de
     // metoder, der er slået til i dashboardet, og som passer til kunden.
@@ -375,8 +378,29 @@ export async function POST(request: NextRequest) {
         }),
     // Momsnummer på fakturaen — dansk B2B skal kunne bogføre den.
     tax_id_collection: { enabled: true },
+    /**
+     * EKSISTERENDE KUNDE KRÆVER `customer_update`.
+     *
+     * Stripe afviser en session, der både peger på en eksisterende kunde OG
+     * indsamler momsnummer, medmindre den får lov at opdatere kundens navn:
+     * "Tax ID collection requires updating business name on the customer."
+     *
+     * Fejlen var latent fra begyndelsen. Ved FØRSTE køb har virksomheden intet
+     * `stripe_customer_id`, så grenen med `customer_email` bruges, og alt gik
+     * godt. Først ved det ANDET køb — den første genkøbende kunde — slår den
+     * til. Adresserne sættes med af samme grund: indsamler vi dem, skal
+     * kunden hos Stripe også opdateres med dem.
+     */
     ...(company.stripe_customer_id
-      ? { customer: company.stripe_customer_id }
+      ? {
+          customer: company.stripe_customer_id,
+          customer_update: {
+            name: "auto" as const,
+            address: "auto" as const,
+            // Kun når vi rent faktisk beder om en leveringsadresse.
+            ...(genoptag ? {} : { shipping: "auto" as const }),
+          },
+        }
       : { customer_email: company.billing_email ?? company.contact_email ?? user.email }),
     metadata: {
       company_id: company.id,
@@ -400,13 +424,32 @@ export async function POST(request: NextRequest) {
           },
         }
       : { invoice_creation: { enabled: true } }),
-    success_url: genoptag
-      ? `${base}/dashboard/abonnement?genoptaget=1`
-      : `${base}/bestil/tak?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: genoptag
-      ? `${base}/dashboard/abonnement`
-      : `${base}/bestil?produkt=${product.slug}&antal=${qty}`,
-  });
+      success_url: genoptag
+        ? `${base}/dashboard/abonnement?genoptaget=1`
+        : `${base}/bestil/tak?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: genoptag
+        ? `${base}/dashboard/abonnement`
+        : `${base}/bestil?produkt=${product.slug}&antal=${qty}`,
+    });
+  } catch (err) {
+    /**
+     * EN AFVIST SESSION MÅ IKKE VÆLTE RUTEN.
+     *
+     * Uden dette kastede Stripe-fejlen igennem, Next svarede 500 med en TOM
+     * krop, og browseren viste "Unexpected end of JSON input" — en besked,
+     * hverken kunden eller vi kan bruge til noget. Nu står den rigtige fejl i
+     * driftsloggen, og kunden får noget, de kan handle på.
+     */
+    const besked = (err as Error).message;
+    await noterFejl("checkout", `Stripe afviste session: ${besked}`);
+    return NextResponse.json(
+      {
+        error:
+          "Betalingen kunne ikke startes. Vi har fået besked og ser på det — prøv igen om lidt.",
+      },
+      { status: 502 },
+    );
+  }
 
   // Ordren gemmes som "ny" allerede her, så en betaling der aldrig fuldføres
   // stadig kan ses. Webhooken opdaterer den, når pengene er hjemme.

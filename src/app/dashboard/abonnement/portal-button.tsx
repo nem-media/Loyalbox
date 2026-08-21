@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { laesBetalingssvar } from "@/lib/betalingssvar";
 
 /**
  * Åbner Stripes kundecenter.
@@ -19,13 +20,13 @@ export function PortalButton() {
     setError(null);
     try {
       const res = await fetch("/api/portal", { method: "POST" });
-      const data = await res.json();
-      if (!res.ok || !data.url) {
-        setError(data.error ?? "Kundecentret kunne ikke åbnes.");
+      const svar = await laesBetalingssvar(res);
+      if (!svar.url) {
+        setError(svar.fejl!);
         setPending(false);
         return;
       }
-      window.location.href = data.url;
+      window.location.href = svar.url;
     } catch {
       setError("Der opstod en fejl. Prøv igen.");
       setPending(false);
