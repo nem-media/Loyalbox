@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse, after, type NextRequest } from "next/server";
 import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -200,10 +200,21 @@ export async function POST(request: NextRequest) {
             ? "tilkoeb"
             : "engangskoeb";
 
-        // Varslet sendes UANSET hvad der sker nedenfor, og fejler det, ryger
-        // det i driftsloggen. En ordre, ingen ved noget om, er værre end en
-        // mail, der ikke kom af sted.
-        void varslOmKoeb(session, productSlug, type, bestaaende ?? null);
+        /**
+         * Varslet sendes UANSET hvad der sker nedenfor, og fejler det, ryger
+         * det i driftsloggen. En ordre, ingen ved noget om, er værre end en
+         * mail, der ikke kom af sted.
+         *
+         * `after()` OG IKKE EN LØS PROMISE. Første udgave kaldte funktionen med
+         * `void` for ikke at forsinke svaret til Stripe. Det virkede lokalt og
+         * fejlede i drift: en serverless-funktion kan blive lukket ned, så snart
+         * svaret er sendt, og mailen nåede aldrig af sted. Der stod ikke engang
+         * en fejl i driftsloggen — arbejdet blev bare aldrig gjort.
+         *
+         * `after()` er lavet til netop dette: Stripe får sit svar med det
+         * samme, og platformen holder funktionen i live, til varslet er sendt.
+         */
+        after(() => varslOmKoeb(session, productSlug, type, bestaaende ?? null));
 
         if (erAbonnement && typeof session.subscription === "string") {
           // ABONNEMENTSKØB. Det er her kundeforholdet sættes eller genoptages:
