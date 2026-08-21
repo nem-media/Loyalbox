@@ -5,12 +5,14 @@ import { submitFeedback } from "./actions";
 import { StarIcon } from "@/components/ui/stars";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
+import {
+  reviewChoices,
+  commentPrompt,
+  CHOICE_HEADING,
+  type PublicLink,
+} from "@/lib/review-flow";
 
-export interface PublicLink {
-  type: string;
-  url: string;
-  platform: string;
-}
+export type { PublicLink };
 
 export interface ExtraLink {
   url: string;
@@ -26,6 +28,17 @@ interface Props {
   extra?: ExtraLink | null;
 }
 
+/**
+ * Anmeldelsesflowet.
+ *
+ * VALGENE ER ENS FOR ALLE BEDØMMELSER. Det er ikke en designpræference, men et
+ * krav — se kommentaren øverst i src/lib/review-flow.ts. Kun ordlyden i
+ * kommentarfeltet følger stjernerne, og den nævner aldrig en platform.
+ *
+ * Derfor må denne fil ALDRIG få en `isHappy`-variabel tilbage. Har du brug for
+ * at vide, om kunden var tilfreds, så spørg dig selv hvorfor: bruges det til at
+ * ændre hvilke knapper der vises, er det review gating.
+ */
 export function ReviewFlow({
   standId,
   companyId,
@@ -43,8 +56,7 @@ export function ReviewFlow({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
-  const isHappy = rating >= 4;
-  const hasPublic = publicLinks.length > 0;
+  const choices = reviewChoices(publicLinks);
 
   function choose(n: number) {
     setRating(n);
@@ -134,105 +146,73 @@ export function ReviewFlow({
 
       {step !== "rating" && (
         <>
-          {/* Kommentar (valgfri, delt) */}
+          {/* Kommentar (valgfri, følger med begge veje) */}
           <Textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder={
-              isHappy
-                ? "Vil du fortælle hvad der gjorde din oplevelse god? (valgfrit)"
-                : "Fortæl os hvad vi kan gøre bedre…"
-            }
+            placeholder={commentPrompt(rating)}
           />
-
-          {/* Kontaktfelter ved privat feedback */}
-          {(step === "private" || !isHappy) && (
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Dit navn (valgfrit)"
-              />
-              <Input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Din e-mail (valgfrit)"
-              />
-            </div>
-          )}
 
           {error ? (
             <p className="text-center text-sm text-danger">{error}</p>
           ) : null}
 
-          {/* Handlinger */}
-          <div className="space-y-2">
-            {isHappy ? (
-              <>
-                {hasPublic && step !== "private" ? (
-                  <>
-                    {publicLinks.length > 1 ? (
-                      <p className="text-center text-sm font-medium">
-                        Vælg hvor du vil anmelde os
-                      </p>
-                    ) : null}
-                    {publicLinks.map((link) => (
-                      <Button
-                        key={link.type}
-                        className="w-full"
-                        size="lg"
-                        onClick={() => goPublicTo(link.url)}
-                        disabled={pending}
-                      >
-                        Anmeld os på {link.platform}
-                      </Button>
-                    ))}
-                  </>
-                ) : null}
-                {step === "private" ? (
-                  <Button
-                    className="w-full"
-                    variant="outline"
-                    onClick={sendPrivate}
-                    disabled={pending}
-                  >
-                    {pending ? "Sender…" : "Send privat feedback"}
-                  </Button>
-                ) : (
-                  <Button
-                    className="w-full"
-                    variant="ghost"
-                    onClick={() => setStep("private")}
-                    disabled={pending}
-                  >
-                    Send privat feedback i stedet
-                  </Button>
-                )}
-              </>
-            ) : (
-              <>
+          {step === "private" ? (
+            <>
+              {/* Kontaktfelter — kun relevante, når feedbacken går til butikken,
+                  og begge frivillige. */}
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Dit navn (valgfrit)"
+                />
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Din e-mail (valgfrit)"
+                />
+              </div>
+              <div className="space-y-2">
                 <Button
                   className="w-full"
                   size="lg"
                   onClick={sendPrivate}
                   disabled={pending}
                 >
-                  {pending ? "Sender…" : "Send feedback til virksomheden"}
+                  {pending ? "Sender…" : "Send feedback"}
                 </Button>
-                {hasPublic ? (
-                  <Button
-                    className="w-full"
-                    variant="ghost"
-                    onClick={() => goPublicTo(publicLinks[0].url)}
-                    disabled={pending}
-                  >
-                    Skriv offentlig anmeldelse
-                  </Button>
-                ) : null}
-              </>
-            )}
-          </div>
+                <Button
+                  className="w-full"
+                  variant="ghost"
+                  onClick={() => setStep("actions")}
+                  disabled={pending}
+                >
+                  Tilbage
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-center text-sm font-medium">{CHOICE_HEADING}</p>
+              {/* Samme størrelse og samme variant på hvert valg. Ændrer du det
+                  for ét af dem, sorterer siden igen. */}
+              {choices.map((choice) => (
+                <Button
+                  key={choice.key}
+                  className="w-full"
+                  size="lg"
+                  onClick={() =>
+                    choice.url ? goPublicTo(choice.url) : setStep("private")
+                  }
+                  disabled={pending}
+                >
+                  {choice.label}
+                </Button>
+              ))}
+            </div>
+          )}
 
           {/* Valgfrit ekstra link (menukort, booking m.m.) */}
           {extra ? (
