@@ -146,6 +146,57 @@ export interface Database {
           },
         ];
       };
+      /** Trykvalg en butik har gemt (0018). Se src/lib/design.ts. */
+      designs: {
+        Row: {
+          id: string;
+          company_id: string;
+          navn: string;
+          stander_farve: "sort" | "hvid";
+          front_type: "matcher" | "egen";
+          /** Normaliseret hex med havelåge. Kun sat når front_type = "egen". */
+          front_hex: string | null;
+          logo_url: string | null;
+          logo_filnavn: string | null;
+          logo_mime: string | null;
+          logo_bytes: number | null;
+          logo_bredde: number | null;
+          logo_hoejde: number | null;
+          logo_transparent: boolean | null;
+          print_skabelon: string;
+          /** Er tillægget for egen frontfarve betalt for DETTE design? */
+          frontfarve_betalt: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          company_id: string;
+          navn: string;
+          stander_farve?: "sort" | "hvid";
+          front_type?: "matcher" | "egen";
+          front_hex?: string | null;
+          logo_url?: string | null;
+          logo_filnavn?: string | null;
+          logo_mime?: string | null;
+          logo_bytes?: number | null;
+          logo_bredde?: number | null;
+          logo_hoejde?: number | null;
+          logo_transparent?: boolean | null;
+          print_skabelon?: string;
+          frontfarve_betalt?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["designs"]["Insert"]>;
+        Relationships: [
+          {
+            foreignKeyName: "designs_company_id_fkey";
+            columns: ["company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       stands: {
         Row: {
           id: string;
@@ -304,6 +355,10 @@ export interface Database {
           quantity: number;
           status: OrderStatus;
           total_amount: number;
+          /** Designet ordren blev trykt efter (0018). Null hvis det er slettet. */
+          design_id: string | null;
+          /** Tillaeg for egen frontfarve paa netop denne ordre (0018). */
+          frontfarve_beloeb: number;
           created_at: string;
         };
         Insert: {
@@ -316,6 +371,8 @@ export interface Database {
           quantity?: number;
           status?: OrderStatus;
           total_amount?: number;
+          design_id?: string | null;
+          frontfarve_beloeb?: number;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["orders"]["Insert"]>;

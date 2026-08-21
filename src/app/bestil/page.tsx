@@ -3,7 +3,8 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Pricing } from "@/components/pricing";
 import { QuantityOrder } from "@/components/quantity-order";
-import { PRODUCTS, LEVERINGSLAND_NAVN } from "@/lib/constants";
+import { PRODUCTS, LEVERINGSLAND_NAVN, harFysiskSkilt } from "@/lib/constants";
+import { StanderDesigner } from "@/components/stander-designer";
 import { Badge } from "@/components/ui/badge";
 import { PurchaseNotice } from "@/components/purchase-notice";
 import { CheckoutButton } from "@/components/checkout-button";
@@ -57,7 +58,14 @@ export default async function OrderPage({
               ))}
             </ul>
 
-            {spaerre === null ? (
+            {spaerre === null && harFysiskSkilt(selected) && user?.company ? (
+              <StanderDesigner
+                product={selected}
+                companyId={user.company.id}
+                initialQty={initialQty}
+                kraeverDpa={requiresDpa(selected)}
+              />
+            ) : spaerre === null ? (
               <div className="box-shape border border-accent/30 bg-accent/5 p-4">
                 <p className="text-sm font-medium">Klar til betaling</p>
                 <p className="mt-1 mb-3 text-sm text-muted">

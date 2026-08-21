@@ -172,6 +172,25 @@ export async function POST(request: NextRequest) {
           .eq("id", companyId)
           .maybeSingle();
 
+        // Tillaegget for egen frontfarve er nu betalt for DETTE design, og en
+        // genbestilling af det skal vaere gratis. Markeringen sker her og ikke
+        // i checkout, fordi checkout kun betyder "kunden gik til betaling" —
+        // en afbrudt betaling maa ikke goere farven gratis.
+        const designId = session.metadata?.design_id;
+        if (designId) {
+          const { error } = await admin
+            .from("designs")
+            .update({ frontfarve_betalt: true })
+            .eq("id", designId)
+            .eq("company_id", companyId);
+          if (error) {
+            await noterFejl(
+              "design",
+              `Kunne ikke markere frontfarve betalt for design ${designId}: ${error.message}`,
+            );
+          }
+        }
+
         const erAbonnement = typeof session.subscription === "string";
         const type: Koebstype = erAbonnement
           ? bestaaende?.product_slug
