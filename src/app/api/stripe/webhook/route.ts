@@ -59,6 +59,30 @@ async function paymentIntentFor(
  * svare 500 og få Stripe til at sende hændelsen igen: så ville kundeforholdet
  * blive skrevet to gange for en mail, der alligevel ikke virkede.
  */
+/**
+ * Leveringsadressen, som Stripe gav den.
+ *
+ * Feltet har flyttet sig mellem API-versioner: den lå før direkte på
+ * sessionen og ligger nu under `collected_information`. Begge steder læses,
+ * så en versionsopgradering ikke stille fjerner adressen — og uden adresse
+ * kan ordren ikke pakkes.
+ */
+function leveringsadresse(
+  session: Stripe.Checkout.Session,
+): Record<string, string | null> | null {
+  const s = session as unknown as {
+    shipping_details?: { address?: Record<string, string | null> | null } | null;
+    collected_information?: {
+      shipping_details?: { address?: Record<string, string | null> | null } | null;
+    } | null;
+  };
+  return (
+    s.collected_information?.shipping_details?.address ??
+    s.shipping_details?.address ??
+    null
+  );
+}
+
 async function varslOmKoeb(
   session: Stripe.Checkout.Session,
   productSlug: string,
@@ -68,16 +92,7 @@ async function varslOmKoeb(
   try {
     const vare = getProduct(productSlug);
 
-    const s = session as unknown as {
-      shipping_details?: { address?: Record<string, string | null> | null } | null;
-      collected_information?: {
-        shipping_details?: { address?: Record<string, string | null> | null } | null;
-      } | null;
-    };
-    const adresse =
-      s.collected_information?.shipping_details?.address ??
-      s.shipping_details?.address ??
-      null;
+    const adresse = leveringsadresse(session);
 
     const leveringslinjer = adresse
       ? [
@@ -276,6 +291,11 @@ export async function POST(request: NextRequest) {
             // produktionsflowet, og admin-oversigten tæller netop dem.
             status: "needs_onboarding",
             stripe_payment_intent: await paymentIntentFor(session),
+            // Adressen gemmes HER og ikke ved bestillingen: den indsamles først
+            // hos Stripe. Uden den kan ordren ses i admin, men ikke pakkes.
+            leveringsadresse: leveringsadresse(session),
+            kontakt_email:
+              session.customer_details?.email ?? undefined,
           })
           .eq("stripe_session_id", session.id);
         break;

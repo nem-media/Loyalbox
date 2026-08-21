@@ -45,12 +45,18 @@ export function skalBetaleFrontfarve(design: DesignValg): boolean {
 /**
  * Den farve, fronten faktisk trykkes i.
  *
+ * Tager kun de tre felter, den faktisk bruger. Betalingsflaget hører ikke til
+ * her — en visning af hvad der trykkes, skal ikke kræve at vide, om der er
+ * betalt for det, og et kaldested skal ikke hente et felt for at få lov.
+ *
  * Går gennem `frontFarve()`, så et design med `front_type: "egen"` men en
  * manglende eller ugyldig hex falder tilbage til standerens farve i stedet for
  * at trykke sort på sort. Den slags opstår, hvis nogen redigerer databasen i
  * hånden — og et tryk må ikke afhænge af, at det aldrig sker.
  */
-export function designFrontfarve(design: DesignValg): Frontvalg {
+export function designFrontfarve(
+  design: Pick<DesignValg, "stander_farve" | "front_type" | "front_hex">,
+): Frontvalg {
   return frontFarve(
     design.stander_farve,
     design.front_type === "egen" ? design.front_hex : null,
@@ -64,7 +70,9 @@ export function designFrontfarve(design: DesignValg): Frontvalg {
  * der påstår at have en egen frontfarve uden at have en, er i stykker, og det
  * skal opdages her frem for i trykkeriet.
  */
-export function kanTrykkes(design: DesignValg): boolean {
+export function kanTrykkes(
+  design: Pick<DesignValg, "stander_farve" | "front_type" | "front_hex">,
+): boolean {
   if (design.front_type !== "egen") return true;
   return designFrontfarve(design).egen;
 }
