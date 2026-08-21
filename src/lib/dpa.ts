@@ -116,6 +116,7 @@ export const DPA_SECTIONS: DpaSection[] = [
       "LoyalSum behandler kun personoplysninger efter dokumenteret instruks fra kunden. Denne aftale, sammen med den brug kunden gør af systemet, udgør instruksen.",
       "Oplysningerne bruges ikke til egne formål, videresælges ikke og bruges ikke til at træne kunstig intelligens.",
       "Mener LoyalSum, at en instruks strider mod databeskyttelsesreglerne, gives der besked med det samme.",
+      "Kunden indestår for at have et lovligt grundlag for den behandling, der instrueres om, og for selv at oplyse sine egne kunder efter forordningens artikel 13. Det følger af rollen som dataansvarlig, men står her, fordi det er den forpligtelse, der oftest overses — og fordi den ikke er vores at opfylde på kundens vegne.",
     ],
   },
   {
@@ -179,8 +180,9 @@ export const DPA_SECTIONS: DpaSection[] = [
     id: "revision",
     title: "11. Tilsyn",
     paragraphs: [
-      "LoyalSum stiller på anmodning de oplysninger til rådighed, der er nødvendige for at vise, at denne aftale overholdes, og gør det muligt at gennemføre revision, herunder inspektion, ved kunden eller en revisor udpeget af kunden.",
-      "Anmodning varsles med rimeligt varsel og må ikke forstyrre driften unødigt. Kunden afholder egne omkostninger.",
+      "LoyalSum stiller på anmodning de oplysninger til rådighed, der er nødvendige for at vise, at denne aftale overholdes, og besvarer kundens spørgsmål om behandlingen.",
+      "Er dokumentationen ikke tilstrækkelig til at vise, at aftalen overholdes, kan kunden lade en uafhængig revisor gennemføre en revision, herunder inspektion. Det kan ske højst én gang årligt, varsles med mindst 30 dages varsel og må ikke forstyrre driften unødigt. Kunden afholder egne omkostninger og revisorens honorar.",
+      "Trappen findes, fordi en ubegrænset ret til fysisk inspektion er en reel byrde for en tjeneste af vores størrelse — og fordi de spørgsmål, en revision skal besvare, næsten altid kan besvares på skrift. Er svarene ikke gode nok, står døren åben.",
     ],
   },
   {
