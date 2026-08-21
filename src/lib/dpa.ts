@@ -26,7 +26,7 @@ import {
  * hvad den enkelte kunde faktisk sagde ja til. Ændres teksten materielt, skal
  * versionen hæves — ellers ser en gammel accept ud til at dække ny tekst.
  */
-export const DPA_VERSION = "1.3";
+export const DPA_VERSION = "1.4";
 export const DPA_DATE = "2026-08-21";
 
 /** Felter der endnu ikke er verificeret, vises som en tydelig markering. */
@@ -172,7 +172,8 @@ export const DPA_SECTIONS: DpaSection[] = [
     id: "brud",
     title: "10. Brud på persondatasikkerheden",
     paragraphs: [
-      "LoyalSum underretter kunden uden unødig forsinkelse efter at være blevet opmærksom på et brud, og senest inden for 48 timer.",
+      "LoyalSum underretter kunden uden unødig forsinkelse efter at være blevet opmærksom på et brud, og under alle omstændigheder senest 72 timer efter.",
+      "De 72 timer er den yderste grænse og ikke målet. Kunden har selv 72 timer til at anmelde til Datatilsynet, regnet fra kunden bliver bekendt med bruddet, så vi giver besked så snart vi ved nok til, at beskeden er til at handle på — også selvom billedet endnu ikke er fuldstændigt. Et ufuldstændigt varsel i tide er mere værd end et fyldestgørende, der kommer for sent.",
       "Underretningen beskriver bruddets karakter, hvilke oplysninger og hvor mange registrerede der er berørt, de sandsynlige konsekvenser og hvad der er gjort. Det er kunden, der som dataansvarlig anmelder til Datatilsynet.",
     ],
   },
