@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
-import { PRODUCTS, UPCOMING_MERCH } from "@/lib/constants";
+import { KATALOG, UPCOMING_MERCH } from "@/lib/constants";
 import { ProductPrice } from "@/components/product-price";
 import { PurchaseNotice } from "@/components/purchase-notice";
 import {
@@ -51,7 +51,7 @@ export default function ProductsPage() {
           <PurchaseNotice className="mb-6" />
 
           <div className="grid gap-6 md:grid-cols-3">
-            {PRODUCTS.map((p) => (
+            {KATALOG.map((p) => (
               <Link
                 key={p.slug}
                 href={`/produkter/${p.slug}`}

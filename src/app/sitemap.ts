@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getSiteUrl } from "@/lib/site";
-import { PRODUCTS } from "@/lib/constants";
+import { KATALOG } from "@/lib/constants";
 import { POSTS } from "@/lib/blog";
 
 /**
@@ -75,7 +75,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  const productRoutes: MetadataRoute.Sitemap = PRODUCTS.map((p) => ({
+  const productRoutes: MetadataRoute.Sitemap = KATALOG.map((p) => ({
     url: `${base}/produkter/${p.slug}`,
     changeFrequency: "weekly",
     priority: 0.8,

@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/dashboard-shell";
 import { Card, CardBody } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CreateStand } from "./create-stand";
+import { BestilStander } from "@/components/bestil-stander";
 import { GuideHint } from "@/components/guide";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StandIcon } from "@/components/nav-icons";
@@ -29,16 +30,20 @@ export default async function StandsPage() {
     <>
       <PageHeader
         title="Standere"
-        description="Hver stander har sit eget dynamiske link og QR-kode."
+        description="Hver stander har sit eget dynamiske link og QR-kode. Det fysiske skilt bestilles for sig."
       />
 
       <GuideHint id="standere" className="mb-6" />
 
-      <Card className="mb-6">
+      <Card className="mb-4">
         <CardBody>
           <CreateStand />
         </CardBody>
       </Card>
+
+      {/* Det, der oprettes ovenfor, er en QR-adresse og en side. Skiltet til
+          disken er en vare, og den vej manglede helt. */}
+      <BestilStander className="mb-6" />
 
       {stands && stands.length ? (
         <div className="grid gap-4 sm:grid-cols-2">
@@ -67,7 +72,7 @@ export default async function StandsPage() {
         <EmptyState
           icon={StandIcon}
           title="Ingen standere endnu"
-          description="Opret din første ovenfor — giv den et navn du kan kende den på, fx “Disken”. Bagefter sætter du de links på, kunden skal kunne vælge imellem."
+          description="Opret din første ovenfor — giv den et navn du kan kende den på, fx “Disken”. Bagefter sætter du de links på, kunden skal kunne vælge imellem, og bestiller det fysiske skilt."
         />
       )}
     </>

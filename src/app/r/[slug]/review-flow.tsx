@@ -31,6 +31,11 @@ interface Props {
 /**
  * Anmeldelsesflowet.
  *
+ * Det egne link vises KUN på kvitteringsskærmen til sidst. Som valg hører
+ * det hjemme på landingssiden ved siden af de andre — se stand-landing.tsx.
+ * Her er det en venlig udgang, ikke et valg der konkurrerer med at sende
+ * feedback.
+ *
  * VALGENE ER ENS FOR ALLE BEDØMMELSER. Det er ikke en designpræference, men et
  * krav — se kommentaren øverst i src/lib/review-flow.ts. Kun ordlyden i
  * kommentarfeltet følger stjernerne, og den nævner aldrig en platform.
@@ -214,14 +219,6 @@ export function ReviewFlow({
             </div>
           )}
 
-          {/* Valgfrit ekstra link (menukort, booking m.m.) */}
-          {extra ? (
-            <div className="text-center">
-              <a href={extra.url} className="text-sm font-medium text-accent">
-                {extra.label} →
-              </a>
-            </div>
-          ) : null}
         </>
       )}
     </div>
