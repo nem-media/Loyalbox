@@ -134,3 +134,53 @@ describe("isValidLogEntry", () => {
     expect(isValidLogEntry({ ...gyldig, path: "x".repeat(300) })).toBe(false);
   });
 });
+
+/**
+ * Samtykket skal bortfalde. Erhvervsstyrelsens cookievejledning siger, at et
+ * samtykke kan udløbe og skal indhentes på ny, og privatlivspolitikken lover
+ * nu, at vi spørger igen efter et år. Testen holder løftet og koden sammen.
+ */
+describe("samtykket udløber", () => {
+  const nu = new Date("2026-08-21T10:00:00.000Z");
+  const gyldigt = (decidedAt: string) =>
+    JSON.stringify({
+      version: CONSENT_VERSION,
+      statistics: true,
+      marketing: false,
+      decidedAt,
+    });
+
+  it("godtager et samtykke fra i går", () => {
+    expect(parseConsent(gyldigt("2026-08-20T10:00:00.000Z"), nu)).not.toBeNull();
+  });
+
+  it("godtager et samtykke, der lige akkurat ikke er et år gammelt", () => {
+    expect(parseConsent(gyldigt("2025-08-22T10:00:00.000Z"), nu)).not.toBeNull();
+  });
+
+  it("afviser et samtykke på præcis et år", () => {
+    expect(parseConsent(gyldigt("2025-08-21T10:00:00.000Z"), nu)).toBeNull();
+  });
+
+  it("afviser et gammelt samtykke, så der spørges igen", () => {
+    expect(parseConsent(gyldigt("2024-01-01T10:00:00.000Z"), nu)).toBeNull();
+  });
+
+  it("afviser et samtykke uden brugbart tidspunkt", () => {
+    // Kan vi ikke vise, hvornår der blev sagt ja, kan samtykket ikke
+    // dokumenteres — og så er det ikke et samtykke.
+    expect(parseConsent(gyldigt(""), nu)).toBeNull();
+    expect(parseConsent(gyldigt("i går"), nu)).toBeNull();
+    expect(
+      parseConsent(
+        JSON.stringify({ version: CONSENT_VERSION, statistics: true, marketing: false }),
+        nu,
+      ),
+    ).toBeNull();
+  });
+
+  it("gemmer et tidspunkt, der stadig gælder med det samme", () => {
+    expect(parseConsent(serializeConsent({ statistics: true, marketing: true }, nu), nu))
+      .not.toBeNull();
+  });
+});

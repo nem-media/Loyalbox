@@ -69,18 +69,51 @@ export const CONSENT_CATEGORIES: CategoryInfo[] = [
   },
 ];
 
-export function parseConsent(raw: string | null | undefined): Consent | null {
+/**
+ * Hvor længe et samtykke holder.
+ *
+ * Erhvervsstyrelsens cookievejledning siger, at et samtykke kan bortfalde
+ * efter en periode og skal indhentes på ny; tolv måneder er den gængse
+ * praksis. `decidedAt` blev gemt fra begyndelsen, men blev ikke brugt til
+ * noget — et ja givet i 2026 gjaldt i princippet for evigt.
+ *
+ * Privatlivspolitikken lover nu, at vi spørger igen efter et år. Tallet står
+ * derfor her og skal følges ad med den tekst.
+ */
+export const SAMTYKKE_GYLDIGT_MAANEDER = 12;
+
+/** Er samtykket for gammelt til at gælde? Et manglende tidspunkt er for gammelt. */
+export function erUdloebet(decidedAt: string, now = new Date()): boolean {
+  const taget = Date.parse(decidedAt);
+  // Uden et brugbart tidspunkt kan vi ikke vise, hvornår der blev sagt ja — og
+  // et samtykke, der ikke kan dokumenteres, er ikke et samtykke.
+  if (Number.isNaN(taget)) return true;
+
+  const udloeb = new Date(taget);
+  udloeb.setMonth(udloeb.getMonth() + SAMTYKKE_GYLDIGT_MAANEDER);
+  return udloeb.getTime() <= now.getTime();
+}
+
+export function parseConsent(
+  raw: string | null | undefined,
+  now = new Date(),
+): Consent | null {
   if (!raw) return null;
   try {
     const v = JSON.parse(raw) as Partial<Consent>;
     if (v?.version !== CONSENT_VERSION) return null;
     if (typeof v.statistics !== "boolean") return null;
     if (typeof v.marketing !== "boolean") return null;
+    // Et udløbet samtykke behandles som "ikke taget stilling": dialogen vises
+    // igen, og scripterne indlæses ikke i mellemtiden.
+    if (typeof v.decidedAt !== "string" || erUdloebet(v.decidedAt, now)) {
+      return null;
+    }
     return {
       version: CONSENT_VERSION,
       statistics: v.statistics,
       marketing: v.marketing,
-      decidedAt: typeof v.decidedAt === "string" ? v.decidedAt : "",
+      decidedAt: v.decidedAt,
     };
   } catch {
     // Beskadiget indhold behandles som "ikke taget stilling". At kaste her

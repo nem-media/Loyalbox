@@ -5,6 +5,24 @@ import { SiteFooter } from "@/components/site-footer";
 import { LegalSection, CompanyDetails } from "@/components/legal";
 import { COMPANY, SITE_NAME } from "@/lib/constants";
 import { FRISTER, OPRYDNING_KADENCE } from "@/lib/opbevaring";
+import { SUSPENSION_MAANEDER, SLETNING_ANGREFRIST_DAGE } from "@/lib/abonnement";
+
+/**
+ * Version og dato på politikken.
+ *
+ * Uden dem kan ingen — heller ikke vi selv — se hvilken udgave en besøgende
+ * læste. Hæves versionen, skal datoen følge med; det er den eneste måde at
+ * kunne svare på "hvad stod der dengang".
+ */
+const POLITIK_VERSION = "1.1";
+const POLITIK_DATO = "21. august 2026";
+
+/**
+ * Google Ads er ikke i drift, før id'et er sat. Afsnittet om marketing skal
+ * derfor kun stå, når kategorien FAKTISK kan vælges i dialogen — ellers
+ * beskriver politikken en cookie, ingen kan sige ja eller nej til.
+ */
+const ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
 
 /**
  * Privatlivspolitik.
@@ -53,6 +71,9 @@ export default function PrivacyPage() {
         <p className="mt-3 leading-relaxed text-muted">
           {SITE_NAME} behandler personoplysninger i to forskellige roller. Det
           afgør, hvem du skal henvende dig til, og hvad vi må gøre.
+        </p>
+        <p className="mt-2 text-sm text-muted">
+          Version {POLITIK_VERSION} · gældende fra {POLITIK_DATO}.
         </p>
 
         <LegalSection id="ansvarlig" title="1. Dataansvarlig">
@@ -145,9 +166,22 @@ export default function PrivacyPage() {
             </table>
           </div>
           <p>
+            <strong>Manglende betaling sletter ingenting.</strong> Kan et
+            abonnement ikke betales, består kundeforholdet i{" "}
+            {SUSPENSION_MAANEDER} måneder, hvor alt er urørt — butikkens kunder
+            beholder deres stempelkort og deres stempler. Først derefter ophører
+            aftalen, og så sletter vi inden for fristen ovenfor.
+          </p>
+          <p>
+            En butik kan når som helst selv sætte sletning af alt i gang under
+            Abonnement i dashboardet. Det kræver en bekræftelse på mail og kan
+            fortrydes i {SLETNING_ANGREFRIST_DAGE} dage.
+          </p>
+          <p>
             Fristerne er vores standard. Er du butiksejer og har brug for en
-            anden frist for dine egne kunders oplysninger, er det dig, der
-            bestemmer som dataansvarlig — skriv til {COMPANY.email}.
+            anden frist for dine egne kunders oplysninger, bestemmer du som
+            dataansvarlig — skriv til {COMPANY.email}, så aftaler vi, hvordan
+            det kan lade sig gøre.
           </p>
         </LegalSection>
 
@@ -158,10 +192,14 @@ export default function PrivacyPage() {
           </p>
           <ul className="space-y-1">
             <li>
-              <strong>Supabase</strong> — database og login
+              <strong>Supabase</strong> — database og login (EU, Irland)
             </li>
             <li>
-              <strong>Vercel</strong> — hosting og drift af hjemmesiden
+              <strong>Vercel</strong> — hosting og drift af hjemmesiden (EU,
+              Irland)
+            </li>
+            <li>
+              <strong>Resend</strong> — udsendelse af vores e-mails (EU, Irland)
             </li>
             <li>
               <strong>Stripe</strong> — betaling, fakturaer og kundecenter
@@ -169,7 +207,8 @@ export default function PrivacyPage() {
           </ul>
           <p>
             Leverandørerne behandler kun oplysninger efter vores instruks og på
-            en databehandleraftale.
+            en databehandleraftale. Vi pålægger dem de samme forpligtelser, som
+            gælder for os, og vi hæfter over for dig for, at de overholdes.
           </p>
         </LegalSection>
 
@@ -183,17 +222,21 @@ export default function PrivacyPage() {
             <strong>Besøgsstatistik uden cookies:</strong> vi tæller sidevisninger
             gennem Vercel Analytics. Det sætter ingenting på din enhed og kan
             ikke bruges til at genkende dig — derfor kræver det ikke dit
-            samtykke.
+            samtykke efter cookiereglerne. Grundlaget er vores legitime
+            interesse i at vide, hvilke sider der bliver læst, så vi kan gøre
+            dem bedre. Målingen kan ikke henføres til dig.
           </p>
           <p>
             <strong>Statistik (Google Analytics):</strong> bruges kun, hvis du
             siger ja. Den hjælper os med at se, hvilke sider der bliver læst.
           </p>
-          <p>
-            <strong>Marketing (Google Ads):</strong> bruges kun, hvis du siger
-            ja. Den måler, hvilke annoncer der fører til et køb, og lader os
-            vise annoncer til folk, der har besøgt siden.
-          </p>
+          {ADS_ID ? (
+            <p>
+              <strong>Marketing (Google Ads):</strong> bruges kun, hvis du siger
+              ja. Den måler, hvilke annoncer der fører til et køb, og lader os
+              vise annoncer til folk, der har besøgt siden.
+            </p>
+          ) : null}
           <div className="overflow-x-auto">
             <table className="mt-2 w-full border-collapse text-sm">
               <thead>
@@ -242,15 +285,17 @@ export default function PrivacyPage() {
                   </td>
                   <td className="py-2 align-top">2 år</td>
                 </tr>
-                <tr className="border-b border-border/60">
-                  <td className="py-2 pr-3 align-top font-mono text-xs">
-                    _gcl_au
-                  </td>
-                  <td className="py-2 pr-3 align-top">
-                    Marketing. Google Ads — kun hvis du siger ja.
-                  </td>
-                  <td className="py-2 align-top">90 dage</td>
-                </tr>
+                {ADS_ID ? (
+                  <tr className="border-b border-border/60">
+                    <td className="py-2 pr-3 align-top font-mono text-xs">
+                      _gcl_au
+                    </td>
+                    <td className="py-2 pr-3 align-top">
+                      Marketing. Google Ads — kun hvis du siger ja.
+                    </td>
+                    <td className="py-2 align-top">90 dage</td>
+                  </tr>
+                ) : null}
               </tbody>
             </table>
           </div>
@@ -263,20 +308,35 @@ export default function PrivacyPage() {
           </p>
 
           <p>
-            De to kan vælges hver for sig. Scripterne indlæses slet ikke, før du
-            har givet samtykke — siger du nej, sendes der ingenting til Google.
-            Du kan altid ombestemme dig via “Cookieindstillinger” nederst på
-            siden. Google er databehandler for os, og oplysninger kan blive
+            {ADS_ID ? "De to kan vælges hver for sig. " : null}Scripterne
+            indlæses slet ikke, før du har givet samtykke — siger du nej, sendes
+            der ingenting til Google. Du kan altid ombestemme dig via
+            “Cookieindstillinger” nederst på siden, og vi spørger igen efter et
+            år. Google er databehandler for os, og oplysninger kan blive
             overført til USA på grundlag af EU-U.S. Data Privacy Framework.
           </p>
         </LegalSection>
 
         <LegalSection id="rettigheder" title="8. Dine rettigheder">
           <p>
-            Du har ret til indsigt i dine oplysninger, til at få rettet
-            forkerte oplysninger, til at få slettet data, til at begrænse
-            behandlingen og til at få dine data udleveret. Du kan også klage til
-            Datatilsynet.
+            Du har ret til indsigt i dine oplysninger, til at få rettet forkerte
+            oplysninger, til at få slettet data, til at begrænse behandlingen,
+            til at få dine data udleveret og til at{" "}
+            <strong>gøre indsigelse</strong> mod en behandling, vi baserer på
+            vores legitime interesse.
+          </p>
+          <p>
+            Har du givet samtykke — det gælder statistik- og marketingcookies —
+            kan du <strong>altid trække det tilbage</strong> via
+            “Cookieindstillinger” nederst på siden. Det påvirker ikke
+            lovligheden af den behandling, der skete, før du trak det tilbage.
+          </p>
+          <p>
+            Vi træffer ingen automatiske afgørelser om dig og laver ingen
+            profilering.
+          </p>
+          <p>
+            Du kan klage til Datatilsynet, Carl Jacobsens Vej 35, 2500 Valby.
           </p>
           <p>
             Skriv til{" "}

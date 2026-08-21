@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { noterKoersel, noterFejl } from "@/lib/drift";
+import { sendKundeMail } from "@/lib/mail";
+import { udfoertMail } from "@/lib/sletning";
 
 /**
  * Den natlige oprydning. Tre skridt, i den rækkefølge:
@@ -56,6 +58,14 @@ export async function GET(request: NextRequest) {
   // 2) Ophørte aftaler — suspensioner der er løbet ud, og de sletninger, der
   //    skal ske 30 dage efter et ophør. Kører EFTER fristerne: er et
   //    stempelkort allerede ryddet undervejs, er der mindre at slette her.
+  //
+  //    Ved en RIGTIG kørsel spørges der FØRST i tørløb. Ikke for en sikkerheds
+  //    skyld, men fordi kvitteringen for sletningen skal sendes til en
+  //    mailadresse, sletningen er ved at fjerne — bagefter findes den ikke.
+  //    Tørløbet og den rigtige kørsel giver samme liste; det er derfor
+  //    ophørsdatoen regnes med coalesce i SQL'en frem for at aflæses.
+  const kvitteringer = toerloeb ? [] : await hentKvitteringsmodtagere(admin);
+
   const { data: ophoer, error: ophoerFejl } = await admin.rpc(
     "afslut_ophoerte_aftaler",
     { p_toerloeb: toerloeb },
@@ -76,7 +86,22 @@ export async function GET(request: NextRequest) {
       ? await ryddLoginsOgLogoer(admin, virksomheder)
       : 0;
 
-  const resultat = { ...(data as object), ophoer, efterladt };
+  // Kvitteringen for, at sletningen er sket. Den er ikke en høflighed: en
+  // dataansvarlig skal kunne dokumentere, at sletningen blev gennemført, og
+  // denne mail er butikkens bevis. Sendes efter sletningen, fra en adresse der
+  // kun har levet i hukommelsen undervejs.
+  let kvitteret = 0;
+  for (const modtager of kvitteringer) {
+    const mail = udfoertMail(modtager.navn);
+    if (await sendKundeMail(modtager.email, mail.emne, mail.tekst)) kvitteret++;
+    else
+      await noterFejl(
+        "oprydning",
+        `kvittering for slettet virksomhed ${modtager.id} kunne ikke sendes`,
+      );
+  }
+
+  const resultat = { ...(data as object), ophoer, efterladt, kvitteret };
 
   // Også de gode kørsler noteres. Det er dét, der gør en STOPPET oprydning
   // synlig: uden en linje hver nat kan panelet ikke se forskel på "alt er
@@ -84,6 +109,38 @@ export async function GET(request: NextRequest) {
   console.log("[oprydning]", JSON.stringify(resultat));
   if (!toerloeb) await noterKoersel("oprydning", resultat);
   return NextResponse.json(resultat);
+}
+
+/**
+ * Hvem skal have kvittering for, at deres data er slettet?
+ *
+ * Spørger i tørløb, MENS oplysningerne stadig findes. Listen returneres og
+ * lever kun i hukommelsen — den må aldrig i driftsloggen, som ikke må
+ * indeholde personoplysninger.
+ *
+ * Fejler opslaget, sendes der ingen kvitteringer, men sletningen sker
+ * alligevel. En manglende kvittering er et problem; en udskudt sletning, fordi
+ * en mail ikke kunne slås op, er et større.
+ */
+async function hentKvitteringsmodtagere(
+  admin: ReturnType<typeof createAdminClient>,
+): Promise<{ id: string; navn: string; email: string }[]> {
+  const { data, error } = await admin.rpc("afslut_ophoerte_aftaler", {
+    p_toerloeb: true,
+  });
+  const ids = (data as { virksomheder?: string[] } | null)?.virksomheder ?? [];
+  if (error || ids.length === 0) return [];
+
+  const { data: firmaer } = await admin
+    .from("companies")
+    .select("id, name, contact_email")
+    .in("id", ids);
+
+  return (firmaer ?? [])
+    .filter((f): f is typeof f & { contact_email: string } =>
+      Boolean(f.contact_email),
+    )
+    .map((f) => ({ id: f.id, navn: f.name, email: f.contact_email }));
 }
 
 /**

@@ -124,6 +124,23 @@ export default async function SubscriptionPage() {
             Abonnementet giver dig dashboardet oveni.
           </p>
         ) : null}
+
+        {/* Sletningen ligger HER og ikke i menuen. Den skal kunne findes af
+            den, der leder efter den, og ikke rammes af den, der ikke gør. */}
+        <div className="mt-6 border-t border-border pt-5">
+          <p className="text-sm font-medium">Dine data</p>
+          <p className="mt-1 mb-3 text-sm text-muted">
+            Dine kunders oplysninger er dine. Vil du af med dem permanent, kan
+            du selv sætte det i gang — det kræver en bekræftelse på mail og
+            kan fortrydes i syv dage.
+          </p>
+          <Link
+            href="/dashboard/abonnement/slet"
+            className="text-sm font-medium text-accent hover:underline"
+          >
+            Slet alle data →
+          </Link>
+        </div>
       </div>
 
       {/* -------------------------------------------------- sådan får du mere */}

@@ -5,6 +5,11 @@ import { SiteFooter } from "@/components/site-footer";
 import { LegalSection, CompanyDetails, Udfyld } from "@/components/legal";
 import { COMPANY, mangler, PRODUCTS, VOLUME_DISCOUNTS, MAX_QTY, SITE_NAME } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
+import {
+  SUSPENSION_MAANEDER,
+  SLETNING_EFTER_OPHOER_DAGE,
+  SLETNING_ANGREFRIST_DAGE,
+} from "@/lib/abonnement";
 
 /**
  * Handelsbetingelser.
@@ -15,6 +20,11 @@ import { formatCurrency } from "@/lib/utils";
  * (VOLUME_DISCOUNTS), at adgangen falder til Basic ved manglende betaling
  * (webhooken i src/app/api/stripe/webhook/route.ts), og at standeren virker
  * videre med sit eget link. Ændres et af de steder, skal teksten følge med.
+ *
+ * FRISTERNE I AFSNIT 7 HENTES FRA src/lib/abonnement.ts og skrives ikke som
+ * tal her. De samme tal står i databehandleraftalen og i privatlivspolitikken,
+ * og tre steder med håndskrevne tal ville før eller siden blive til tre
+ * forskellige løfter om det samme.
  *
  * JURIDISK GENNEMSYN: teksten er skrevet ud fra produktets faktiske
  * funktion, ikke af en advokat. Få den læst igennem, før den sendes til
@@ -141,17 +151,65 @@ export default function TermsPage() {
             refunderer ikke en påbegyndt periode.
           </p>
           <p>
-            Når abonnementet ophører, lukkes dashboard, statistik og
-            stempelkort. <strong>Standeren virker videre</strong> — den sender
-            fortsat dine kunder hen til det link, den peger på.
+            Derefter lukkes dashboardets indsigt og redigering: statistik,
+            feedback-indbakken og muligheden for at ændre logo og links.{" "}
+            <strong>Alt det, dine kunder mærker, kører videre</strong> —
+            standeren sender som altid, stempelkortene virker, og personalet kan
+            stadig give og indløse stempler.
+          </p>
+          <p>
+            Der slettes ikke noget med det samme. Hvad der sker med dine data,
+            og hvornår, står i afsnit 7.
           </p>
         </LegalSection>
 
-        <LegalSection id="manglende-betaling" title="7. Manglende betaling">
+        <LegalSection
+          id="manglende-betaling"
+          title="7. Manglende betaling — og hvad der sker med dine data"
+        >
           <p>
             Kan betalingen ikke gennemføres, forsøger Stripe igen og sender dig
             besked. Lykkes det ikke, falder din adgang til det gratis niveau,
-            indtil betalingen er på plads. Dine data slettes ikke af den grund.
+            som beskrevet i afsnit 6.
+          </p>
+          <p>
+            <strong>
+              Manglende betaling er ikke det samme som at forlade os, og der
+              slettes ingenting.
+            </strong>{" "}
+            Dit kundeforhold består i {SUSPENSION_MAANEDER} måneder. Dine
+            kunders stempelkort, deres stempler, dine belønninger, din feedback
+            og dine standere er urørte hele perioden, og alt kommer tilbage i
+            samme øjeblik betalingen er på plads. Vi gør det, fordi dine kunder
+            ikke har gjort noget forkert — de skal ikke miste stempler, de har
+            gjort sig fortjent til, fordi et betalingskort er udløbet.
+          </p>
+          <p>
+            Går der {SUSPENSION_MAANEDER} måneder uden betaling, ophører aftalen.
+            Vi sletter derefter alle personoplysninger inden for{" "}
+            {SLETNING_EFTER_OPHOER_DAGE} dage, som vores{" "}
+            <Link href="/databehandleraftale" className="font-medium text-accent">
+              databehandleraftale
+            </Link>{" "}
+            kræver. Standerne holder op med at virke, når det sker.
+          </p>
+          <p>
+            Vil du af med dine data før det, bestemmer du selv: under Abonnement
+            i dashboardet kan du bestille sletning af alt. Vi sender en
+            bekræftelse til virksomhedens mailadresse, og derefter går der{" "}
+            {SLETNING_ANGREFRIST_DAGE} dage, hvor du kan fortryde. Du er
+            velkommen til at skrive til{" "}
+            <a href={`mailto:${COMPANY.email}`} className="font-medium text-accent">
+              {COMPANY.email}
+            </a>{" "}
+            i stedet — så bekræfter vi først, hvem der spørger, og klarer det
+            for dig.
+          </p>
+          <p>
+            Uanset hvad gemmer vi fakturaerne. Det er ikke et valg fra vores
+            side: bogføringsloven kræver regnskabsmateriale gemt i fem år efter
+            regnskabsårets udløb. De indeholder virksomhedens navn og adresse og
+            intet om dine kunder.
           </p>
         </LegalSection>
 
