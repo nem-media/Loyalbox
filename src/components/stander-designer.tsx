@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useId, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { laesBetalingssvar } from "@/lib/betalingssvar";
 import { Input } from "@/components/ui/input";
 import {
   MAX_QTY,
@@ -169,13 +170,13 @@ export function StanderDesigner({
         }),
       });
 
-      const data = await res.json();
-      if (!res.ok || !data.url) {
-        setFejl(data.error ?? "Betalingen kunne ikke startes.");
+      const svar = await laesBetalingssvar(res);
+      if (!svar.url) {
+        setFejl(svar.fejl!);
         setPending(false);
         return;
       }
-      gaaTil(data.url);
+      gaaTil(svar.url);
     } catch (err) {
       setFejl((err as Error).message || "Der opstod en fejl. Prøv igen.");
       setPending(false);
