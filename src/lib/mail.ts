@@ -69,6 +69,17 @@ export function sendAlarm(emne: string, tekst: string): Promise<boolean> {
   );
 }
 
+/**
+ * Besked til os selv om noget, der er sket — ikke en fejl.
+ *
+ * Adskilt fra sendAlarm, fordi de to læses forskelligt: en alarm betyder "noget
+ * er i stykker", og et ordrevarsel betyder "der skal pakkes noget". Havde de
+ * samme emnepræfiks, ville en travl indbakke behandle dem ens.
+ */
+export function sendIntern(emne: string, tekst: string): Promise<boolean> {
+  return send(AFSENDER_DRIFT, [COMPANY.email], emne, tekst);
+}
+
 /** Mail til en kunde. Afsenderen er den, de kan svare på. */
 export function sendKundeMail(
   til: string,
