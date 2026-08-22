@@ -242,8 +242,10 @@ export default async function AdminOrderPage({
               </div>
             </dl>
 
+            {/* Et Stripe-id er langt nok til at skubbe siden sideværts på en
+                telefon. `break-all` holder det inde i kortet. */}
             {o.stripe_session_id ? (
-              <p className="mt-4 border-t border-border pt-3 text-xs text-muted">
+              <p className="mt-4 break-all border-t border-border pt-3 text-xs text-muted">
                 Stripe: <code>{o.stripe_session_id}</code>
                 {o.stripe_payment_intent ? (
                   <>
