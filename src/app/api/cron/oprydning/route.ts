@@ -14,6 +14,8 @@ import { udfoertMail } from "@/lib/sletning";
  *     seks måneder, og sletningen 30 dage efter et ophør.
  *  3. Logins og logoer for de virksomheder, trin 2 slettede. De ligger uden
  *     for databasen og kan ikke røres fra SQL.
+ *  4. `ryd_forladte_designs()` (0021) — halvfærdige kladder fra afbrudte køb,
+ *     og de logofiler, de efterlod i lageret.
  *
  * Opbevaringsfristerne står i src/lib/opbevaring.ts, og suspensionsmodellen i
  * src/lib/abonnement.ts. Selve sletningen ligger i databasen — se migration
@@ -101,7 +103,34 @@ export async function GET(request: NextRequest) {
       );
   }
 
-  const resultat = { ...(data as object), ophoer, efterladt, kvitteret };
+  // 4) Forladte designs — halvfærdige kladder fra afbrudte køb. De rummer
+  //    ingen personoplysninger, men de roder i kundens designliste og
+  //    efterlader logofiler i lageret. Se migration 0021.
+  const { data: forladte, error: forladtFejl } = await admin.rpc(
+    "ryd_forladte_designs",
+    { p_toerloeb: toerloeb },
+  );
+
+  if (forladtFejl) {
+    // Ikke fatalt: resten af oprydningen ER gennemført, og en kladde, der
+    // bliver liggende en nat mere, koster ingenting.
+    await noterFejl("oprydning", `forladte designs: ${forladtFejl.message}`);
+  }
+
+  const logoer =
+    (!toerloeb &&
+      (forladte as { logoer?: string[] } | null)?.logoer?.length &&
+      (await sletLogofiler(admin, (forladte as { logoer: string[] }).logoer))) ||
+    0;
+
+  const resultat = {
+    ...(data as object),
+    ophoer,
+    efterladt,
+    kvitteret,
+    forladte_designs: (forladte as { forladte?: number } | null)?.forladte ?? 0,
+    slettede_logoer: logoer,
+  };
 
   // Også de gode kørsler noteres. Det er dét, der gør en STOPPET oprydning
   // synlig: uden en linje hver nat kan panelet ikke se forskel på "alt er
@@ -109,6 +138,31 @@ export async function GET(request: NextRequest) {
   console.log("[oprydning]", JSON.stringify(resultat));
   if (!toerloeb) await noterKoersel("oprydning", resultat);
   return NextResponse.json(resultat);
+}
+
+/**
+ * Fjerner logofiler for designs, der lige er ryddet.
+ *
+ * Adresserne er offentlige URL'er fra lagerbøtten; stien udledes af den sidste
+ * del efter bøttenavnet. Fejler en enkelt, tælles den ikke med — en efterladt
+ * fil koster plads, ikke korrekthed, og må ikke stoppe resten.
+ */
+async function sletLogofiler(
+  admin: ReturnType<typeof createAdminClient>,
+  urler: string[],
+): Promise<number> {
+  const stier = urler
+    .map((u) => u.split("/logos/")[1])
+    .filter((s): s is string => Boolean(s));
+
+  if (stier.length === 0) return 0;
+
+  const { error } = await admin.storage.from("logos").remove(stier);
+  if (error) {
+    await noterFejl("oprydning", `logofiler: ${error.message}`);
+    return 0;
+  }
+  return stier.length;
 }
 
 /**
