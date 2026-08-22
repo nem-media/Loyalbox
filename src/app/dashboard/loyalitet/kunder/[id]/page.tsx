@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/dashboard-shell";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Liste, ListeRaekke } from "@/components/ui/liste";
 import { StampCardPreview } from "@/components/loyalty/stamp-card-preview";
 import { TXN_TYPE_LABELS, type TxnType } from "@/lib/loyalty/constants";
 import { GiveStampForm } from "./give-stamp-form";
@@ -208,37 +209,40 @@ export default async function MemberPage({
             {!txns || txns.length === 0 ? (
               <p className="text-sm text-muted">Ingen aktivitet endnu.</p>
             ) : (
-              <ul className="divide-y divide-border">
+              <Liste className="text-sm">
                 {txns.map((t) => (
-                  <li
+                  <ListeRaekke
                     key={t.id}
-                    className="flex items-center justify-between gap-3 py-2.5 text-sm"
+                    // Fortryd-knappen ligger UDEN FOR rækkens indhold, så den
+                    // ikke kan rammes ved et uheld sammen med resten.
+                    handling={
+                      REVERSIBLE.includes(t.type) && t.stamps > 0 ? (
+                        <ReverseButton
+                          transactionId={t.id}
+                          memberId={member.id}
+                        />
+                      ) : null
+                    }
                   >
-                    <div>
+                    <span className="flex flex-wrap items-center gap-2">
                       <span className="font-medium">
                         {TXN_TYPE_LABELS[t.type]}
                       </span>
                       {t.stamps !== 0 ? (
-                        <Badge
-                          tone={t.stamps > 0 ? "success" : "neutral"}
-                          className="ml-2"
-                        >
+                        <Badge tone={t.stamps > 0 ? "success" : "neutral"}>
                           {t.stamps > 0 ? `+${t.stamps}` : t.stamps}
                         </Badge>
                       ) : null}
-                      <span className="ml-2 text-xs text-muted">
+                      <span className="text-xs text-muted">
                         {new Date(t.created_at).toLocaleString("da-DK", {
                           dateStyle: "short",
                           timeStyle: "short",
                         })}
                       </span>
-                    </div>
-                    {REVERSIBLE.includes(t.type) && t.stamps > 0 ? (
-                      <ReverseButton transactionId={t.id} memberId={member.id} />
-                    ) : null}
-                  </li>
+                    </span>
+                  </ListeRaekke>
                 ))}
-              </ul>
+              </Liste>
             )}
           </CardBody>
         </Card>
