@@ -37,9 +37,29 @@ export function DashboardNav({ sections }: { sections: NavSection[] }) {
     href === "/dashboard" ? path === href : path.startsWith(href);
 
   return (
-    <nav className="flex gap-1 overflow-x-auto px-2 pb-2 md:flex-col md:gap-0 md:overflow-visible md:px-3 md:pb-0">
+    <nav
+      className={cn(
+        "flex gap-1 overflow-x-auto px-2 pb-2",
+        // Luft i højre ende, så det sidste punkt ikke klistrer til kanten og
+        // ser afskåret ud, når man har rullet helt ud.
+        "after:block after:w-1 after:shrink-0 after:content-['']",
+        "md:flex-col md:gap-0 md:overflow-visible md:px-3 md:pb-0 md:after:hidden",
+      )}
+    >
       {sections.map((section, i) => (
         <div key={section.title ?? i} className="contents md:block">
+          {/* På mobil er striben vandret, og overskriften er skjult — så ville
+              dagligt arbejde og indstillinger løbe sammen til én lang række
+              uden skel. Stregen markerer grænsen dér, hvor overskriften ellers
+              ville stå. Med ti punkter er den forskellen på en menu og en
+              opremsning. */}
+          {i > 0 ? (
+            <span
+              aria-hidden="true"
+              className="my-1.5 w-px shrink-0 self-stretch bg-white/15 md:hidden"
+            />
+          ) : null}
+
           {section.title ? (
             // Overskriften giver kun mening i den lodrette menu. Vandret på
             // mobil ville den stå som et punkt, man kunne tro var et link.
