@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/dashboard-shell";
 import { Card, CardBody } from "@/components/ui/card";
 import { GuideHint } from "@/components/guide";
 import { Badge } from "@/components/ui/badge";
+import { Liste, ListeRaekke, ListeTekst } from "@/components/ui/liste";
 import { ButtonLink } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import {
@@ -61,28 +62,33 @@ export default async function DiscountsPage() {
           </CardBody>
         </Card>
       ) : (
-        <div className="divide-y divide-border border-y border-border">
+        // Raekkerne er IKKE klikbare — der er ingen rabatside at aabne. Derfor
+        // ingen href og ingen hover: affordancen maa ikke love noget, der ikke
+        // findes. Foer saa de ud praecis som kundelistens klikbare raekker.
+        <Liste className="border-y border-border">
           {discounts.map((d) => (
-            <div key={d.id} className="flex items-center justify-between gap-3 py-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{d.name}</span>
-                  <Badge tone={tone[d.status]}>
-                    {DISCOUNT_STATUS_LABELS[d.status]}
-                  </Badge>
-                </div>
-                <p className="mt-1 text-sm text-muted">
-                  {DISCOUNT_TYPE_LABELS[d.type]}
-                  {d.type === "percent"
+            <ListeRaekke key={d.id}>
+              <ListeTekst
+                titel={
+                  <span className="flex items-center gap-2">
+                    {d.name}
+                    <Badge tone={tone[d.status]}>
+                      {DISCOUNT_STATUS_LABELS[d.status]}
+                    </Badge>
+                  </span>
+                }
+                under={
+                  DISCOUNT_TYPE_LABELS[d.type] +
+                  (d.type === "percent"
                     ? ` · ${d.value}%`
                     : d.type === "fixed_amount"
                       ? ` · ${formatCurrency(d.value)}`
-                      : ""}
-                </p>
-              </div>
-            </div>
+                      : "")
+                }
+              />
+            </ListeRaekke>
           ))}
-        </div>
+        </Liste>
       )}
     </>
   );

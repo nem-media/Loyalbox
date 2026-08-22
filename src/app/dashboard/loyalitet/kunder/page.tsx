@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Liste, ListeRaekke, ListeTekst } from "@/components/ui/liste";
 import { getCompanyAccess } from "@/lib/loyalty/access";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/dashboard-shell";
@@ -84,23 +84,19 @@ export default async function CustomersPage({
           />
         )
       ) : (
-        <div className="divide-y divide-border border-y border-border">
+        <Liste className="border-y border-border">
           {members.map((m) => (
-            <Link
+            <ListeRaekke
               key={m.id}
               href={`/dashboard/loyalitet/kunder/${m.id}`}
-              className="flex items-center justify-between gap-3 py-3 hover:bg-muted-bg/40"
             >
-              <div>
-                <p className="font-medium">{m.name || "Uden navn"}</p>
-                <p className="text-sm text-muted">
-                  {[m.email, m.phone].filter(Boolean).join(" · ") || "—"}
-                </p>
-              </div>
-              <span className="text-sm text-accent">Åbn →</span>
-            </Link>
+              <ListeTekst
+                titel={m.name || "Uden navn"}
+                under={[m.email, m.phone].filter(Boolean).join(" · ") || "—"}
+              />
+            </ListeRaekke>
           ))}
-        </div>
+        </Liste>
       )}
     </>
   );

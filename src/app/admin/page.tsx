@@ -5,6 +5,7 @@ import { Stat } from "@/components/ui/stat";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { FeedbackList } from "@/components/feedback-list";
 import { DriftStatus } from "@/components/drift-status";
+import { Liste, ListeRaekke, ListeTekst } from "@/components/ui/liste";
 import { formatDate } from "@/lib/utils";
 
 export const metadata = { title: "Admin — Oversigt" };
@@ -120,31 +121,24 @@ export default async function AdminOverviewPage() {
             </Link>
           </CardHeader>
           <CardBody className="pt-2">
-            <ul className="divide-y divide-border">
+            <Liste>
               {venter.map((o) => (
-                <li key={o.id}>
-                  <Link
-                    href={`/admin/ordrer/${o.id}`}
-                    className="-mx-2 flex items-center justify-between gap-3 rounded px-2 py-2.5 transition-colors hover:bg-accent/5"
-                  >
-                    <span className="min-w-0">
-                      <span className="block truncate text-sm font-medium">
+                <ListeRaekke key={o.id} href={`/admin/ordrer/${o.id}`}>
+                  <ListeTekst
+                    titel={
+                      <>
                         {o.product_name}
                         <span className="text-muted"> ×{o.quantity}</span>
-                      </span>
-                      <span className="block truncate text-xs text-muted">
-                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                        {(o as any).company?.name ?? "Ukendt virksomhed"} ·{" "}
-                        {formatDate(o.created_at)}
-                      </span>
-                    </span>
-                    <span aria-hidden="true" className="shrink-0 text-accent">
-                      →
-                    </span>
-                  </Link>
-                </li>
+                      </>
+                    }
+                    under={`${
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      (o as any).company?.name ?? "Ukendt virksomhed"
+                    } · ${formatDate(o.created_at)}`}
+                  />
+                </ListeRaekke>
               ))}
-            </ul>
+            </Liste>
           </CardBody>
         </Card>
       ) : null}
