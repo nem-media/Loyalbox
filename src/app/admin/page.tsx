@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { PageHeader } from "@/components/dashboard-shell";
+import { PageHeader, Sektion } from "@/components/dashboard-shell";
 import { Stat } from "@/components/ui/stat";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { FeedbackList } from "@/components/feedback-list";
 import { DriftStatus } from "@/components/drift-status";
+import { BillingIcon } from "@/components/nav-icons";
 import { Liste, ListeRaekke, ListeTekst } from "@/components/ui/liste";
 import { formatDate } from "@/lib/utils";
 
@@ -52,7 +52,11 @@ export default async function AdminOverviewPage() {
     headCount(supabase, "orders", { status: "new" }),
     headCount(supabase, "orders", { status: "needs_onboarding" }),
     headCount(supabase, "orders", { status: "ready_for_production" }),
-    statusCount(supabase, ["needs_onboarding", "ready_for_production", "shipped"]),
+    statusCount(supabase, [
+      "needs_onboarding",
+      "ready_for_production",
+      "shipped",
+    ]),
     headCount(supabase, "companies"),
     headCount(supabase, "scans"),
   ]);
@@ -94,84 +98,91 @@ export default async function AdminOverviewPage() {
         description="Overblik over hele platformen."
       />
 
-      {/* ------------------------------------------------ det der kræver dig */}
-      {/* TO STØRRELSER MED VILJE. Da alle syv tal blev vist ens, læste siden
+      {/* Sektionsnavnene stod før som streger i en KOMMENTAR og nåede aldrig
+          skærmen — så oversigten var én flad stak kort i samme vægt.
+          TO STØRRELSER MED VILJE. Da alle syv tal blev vist ens, læste siden
           som en rapport frem for et overblik — netop det, Stat's egen
           kommentar advarer imod. De to øverste er dem, man kom for; resten
           uddyber. */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Stat
-          label="Mangler onboarding"
-          value={needsOnboarding}
-          sub="Betalt — venter på logo og opsætning"
-        />
-        <Stat
-          label="Klar til produktion"
-          value={readyForProduction}
-          sub="Kan sættes i tryk"
-        />
-      </div>
+      <Sektion
+        titel="Ordrer"
+        link={{ href: "/admin/ordrer", label: "Alle ordrer" }}
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Stat
+            label="Mangler onboarding"
+            value={needsOnboarding}
+            sub="Betalt — venter på logo og opsætning"
+          />
+          <Stat
+            label="Klar til produktion"
+            value={readyForProduction}
+            sub="Kan sættes i tryk"
+          />
+        </div>
 
-      {venter && venter.length ? (
-        <Card className="mt-4">
-          <CardHeader className="flex items-center justify-between">
-            <CardTitle>Venter på dig</CardTitle>
-            <Link href="/admin/ordrer" className="text-xs font-medium text-accent">
-              Alle ordrer
-            </Link>
-          </CardHeader>
-          <CardBody className="pt-2">
-            <Liste>
-              {venter.map((o) => (
-                <ListeRaekke key={o.id} href={`/admin/ordrer/${o.id}`}>
-                  <ListeTekst
-                    titel={
-                      <>
-                        {o.product_name}
-                        <span className="text-muted"> ×{o.quantity}</span>
-                      </>
-                    }
-                    under={`${
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      (o as any).company?.name ?? "Ukendt virksomhed"
-                    } · ${formatDate(o.created_at)}`}
-                  />
-                </ListeRaekke>
-              ))}
-            </Liste>
-          </CardBody>
-        </Card>
-      ) : null}
+        {venter && venter.length ? (
+          <Card className="mt-4">
+            <CardHeader>
+              {/* Ikon, fordi kortet er et VINDUE ind i Ordrer — samme ikon som
+                menupunktet, man lander på. Se `CardTitle`. */}
+              <CardTitle icon={BillingIcon}>Venter på dig</CardTitle>
+            </CardHeader>
+            <CardBody className="pt-2">
+              <Liste>
+                {venter.map((o) => (
+                  <ListeRaekke key={o.id} href={`/admin/ordrer/${o.id}`}>
+                    <ListeTekst
+                      titel={
+                        <>
+                          {o.product_name}
+                          <span className="text-muted"> ×{o.quantity}</span>
+                        </>
+                      }
+                      under={`${
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        (o as any).company?.name ?? "Ukendt virksomhed"
+                      } · ${formatDate(o.created_at)}`}
+                    />
+                  </ListeRaekke>
+                ))}
+              </Liste>
+            </CardBody>
+          </Card>
+        ) : null}
+      </Sektion>
 
-      {/* ------------------------------------------------------ baggrundstal */}
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <Stat size="sm" label="Betalte ordrer i alt" value={betalte} />
-        {/* Hed før "Nye ordrer", hvilket læste som noget, der skulle
-            ekspederes. Status "new" betyder det modsatte: kunden nåede aldrig
-            at betale. */}
-        <Stat size="sm" label="Påbegyndt, ikke betalt" value={forladte} />
-        <Stat
-          size="sm"
-          label="Gennemført af påbegyndte"
-          value={gennemfoert === null ? "—" : `${gennemfoert} %`}
-        />
-        <Stat size="sm" label="Virksomheder" value={activeCompanies} />
-        <Stat size="sm" label="Samlede scanninger" value={totalScans} />
-      </div>
+      <Sektion titel="Baggrundstal">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <Stat size="sm" label="Betalte ordrer i alt" value={betalte} />
+          {/* Hed før "Nye ordrer", hvilket læste som noget, der skulle
+              ekspederes. Status "new" betyder det modsatte: kunden nåede
+              aldrig at betale. */}
+          <Stat size="sm" label="Påbegyndt, ikke betalt" value={forladte} />
+          <Stat
+            size="sm"
+            label="Gennemført af påbegyndte"
+            value={gennemfoert === null ? "—" : `${gennemfoert} %`}
+          />
+          <Stat size="sm" label="Virksomheder" value={activeCompanies} />
+          <Stat size="sm" label="Samlede scanninger" value={totalScans} />
+        </div>
+      </Sektion>
 
+      {/* Uden for sektionerne: drift er hverken et ordretal eller feedback, og
+          en overskrift, der samlede den med noget af det, ville lyve. */}
       <DriftStatus />
 
-      <Card className="mt-6">
-        <CardHeader className="flex items-center justify-between">
-          <CardTitle>Seneste feedback</CardTitle>
-          <Link href="/admin/feedback" className="text-xs font-medium text-accent">
-            Se alle
-          </Link>
-        </CardHeader>
-        <CardBody className="pt-2">
-          <FeedbackList items={recentFeedback ?? []} />
-        </CardBody>
-      </Card>
+      <Sektion
+        titel="Feedback"
+        link={{ href: "/admin/feedback", label: "Se alle" }}
+      >
+        <Card>
+          <CardBody>
+            <FeedbackList items={recentFeedback ?? []} />
+          </CardBody>
+        </Card>
+      </Sektion>
     </>
   );
 }

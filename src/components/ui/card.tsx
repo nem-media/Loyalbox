@@ -1,3 +1,4 @@
+import { IkonChip } from "./ikon-chip";
 import { cn } from "@/lib/utils";
 
 /**
@@ -51,15 +52,37 @@ export function CardBody({
  * `text-base` og ikke `text-sm`: brødteksten i kortene er selv `text-sm`, så
  * overskriften stod i PRÆCIS samme størrelse som det, den overskrev. Et kort
  * uden indre hierarki læses som en tekstblok, ikke som et afsnit med et navn.
+ *
+ * NAVY og ikke næsten-sort. `--foreground` er `#0a0a0a`, en neutral uden
+ * slægtskab med noget som helst i brandet. Navyen findes kun i menuen, og
+ * derfor lignede de to halvdele af panelet to systemer klistret sammen. Nu
+ * bærer overskrifterne den samme farve som menuen, brødteksten forbliver
+ * neutral — det er dét, der binder indholdet til navigationen.
+ *
+ * `icon` BRUGES KUN, når kortet er et VINDUE IND I en anden side — altså når
+ * der er et "se alle"-link, eller kortet svarer til et punkt i menuen. Så
+ * fortæller ikonet, hvor man lander, og genbruger menuens eget ikonsprog.
+ * Sættes det på hvert kort, holder det op med at betyde noget og bliver
+ * pynt — og så er vi tilbage ved at pynte i stedet for at designe.
  */
 export function CardTitle({
+  icon,
   className,
+  children,
   ...props
-}: React.HTMLAttributes<HTMLHeadingElement>) {
+}: React.HTMLAttributes<HTMLHeadingElement> & {
+  icon?: React.ComponentType<{ className?: string }>;
+}) {
   return (
     <h3
-      className={cn("text-base font-semibold tracking-tight", className)}
+      className={cn(
+        "flex items-center gap-2.5 text-base font-semibold tracking-tight text-dark",
+        className,
+      )}
       {...props}
-    />
+    >
+      {icon ? <IkonChip icon={icon} /> : null}
+      {children}
+    </h3>
   );
 }

@@ -112,6 +112,23 @@ body {
    ulagdelt CSS slår ALT fra Tailwind uanset rækkefølge. Så ville et
    `text-[10px]` eller et `text-accent` ved siden af `.etiket` blive tavst
    ignoreret. Utilities ligger i det sidste lag og skal kunne vinde. */
+/* Overskrifter i panelet bærer menuens navy.
+   `--foreground` er `#0a0a0a` — en neutral uden slægtskab med noget i
+   brandet. Navyen fandtes KUN i menuen, og derfor lignede de to halvdele af
+   panelet to systemer klistret sammen.
+
+   Som en regel og ikke en klasse på hver overskrift: der er over tyve løse
+   `h2`/`h3` i dashboardet og admin, og en klasse, man skal huske at sætte,
+   bliver glemt på den enogtyvende.
+
+   I `@layer base`, så en utility altid vinder — en overskrift på en mørk
+   flade skal stadig kunne sættes til `text-white`. */
+@layer base {
+  .panel :is(h1, h2, h3) {
+    color: var(--dark);
+  }
+}
+
 @layer components {
   .etiket {
     font-size: 0.6875rem;
