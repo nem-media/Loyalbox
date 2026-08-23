@@ -54,6 +54,14 @@ const nextConfig: NextConfig = {
         destination: "/blog/hvor-mange-stempler-stempelkort",
         permanent: true,
       },
+      // Designene havde et eget menupunkt med SAMME ikon som Standere — to
+      // punkter for én ting. Indholdet ligger nu som et afsnit på standersiden.
+      // Kunder kan have gemt den gamle adresse, så den peger ned på afsnittet.
+      {
+        source: "/dashboard/design",
+        destination: "/dashboard/standere#design",
+        permanent: true,
+      },
     ];
   },
 };

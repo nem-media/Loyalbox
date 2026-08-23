@@ -70,7 +70,6 @@ export default async function DashboardLayout({
           label: "Stempelkort",
           icon: "stampcard",
         },
-        { href: "/dashboard/design", label: "Design", icon: "stand" },
         { href: "/dashboard/opslag", label: "Opslag", icon: "post" },
         ...(tierCan(plan, "feedbackInbox")
           ? ([
