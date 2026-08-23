@@ -1,4 +1,5 @@
 import { Card, CardBody } from "./card";
+import { IkonChip } from "./ikon-chip";
 import { cn } from "@/lib/utils";
 
 /**
@@ -28,14 +29,7 @@ export function EmptyState({
   return (
     <Card className={className}>
       <CardBody className="flex flex-col items-center py-10 text-center">
-        {Ikon ? (
-          <span
-            aria-hidden="true"
-            className="mb-3 grid h-11 w-11 place-items-center rounded-full bg-accent/8 text-accent"
-          >
-            <Ikon className="h-5 w-5" />
-          </span>
-        ) : null}
+        {Ikon ? <IkonChip icon={Ikon} size="lg" className="mb-3" /> : null}
 
         <p className="font-medium">{title}</p>
 

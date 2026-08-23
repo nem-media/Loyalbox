@@ -8,10 +8,25 @@
 :root {
   --background: #ffffff;
   --foreground: #0a0a0a;
-  --muted: #6b7280;
+  /* Neutralerne er tonet mod brandet i hver sin retning: teksten mod navyen,
+     stregerne mod råhvidt. Før var begge Tailwinds standardgrå (#6b7280 /
+     #e5e7eb), som er BLÅLIGE — de sad på en varm baggrund og trak i hver sin
+     retning. Det er dét, der læses som "ikke gennemtænkt", uden at man kan
+     sætte fingeren på hvorfor. */
+  --muted: #5a6577;
   --muted-bg: #f6f4ee; /* råhvid — til sektioner uden ren hvid baggrund */
-  --border: #e5e7eb;
+  --border: #e6e1d7;
   --card: #ffffff;
+  /* Panelets grund. EGET token og ikke `--background`, fordi `--background`
+     er hvid på ALLE inputfelter (`bg-background` i input.tsx og et dusin
+     formularer) — ændredes den, blev hvert felt beige. Og fordi panelet skal
+     kunne tones uafhængigt af marketingsitets lyse sektioner.
+
+     HVORFOR OVERHOVEDET: kort og side var begge #ffffff, så kortene lå ikke
+     PÅ noget. Kun en 1px streg og en skygge på 4 % skilte dem ad, og 4 % er
+     under det, øjet kan opfatte på hvidt. Menuen så gennemført ud, fordi den
+     var det eneste element på siden med en grund at stå på. */
+  --app-bg: #f6f4ee;
   --accent: #1b916a; /* primær */
   --accent-fg: #ffffff;
   --accent-hover: #157a58;
@@ -24,6 +39,22 @@
   --star: #f59e0b;
   --radius: 0.75rem; /* fallback til bokse der endnu ikke bruger .box-shape */
   --radius-shape: 0 6px 6px 6px; /* delt form: skarp øverste venstre, 6px på de tre øvrige hjørner */
+
+  /* HØJDESKALA — tre trin, ikke ét.
+     Hver skygge er TO lag: en stram, mørk tæt på kanten (den, der siger
+     "kanten er hævet") og en blød, bred nedenunder (den, der siger "der er
+     luft under"). Ét lag giver en drop shadow; to giver dybde.
+     Tonet med navy (#19375c) og ikke sort — en sort skygge på en varm grund
+     bliver grå og beskidt.
+     BEVIDST IKKE i `@theme inline`: navnene `--shadow-sm/md/lg` ville
+     overskrive Tailwinds egne `shadow-*`-utilities overalt i projektet.
+     Bruges som `shadow-[var(--hoejde-1)]`. */
+  --hoejde-1:
+    0 1px 2px rgba(25, 55, 92, 0.06), 0 1px 3px -1px rgba(25, 55, 92, 0.05);
+  --hoejde-2:
+    0 2px 4px rgba(25, 55, 92, 0.06), 0 6px 16px -4px rgba(25, 55, 92, 0.1);
+  --hoejde-3:
+    0 4px 8px rgba(25, 55, 92, 0.07), 0 12px 32px -8px rgba(25, 55, 92, 0.14);
 }
 
 @theme inline {
@@ -31,6 +62,7 @@
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-muted-bg: var(--muted-bg);
+  --color-app-bg: var(--app-bg);
   --color-border: var(--border);
   --color-card: var(--card);
   --color-accent: var(--accent);
@@ -68,4 +100,42 @@ body {
 
 .text-muted {
   color: var(--muted);
+}
+
+/* Etiket — den lille, spærrede versalstil.
+   Fandtes allerede i menuens sektionsoverskrifter og i tabelhovedet, men kun
+   dér, skrevet af to gange. Uden den har panelet ÉN stemme: overskrift og
+   brødtekst i samme størrelse og vægt, hvilket er halvdelen af grunden til,
+   at et nøgletal ikke ligner et nøgletal.
+
+   I `@layer components` MED VILJE: uden et lag er reglen ulagdelt CSS, og
+   ulagdelt CSS slår ALT fra Tailwind uanset rækkefølge. Så ville et
+   `text-[10px]` eller et `text-accent` ved siden af `.etiket` blive tavst
+   ignoreret. Utilities ligger i det sidste lag og skal kunne vinde. */
+/* Overskrifter i panelet bærer menuens navy.
+   `--foreground` er `#0a0a0a` — en neutral uden slægtskab med noget i
+   brandet. Navyen fandtes KUN i menuen, og derfor lignede de to halvdele af
+   panelet to systemer klistret sammen.
+
+   Som en regel og ikke en klasse på hver overskrift: der er over tyve løse
+   `h2`/`h3` i dashboardet og admin, og en klasse, man skal huske at sætte,
+   bliver glemt på den enogtyvende.
+
+   I `@layer base`, så en utility altid vinder — en overskrift på en mørk
+   flade skal stadig kunne sættes til `text-white`. */
+@layer base {
+  .panel :is(h1, h2, h3) {
+    color: var(--dark);
+  }
+}
+
+@layer components {
+  .etiket {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
 }

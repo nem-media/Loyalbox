@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { getCompanyStats } from "@/lib/data";
-import { PageHeader } from "@/components/dashboard-shell";
+import { PageHeader, Sektion } from "@/components/dashboard-shell";
+import { FeedbackBubbleIcon, StandIcon } from "@/components/nav-icons";
 import { Stat } from "@/components/ui/stat";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { FeedbackList } from "@/components/feedback-list";
@@ -67,57 +68,64 @@ export default async function DashboardPage({
         </div>
       ) : null}
 
-      {canSeeStats ? (
-        <>
-          <PeriodPicker basePath="/dashboard" current={period} />
+      <Sektion titel="Statistik">
+        {canSeeStats ? (
+          <>
+            <PeriodPicker basePath="/dashboard" current={period} />
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Tallet er perioden, underteksten er totalen. Uden totalen ville
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {/* Tallet er perioden, underteksten er totalen. Uden totalen ville
                 et skift til "7 dage" se ud som om noget var forsvundet. */}
-            <Stat
-              label="Scanninger"
-              value={stats.scans.period}
-              sub={`${stats.scans.total} i alt`}
-              trend={{ previous: stats.scans.previous, label: siden }}
-            />
-            <Stat
-              label="Feedbacks"
-              value={stats.feedback.period}
-              sub={`${stats.feedback.total} i alt`}
-              trend={{ previous: stats.feedback.previous, label: siden }}
-            />
-            <Stat
-              label="Klik til anmeldelse"
-              value={stats.clicks.period}
-              sub={`${stats.clicks.total} i alt`}
-              trend={{ previous: stats.clicks.previous, label: siden }}
-            />
-            {/* Ratingen får ingen pil: et gennemsnit svinger på decimaler, og
+              <Stat
+                label="Scanninger"
+                value={stats.scans.period}
+                sub={`${stats.scans.total} i alt`}
+                trend={{ previous: stats.scans.previous, label: siden }}
+              />
+              <Stat
+                label="Feedbacks"
+                value={stats.feedback.period}
+                sub={`${stats.feedback.total} i alt`}
+                trend={{ previous: stats.feedback.previous, label: siden }}
+              />
+              <Stat
+                label="Klik til anmeldelse"
+                value={stats.clicks.period}
+                sub={`${stats.clicks.total} i alt`}
+                trend={{ previous: stats.clicks.previous, label: siden }}
+              />
+              {/* Ratingen får ingen pil: et gennemsnit svinger på decimaler, og
                 en pil på 4,3 mod 4,4 ville råbe op om ingenting. */}
-            <Stat
-              label="Gns. rating"
-              value={stats.avgRating ? stats.avgRating.toFixed(1) : "–"}
-              sub={
-                stats.avgRatingTotal
-                  ? `${stats.avgRatingTotal.toFixed(1)} i alt · af 5 stjerner`
-                  : "Ingen ratings endnu"
-              }
-            />
-          </div>
-        </>
-      ) : (
-        <UpgradeNotice
-          requiredTier="pro"
-          title="Statistik i realtid"
-          description="Se scanninger, klik og gennemsnitlig rating på ét sted. Fuld statistik er en del af Pro-abonnementet."
-        />
-      )}
+              <Stat
+                label="Gns. rating"
+                value={stats.avgRating ? stats.avgRating.toFixed(1) : "–"}
+                sub={
+                  stats.avgRatingTotal
+                    ? `${stats.avgRatingTotal.toFixed(1)} i alt · af 5 stjerner`
+                    : "Ingen ratings endnu"
+                }
+              />
+            </div>
+          </>
+        ) : (
+          <UpgradeNotice
+            requiredTier="pro"
+            title="Statistik i realtid"
+            description="Se scanninger, klik og gennemsnitlig rating på ét sted. Fuld statistik er en del af Pro-abonnementet."
+          />
+        )}
+      </Sektion>
 
+      {/* De to kort herunder får INGEN fælles sektionsoverskrift: de peger
+          hver sit sted hen, og ét navn over begge ville lyve. Her er det
+          ikonet, der siger hvor man lander. */}
       <div className="mt-6 grid items-start gap-6 lg:grid-cols-3">
         {canSeeFeedback ? (
           <Card className="lg:col-span-2">
             <CardHeader className="flex items-center justify-between">
-              <CardTitle>Seneste kommentarer</CardTitle>
+              <CardTitle icon={FeedbackBubbleIcon}>
+                Seneste kommentarer
+              </CardTitle>
               <Link
                 href="/dashboard/feedback"
                 className="text-xs font-medium text-accent"
@@ -141,7 +149,7 @@ export default async function DashboardPage({
 
         <Card>
           <CardHeader>
-            <CardTitle>Dine standere</CardTitle>
+            <CardTitle icon={StandIcon}>Dine standere</CardTitle>
           </CardHeader>
           <CardBody className="space-y-3">
             <p className="text-3xl font-semibold">{stats.standCount}</p>

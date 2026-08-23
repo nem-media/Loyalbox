@@ -4,6 +4,7 @@ import { signout } from "@/app/(auth)/actions";
 import { Badge } from "@/components/ui/badge";
 import { SearchIcon } from "@/components/nav-icons";
 import { DashboardNav, type NavSection } from "@/components/dashboard-nav";
+import { cn } from "@/lib/utils";
 
 export type { NavItem, NavSection } from "@/components/dashboard-nav";
 
@@ -23,10 +24,7 @@ export function DashboardShell({
   quickAction?: { href: string; label: string };
   children: React.ReactNode;
 }) {
-  const initialer = (companyName ?? email)
-    .trim()
-    .slice(0, 2)
-    .toUpperCase();
+  const initialer = (companyName ?? email).trim().slice(0, 2).toUpperCase();
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
@@ -95,10 +93,61 @@ export function DashboardShell({
         </div>
       </aside>
 
-      <main className="flex-1 bg-background">
+      {/* `bg-app-bg` og ikke `bg-background`: kortene er hvide, så grunden
+          skal være noget andet end hvid, ellers ligger de ikke PÅ noget. */}
+      <main className="panel flex-1 bg-app-bg">
         <div className="mx-auto max-w-5xl p-4 md:p-8">{children}</div>
       </main>
     </div>
+  );
+}
+
+/**
+ * En gruppe indhold med et navn.
+ *
+ * HVORFOR DEN FINDES: sektionsgrænserne eksisterede allerede — som
+ * KOMMENTARER. `admin/page.tsx` skrev "det der kræver dig" og "baggrundstal"
+ * i koden, og oversigten viste dem som én flad stak kort i samme vægt.
+ * Følte udvikleren behovet for at gruppere, har læseren det også.
+ *
+ * Etiketstilen frem for en overskrift: en sektion skal kunne SPRINGES OVER
+ * med øjet. Blev den sat i samme vægt som sidens h1, ville den konkurrere med
+ * det, den grupperer.
+ *
+ * Den grønne markør er accenten brugt til STRUKTUR. Før bar den kun links og
+ * én knap — en brandfarve, der ikke holder nogen flade, læses ikke som en
+ * brandfarve, og det er halvdelen af grunden til, at panelet virkede monotont.
+ */
+export function Sektion({
+  titel,
+  link,
+  className,
+  children,
+}: {
+  titel: string;
+  /** "Se alle"-vejen ud af gruppen. */
+  link?: { href: string; label: string };
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className={cn("mt-8", className)}>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h2 className="etiket flex items-center gap-2">
+          <span aria-hidden="true" className="h-3 w-0.5 shrink-0 bg-accent" />
+          {titel}
+        </h2>
+        {link ? (
+          <Link
+            href={link.href}
+            className="shrink-0 text-xs font-medium text-accent hover:underline"
+          >
+            {link.label}
+          </Link>
+        ) : null}
+      </div>
+      {children}
+    </section>
   );
 }
 
@@ -112,11 +161,15 @@ export function PageHeader({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+    // Stregen under sidehovedet er ikke pynt: uden den startede indholdet
+    // koldt, og overskriften flød sammen med det første kort. Nu er der en
+    // tydelig zone at læse først.
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-3 border-b border-border pb-5">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+        {/* Navy, samme farve som menuen. Se `CardTitle` for hvorfor. */}
+        <h1 className="text-2xl font-bold tracking-tight text-dark">{title}</h1>
         {description ? (
-          <p className="mt-1 text-sm text-muted">{description}</p>
+          <p className="mt-1.5 text-sm text-muted">{description}</p>
         ) : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}

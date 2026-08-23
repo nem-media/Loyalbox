@@ -87,11 +87,14 @@ export function Stat({
 
   return (
     <Card className={cn(lille ? "p-4" : "p-5", className)}>
-      <p className={cn("text-muted", lille ? "text-xs" : "text-sm")}>{label}</p>
+      {/* Etiketstilen frem for endnu en linje brødtekst. Da label og tal var
+          samme skriftsnit i to nærliggende størrelser, havde kortet én
+          stemme, og tallet skilte sig ikke ud som DET, man kom for. */}
+      <p className={cn("etiket", lille && "text-[10px]")}>{label}</p>
       <p
         className={cn(
-          "mt-1.5 font-semibold tracking-tight tabular-nums",
-          lille ? "text-xl" : "text-3xl",
+          "mt-2 font-semibold tracking-tight tabular-nums",
+          lille ? "text-xl" : "text-4xl",
         )}
       >
         {value}

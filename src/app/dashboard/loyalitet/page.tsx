@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getCompanyAccess } from "@/lib/loyalty/access";
 import { createClient } from "@/lib/supabase/server";
-import { PageHeader } from "@/components/dashboard-shell";
+import { PageHeader, Sektion } from "@/components/dashboard-shell";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Stat } from "@/components/ui/stat";
 import { PeriodPicker } from "@/components/period-picker";
@@ -81,116 +81,195 @@ export default async function LoyaltyOverviewPage({
 
       <PeriodPicker basePath="/dashboard/loyalitet" current={period} />
 
-      {/* Nøgletal — de fire man kom for. De otte stod før side om side i
-          samme størrelse, og så læses siden som en rapport frem for et
-          overblik. */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Nye medlemmer" value={r.newMembers} sub={`${r.totalMembers} i alt`} trend={{ previous: forrige.newMembers, label: siden }} />
-        <Stat label="Aktive medlemmer" value={r.activeMembers} sub="Med stempel i perioden" trend={{ previous: forrige.activeMembers, label: siden }} />
-        <Stat label="Stempler givet" value={r.stampsGiven} sub={r.stampsRemoved ? `${r.stampsRemoved} fjernet` : undefined} trend={{ previous: forrige.stampsGiven, label: siden }} />
-        <Stat label="Belønninger indløst" value={r.rewardsRedeemed} sub={`${r.rewardsEarned} optjent`} trend={{ previous: forrige.rewardsRedeemed, label: siden }} />
-      </div>
+      {/* De fire man kom for. De otte stod før side om side i samme
+          størrelse, og så læses siden som en rapport frem for et overblik. */}
+      <Sektion titel="Nøgletal">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Stat
+            label="Nye medlemmer"
+            value={r.newMembers}
+            sub={`${r.totalMembers} i alt`}
+            trend={{ previous: forrige.newMembers, label: siden }}
+          />
+          <Stat
+            label="Aktive medlemmer"
+            value={r.activeMembers}
+            sub="Med stempel i perioden"
+            trend={{ previous: forrige.activeMembers, label: siden }}
+          />
+          <Stat
+            label="Stempler givet"
+            value={r.stampsGiven}
+            sub={r.stampsRemoved ? `${r.stampsRemoved} fjernet` : undefined}
+            trend={{ previous: forrige.stampsGiven, label: siden }}
+          />
+          <Stat
+            label="Belønninger indløst"
+            value={r.rewardsRedeemed}
+            sub={`${r.rewardsEarned} optjent`}
+            trend={{ previous: forrige.rewardsRedeemed, label: siden }}
+          />
+        </div>
+      </Sektion>
 
-      {/* De fire der uddyber. Mindre, fordi de forklarer de første. */}
-      <p className="mt-6 mb-2 text-xs font-semibold uppercase tracking-wider text-muted">
-        Nøgletal
-      </p>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat size="sm" label="Indløsningsrate" value={`${r.redemptionRate}%`} sub="Indløst / optjent" />
-        <Stat size="sm" label="Genbesøgsrate" value={`${r.revisitRate}%`} sub="≥2 besøgsdage" />
-        <Stat size="sm" label="Gns. stempler/kunde" value={r.avgStamps} sub="Aktuel saldo" />
-        <Stat size="sm" label="Rabatter indløst" value={r.discountsRedeemed} />
-      </div>
+      {/* De fire der uddyber. Mindre, fordi de forklarer de første.
+          Etiketten her stod skrevet i hånden OG sagde "Nøgletal" — altså
+          samme navn som gruppen ovenfor, sat over den gruppe, der uddyber
+          den. To grupper med samme navn er værre end ingen navne. */}
+      <Sektion titel="Rater og gennemsnit">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Stat
+            size="sm"
+            label="Indløsningsrate"
+            value={`${r.redemptionRate}%`}
+            sub="Indløst / optjent"
+          />
+          <Stat
+            size="sm"
+            label="Genbesøgsrate"
+            value={`${r.revisitRate}%`}
+            sub="≥2 besøgsdage"
+          />
+          <Stat
+            size="sm"
+            label="Gns. stempler/kunde"
+            value={r.avgStamps}
+            sub="Aktuel saldo"
+          />
+          <Stat
+            size="sm"
+            label="Rabatter indløst"
+            value={r.discountsRedeemed}
+          />
+        </div>
+      </Sektion>
 
-      {/* Handlinger */}
+      {/* Handlingerne får INGEN sektionsoverskrift: to knapper, der siger
+          hvad de gør, forklares ikke af ordet "Handlinger" ovenover. */}
       <div className="mt-8 flex flex-wrap gap-2">
         <ButtonLink href="/dashboard/loyalitet/kunder" size="sm">
           Giv stempel / find kunde
         </ButtonLink>
-        <ButtonLink href="/dashboard/loyalitet/rabatter/ny" variant="outline" size="sm">
+        <ButtonLink
+          href="/dashboard/loyalitet/rabatter/ny"
+          variant="outline"
+          size="sm"
+        >
           Opret rabat
         </ButtonLink>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        {/* Tæt på en belønning */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Tæt på en belønning</CardTitle>
-          </CardHeader>
-          <CardBody className="pt-2">
-            {r.nearReward.length === 0 ? (
-              <EmptyLine>Ingen kunder mangler kun 1-2 stempler lige nu.</EmptyLine>
-            ) : (
-              <ul className="divide-y divide-border text-sm">
-                {r.nearReward.map((m) => (
-                  <li key={m.memberId} className="flex items-center justify-between py-2">
-                    <Link href={`/dashboard/loyalitet/kunder/${m.memberId}`} className="hover:text-accent">
-                      {m.name}
-                    </Link>
-                    <span className="text-muted">{m.have} / {m.required}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardBody>
-        </Card>
+      <Sektion
+        titel="Kunder"
+        link={{ href: "/dashboard/loyalitet/kunder", label: "Alle kunder" }}
+      >
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Tæt på en belønning */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Tæt på en belønning</CardTitle>
+            </CardHeader>
+            <CardBody className="pt-2">
+              {r.nearReward.length === 0 ? (
+                <EmptyLine>
+                  Ingen kunder mangler kun 1-2 stempler lige nu.
+                </EmptyLine>
+              ) : (
+                <ul className="divide-y divide-border text-sm">
+                  {r.nearReward.map((m) => (
+                    <li
+                      key={m.memberId}
+                      className="flex items-center justify-between py-2"
+                    >
+                      <Link
+                        href={`/dashboard/loyalitet/kunder/${m.memberId}`}
+                        className="hover:text-accent"
+                      >
+                        {m.name}
+                      </Link>
+                      <span className="text-muted">
+                        {m.have} / {m.required}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardBody>
+          </Card>
 
-        {/* Mest aktive kunder */}
+          {/* Mest aktive kunder */}
+          <Card>
+            <CardHeader className="flex items-center justify-between">
+              <CardTitle>Mest aktive kunder</CardTitle>
+              {r.mostPopularReward ? (
+                <span className="text-xs text-muted">
+                  Populær: {r.mostPopularReward}
+                </span>
+              ) : null}
+            </CardHeader>
+            <CardBody className="pt-2">
+              {r.mostActive.length === 0 ? (
+                <EmptyLine>Ingen aktivitet i perioden.</EmptyLine>
+              ) : (
+                <ul className="divide-y divide-border text-sm">
+                  {r.mostActive.map((m) => (
+                    <li
+                      key={m.memberId}
+                      className="flex items-center justify-between py-2"
+                    >
+                      <Link
+                        href={`/dashboard/loyalitet/kunder/${m.memberId}`}
+                        className="hover:text-accent"
+                      >
+                        {m.name}
+                      </Link>
+                      <span className="text-muted">{m.value} stempler</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardBody>
+          </Card>
+        </div>
+      </Sektion>
+
+      {/* Kortet har ingen egen overskrift: sektionen siger det allerede, og
+          den samme titel to gange over hinanden ligner en fejl. */}
+      <Sektion titel="Seneste aktivitet">
         <Card>
-          <CardHeader className="flex items-center justify-between">
-            <CardTitle>Mest aktive kunder</CardTitle>
-            {r.mostPopularReward ? (
-              <span className="text-xs text-muted">
-                Populær: {r.mostPopularReward}
-              </span>
-            ) : null}
-          </CardHeader>
-          <CardBody className="pt-2">
-            {r.mostActive.length === 0 ? (
+          <CardBody>
+            {r.recent.length === 0 ? (
               <EmptyLine>Ingen aktivitet i perioden.</EmptyLine>
             ) : (
               <ul className="divide-y divide-border text-sm">
-                {r.mostActive.map((m) => (
-                  <li key={m.memberId} className="flex items-center justify-between py-2">
-                    <Link href={`/dashboard/loyalitet/kunder/${m.memberId}`} className="hover:text-accent">
-                      {m.name}
-                    </Link>
-                    <span className="text-muted">{m.value} stempler</span>
+                {r.recent.map((t) => (
+                  <li
+                    key={t.id}
+                    className="flex items-center justify-between py-2"
+                  >
+                    <span>
+                      <span className="font-medium">{t.memberName}</span>
+                      <span className="text-muted">
+                        {" "}
+                        ·{" "}
+                        {
+                          TXN_TYPE_LABELS[
+                            t.type as keyof typeof TXN_TYPE_LABELS
+                          ]
+                        }
+                      </span>
+                    </span>
+                    <span className="text-xs text-muted">
+                      {t.stamps > 0 ? `+${t.stamps} · ` : ""}
+                      {new Date(t.createdAt).toLocaleDateString("da-DK")}
+                    </span>
                   </li>
                 ))}
               </ul>
             )}
           </CardBody>
         </Card>
-      </div>
-
-      {/* Seneste aktivitet */}
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>Seneste aktivitet</CardTitle>
-        </CardHeader>
-        <CardBody className="pt-2">
-          {r.recent.length === 0 ? (
-            <EmptyLine>Ingen aktivitet i perioden.</EmptyLine>
-          ) : (
-            <ul className="divide-y divide-border text-sm">
-              {r.recent.map((t) => (
-                <li key={t.id} className="flex items-center justify-between py-2">
-                  <span>
-                    <span className="font-medium">{t.memberName}</span>
-                    <span className="text-muted"> · {TXN_TYPE_LABELS[t.type as keyof typeof TXN_TYPE_LABELS]}</span>
-                  </span>
-                  <span className="text-xs text-muted">
-                    {t.stamps > 0 ? `+${t.stamps} · ` : ""}
-                    {new Date(t.createdAt).toLocaleDateString("da-DK")}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardBody>
-      </Card>
+      </Sektion>
     </>
   );
 }
