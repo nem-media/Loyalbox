@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Behandlerbriks og en journalmappe i en klinik ved siden af en telefon, der viser en anmeldelse med stjerner">
+  <rect width="1200" height="630" fill="#f6f4ee"/>
+
+  <!-- Gulvlinje -->
+  <rect x="60" y="524" width="1080" height="14" rx="7" fill="#19375c" opacity="0.15"/>
+
+  <!-- ==================================================== Behandlerbriks -->
+  <g>
+    <!-- Hovedpude, let haevet -->
+    <path d="M112 296 h150 a16 16 0 0 1 16 16 v20 h-182 v-20 a16 16 0 0 1 16 -16 z" fill="#19375c" opacity="0.55"/>
+    <!-- Liggeflade -->
+    <rect x="96" y="332" width="440" height="52" rx="14" fill="#19375c" opacity="0.8"/>
+    <!-- Polstringssoem -->
+    <g stroke="#f6f4ee" stroke-width="2.5" opacity="0.35">
+      <path d="M192 336 v44"/>
+      <path d="M288 336 v44"/>
+      <path d="M384 336 v44"/>
+      <path d="M480 336 v44"/>
+    </g>
+    <!-- Ramme under -->
+    <rect x="120" y="384" width="392" height="12" rx="6" fill="#19375c" opacity="0.35"/>
+    <!-- Ben -->
+    <rect x="150" y="396" width="16" height="126" rx="6" fill="#19375c" opacity="0.4"/>
+    <rect x="466" y="396" width="16" height="126" rx="6" fill="#19375c" opacity="0.4"/>
+    <rect x="150" y="452" width="332" height="10" rx="5" fill="#19375c" opacity="0.22"/>
+  </g>
+
+  <!-- ===================================== Journalmappe med laast segl -->
+  <g transform="rotate(-4 660 340)">
+    <rect x="572" y="196" width="200" height="256" rx="12" fill="#ffffff"/>
+    <rect x="572" y="196" width="200" height="256" rx="12" fill="none" stroke="#19375c" stroke-width="3" opacity="0.2"/>
+    <!-- Faneblad -->
+    <rect x="596" y="182" width="60" height="20" rx="6" fill="#1b916a" opacity="0.7"/>
+    <!-- Linjer -->
+    <g fill="#19375c" opacity="0.14">
+      <rect x="600" y="234" width="144" height="10" rx="5"/>
+      <rect x="600" y="258" width="112" height="9" rx="4.5"/>
+      <rect x="600" y="280" width="132" height="9" rx="4.5"/>
+      <rect x="600" y="302" width="96" height="9" rx="4.5"/>
+    </g>
+    <!-- Haengelaas: fortroligt -->
+    <g transform="translate(636 336)">
+      <path d="M18 22 v-10 a18 18 0 0 1 36 0 v10" fill="none" stroke="#19375c" stroke-width="7" opacity="0.55"/>
+      <rect x="4" y="22" width="64" height="52" rx="10" fill="#19375c" opacity="0.7"/>
+      <circle cx="36" cy="46" r="7" fill="#f6f4ee"/>
+      <rect x="33" y="46" width="6" height="14" rx="3" fill="#f6f4ee"/>
+    </g>
+  </g>
+
+  <!-- =========================== Telefon: anmeldelse + neutralt svar -->
+  <g>
+    <rect x="840" y="118" width="238" height="388" rx="30" fill="#19375c"/>
+    <rect x="854" y="136" width="210" height="352" rx="18" fill="#ffffff"/>
+    <rect x="922" y="128" width="74" height="7" rx="3.5" fill="#ffffff" opacity="0.5"/>
+
+    <rect x="880" y="170" width="118" height="14" rx="7" fill="#19375c" opacity="0.75"/>
+    <rect x="880" y="194" width="72" height="10" rx="5" fill="#19375c" opacity="0.25"/>
+
+    <!-- Stjerner -->
+    <g fill="#f59e0b">
+      <path d="M891 242 l6.2 12.6 13.9 2 -10 9.8 2.4 13.8 -12.5 -6.6 -12.5 6.6 2.4 -13.8 -10 -9.8 13.9 -2 z"/>
+      <path d="M930 242 l6.2 12.6 13.9 2 -10 9.8 2.4 13.8 -12.5 -6.6 -12.5 6.6 2.4 -13.8 -10 -9.8 13.9 -2 z"/>
+      <path d="M969 242 l6.2 12.6 13.9 2 -10 9.8 2.4 13.8 -12.5 -6.6 -12.5 6.6 2.4 -13.8 -10 -9.8 13.9 -2 z"/>
+      <path d="M1008 242 l6.2 12.6 13.9 2 -10 9.8 2.4 13.8 -12.5 -6.6 -12.5 6.6 2.4 -13.8 -10 -9.8 13.9 -2 z"/>
+      <path d="M1047 242 l6.2 12.6 13.9 2 -10 9.8 2.4 13.8 -12.5 -6.6 -12.5 6.6 2.4 -13.8 -10 -9.8 13.9 -2 z"/>
+    </g>
+
+    <!-- Anmeldelsen -->
+    <rect x="880" y="308" width="160" height="11" rx="5.5" fill="#19375c" opacity="0.16"/>
+    <rect x="880" y="332" width="132" height="11" rx="5.5" fill="#19375c" opacity="0.16"/>
+
+    <!-- Klinikkens svar: kort og neutralt, derfor kun to korte linjer -->
+    <rect x="880" y="376" width="3" height="34" rx="1.5" fill="#1b916a"/>
+    <rect x="898" y="378" width="112" height="9" rx="4.5" fill="#1b916a" opacity="0.45"/>
+    <rect x="898" y="396" width="78" height="9" rx="4.5" fill="#1b916a" opacity="0.3"/>
+
+    <rect x="880" y="436" width="160" height="24" rx="7" fill="#1b916a"/>
+  </g>
+</svg>

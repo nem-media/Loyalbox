@@ -92,6 +92,377 @@ export function overskriftId(tekst: string): string {
 
 export const POSTS: BlogPost[] = [
   {
+    slug: "flere-anmeldelser-restaurant",
+    title: "Flere anmeldelser til din restaurant: timingen, gruppen og svaret",
+    metaTitle:
+      "Flere anmeldelser til restauranten — hvornår du spørger og hvordan",
+    description:
+      "En restaurant får flere kritiske anmeldelser end de fleste brancher, og de ældes hurtigere. Her er det rigtige øjeblik at spørge, gruppen du overser, og hvordan du svarer.",
+    keyword: "flere anmeldelser restaurant",
+    date: "2026-08-23",
+    readingMinutes: 8,
+    excerpt:
+      "Fire gæster spiste, én betalte — og du bad kun om én anmeldelse. Her er de tre, du lod ligge på bordet, og hvorfor en restaurants anmeldelser forældes hurtigere end andres.",
+    image: "/blog/anmeldelser-restaurant.svg",
+    imageAlt:
+      "Regningsmappe på et restaurantbord med et lille kort med QR-kode, ved siden af to vinglas og en telefon med stjernebedømmelse",
+    related: [
+      "saadan-faar-du-flere-google-anmeldelser",
+      "stempelkort-til-cafe",
+    ],
+    body: [
+      {
+        type: "p",
+        html: "Ingen anden branche bliver valgt så hårdt på anmeldelser som restauranter. Folk står på gaden med telefonen og vælger mellem to steder, de kan se herfra — og stjernerne afgør det på fem sekunder.",
+      },
+      {
+        type: "p",
+        html: "Samtidig er restauranten den branche, der har sværest ved at holde et pænt gennemsnit. Det er ikke fordi maden er dårligere end andre branchers produkter. Det er, fordi oplevelsen består af så mange dele.",
+      },
+
+      { type: "h2", text: "Derfor får restauranter mere kritik end andre" },
+      {
+        type: "p",
+        html: "Et besøg hos frisøren er én ting, der går godt eller skidt. Et restaurantbesøg er <strong>otte</strong>: bordbestillingen, modtagelsen, ventetiden på menukortet, drikkevarerne, maden, tempoet, støjniveauet og regningen.",
+      },
+      {
+        type: "p",
+        html: "Går syv af dem perfekt og én galt, skriver gæsten om den ene. Det er ikke urimeligt — det er bare matematik. Og det betyder, at du ikke kan undgå kritiske anmeldelser ved at være god nok. Du kan kun sørge for, at der er nok almindelige omkring dem.",
+      },
+      {
+        type: "note",
+        title: "Mængde er forsvar",
+        html: "Får du to anmeldelser om måneden, flytter en enkelt etter dit gennemsnit synligt. Får du tredive, gør den ingenting. Det er den vigtigste grund til at gøre indsamlingen til en rutine frem for noget, man tager fat på, når gennemsnittet er faldet.",
+      },
+
+      {
+        type: "h2",
+        text: "Gruppen ved bordet: tre anmeldelser du ikke beder om",
+      },
+      {
+        type: "p",
+        html: "Her er det, der adskiller restauranten fra næsten alle andre brancher: <strong>fire mennesker spiste, men kun én betalte</strong>.",
+      },
+      {
+        type: "p",
+        html: "Spørger du kun ved kassen eller i betalingsøjeblikket, beder du om én anmeldelse ud af fire mulige. De tre andre havde nøjagtig samme oplevelse, har nøjagtig samme telefon i lommen — og bliver aldrig spurgt.",
+      },
+      {
+        type: "p",
+        html: "Løsningen er, at opfordringen skal ligge <strong>på bordet</strong> og ikke kun ved betalingen. Et lille kort i regningsmappen eller en holder på bordet ses af alle, der sidder der, ikke kun af den, der har kortet fremme.",
+      },
+      {
+        type: "table",
+        head: ["Placering", "Hvem ser den", "Bedst til"],
+        rows: [
+          [
+            "<strong>I regningsmappen</strong>",
+            "Alle ved bordet, mens regningen går rundt",
+            "Det stærkeste enkeltsted — timingen og publikum passer",
+          ],
+          [
+            "<strong>Holder på bordet</strong>",
+            "Alle, hele måltidet igennem",
+            "Steder uden regningsmappe; risikerer at blive tapet væk",
+          ],
+          [
+            "<strong>Ved kassen</strong>",
+            "Kun den, der betaler",
+            "Take-away og barer, hvor der ikke sidder en gruppe",
+          ],
+          [
+            "<strong>På kvitteringen</strong>",
+            "Kun betaleren, og først bagefter",
+            "Bedre end ingenting; svageste timing",
+          ],
+        ],
+      },
+
+      { type: "h2", text: "Det rigtige øjeblik" },
+      {
+        type: "p",
+        html: "Det bedste tidspunkt er, mens gæsterne <strong>stadig sidder ned</strong> og har spist færdigt — altså i den rolige periode mellem sidste tallerken og overtøjet. Der er de mætte, tilfredse og har hænderne fri.",
+      },
+      {
+        type: "p",
+        html: "Spørg ikke, mens de spiser: du afbryder præcis dét, de kom efter. Og spørg ikke, når de rejser sig — så er jakken på, og telefonen er i lommen.",
+      },
+      {
+        type: "p",
+        html: "Personalet skal ikke skulle huske en tale. Det eneste, der skal siges, når regningen leveres, er én sætning om, at man må scanne, hvis man vil sige noget om aftenen. Resten gør kortet.",
+      },
+
+      { type: "h2", text: "En restaurants anmeldelser ældes hurtigere" },
+      {
+        type: "p",
+        html: "Det her overses næsten altid. En anmeldelse af en frisør fra 2023 beskriver sandsynligvis stadig den samme frisør. En anmeldelse af en restaurant fra 2023 beskriver <strong>et andet køkken</strong>: menuen er skiftet, kokken er måske skiftet, og halvdelen af personalet er nye.",
+      },
+      {
+        type: "p",
+        html: "Både Google og forbrugerne vægter nye anmeldelser højere end gamle. For en restaurant er det ikke bare en algoritme-detalje — det er reelt: de gamle anmeldelser beskriver et sted, der ikke findes længere. Skifter du menukort, bør du regne med, at anmeldelserne skal skiftes med.",
+      },
+      {
+        type: "p",
+        html: 'Derfor er en jævn strøm vigtigere her end nogen andre steder. <a href="/blog/saadan-faar-du-flere-google-anmeldelser">Metoden er den samme som i andre brancher</a>, men frekvensen betyder mere.',
+      },
+
+      { type: "h2", text: "Svaret på den dårlige anmeldelse" },
+      {
+        type: "p",
+        html: "Restaurantsvar er dem, folk læser flittigst — blandt andet fordi de så tit er dårlige. Et defensivt svar om, at gæsten tog fejl af, hvordan en bearnaise skal smage, koster flere gæster end anmeldelsen gjorde.",
+      },
+      {
+        type: "ol",
+        items: [
+          "<strong>Svar på det konkrete.</strong> Var maden kold, så nævn maden. Et standardsvar om at &quot;vi sætter altid gæsten højest&quot; læses som en skabelon, fordi det er en.",
+          "<strong>Fortæl hvad du gør ved det.</strong> &quot;Vi har ændret rækkefølgen i udleveringen&quot; er stærkere end en undskyldning, fordi det viser et køkken, der lytter.",
+          "<strong>Diskutér aldrig regningen offentligt.</strong> Uenighed om, hvad der stod på kortet, hører til i en mail. Offentligt taber du, uanset hvem der har ret.",
+          "<strong>Svar også på de gode.</strong> To linjer er nok, og det gør profilen levende. En profil, hvor kun de sure får svar, ser ud som en, der brandslukker.",
+        ],
+      },
+
+      { type: "h2", text: "Genbesøget: stempelkort i en restaurant" },
+      {
+        type: "p",
+        html: "Anmeldelser skaffer nye gæster. Stamgæsten er dén, der betaler huslejen — og her ligner restauranten cafeen, bare i langsommere tempo.",
+      },
+      {
+        type: "p",
+        html: "En gæst, der kommer en til to gange om måneden, fylder <strong>otte felter</strong> på et halvt til et helt år. Ti ville være for langt. Belønningen bør være noget, der trækker et <em>nyt</em> besøg med sig: en dessert eller en velkomstdrink koster dig lidt i indkøb og kræver, at gæsten kommer og spiser.",
+      },
+      {
+        type: "note",
+        title: "Bland aldrig de to ting sammen",
+        html: "Giv aldrig et stempel, en dessert eller en rabat for en anmeldelse. Det er forbudt efter både Googles og Trustpilots regler og efter markedsføringslovens bilag 1 — og konsekvensen rammer restauranten. Du må belønne genbesøg. Bare ikke det, gæsten skriver.",
+      },
+      {
+        type: "faq",
+        items: [
+          {
+            q: "Hvornår skal jeg bede gæsterne om en anmeldelse?",
+            a: "Mens de stadig sidder ned og har spist færdigt — i den rolige periode mellem sidste tallerken og overtøjet. Der er de mætte og har hænderne fri. Spørg ikke mens de spiser, og ikke når de rejser sig, hvor jakken er på og telefonen i lommen.",
+          },
+          {
+            q: "Hvor skal QR-koden sidde i en restaurant?",
+            a: "I regningsmappen er stærkest, fordi den ses af alle ved bordet, mens regningen går rundt. Sidder opfordringen kun ved kassen, beder du reelt kun om én anmeldelse ud af fire mulige, selvom alle fire havde samme oplevelse.",
+          },
+          {
+            q: "Hvorfor får restauranter flere dårlige anmeldelser end andre?",
+            a: "Fordi oplevelsen består af mange dele: bordbestilling, modtagelse, ventetid, drikkevarer, mad, tempo, støj og regning. Går syv godt og én galt, skriver gæsten om den ene. Du kan ikke undgå kritik ved at være god nok — kun sørge for, at der er nok almindelige anmeldelser omkring den.",
+          },
+          {
+            q: "Skal jeg svare på alle anmeldelser?",
+            a: "Ja, også de gode — to linjer er nok. En profil, hvor kun de kritiske får svar, ser ud som en, der brandslukker. På de kritiske: svar på det konkrete, fortæl hvad du gør ved det, og diskutér aldrig regningen offentligt.",
+          },
+          {
+            q: "Hvor mange felter skal et stempelkort til en restaurant have?",
+            a: "Otte. En gæst, der kommer en til to gange om måneden, er så et halvt til et helt år om at fylde kortet. Ti felter ville være for langt, og så begynder de fleste ikke at samle.",
+          },
+          {
+            q: "Bliver gamle anmeldelser mindre værd?",
+            a: "Ja, og hurtigere for en restaurant end for de fleste. En anmeldelse fra for tre år siden beskriver et andet menukort, ofte en anden kok og halvt nyt personale. Både Google og gæsterne vægter friske anmeldelser højere, så skifter du menu, bør anmeldelserne følge med.",
+          },
+        ],
+      },
+      {
+        type: "cta",
+        text: "Gør det nemt for hele bordet at anmelde jer — ikke kun den, der betaler.",
+        href: "/reviewstander",
+        label: "Se reviewstanderen",
+      },
+    ],
+  },
+  {
+    slug: "anmeldelser-klinik",
+    title:
+      "Anmeldelser til klinikker: tavshedspligten, reglerne og det rigtige svar",
+    metaTitle:
+      "Anmeldelser til klinikker — hvad du må svare, og hvad du ikke må",
+    description:
+      "Et venligt svar på en anmeldelse kan bekræfte, at personen var patient — og det er fortroligt. Her er tavshedspligten, de særlige markedsføringsregler og hvordan du svarer alligevel.",
+    keyword: "anmeldelser klinik",
+    date: "2026-08-23",
+    readingMinutes: 9,
+    excerpt:
+      "Klinikker er underlagt regler, ingen andre brancher har: tavshedspligt, særlige markedsføringsregler og helbredsoplysninger. Det ændrer både hvad du må skrive, og hvem der fører tilsyn.",
+    image: "/blog/anmeldelser-klinik.svg",
+    imageAlt:
+      "Behandlerbriks og en journalmappe i en klinik ved siden af en telefon, der viser en anmeldelse med stjerner",
+    related: [
+      "saadan-faar-du-flere-google-anmeldelser",
+      "flere-anmeldelser-frisor",
+    ],
+    body: [
+      {
+        type: "p",
+        html: "Anmeldelser betyder meget for en klinik. Folk vælger fysioterapeut, kiropraktor eller tandlæge på tillid, og de kan ikke vurdere fagligheden selv — så de læser, hvad andre skriver.",
+      },
+      {
+        type: "p",
+        html: "Men klinikken er den eneste af de her brancher, der er underlagt <strong>tre regelsæt, ingen andre har</strong>: tavshedspligt efter sundhedsloven, en selvstændig lov om markedsføring af sundhedsydelser, og GDPR's skærpede regler for helbredsoplysninger.",
+      },
+      {
+        type: "p",
+        html: "Det ændrer ikke, at du skal have anmeldelser. Det ændrer, hvad du må skrive — og hvem der fører tilsyn med dig.",
+      },
+
+      { type: "h2", text: "Fælden: et venligt svar kan bryde tavshedspligten" },
+      {
+        type: "p",
+        html: "Det her er den vigtigste del af artiklen, og det er en fejl, mange klinikker begår i god tro.",
+      },
+      {
+        type: "p",
+        html: "En patient skriver en anmeldelse. Du svarer venligt: <em>&quot;Tak fordi du kom forbi til din behandling — dejligt at høre, at ryggen har det bedre.&quot;</em>",
+      },
+      {
+        type: "p",
+        html: "Du har netop <strong>offentligt bekræftet</strong>, at personen er patient hos dig, og hvad de blev behandlet for. Tavshedspligten efter sundhedslovens kapitel 9 dækker ikke kun journalen — den dækker også <strong>selve det forhold, at nogen er patient</strong>.",
+      },
+      {
+        type: "note",
+        title: "At de selv har skrevet det, er ikke et samtykke",
+        html: "Fordi patienten selv har lagt anmeldelsen op, kan det virke som om oplysningen allerede er offentlig. Men patienten har afgivet oplysningen om <em>sig selv</em>. Du er underlagt tavshedspligt, og den ophæves ikke af, at patienten selv har sagt noget — der skal et samtykke til, og en anmeldelse er ikke et samtykke.",
+      },
+      {
+        type: "p",
+        html: "Anmeldelsen indeholder samtidig helbredsoplysninger om personen, og det er en særlig kategori af personoplysninger efter GDPR. Bekræfter eller uddyber du dem, behandler du dem.",
+      },
+
+      { type: "h2", text: "Sådan svarer du alligevel" },
+      {
+        type: "p",
+        html: "Du skal svare — et ubesvaret svar ser sløset ud. Du skal bare svare <strong>uden at bekræfte noget som helst</strong> om personen.",
+      },
+      {
+        type: "ol",
+        items: [
+          "<strong>Skriv generelt, ikke personligt.</strong> &quot;Tak for din tilbagemelding. Vi er glade for, når et forløb hjælper&quot; siger det samme uden at bekræfte, at netop denne person har været her.",
+          "<strong>Nævn aldrig behandlingen, diagnosen eller forløbet.</strong> Heller ikke for at rette en misforståelse, og heller ikke hvis anmelderen selv har skrevet det.",
+          "<strong>Flyt det ud af tråden.</strong> &quot;Vil du kontakte klinikken direkte, så vi kan tale om det?&quot; er både det rigtige svar fagligt og det eneste sted, du overhovedet må gå i detaljer.",
+          "<strong>Brug samme svar til kritik.</strong> Fristelsen til at forklare, at patienten ikke fulgte anvisningerne, er stor. Det er også dét, der gør mest skade — både juridisk og over for de læsere, der overvejer at ringe.",
+        ],
+      },
+      {
+        type: "p",
+        html: "Kort sagt: et klinikkens svar må ikke kunne læses som en bekræftelse af, at anmelderen er patient. Det lyder stift, men det bliver hurtigt naturligt — og det er langt bedre end alternativet.",
+      },
+
+      { type: "h2", text: "Markedsføring af sundhedsydelser er sin egen lov" },
+      {
+        type: "p",
+        html: "De fleste virksomheder skal forholde sig til markedsføringsloven. Klinikker skal forholde sig til <strong>lov om markedsføring af sundhedsydelser</strong> oveni — og tilsynet ligger hos <strong>Styrelsen for Patientsikkerhed</strong>, ikke hos Forbrugerombudsmanden.",
+      },
+      {
+        type: "p",
+        html: "Hovedreglen er <strong>saglighed</strong>: markedsføring af sundhedsydelser må ikke være så sælgende som markedsføring af andre varer. Konkret betyder det blandt andet:",
+      },
+      {
+        type: "ul",
+        items: [
+          "Oplysninger skal være <strong>korrekte, fyldestgørende og dokumenterbare</strong>. Kan du ikke dokumentere en påstand om virkning, må den ikke stå der.",
+          "Ingen <strong>overdrevne udsagn</strong> om helbredelse, og ingen skræmmende beskrivelser af, hvad der sker, hvis man ikke bliver behandlet.",
+          "Reglerne rækker ind på <strong>sociale medier</strong>, hvor der er skærpede begrænsninger for, hvordan sundhedsydelser må markedsføres.",
+        ],
+      },
+      {
+        type: "note",
+        title: "Læs vejledningen, før du laver kampagner",
+        html: "Styrelsen for Patientsikkerhed har en vejledning om markedsføring af sundhedsydelser, og reglerne er strammere, end de fleste regner med — også for det, der bare virker som en glad opdatering på Facebook. Det er billigere at bruge en time på den end at få en tilsynssag.",
+      },
+
+      { type: "h2", text: "Anmeldelser du bruger i din egen markedsføring" },
+      {
+        type: "p",
+        html: "Her mødes de to regelsæt, og det fanger mange.",
+      },
+      {
+        type: "p",
+        html: "Tager du en rosende patientanmeldelse og sætter den på din forside, er det ikke længere bare en anmeldelse — det er <strong>markedsføring af en sundhedsydelse</strong>. Så gælder saglighedskravet: står der i citatet, at behandlingen kurerede noget, skal den påstand kunne dokumenteres.",
+      },
+      {
+        type: "p",
+        html: "Oveni gælder markedsføringslovens bilag 1, nr. 23c, som forbyder at give et fordrejet billede af forbrugeranmeldelser. Viser du kun de bedste uden at oplyse det, er det en overtrædelse — uanset branche.",
+      },
+      {
+        type: "p",
+        html: "Det enkleste og sikreste er at <strong>henvise til profilen frem for at citere</strong>: link til dine anmeldelser i stedet for at klippe de pæneste ud. Så viser du et retvisende billede, og du kommer ikke til at markedsføre en behandlingspåstand, du skal kunne dokumentere.",
+      },
+
+      { type: "h2", text: "Sådan spørger du — og hvad du ikke må" },
+      {
+        type: "p",
+        html: "Selve indsamlingen følger de almindelige regler, og de er de samme som for alle andre:",
+      },
+      {
+        type: "ul",
+        items: [
+          "<strong>Spørg alle ens.</strong> Du må ikke vælge, hvem der bliver spurgt, ud fra hvordan forløbet gik.",
+          "<strong>Beløn aldrig.</strong> Ingen rabat på næste behandling, ingen gratis produkter, ingen lodtrækning.",
+          "<strong>Bed ikke om positive anmeldelser.</strong> &quot;Er du glad, så giv os fem stjerner&quot; er i strid med reglerne.",
+        ],
+      },
+      {
+        type: "p",
+        html: "Det praktiske råd er det samme som i de andre brancher: gør det synligt ved udgangen eller ved betalingen, og gør vejen ét tap lang. Forskellen er, at <strong>opfordringen skal være neutral og lavmælt</strong> — en klinik, der beder om stjerner i store bogstaver, får et sagligheds-problem oveni.",
+      },
+      {
+        type: "note",
+        title: "Vær varsom med hvem der spørger",
+        html: "Behandleren bør ikke selv bede patienten om en anmeldelse umiddelbart efter en behandling. Der er en ubalance i forholdet — patienten kan føle, at det er svært at sige nej til den, der lige har behandlet dem. Et skilt ved udgangen løser det: opfordringen kommer fra klinikken, ikke fra behandleren i rummet.",
+      },
+
+      { type: "h2", text: "Genbesøg og forløb" },
+      {
+        type: "p",
+        html: "Klinikken kommer sjældnest af alle fire brancher: typisk hver anden til tredje måned. Det betyder <strong>fem felter</strong> på et stempelkort — mere ville tage over et år, og så begynder ingen.",
+      },
+      {
+        type: "p",
+        html: "Men vær opmærksom på noget vigtigere: et loyalitetsprogram må aldrig kunne læses som en tilskyndelse til <em>flere behandlinger, end der er brug for</em>. Det er dårlig faglighed, og det kolliderer med saglighedskravet. En belønning, der er knyttet til antallet af behandlinger, er problematisk i en branche, hvor det ikke er patienten, der afgør behovet.",
+      },
+      {
+        type: "p",
+        html: "Vil du alligevel have et kort, så lad belønningen være noget, der ikke er en behandling — et produkt, en træningsseance eller en rabat på noget frivilligt. Så belønner du troskab uden at belønne forbrug af sundhedsydelser.",
+      },
+      {
+        type: "faq",
+        items: [
+          {
+            q: "Må jeg svare på en anmeldelse fra en patient?",
+            a: "Ja, men svaret må ikke bekræfte, at personen er eller har været patient hos dig, og det må ikke nævne behandling, diagnose eller forløb. Tavshedspligten efter sundhedslovens kapitel 9 dækker også selve det forhold, at nogen er patient. Svar generelt, og bed dem kontakte klinikken direkte, hvis der skal tales om noget konkret.",
+          },
+          {
+            q: "Patienten har jo selv skrevet det offentligt — gælder tavshedspligten stadig?",
+            a: "Ja. Patienten har afgivet oplysningen om sig selv, men du er fortsat underlagt tavshedspligt. Den ophæves ikke af, at patienten selv har sagt noget offentligt — der skal et samtykke til, og en anmeldelse er ikke et samtykke.",
+          },
+          {
+            q: "Må jeg vise patientanmeldelser på min hjemmeside?",
+            a: "Så bliver de til markedsføring af en sundhedsydelse, og saglighedskravet gælder: påstande om virkning skal kunne dokumenteres. Samtidig forbyder markedsføringslovens bilag 1, nr. 23c, at man giver et fordrejet billede ved kun at vise de bedste. Det sikreste er at linke til profilen frem for at citere udvalgte anmeldelser.",
+          },
+          {
+            q: "Hvem fører tilsyn med en kliniks markedsføring?",
+            a: "Styrelsen for Patientsikkerhed fører tilsyn med markedsføring af sundhedsydelser. Det er altså ikke kun Forbrugerombudsmanden, du skal forholde dig til, og reglerne er strammere end for andre brancher — markedsføringen skal være saglig og må ikke være så sælgende som for almindelige varer.",
+          },
+          {
+            q: "Må jeg give rabat på næste behandling for en anmeldelse?",
+            a: "Nej. Belønninger knyttet til anmeldelser er forbudt efter både Googles og Trustpilots regler og efter markedsføringslovens bilag 1. I en klinik er det ekstra problematisk, fordi en rabat på en behandling også kan læses som en tilskyndelse til mere behandling, end der er brug for.",
+          },
+          {
+            q: "Giver et stempelkort mening i en klinik?",
+            a: "Det kan det, men med forbehold. Patienterne kommer sjældent, så fem felter er typisk grænsen. Vigtigere er det, at belønningen ikke må tilskynde til flere behandlinger end nødvendigt — lad den derfor være noget andet end en behandling, for eksempel et produkt eller noget frivilligt.",
+          },
+        ],
+      },
+      {
+        type: "cta",
+        text: "Gør det nemt og lavmælt for patienterne at anmelde klinikken.",
+        href: "/reviewstander",
+        label: "Se reviewstanderen",
+      },
+    ],
+  },
+  {
     slug: "stempelkort-til-cafe",
     title: "Stempelkort til café: sådan får du gæsterne til at komme oftere",
     metaTitle: "Stempelkort til café — antal, belønning og regnestykket",
