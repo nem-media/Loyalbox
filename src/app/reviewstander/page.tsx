@@ -40,7 +40,7 @@ import {
 
 const title = "Reviewstander med NFC og QR";
 const description =
-  "Gør det nemt for kunderne at anmelde dig. Kunden holder mobilen hen til standeren eller scanner QR-koden og kommer direkte videre. Se hvordan den virker og hvad den koster.";
+  "Gør det nemt for kunderne at anmelde dig på Google, Trustpilot eller Facebook. Kunden holder mobilen hen til standeren eller scanner QR-koden og kommer direkte videre. Se hvordan den virker og hvad den koster.";
 
 export const metadata: Metadata = {
   title,
@@ -55,6 +55,12 @@ export const metadata: Metadata = {
     "NFC stander",
     "QR stander",
     "få flere Google anmeldelser",
+    // Trustpilot stod kun i ét FAQ-svar, mens en hel sektion talte om
+    // Google. Trafik fra Trustpilot-guiden landede altså på en side, der
+    // så ud til kun at kunne det ene.
+    "Trustpilot stander",
+    "stander til Trustpilot anmeldelser",
+    "flere Trustpilot anmeldelser",
   ],
   alternates: { canonical: "/reviewstander" },
   openGraph: {
@@ -86,10 +92,26 @@ const STEPS = [
 ];
 
 const PLACES: { name: string; branche: Branche; where: string }[] = [
-  { name: "Café og kaffebar", branche: "cafe", where: "Ved kassen, mens kunden venter på kaffen." },
-  { name: "Restaurant", branche: "restaurant", where: "Ved betalingen eller på vej ud ad døren." },
-  { name: "Frisør og barber", branche: "frisoer", where: "I receptionen, når kunden betaler." },
-  { name: "Klinik og skønhed", branche: "skoenhed", where: "I receptionen efter behandlingen." },
+  {
+    name: "Café og kaffebar",
+    branche: "cafe",
+    where: "Ved kassen, mens kunden venter på kaffen.",
+  },
+  {
+    name: "Restaurant",
+    branche: "restaurant",
+    where: "Ved betalingen eller på vej ud ad døren.",
+  },
+  {
+    name: "Frisør og barber",
+    branche: "frisoer",
+    where: "I receptionen, når kunden betaler.",
+  },
+  {
+    name: "Klinik og skønhed",
+    branche: "skoenhed",
+    where: "I receptionen efter behandlingen.",
+  },
   { name: "Butik", branche: "butik", where: "Ved kassen, lige efter købet." },
   { name: "Værksted", branche: "vaerksted", where: "Ved udlevering af bilen." },
 ];
@@ -114,6 +136,14 @@ const FAQ = [
   {
     q: "Kan jeg bruge den til Google-anmeldelser?",
     a: "Ja. Du sætter selv linket til din Google-profil. Med Reviewstander Pro kan du vælge flere platforme — Google, Trustpilot og Facebook — og kunden vælger selv, hvor de vil skrive.",
+  },
+  {
+    q: "Kan jeg bruge den til Trustpilot?",
+    a: "Ja. Med Reviewstander Pro sætter du dit Trustpilot-link ved siden af Google og Facebook, og kunden vælger selv. Vil du kun have Trustpilot, kan skiltet uden konto sende direkte til din Trustpilot-side. Trustpilot tillader udtrykkeligt QR-koder som invitation, så længe alle kunder inviteres ens.",
+  },
+  {
+    q: "Kan jeg skifte fra Google til Trustpilot senere?",
+    a: "Med Reviewstander Pro ja — destinationen ændres i dashboardet, og standeren skal ikke trykkes om. Uden Pro sættes linket ved opsætningen og ligger fast.",
   },
   {
     q: "Kan standeren få mit logo?",
@@ -209,16 +239,16 @@ export default function ReviewstanderPage() {
                 <ButtonLink href="/produkter/reviewstander" size="lg">
                   Bestil reviewstander
                 </ButtonLink>
-                <ButtonLink
-                  href="#saadan"
-                  variant="outline-invert"
-                  size="lg"
-                >
+                <ButtonLink href="#saadan" variant="outline-invert" size="lg">
                   Se hvordan den virker
                 </ButtonLink>
               </div>
+              {/* Platformene står her, fordi det er det første spørgsmål fra
+                  en besøgende, der kom for Trustpilot. Stod det kun i en FAQ
+                  langt nede, konkluderede de, at produktet var Google-only. */}
               <p className="mt-5 text-sm text-white/50">
-                QR og NFC i samme stander · ingen app for dine kunder
+                Google, Trustpilot eller Facebook · QR og NFC i samme stander ·
+                ingen app for dine kunder
               </p>
             </div>
           </div>
@@ -307,8 +337,9 @@ export default function ReviewstanderPage() {
               </h3>
               <p className="mt-2 leading-relaxed text-muted">
                 Ved siden af den offentlige anmeldelse kan kunden vælge at sende
-                dig feedback direkte. Det er et tilbud til den kunde, der hellere
-                vil sige tingene til dig end på nettet — ikke en spærring.{" "}
+                dig feedback direkte. Det er et tilbud til den kunde, der
+                hellere vil sige tingene til dig end på nettet — ikke en
+                spærring.{" "}
                 <strong>
                   Alle kunder har adgang til det offentlige anmeldelseslink,
                   uanset hvad de svarer.
@@ -318,6 +349,86 @@ export default function ReviewstanderPage() {
                 kan koste dig dine anmeldelser.
               </p>
             </div>
+          </div>
+        </section>
+
+        {/* ------------------------------------------------------- platforme */}
+        {/* Egen sektion med ANKER, så Trustpilot-guiden kan sende læseren
+            direkte hertil i stedet for til toppen af en side, hvor det første
+            afsnit handler om Google. */}
+        <section id="platforme" className="border-t border-border bg-muted-bg">
+          <div className="mx-auto max-w-4xl px-4 py-16">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Google, Trustpilot eller Facebook — du bestemmer hvor
+            </h2>
+            <p className="mt-4 max-w-2xl leading-relaxed text-foreground/90">
+              Standeren er ikke bundet til én platform. Du sætter selv, hvor
+              kunden skal hen — og med Pro kan du tilbyde flere og lade kunden
+              vælge selv.
+            </p>
+
+            <div className="mt-8 overflow-x-auto">
+              <table className="w-full min-w-[34rem] border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-background text-left">
+                    <th className="etiket px-4 py-3">Løsning</th>
+                    <th className="etiket px-4 py-3">Platforme</th>
+                    <th className="etiket px-4 py-3">Kunden vælger selv</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-border/60">
+                    <td className="px-4 py-3 align-top font-medium">
+                      Skilt uden konto
+                    </td>
+                    <td className="px-4 py-3 align-top">
+                      Én valgfri — Google, Trustpilot, Facebook eller eget link
+                    </td>
+                    <td className="px-4 py-3 align-top text-muted">
+                      Nej — QR&apos;en går direkte videre
+                    </td>
+                  </tr>
+                  <tr className="border-b border-border/60">
+                    <td className="px-4 py-3 align-top font-medium">
+                      Reviewstander
+                    </td>
+                    <td className="px-4 py-3 align-top">Google</td>
+                    <td className="px-4 py-3 align-top text-muted">Nej</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-3 align-top font-medium">
+                      Reviewstander Pro
+                    </td>
+                    <td className="px-4 py-3 align-top">
+                      Google, Trustpilot og Facebook — plus et eget link, fx
+                      menukort
+                    </td>
+                    <td className="px-4 py-3 align-top">
+                      Ja, alle valg vises med samme vægt
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p className="mt-6 max-w-2xl leading-relaxed text-foreground/90">
+              Med Pro kan du desuden{" "}
+              <strong>skifte destination bagefter</strong> uden at trykke
+              standeren om. Beslutter du dig for at satse på Trustpilot i stedet
+              for Google, tager det et klik i dashboardet.
+            </p>
+
+            <p className="mt-4 max-w-2xl text-sm text-muted">
+              Er du i tvivl om, hvilken platform der betyder mest for din
+              forretning, gennemgår vi det i guiden til{" "}
+              <Link
+                href="/blog/flere-trustpilot-anmeldelser"
+                className="font-medium text-accent"
+              >
+                flere Trustpilot-anmeldelser
+              </Link>{" "}
+              — inklusive reglerne, du skal kende, før du spørger.
+            </p>
           </div>
         </section>
 
@@ -399,7 +510,9 @@ export default function ReviewstanderPage() {
                   key={step.label}
                   className="box-shape border border-border bg-card p-4 text-center"
                 >
-                  <span className="text-xs font-medium text-muted">{i + 1}</span>
+                  <span className="text-xs font-medium text-muted">
+                    {i + 1}
+                  </span>
                   <step.Icon className="mx-auto mt-1 h-8 w-8 text-accent" />
                   <p className="mt-1 font-bold tracking-tight">{step.label}</p>
                 </li>
@@ -486,7 +599,9 @@ export default function ReviewstanderPage() {
                         <ButtonLink
                           href={`/produkter/${p.slug}`}
                           size="lg"
-                          variant={p.slug === "reviewstander" ? "primary" : "outline"}
+                          variant={
+                            p.slug === "reviewstander" ? "primary" : "outline"
+                          }
                           className="w-full"
                         >
                           Se {p.name}
@@ -600,11 +715,7 @@ export default function ReviewstanderPage() {
               <ButtonLink href="/produkter/reviewstander" size="lg">
                 Bestil reviewstander
               </ButtonLink>
-              <ButtonLink
-                href="/signup"
-                variant="outline-invert"
-                size="lg"
-              >
+              <ButtonLink href="/signup" variant="outline-invert" size="lg">
                 Kom i gang med LoyalSum
               </ButtonLink>
             </div>

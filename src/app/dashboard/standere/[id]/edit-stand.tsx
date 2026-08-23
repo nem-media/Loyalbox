@@ -93,9 +93,15 @@ export function EditStand({
         </>
       ) : (
         <>
+          {/* Teksten sagde før "Glade kunder (4-5 stjerner) sendes til din
+              Google-anmeldelse". Det var en beskrivelse af REVIEW GATING og
+              stammede fra dengang, flowet delte ved fire stjerner. Adfærden
+              blev fjernet (se `reviewChoices()`), men teksten blev stående —
+              så panelet lovede stadig en funktion, der både er væk og er
+              ulovlig efter markedsføringslovens bilag 1, nr. 23c. */}
           <Field
             label="Google Review-link"
-            hint="Glade kunder (4-5 stjerner) sendes til din Google-anmeldelse."
+            hint="Alle kunder får linket — uanset hvor mange stjerner de giver."
           >
             <Input
               name="google_review_url"

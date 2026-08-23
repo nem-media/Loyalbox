@@ -1071,7 +1071,7 @@ export const POSTS: BlogPost[] = [
       {
         type: "cta",
         text: "Gør det nemt for kunderne at anmelde dig — på Trustpilot, Google eller begge dele.",
-        href: "/reviewstander",
+        href: "/reviewstander#platforme",
         label: "Se reviewstanderen",
       },
     ],
