@@ -2,7 +2,8 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { reviewUrl } from "@/lib/site";
-import { PageHeader } from "@/components/dashboard-shell";
+import { PageHeader, Sektion } from "@/components/dashboard-shell";
+import { DesignListe } from "./design-liste";
 import { Card, CardBody } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CreateStand } from "./create-stand";
@@ -75,6 +76,15 @@ export default async function StandsPage() {
           description="Opret din første ovenfor — giv den et navn du kan kende den på, fx “Disken”. Bagefter sætter du de links på, kunden skal kunne vælge imellem, og bestiller det fysiske skilt."
         />
       )}
+
+      {/* Designet hørte før til et selvstændigt menupunkt med SAMME ikon som
+          Standere. Det giver kun mening sammen med den stander, det trykkes
+          på, så det hører hjemme her. */}
+      {company ? (
+        <Sektion titel="Design" id="design">
+          <DesignListe companyId={company.id} />
+        </Sektion>
+      ) : null}
     </>
   );
 }

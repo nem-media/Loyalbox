@@ -121,17 +121,20 @@ export function DashboardShell({
 export function Sektion({
   titel,
   link,
+  id,
   className,
   children,
 }: {
   titel: string;
   /** "Se alle"-vejen ud af gruppen. */
   link?: { href: string; label: string };
+  /** Ankernavn, så en gammel rute kan sende folk direkte ned til gruppen. */
+  id?: string;
   className?: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className={cn("mt-8", className)}>
+    <section id={id} className={cn("mt-8 scroll-mt-6", className)}>
       <div className="mb-3 flex items-center justify-between gap-3">
         <h2 className="etiket flex items-center gap-2">
           <span aria-hidden="true" className="h-3 w-0.5 shrink-0 bg-accent" />
