@@ -92,6 +92,372 @@ export function overskriftId(tekst: string): string {
 
 export const POSTS: BlogPost[] = [
   {
+    slug: "stempelkort-til-cafe",
+    title: "Stempelkort til café: sådan får du gæsterne til at komme oftere",
+    metaTitle: "Stempelkort til café — antal, belønning og regnestykket",
+    description:
+      "Caféen er den branche, stempelkort passer allerbedst til. Her er det rigtige antal felter, hvad belønningen må koste, og den fælde i morgenrykket, der koster flest tilmeldinger.",
+    keyword: "stempelkort til café",
+    date: "2026-08-23",
+    readingMinutes: 8,
+    excerpt:
+      "Hyppige, billige køb er præcis det, et stempelkort er bygget til. Men de fleste caféer taber tilmeldingerne i det travleste kvarter af dagen — her er hvorfor, og hvad du gør ved det.",
+    image: "/blog/stempelkort-cafe.svg",
+    imageAlt:
+      "Kaffekop på en cafédisk ved siden af et lille skilt med QR-kode og en telefon, der viser et stempelkort med ti felter",
+    related: [
+      "hvor-mange-stempler-stempelkort",
+      "stempelkort-app-eller-papkort",
+    ],
+    body: [
+      {
+        type: "p",
+        html: "Hvis der findes én branche, hvor et stempelkort er oplagt, er det caféen. Køb er små, de gentages ofte, og de er allerede en vane — kunden skulle alligevel have kaffe. Kortet skal bare gøre, at vanen lander hos dig i stedet for hos naboen.",
+      },
+      {
+        type: "p",
+        html: "Netop derfor er det ærgerligt, hvor mange caféer får det halvt til at virke. Ikke fordi mekanikken er forkert, men fordi tilmeldingen skal ske i det travleste kvarter af dagen.",
+      },
+
+      {
+        type: "h2",
+        text: "Hvorfor caféen er den bedste branche til et stempelkort",
+      },
+      {
+        type: "p",
+        html: "Et stempelkort virker, når tre ting er opfyldt: kunden kommer <strong>ofte</strong>, hvert køb er <strong>lille</strong>, og valget er <strong>vanemæssigt</strong>. En café rammer alle tre.",
+      },
+      {
+        type: "p",
+        html: "Sammenlign med en klinik, hvor kunden kommer hver tredje måned til en dyr behandling. Her ville ti felter tage over to år, og belønningen skulle være så stor, at den æder fortjenesten. Cafeens gæst når ti besøg på en måned.",
+      },
+      {
+        type: "p",
+        html: "Det betyder også, at du har råd til at være generøs på antallet, hvor andre brancher må være forsigtige.",
+      },
+
+      { type: "h2", text: "Det rigtige antal felter" },
+      {
+        type: "p",
+        html: "<strong>Ti er standarden for en café</strong>, og det er ikke tilfældigt. Regn baglæns fra, hvor lang tid der må gå: en gæst, der kommer to-tre gange om ugen, fylder ti felter på cirka en måned. Det er kort nok til at føles opnåeligt og langt nok til, at belønningen ikke gives væk hver uge.",
+      },
+      {
+        type: "p",
+        html: 'Kommer dine gæster sjældnere — en café i et kontorområde med kun hverdagsgæster, for eksempel — så sæt det ned til otte. <a href="/blog/hvor-mange-stempler-stempelkort">Regnemetoden bag tallet</a> er den samme uanset branche.',
+      },
+      {
+        type: "note",
+        title: "Tjek det efter et kvartal",
+        html: "Kig på, hvor mange af de tilmeldte der faktisk <em>når</em> belønningen. Er det under en femtedel, er kortet for langt, og du har lovet en rabat, du aldrig kommer til at betale — hvilket lyder billigt, men er den dyreste variant: gæsten opgav undervejs og fik en dårlig oplevelse ud af dit loyalitetsprogram.",
+      },
+
+      { type: "h2", text: "Hvad belønningen skal være" },
+      {
+        type: "p",
+        html: "Den vigtigste regel: belønningen koster dig din <strong>indkøbspris</strong>, ikke det, der står på skiltet. En gratis kaffe koster bønner, mælk og en kop — kald det seks kroner. Ikke de fyrre, gæsten ellers ville have betalt.",
+      },
+      {
+        type: "p",
+        html: "Det er derfor et gratis produkt næsten altid er billigere for dig end en procentrabat på hele regningen. Og det er derfor, den bedste belønning som regel er <strong>mere af dét, gæsten allerede kommer efter</strong>.",
+      },
+      {
+        type: "table",
+        head: ["Belønning", "Koster dig", "Virker fordi"],
+        rows: [
+          [
+            "<strong>Gratis kaffe</strong>",
+            "Lavt — råvarepris",
+            "Er præcis det, gæsten kom efter i forvejen",
+          ],
+          [
+            "<strong>Gratis bagværk</strong>",
+            "Middel",
+            "Føles som en større gave end den koster; kan sælge en kaffe med",
+          ],
+          [
+            "<strong>20 % på hele regningen</strong>",
+            "Højt — rammer din avance direkte",
+            "Sjældent bedre end de to ovenfor, og svært at regne på",
+          ],
+          [
+            "<strong>Gratis opgradering</strong>",
+            "Meget lavt",
+            "Sirup eller havremælk koster ører og opleves som noget værd",
+          ],
+        ],
+      },
+
+      { type: "h2", text: "Regnestykket for en café" },
+      {
+        type: "p",
+        html: "Tag en café med omkring 40 gæster om dagen og en kaffe til 45 kr. med en råvarepris på 8 kr.:",
+      },
+      {
+        type: "ol",
+        items: [
+          "<strong>Dækningsbidrag pr. besøg:</strong> 45 − 8 = <strong>37 kr.</strong>",
+          "<strong>Ti besøg giver dig:</strong> 370 kr. i dækningsbidrag.",
+          "<strong>Belønningen koster dig:</strong> cirka 6 kr. i råvarer.",
+          "<strong>Konklusion:</strong> kortet skal blot flytte ét enkelt ekstra besøg pr. gæst, før det er tjent hjem mange gange. Alt derover er gevinst.",
+        ],
+      },
+      {
+        type: "p",
+        html: "Det er derfor stempelkort næsten altid regner hjem i en café — og hvorfor du ikke behøver at være nærig med belønningen for at det hænger sammen.",
+      },
+
+      { type: "h2", text: "Fælden: morgenrykket" },
+      {
+        type: "p",
+        html: "Her er det, der reelt afgør, om det lykkes. Din travleste time er også den, hvor flest nye gæster er inde — og det er præcis dér, personalet <strong>ikke</strong> har tid til at forklare et loyalitetsprogram.",
+      },
+      {
+        type: "p",
+        html: "Beder du baristaen om at fortælle om kortet ved hver ekspedition, sker to ting: det bliver droppet, når køen er lang, og gæsterne bagi bliver utålmodige. Programmet bliver dermed noget, kun de stille timer bidrager til.",
+      },
+      {
+        type: "p",
+        html: "Løsningen er, at <strong>skiltet gør arbejdet</strong>. Et lille skilt ved betalingen, som gæsten selv scanner, mens kortet trækkes. Ingen samtale, ingen forsinkelse, ingen der skal huske noget. Personalet skal kun kunne sige én sætning: &quot;scan den, hvis du vil have stempler&quot;.",
+      },
+      {
+        type: "note",
+        title: "Placeringen betyder mere end du tror",
+        html: "Skiltet skal stå dér, hvor gæsten <em>står stille med telefonen i hånden</em> — altså ved betalingen. Et skilt ved indgangen ses, mens folk går forbi. Et skilt på bordene ses, når betalingen er overstået og gæsten er i gang med noget andet. Ved terminalen er timingen rigtig hver eneste gang.",
+      },
+
+      { type: "h2", text: "Anmeldelser: caféens anden løftestang" },
+      {
+        type: "p",
+        html: "Stempelkortet får dem, der allerede har fundet dig, til at komme igen. Anmeldelser afgør, om nye gæster overhovedet finder dig — særligt i en by, hvor folk søger &quot;café i nærheden&quot; på telefonen.",
+      },
+      {
+        type: "p",
+        html: 'De to ting kan sidde på det samme skilt, men de skal holdes adskilt i det, du beder om. <a href="/blog/saadan-faar-du-flere-google-anmeldelser">Metoden til flere Google-anmeldelser</a> er den samme som i alle andre brancher: spørg alle, spørg mens oplevelsen er frisk, og fjern klikkene.',
+      },
+      {
+        type: "note",
+        title: "Bland dem aldrig sammen",
+        html: "Giv aldrig et stempel for en anmeldelse. Det er forbudt efter både Googles og Trustpilots regler og efter markedsføringslovens bilag 1 — og konsekvensen rammer caféen, ikke leverandøren. Du må belønne genbesøg. Bare ikke det, gæsten skriver.",
+      },
+      {
+        type: "faq",
+        items: [
+          {
+            q: "Hvor mange stempler skal et stempelkort til en café have?",
+            a: "Ti er standarden og passer til en gæst, der kommer to-tre gange om ugen — så er kortet fyldt på cirka en måned. Har du primært hverdagsgæster i et kontorområde, er otte ofte mere realistisk.",
+          },
+          {
+            q: "Hvad koster en gratis kaffe mig som belønning?",
+            a: "Din indkøbspris, ikke din salgspris. Bønner, mælk og kop løber typisk op i omkring seks kroner. Det er derfor et gratis produkt næsten altid er billigere for dig end en procentrabat på hele regningen.",
+          },
+          {
+            q: "Skal gæsterne hente en app?",
+            a: "Nej, og de fleste vil heller ikke. Et digitalt stempelkort kan ligge i gæstens browser: de scanner en QR-kode ved betalingen, og kortet er der. Ingen download, ingen konto — hvilket er afgørende, når der står folk i kø bagved.",
+          },
+          {
+            q: "Hvordan får jeg gæsterne tilmeldt, når der er travlt?",
+            a: "Ved at lade skiltet gøre arbejdet. Et lille skilt ved betalingsterminalen, som gæsten selv scanner, mens kortet trækkes, koster ingen tid i køen. Beder du personalet om at forklare programmet ved hver ekspedition, bliver det droppet netop i myldretiden.",
+          },
+          {
+            q: "Kan jeg ændre antallet af felter senere?",
+            a: "Med et digitalt kort ja — du kan sætte programmet på pause og starte et nyt med andre tal. Med trykte papkort står du med et oplag, hvor der er trykt et antal, du ikke længere vil have.",
+          },
+          {
+            q: "Må jeg give et ekstra stempel, hvis gæsten anmelder caféen?",
+            a: "Nej. Både Google og Trustpilot forbyder belønninger knyttet til anmeldelser, og i Danmark er det samtidig i strid med markedsføringslovens bilag 1. Du må gerne give stempler for køb og genbesøg — bare ikke for det, gæsten skriver om jer.",
+          },
+        ],
+      },
+      {
+        type: "cta",
+        text: "Vil du se, hvordan et stempelkort uden app fungerer i en café?",
+        href: "/stempelkort",
+        label: "Se stempelkortet",
+      },
+    ],
+  },
+  {
+    slug: "flere-anmeldelser-frisor",
+    title: "Flere anmeldelser som frisør: sådan bliver du valgt af nye kunder",
+    metaTitle:
+      "Flere anmeldelser til frisører — hvornår du spørger, og hvad du må",
+    description:
+      "En ny kunde vælger frisør på anmeldelser, fordi de ikke kan prøve sig frem. Her er det rigtige øjeblik at spørge, hvad du aldrig må gøre, og hvordan du svarer på kritik af en klipning.",
+    keyword: "flere anmeldelser frisør",
+    date: "2026-08-23",
+    readingMinutes: 8,
+    excerpt:
+      "For en frisør er anmeldelser ikke pynt — de er hele grundlaget for at blive valgt første gang. Her er øjeblikket, reglerne og svaret på den dårlige anmeldelse.",
+    image: "/blog/anmeldelser-frisor.svg",
+    imageAlt:
+      "Frisørstol foran et spejl med en saks og en kam, ved siden af en telefon der viser en anmeldelse med stjerner",
+    related: [
+      "saadan-faar-du-flere-google-anmeldelser",
+      "flere-trustpilot-anmeldelser",
+    ],
+    body: [
+      {
+        type: "p",
+        html: "At vælge ny frisør er et af de køb, folk er mest nervøse for. Man kan ikke prøve sig frem, man kan ikke fortryde, og resultatet sidder på hovedet i seks uger.",
+      },
+      {
+        type: "p",
+        html: "Derfor gør de fleste det samme: de søger, og de læser anmeldelser. For en salon er anmeldelser derfor ikke markedsføring ved siden af det egentlige — det <strong>er</strong> det, der afgør, om telefonen ringer.",
+      },
+
+      { type: "h2", text: "Hvorfor anmeldelser vejer tungere for en frisør" },
+      {
+        type: "p",
+        html: "Tre ting adskiller salonen fra en café eller en butik:",
+      },
+      {
+        type: "ul",
+        items: [
+          "<strong>Kunden kan ikke prøve billigt først.</strong> En dårlig kop kaffe koster fyrre kroner. En dårlig klipning koster flere hundrede og skal vokse ud.",
+          "<strong>Valget er personligt.</strong> Man vælger ikke en salon, man vælger en person med en saks. Anmeldelser, der nævner navne, vejer særligt tungt.",
+          "<strong>Skiftet er sjældent.</strong> Har kunden først fundet en frisør, de er glade for, bliver de i årevis. Den nye kunde er derfor meget mere værd end ét besøg.",
+        ],
+      },
+      {
+        type: "p",
+        html: "Sidste punkt er hele forretningsargumentet: en anmeldelse, der giver dig én ny fast kunde, betaler sig hjem mange gange over.",
+      },
+
+      { type: "h2", text: "Det rigtige øjeblik at spørge" },
+      {
+        type: "p",
+        html: "Timingen er mere kritisk i en salon end de fleste steder, og de fleste rammer den forkert.",
+      },
+      {
+        type: "p",
+        html: "<strong>Spørg ikke i stolen.</strong> Kunden sidder med våd nakke og har ikke set resultatet endnu — og de kan ikke sige nej uden at det bliver akavet, fordi du står bag dem med en saks. Det er hverken behageligt eller et ærligt spørgsmål.",
+      },
+      {
+        type: "p",
+        html: "<strong>Spørg ikke en uge senere i en mail.</strong> Da er begejstringen væk, og mailen bliver ikke åbnet.",
+      },
+      {
+        type: "p",
+        html: "Det rigtige øjeblik er <strong>ved betalingen</strong> — efter spejlet, efter kunden har set resultatet og sagt noget om det, mens frakken stadig hænger på krogen. Der står de stille med telefonen i hånden, og oplevelsen er lige sket.",
+      },
+      {
+        type: "note",
+        title: "Lad skiltet spørge i stedet for dig",
+        html: "De fleste frisører har det ubehageligt med selv at bede om en anmeldelse — det føles som at bede om ros for noget, man lige har lavet. Et lille skilt ved betalingen fjerner det: kunden ser det selv, og du behøver ikke sige andet end &quot;den må du meget gerne scanne&quot;. Det bliver også gjort ensartet, hver gang, i stedet for kun når du har overskuddet.",
+      },
+
+      { type: "h2", text: "Det du aldrig må gøre" },
+      {
+        type: "p",
+        html: "To udbredte råd er direkte forbudte, og de kan koste dig hele profilen:",
+      },
+      {
+        type: "ul",
+        items: [
+          "<strong>Beløn aldrig en anmeldelse.</strong> Rabat på næste klip, gratis produkter eller lodder i en konkurrence er alle forbudt, når de knyttes til det at skrive. Du må gerne belønne et genbesøg — bare ikke det, kunden skriver.",
+          "<strong>Spørg ikke kun de glade.</strong> At sende tilfredse kunder til Google og utilfredse til en kontaktformular er udtrykkeligt forbudt hos både Google og Trustpilot — og i Danmark er det samtidig en overtrædelse af markedsføringslovens bilag 1, nr. 23c.",
+        ],
+      },
+      {
+        type: "p",
+        html: 'Det rigtige alternativ er ikke at sortere, men at <strong>tilbyde begge veje samtidig</strong> og lade kunden vælge selv. <a href="/blog/flere-trustpilot-anmeldelser">Reglerne er gennemgået i detaljer her</a>.',
+      },
+
+      { type: "h2", text: "Sådan svarer du på kritik af en klipning" },
+      {
+        type: "p",
+        html: "Den dårlige anmeldelse er uundgåelig i en salon, fordi resultatet er en smagssag, og fordi kunden nogle gange bad om noget andet, end de troede. Svaret er det, alle kommende kunder læser.",
+      },
+      {
+        type: "p",
+        html: "Tre regler, og den sidste er den vigtigste:",
+      },
+      {
+        type: "ol",
+        items: [
+          "<strong>Anerkend oplevelsen, ikke skylden.</strong> &quot;Det er ærgerligt, at du ikke blev glad for resultatet&quot; er både ærligt og imødekommende, uden at du erklærer dig enig i kritikken.",
+          "<strong>Tilbyd at rette op.</strong> En invitation til at komme forbi og få det justeret siger mere om salonen end nogen beskrivelse af, hvad der egentlig skete.",
+          "<strong>Skriv aldrig detaljer om kunden.</strong> Ikke hvad de bad om, ikke hvad deres hår kunne holde til, ikke hvor mange gange de har fortrudt før. Det er personoplysninger, det er ulovligt at dele offentligt, og det får dig til at se ud som den, man ikke skal gå til.",
+        ],
+      },
+      {
+        type: "p",
+        html: "Og husk: den bedste beskyttelse mod en enkelt dårlig anmeldelse er en jævn strøm af almindelige. Får du to om året, fylder én etter alt.",
+      },
+
+      { type: "h2", text: "Genbesøget: den anden halvdel" },
+      {
+        type: "p",
+        html: "Anmeldelser skaffer den nye kunde. Genbesøget er dét, der gør dem til en fast indtægt — og her er salonen anderledes end de fleste brancher.",
+      },
+      {
+        type: "p",
+        html: "Den stærkeste loyalitetsmekanisme i en frisørsalon er <strong>at booke næste tid, før kunden går</strong>. Ingen rabat slår en aftale i kalenderen. Et stempelkort erstatter ikke det — men det virker godt oveni, fordi det giver en grund til at booke hos <em>dig</em> frem for et andet sted, når kunden alligevel skal.",
+      },
+      {
+        type: "table",
+        head: ["", "Frisør", "Café til sammenligning"],
+        rows: [
+          [
+            "<strong>Hvor tit kommer kunden?</strong>",
+            "Hver 6.-8. uge",
+            "2-3 gange om ugen",
+          ],
+          ["<strong>Antal felter</strong>", "5-6", "10"],
+          [
+            "<strong>Tid til belønning</strong>",
+            "Cirka et år",
+            "Cirka en måned",
+          ],
+          [
+            "<strong>Belønning der passer</strong>",
+            "20 % på et klip eller et produkt med hjem",
+            "Gratis kaffe",
+          ],
+        ],
+      },
+      {
+        type: "p",
+        html: 'Læg mærke til, hvorfor frisøren skal have færre felter: seks besøg er allerede næsten et år. Ti ville være halvandet, og så begynder ingen. <a href="/blog/hvor-mange-stempler-stempelkort">Regnemetoden bag tallet står her</a>.',
+      },
+      {
+        type: "faq",
+        items: [
+          {
+            q: "Hvornår skal jeg spørge kunden om en anmeldelse?",
+            a: "Ved betalingen — efter kunden har set resultatet i spejlet og sagt noget om det. Spørg ikke mens de sidder i stolen: de har ikke set resultatet endnu og kan ikke sige nej uden at det bliver akavet. Og vent ikke til en mail en uge senere; da er begejstringen væk.",
+          },
+          {
+            q: "Må jeg give rabat på næste klip for en anmeldelse?",
+            a: "Nej. Både Google og Trustpilot forbyder belønninger knyttet til anmeldelser, og i Danmark er det samtidig i strid med markedsføringslovens bilag 1. Du må gerne belønne et genbesøg — belønningen må bare ikke være knyttet til, at kunden skriver.",
+          },
+          {
+            q: "Hvordan svarer jeg på en anmeldelse om en dårlig klipning?",
+            a: "Anerkend oplevelsen uden at erklære dig enig i kritikken, tilbyd at rette op, og skriv aldrig detaljer om kunden eller deres hår i et offentligt svar. Svaret læses af alle kommende kunder — de leder ikke efter, hvem der havde ret, men efter om du er til at gå til, når noget går skævt.",
+          },
+          {
+            q: "Hvor mange stempler skal et stempelkort til en frisør have?",
+            a: "Fem til seks. En frisørkunde kommer typisk hver sjette til ottende uge, så seks besøg er allerede næsten et år. Ti felter ville tage halvandet år, og så begynder de fleste slet ikke at samle.",
+          },
+          {
+            q: "Er anmeldelser vigtigere for en frisør end for andre?",
+            a: "Ja, af tre grunde: kunden kan ikke prøve billigt først, valget er personligt frem for et produktvalg, og den nye kunde bliver ofte i årevis, hvis de bliver glade. En anmeldelse, der skaffer én fast kunde, betaler sig hjem mange gange over.",
+          },
+          {
+            q: "Skal jeg spørge om Google eller Trustpilot?",
+            a: "For en salon med lokale kunder er Google klart vigtigst — det er dér, folk søger efter en frisør i nærheden. Trustpilot vejer tungest for virksomheder, der sælger på tværs af landet, og er sjældent første prioritet for en enkelt salon.",
+          },
+        ],
+      },
+      {
+        type: "cta",
+        text: "Gør det nemt for kunderne at anmelde salonen — uden at du skal spørge.",
+        href: "/reviewstander",
+        label: "Se reviewstanderen",
+      },
+    ],
+  },
+  {
     slug: "flere-trustpilot-anmeldelser",
     title:
       "Flere Trustpilot-anmeldelser: sådan får du dem uden at bryde reglerne",
