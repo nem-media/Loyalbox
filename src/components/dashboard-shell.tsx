@@ -95,7 +95,9 @@ export function DashboardShell({
         </div>
       </aside>
 
-      <main className="flex-1 bg-background">
+      {/* `bg-app-bg` og ikke `bg-background`: kortene er hvide, så grunden
+          skal være noget andet end hvid, ellers ligger de ikke PÅ noget. */}
+      <main className="flex-1 bg-app-bg">
         <div className="mx-auto max-w-5xl p-4 md:p-8">{children}</div>
       </main>
     </div>
@@ -112,11 +114,14 @@ export function PageHeader({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+    // Stregen under sidehovedet er ikke pynt: uden den startede indholdet
+    // koldt, og overskriften flød sammen med det første kort. Nu er der en
+    // tydelig zone at læse først.
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-3 border-b border-border pb-5">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
         {description ? (
-          <p className="mt-1 text-sm text-muted">{description}</p>
+          <p className="mt-1.5 text-sm text-muted">{description}</p>
         ) : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}

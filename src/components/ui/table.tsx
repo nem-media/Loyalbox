@@ -36,7 +36,9 @@ export function THead({
   return (
     <thead
       className={cn(
-        "border-b border-border bg-muted-bg/40 text-left text-xs uppercase tracking-wider text-muted",
+        // `.etiket` frem for at skrive versalstilen af igen — den var
+        // defineret her OG i menuen, med hver sin bogstavafstand.
+        "etiket border-b border-border bg-muted-bg/40 text-left",
         className,
       )}
       {...props}

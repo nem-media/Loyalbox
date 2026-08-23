@@ -63,7 +63,9 @@ export function DashboardNav({ sections }: { sections: NavSection[] }) {
           {section.title ? (
             // Overskriften giver kun mening i den lodrette menu. Vandret på
             // mobil ville den stå som et punkt, man kunne tro var et link.
-            <p className="mt-5 hidden px-3 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-white/40 md:block">
+            // `.etiket` er den fælles versalstil. Farven overskrives her,
+            // fordi etiketten her står på navy og ikke på råhvidt.
+            <p className="etiket mt-5 hidden px-3 pb-1.5 font-semibold text-white/40 md:block">
               {section.title}
             </p>
           ) : null}
