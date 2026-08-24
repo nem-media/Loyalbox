@@ -197,7 +197,7 @@ function ConsentDialog() {
           {/* Komponenten og ikke PNG-en: filen har den gamle palet bagt ind,
               og stjernen ville staa turkis i en dialog, der ellers foelger
               den nye. Cookiedialogen er tit det FOERSTE en ny besoegende ser. */}
-          <Logo image="light" className="text-lg" />
+          <Logo image="light" hoejde="h-7" />
           <span className="text-xs text-white/60">Cookies</span>
         </div>
 
