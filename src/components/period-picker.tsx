@@ -31,7 +31,7 @@ export function PeriodPicker({
             className={
               "box-shape px-3 py-1.5 text-sm transition-colors " +
               (aktiv
-                ? "bg-card font-medium text-foreground shadow-[0_1px_2px_rgba(25,55,92,0.06)]"
+                ? "bg-card font-medium text-foreground shadow-[0_1px_2px_rgba(30,28,26,0.06)]"
                 : "text-muted hover:text-foreground")
             }
           >

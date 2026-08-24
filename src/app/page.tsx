@@ -186,7 +186,7 @@ export default function LandingPage() {
             className="absolute inset-0 -z-10"
             style={{
               backgroundImage:
-                "radial-gradient(60% 60% at 78% 12%, rgba(27,145,106,0.32), transparent 62%), radial-gradient(55% 55% at 4% 96%, rgba(255,183,0,0.10), transparent 60%)",
+                "radial-gradient(60% 60% at 78% 12%, rgba(180,161,137,0.22), transparent 62%), radial-gradient(55% 55% at 4% 96%, rgba(180,161,137,0.10), transparent 60%)",
             }}
           />
           <div className="mx-auto max-w-6xl px-4 py-20 sm:py-28">
@@ -281,7 +281,7 @@ export default function LandingPage() {
                 er noget at være opmærksom på, uden at stjæle blikket fra
                 overskriften til venstre, som er sektionens egentlige budskab.
               */}
-              <div className="box-shape border border-border bg-card p-7 shadow-[0_20px_40px_-28px_rgba(25,55,92,0.4)]">
+              <div className="box-shape border border-border bg-card p-7 shadow-[0_20px_40px_-28px_rgba(30,28,26,0.4)]">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary/15 text-dark">
                   {IconAlert}
                 </div>
@@ -340,7 +340,7 @@ export default function LandingPage() {
             </div>
 
             <div className="mt-12 grid gap-6 md:grid-cols-2">
-              <div className="box-shape border border-accent/25 bg-card p-7 shadow-[0_20px_40px_-28px_rgba(27,145,106,0.5)]">
+              <div className="box-shape border border-accent/25 bg-card p-7 shadow-[0_20px_40px_-28px_rgba(30,28,26,0.5)]">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-accent-fg">
                   {IconMagnet}
                 </div>
@@ -357,7 +357,7 @@ export default function LandingPage() {
                 </ul>
               </div>
 
-              <div className="box-shape border border-secondary/50 bg-card p-7 shadow-[0_20px_40px_-28px_rgba(255,183,0,0.55)]">
+              <div className="box-shape border border-secondary/50 bg-card p-7 shadow-[0_20px_40px_-28px_rgba(180,161,137,0.55)]">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-secondary-fg">
                   {IconRepeat}
                 </div>
@@ -465,7 +465,7 @@ export default function LandingPage() {
               {INDUSTRIES.map((branche) => (
                 <li
                   key={branche.navn}
-                  className="btn-shape inline-flex items-center gap-2.5 border border-border bg-card py-2 pl-2.5 pr-4 text-sm font-medium shadow-[0_10px_24px_-20px_rgba(25,55,92,0.65)]"
+                  className="btn-shape inline-flex items-center gap-2.5 border border-border bg-card py-2 pl-2.5 pr-4 text-sm font-medium shadow-[0_10px_24px_-20px_rgba(30,28,26,0.65)]"
                 >
                   <IndustryBadge branche={branche.branche} />
                   {branche.navn}
