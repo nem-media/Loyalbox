@@ -4,18 +4,18 @@
   <!-- ============================ Profilkort med stjerner (venstre) -->
   <g>
     <rect x="80" y="96" width="530" height="438" rx="14" fill="#ffffff"/>
-    <rect x="80" y="96" width="530" height="438" rx="14" fill="none" stroke="#2c324e" stroke-width="3" opacity="0.15"/>
+    <rect x="80" y="96" width="530" height="438" rx="14" fill="none" stroke="#1e1c1a" stroke-width="3" opacity="0.15"/>
 
     <!-- Browserlinje -->
-    <path d="M80 110 a14 14 0 0 1 14 -14 h502 a14 14 0 0 1 14 14 v34 h-530 z" fill="#2c324e" opacity="0.06"/>
-    <circle cx="108" cy="123" r="6" fill="#2c324e" opacity="0.25"/>
-    <circle cx="130" cy="123" r="6" fill="#2c324e" opacity="0.25"/>
-    <circle cx="152" cy="123" r="6" fill="#2c324e" opacity="0.25"/>
-    <rect x="180" y="115" width="300" height="16" rx="8" fill="#2c324e" opacity="0.12"/>
+    <path d="M80 110 a14 14 0 0 1 14 -14 h502 a14 14 0 0 1 14 14 v34 h-530 z" fill="#1e1c1a" opacity="0.06"/>
+    <circle cx="108" cy="123" r="6" fill="#1e1c1a" opacity="0.25"/>
+    <circle cx="130" cy="123" r="6" fill="#1e1c1a" opacity="0.25"/>
+    <circle cx="152" cy="123" r="6" fill="#1e1c1a" opacity="0.25"/>
+    <rect x="180" y="115" width="300" height="16" rx="8" fill="#1e1c1a" opacity="0.12"/>
 
     <!-- Virksomhedsnavn -->
-    <rect x="120" y="182" width="196" height="20" rx="10" fill="#2c324e" opacity="0.85"/>
-    <rect x="120" y="216" width="128" height="13" rx="6.5" fill="#2c324e" opacity="0.28"/>
+    <rect x="120" y="182" width="196" height="20" rx="10" fill="#1e1c1a" opacity="0.85"/>
+    <rect x="120" y="216" width="128" height="13" rx="6.5" fill="#1e1c1a" opacity="0.28"/>
 
     <!-- Stjernerække -->
     <g fill="#f59e0b">
@@ -25,35 +25,35 @@
       <path d="M403 292 l11.4 23.1 25.5 3.7 -18.4 18 4.3 25.4 -22.8 -12 -22.8 12 4.3 -25.4 -18.4 -18 25.5 -3.7 z"/>
     </g>
     <!-- Femte stjerne halvt udfyldt: profilen er troværdig, ikke perfekt -->
-    <path d="M493 292 l11.4 23.1 25.5 3.7 -18.4 18 4.3 25.4 -22.8 -12 -22.8 12 4.3 -25.4 -18.4 -18 25.5 -3.7 z" fill="#2c324e" opacity="0.14"/>
+    <path d="M493 292 l11.4 23.1 25.5 3.7 -18.4 18 4.3 25.4 -22.8 -12 -22.8 12 4.3 -25.4 -18.4 -18 25.5 -3.7 z" fill="#1e1c1a" opacity="0.14"/>
     <path d="M493 292 v66.2 l-22.8 12 4.3 -25.4 -18.4 -18 25.5 -3.7 z" fill="#f59e0b"/>
 
     <!-- Anmeldelseslinjer -->
-    <rect x="120" y="404" width="450" height="13" rx="6.5" fill="#2c324e" opacity="0.16"/>
-    <rect x="120" y="434" width="410" height="13" rx="6.5" fill="#2c324e" opacity="0.16"/>
-    <rect x="120" y="464" width="300" height="13" rx="6.5" fill="#2c324e" opacity="0.16"/>
+    <rect x="120" y="404" width="450" height="13" rx="6.5" fill="#1e1c1a" opacity="0.16"/>
+    <rect x="120" y="434" width="410" height="13" rx="6.5" fill="#1e1c1a" opacity="0.16"/>
+    <rect x="120" y="464" width="300" height="13" rx="6.5" fill="#1e1c1a" opacity="0.16"/>
   </g>
 
   <!-- ============================================ Disk med stander (højre) -->
   <!-- Diskplade -->
-  <rect x="676" y="486" width="464" height="18" rx="9" fill="#2c324e" opacity="0.18"/>
+  <rect x="676" y="486" width="464" height="18" rx="9" fill="#1e1c1a" opacity="0.18"/>
 
   <!-- Stander: skarpt øverste venstre hjørne, som husets signaturform -->
   <path d="M742 176 h236 a12 12 0 0 1 12 12 v274 a12 12 0 0 1 -12 12 h-236 a12 12 0 0 1 -12 -12 v-286 z" fill="#ffffff"/>
-  <path d="M742 176 h236 a12 12 0 0 1 12 12 v274 a12 12 0 0 1 -12 12 h-236 a12 12 0 0 1 -12 -12 v-286 z" fill="none" stroke="#2c324e" stroke-width="3" opacity="0.18"/>
+  <path d="M742 176 h236 a12 12 0 0 1 12 12 v274 a12 12 0 0 1 -12 12 h-236 a12 12 0 0 1 -12 -12 v-286 z" fill="none" stroke="#1e1c1a" stroke-width="3" opacity="0.18"/>
 
   <!-- Fod -->
-  <path d="M796 474 h128 l22 12 h-172 z" fill="#2c324e" opacity="0.22"/>
+  <path d="M796 474 h128 l22 12 h-172 z" fill="#1e1c1a" opacity="0.22"/>
 
   <!-- Overskriftsbjælke på standeren -->
-  <rect x="766" y="212" width="120" height="14" rx="7" fill="#51624a"/>
-  <rect x="766" y="238" width="176" height="11" rx="5.5" fill="#2c324e" opacity="0.25"/>
+  <rect x="766" y="212" width="120" height="14" rx="7" fill="#1e1c1a"/>
+  <rect x="766" y="238" width="176" height="11" rx="5.5" fill="#1e1c1a" opacity="0.25"/>
 
   <!-- QR-kode -->
   <g>
     <rect x="766" y="274" width="184" height="184" rx="10" fill="#ffffff"/>
-    <rect x="766" y="274" width="184" height="184" rx="10" fill="none" stroke="#2c324e" stroke-width="2.5" opacity="0.16"/>
-    <g fill="#2c324e">
+    <rect x="766" y="274" width="184" height="184" rx="10" fill="none" stroke="#1e1c1a" stroke-width="2.5" opacity="0.16"/>
+    <g fill="#1e1c1a">
       <rect x="786" y="294" width="42" height="42" rx="5"/>
       <rect x="888" y="294" width="42" height="42" rx="5"/>
       <rect x="786" y="396" width="42" height="42" rx="5"/>
@@ -62,7 +62,7 @@
         <rect x="897" y="303" width="24" height="24" rx="3"/>
         <rect x="795" y="405" width="24" height="24" rx="3"/>
       </g>
-      <g fill="#2c324e">
+      <g fill="#1e1c1a">
         <rect x="801" y="309" width="12" height="12" rx="1.5"/>
         <rect x="903" y="309" width="12" height="12" rx="1.5"/>
         <rect x="801" y="411" width="12" height="12" rx="1.5"/>
@@ -91,7 +91,7 @@
 
   <!-- Telefon der scanner -->
   <g>
-    <rect x="1010" y="286" width="132" height="216" rx="18" fill="#2c324e"/>
+    <rect x="1010" y="286" width="132" height="216" rx="18" fill="#1e1c1a"/>
     <rect x="1019" y="298" width="114" height="180" rx="10" fill="#ffffff"/>
     <rect x="1052" y="291" width="48" height="6" rx="3" fill="#ffffff" opacity="0.5"/>
     <!-- Fem stjerner i lille format på skærmen -->
@@ -100,12 +100,12 @@
       <path d="M1076 336 l4.8 9.7 10.7 1.6 -7.7 7.5 1.8 10.7 -9.6 -5 -9.6 5 1.8 -10.7 -7.7 -7.5 10.7 -1.6 z"/>
       <path d="M1117 336 l4.8 9.7 10.7 1.6 -7.7 7.5 1.8 10.7 -9.6 -5 -9.6 5 1.8 -10.7 -7.7 -7.5 10.7 -1.6 z"/>
     </g>
-    <rect x="1035" y="392" width="82" height="10" rx="5" fill="#2c324e" opacity="0.16"/>
-    <rect x="1035" y="414" width="64" height="10" rx="5" fill="#2c324e" opacity="0.16"/>
-    <rect x="1035" y="444" width="82" height="20" rx="6" fill="#51624a"/>
+    <rect x="1035" y="392" width="82" height="10" rx="5" fill="#1e1c1a" opacity="0.16"/>
+    <rect x="1035" y="414" width="64" height="10" rx="5" fill="#1e1c1a" opacity="0.16"/>
+    <rect x="1035" y="444" width="82" height="20" rx="6" fill="#1e1c1a"/>
   </g>
 
   <!-- Scanningsbue fra stander til telefon -->
-  <path d="M962 366 q30 -18 44 0" fill="none" stroke="#51624a" stroke-width="4" stroke-linecap="round" opacity="0.55"/>
-  <path d="M968 386 q24 -14 34 0" fill="none" stroke="#51624a" stroke-width="4" stroke-linecap="round" opacity="0.3"/>
+  <path d="M962 366 q30 -18 44 0" fill="none" stroke="#1e1c1a" stroke-width="4" stroke-linecap="round" opacity="0.55"/>
+  <path d="M968 386 q24 -14 34 0" fill="none" stroke="#1e1c1a" stroke-width="4" stroke-linecap="round" opacity="0.3"/>
 </svg>

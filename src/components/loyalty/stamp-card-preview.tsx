@@ -6,7 +6,7 @@ import { stampProgress } from "@/lib/loyalty/balance";
  */
 export function StampCardPreview({
   name,
-  color = "#2c324e",
+  color = "#1e1c1a",
   requiredStamps,
   filled = 0,
   rewardName,

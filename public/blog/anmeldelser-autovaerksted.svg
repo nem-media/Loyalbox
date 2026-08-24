@@ -1,47 +1,47 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Bilnøgler og en faktura på en værkstedsskranke ved siden af en telefon, der viser en anmeldelse med stjerner">
   <rect width="1200" height="630" fill="#f6f4ee"/>
-  <rect x="60" y="504" width="1080" height="16" rx="8" fill="#2c324e" opacity="0.16"/>
+  <rect x="60" y="504" width="1080" height="16" rx="8" fill="#1e1c1a" opacity="0.16"/>
 
   <!-- Faktura. Den groenne markering nederst er den varslede pris: det er
        DEN, kunden anmelder paa, ikke skruearbejdet. -->
   <g transform="rotate(-4 320 330)">
     <rect x="140" y="176" width="326" height="310" rx="10" fill="#ffffff"/>
-    <rect x="140" y="176" width="326" height="310" rx="10" fill="none" stroke="#2c324e" stroke-width="3" opacity="0.2"/>
-    <rect x="172" y="210" width="150" height="14" rx="7" fill="#2c324e" opacity="0.7"/>
-    <rect x="172" y="236" width="98" height="9" rx="4.5" fill="#2c324e" opacity="0.22"/>
-    <g fill="#2c324e" opacity="0.14">
+    <rect x="140" y="176" width="326" height="310" rx="10" fill="none" stroke="#1e1c1a" stroke-width="3" opacity="0.2"/>
+    <rect x="172" y="210" width="150" height="14" rx="7" fill="#1e1c1a" opacity="0.7"/>
+    <rect x="172" y="236" width="98" height="9" rx="4.5" fill="#1e1c1a" opacity="0.22"/>
+    <g fill="#1e1c1a" opacity="0.14">
       <rect x="172" y="278" width="180" height="10" rx="5"/><rect x="386" y="278" width="48" height="10" rx="5"/>
       <rect x="172" y="304" width="212" height="10" rx="5"/><rect x="386" y="304" width="48" height="10" rx="5"/>
       <rect x="172" y="330" width="160" height="10" rx="5"/><rect x="386" y="330" width="48" height="10" rx="5"/>
     </g>
-    <rect x="172" y="362" width="262" height="2" fill="#2c324e" opacity="0.16"/>
-    <rect x="172" y="380" width="90" height="14" rx="7" fill="#2c324e" opacity="0.55"/>
-    <rect x="366" y="380" width="68" height="14" rx="7" fill="#2c324e" opacity="0.55"/>
+    <rect x="172" y="362" width="262" height="2" fill="#1e1c1a" opacity="0.16"/>
+    <rect x="172" y="380" width="90" height="14" rx="7" fill="#1e1c1a" opacity="0.55"/>
+    <rect x="366" y="380" width="68" height="14" rx="7" fill="#1e1c1a" opacity="0.55"/>
     <g transform="translate(172 420)">
-      <circle cx="14" cy="14" r="14" fill="#51624a" opacity="0.14"/>
-      <path d="M7 14 l5 6 10 -12" fill="none" stroke="#51624a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-      <rect x="40" y="8" width="150" height="11" rx="5.5" fill="#51624a" opacity="0.35"/>
+      <circle cx="14" cy="14" r="14" fill="#1e1c1a" opacity="0.14"/>
+      <path d="M7 14 l5 6 10 -12" fill="none" stroke="#1e1c1a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="40" y="8" width="150" height="11" rx="5.5" fill="#1e1c1a" opacity="0.35"/>
     </g>
   </g>
 
   <!-- Bilnoegler -->
   <g transform="translate(524 396) rotate(12)">
-    <rect x="0" y="0" width="86" height="52" rx="14" fill="#2c324e" opacity="0.85"/>
+    <rect x="0" y="0" width="86" height="52" rx="14" fill="#1e1c1a" opacity="0.85"/>
     <circle cx="24" cy="26" r="9" fill="#f6f4ee" opacity="0.8"/>
     <circle cx="52" cy="18" r="6" fill="#f6f4ee" opacity="0.5"/>
     <circle cx="52" cy="36" r="6" fill="#f6f4ee" opacity="0.5"/>
-    <path d="M86 26 h44 l0 -10 h12 v10 h10 v20 h-66 z" fill="#2c324e" opacity="0.6"/>
-    <circle cx="-16" cy="26" r="16" fill="none" stroke="#2c324e" stroke-width="7" opacity="0.5"/>
+    <path d="M86 26 h44 l0 -10 h12 v10 h10 v20 h-66 z" fill="#1e1c1a" opacity="0.6"/>
+    <circle cx="-16" cy="26" r="16" fill="none" stroke="#1e1c1a" stroke-width="7" opacity="0.5"/>
   </g>
 
   <!-- Telefon: anmeldelse med et KORT svar. Svaret er bevidst kortere end
        anmeldelsen — et langt teknisk forsvar virker mod hensigten. -->
   <g>
-    <rect x="812" y="112" width="248" height="396" rx="30" fill="#2c324e"/>
+    <rect x="812" y="112" width="248" height="396" rx="30" fill="#1e1c1a"/>
     <rect x="826" y="130" width="220" height="360" rx="18" fill="#ffffff"/>
     <rect x="894" y="122" width="84" height="7" rx="3.5" fill="#ffffff" opacity="0.5"/>
-    <rect x="852" y="166" width="128" height="14" rx="7" fill="#2c324e" opacity="0.75"/>
-    <rect x="852" y="190" width="80" height="10" rx="5" fill="#2c324e" opacity="0.25"/>
+    <rect x="852" y="166" width="128" height="14" rx="7" fill="#1e1c1a" opacity="0.75"/>
+    <rect x="852" y="190" width="80" height="10" rx="5" fill="#1e1c1a" opacity="0.25"/>
     <g fill="#f59e0b">
       <path d="M863 238 l6.2 12.6 13.9 2 -10 9.8 2.4 13.8 -12.5 -6.6 -12.5 6.6 2.4 -13.8 -10 -9.8 13.9 -2 z"/>
       <path d="M902 238 l6.2 12.6 13.9 2 -10 9.8 2.4 13.8 -12.5 -6.6 -12.5 6.6 2.4 -13.8 -10 -9.8 13.9 -2 z"/>
@@ -49,11 +49,11 @@
       <path d="M980 238 l6.2 12.6 13.9 2 -10 9.8 2.4 13.8 -12.5 -6.6 -12.5 6.6 2.4 -13.8 -10 -9.8 13.9 -2 z"/>
       <path d="M1019 238 l6.2 12.6 13.9 2 -10 9.8 2.4 13.8 -12.5 -6.6 -12.5 6.6 2.4 -13.8 -10 -9.8 13.9 -2 z"/>
     </g>
-    <rect x="852" y="304" width="166" height="11" rx="5.5" fill="#2c324e" opacity="0.16"/>
-    <rect x="852" y="328" width="134" height="11" rx="5.5" fill="#2c324e" opacity="0.16"/>
-    <rect x="852" y="374" width="3" height="34" rx="1.5" fill="#51624a"/>
-    <rect x="870" y="376" width="140" height="9" rx="4.5" fill="#51624a" opacity="0.45"/>
-    <rect x="870" y="394" width="96" height="9" rx="4.5" fill="#51624a" opacity="0.3"/>
-    <rect x="852" y="434" width="166" height="24" rx="7" fill="#51624a"/>
+    <rect x="852" y="304" width="166" height="11" rx="5.5" fill="#1e1c1a" opacity="0.16"/>
+    <rect x="852" y="328" width="134" height="11" rx="5.5" fill="#1e1c1a" opacity="0.16"/>
+    <rect x="852" y="374" width="3" height="34" rx="1.5" fill="#1e1c1a"/>
+    <rect x="870" y="376" width="140" height="9" rx="4.5" fill="#1e1c1a" opacity="0.45"/>
+    <rect x="870" y="394" width="96" height="9" rx="4.5" fill="#1e1c1a" opacity="0.3"/>
+    <rect x="852" y="434" width="166" height="24" rx="7" fill="#1e1c1a"/>
   </g>
 </svg>

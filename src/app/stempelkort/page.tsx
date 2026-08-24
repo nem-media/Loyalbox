@@ -94,12 +94,21 @@ const STEPS = [
 
 /** Belønningstyper — matcher `RewardType` i src/lib/loyalty/constants.ts. */
 const REWARDS = [
-  { label: "Gratis produkt", body: "Den tiende kaffe, en dessert, et stykke brød." },
+  {
+    label: "Gratis produkt",
+    body: "Den tiende kaffe, en dessert, et stykke brød.",
+  },
   { label: "Beløb i rabat", body: "Et fast beløb trukket fra næste køb." },
   { label: "Procent i rabat", body: "Fx 20 % på næste besøg." },
-  { label: "En ydelse", body: "En behandling, en service, en ekstra ting oveni." },
+  {
+    label: "En ydelse",
+    body: "En behandling, en service, en ekstra ting oveni.",
+  },
   { label: "En gave", body: "Noget håndgribeligt, kunden får med." },
-  { label: "Noget du selv beskriver", body: "Din egen formulering, hvis intet af ovenstående passer." },
+  {
+    label: "Noget du selv beskriver",
+    body: "Din egen formulering, hvis intet af ovenstående passer.",
+  },
 ];
 
 /** Brancheeksempler. Tallene er de faktiske skabeloner i produktet. */
@@ -254,12 +263,13 @@ export default function StempelkortPage() {
                 <span className="text-secondary">komme igen</span>
               </h1>
               <p className="mt-5 max-w-xl text-lg text-white/70">
-                Beløn dine faste kunder med et digitalt stempelkort fra LoyalSum.
-                Kunden samler stempler på mobilen, optjener den belønning du selv
-                vælger — og får en grund til at vælge dig næste gang.
+                Beløn dine faste kunder med et digitalt stempelkort fra
+                LoyalSum. Kunden samler stempler på mobilen, optjener den
+                belønning du selv vælger — og får en grund til at vælge dig
+                næste gang.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <ButtonLink href="/signup" size="lg">
+                <ButtonLink variant="secondary" href="/signup" size="lg">
                   Kom i gang
                 </ButtonLink>
                 <ButtonLink href="#saadan" variant="outline-invert" size="lg">
@@ -344,9 +354,9 @@ export default function StempelkortPage() {
               noget, de kun kan hente hos dig.
             </p>
             <p className="mt-4 max-w-2xl leading-relaxed text-foreground/90">
-              Det er den enkle mekanik, der gør papstempelkortet så sejlivet. Det
-              digitale kort ændrer ikke på psykologien — det fjerner bare besværet
-              og giver dig et overblik, papkortet aldrig kunne.
+              Det er den enkle mekanik, der gør papstempelkortet så sejlivet.
+              Det digitale kort ændrer ikke på psykologien — det fjerner bare
+              besværet og giver dig et overblik, papkortet aldrig kunne.
             </p>
 
             <ol className="mt-10 grid gap-3 sm:grid-cols-5">
@@ -361,7 +371,9 @@ export default function StempelkortPage() {
                   key={step.label}
                   className="box-shape border border-border bg-card p-4 text-center"
                 >
-                  <span className="text-xs font-medium text-muted">{i + 1}</span>
+                  <span className="text-xs font-medium text-muted">
+                    {i + 1}
+                  </span>
                   <step.Icon className="mx-auto mt-1 h-8 w-8 text-accent" />
                   <p className="mt-1 font-bold tracking-tight">{step.label}</p>
                 </li>
@@ -433,21 +445,25 @@ export default function StempelkortPage() {
                 </ul>
               </div>
               <div className="box-shape border border-accent/30 bg-accent/5 p-6">
-                <h3 className="font-bold tracking-tight">Digitalt stempelkort</h3>
+                <h3 className="font-bold tracking-tight">
+                  Digitalt stempelkort
+                </h3>
                 <ul className="mt-4 space-y-2 text-sm text-muted">
                   <li>Ligger på kundens telefon og kan hentes frem igen</li>
                   <li>Ingen tryk, intet oplag, ingen genoptryk</li>
                   <li>Du ændrer belønning og regler ét sted</li>
-                  <li>Du kan se aktiviteten og hvem der er tæt på en belønning</li>
+                  <li>
+                    Du kan se aktiviteten og hvem der er tæt på en belønning
+                  </li>
                   <li>Kun personale med adgang kan give stempler</li>
                 </ul>
               </div>
             </div>
 
             <p className="mt-6 text-sm text-muted">
-              Har din forretning få genbesøg og ingen interesse i tallene bagved,
-              gør papkortet det fint. Det digitale kort betaler sig, når kunderne
-              kommer igen — og du vil vide hvor mange.
+              Har din forretning få genbesøg og ingen interesse i tallene
+              bagved, gør papkortet det fint. Det digitale kort betaler sig, når
+              kunderne kommer igen — og du vil vide hvor mange.
             </p>
           </div>
         </section>
@@ -503,10 +519,10 @@ export default function StempelkortPage() {
                 Belønninger kobles aldrig til anmeldelser
               </h3>
               <p className="mt-2 text-sm leading-relaxed">
-                Det er bevidst umuligt at give stempler eller belønninger for, at
-                en kunde skriver, ændrer eller sletter en offentlig anmeldelse.
-                Den slags er i strid med både Googles og Trustpilots regler og
-                kan koste dig dine anmeldelser. Derfor holder LoyalSum
+                Det er bevidst umuligt at give stempler eller belønninger for,
+                at en kunde skriver, ændrer eller sletter en offentlig
+                anmeldelse. Den slags er i strid med både Googles og Trustpilots
+                regler og kan koste dig dine anmeldelser. Derfor holder LoyalSum
                 loyalitetsprogrammet og{" "}
                 <Link href="/reviewstander" className="font-medium text-accent">
                   anmeldelserne
@@ -711,7 +727,7 @@ export default function StempelkortPage() {
               flere førstegangskunder til stamkunder.
             </p>
             <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-              <ButtonLink href="/signup" size="lg">
+              <ButtonLink variant="secondary" href="/signup" size="lg">
                 Kom i gang
               </ButtonLink>
               <ButtonLink

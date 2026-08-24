@@ -2,42 +2,42 @@
   <rect width="1200" height="630" fill="#f6f4ee"/>
 
   <!-- Diskplade -->
-  <rect x="70" y="500" width="1060" height="16" rx="8" fill="#2c324e" opacity="0.18"/>
-  <rect x="70" y="516" width="1060" height="10" rx="5" fill="#2c324e" opacity="0.08"/>
+  <rect x="70" y="500" width="1060" height="16" rx="8" fill="#1e1c1a" opacity="0.18"/>
+  <rect x="70" y="516" width="1060" height="10" rx="5" fill="#1e1c1a" opacity="0.08"/>
 
   <!-- ============================================ Kaffekop med underkop -->
   <g>
     <!-- Underkop -->
-    <ellipse cx="238" cy="492" rx="126" ry="20" fill="#2c324e" opacity="0.12"/>
+    <ellipse cx="238" cy="492" rx="126" ry="20" fill="#1e1c1a" opacity="0.12"/>
     <!-- Kop -->
     <path d="M148 350 h174 v66 a87 87 0 0 1 -87 87 a87 87 0 0 1 -87 -87 z" fill="#ffffff"/>
-    <path d="M148 350 h174 v66 a87 87 0 0 1 -87 87 a87 87 0 0 1 -87 -87 z" fill="none" stroke="#2c324e" stroke-width="3.5" opacity="0.25"/>
+    <path d="M148 350 h174 v66 a87 87 0 0 1 -87 87 a87 87 0 0 1 -87 -87 z" fill="none" stroke="#1e1c1a" stroke-width="3.5" opacity="0.25"/>
     <!-- Kaffeoverflade -->
-    <ellipse cx="235" cy="350" rx="87" ry="19" fill="#2c324e" opacity="0.72"/>
-    <ellipse cx="235" cy="350" rx="66" ry="13" fill="#2c324e" opacity="0.4"/>
+    <ellipse cx="235" cy="350" rx="87" ry="19" fill="#1e1c1a" opacity="0.72"/>
+    <ellipse cx="235" cy="350" rx="66" ry="13" fill="#1e1c1a" opacity="0.4"/>
     <!-- Hank -->
-    <path d="M322 372 a44 44 0 0 1 0 74" fill="none" stroke="#2c324e" stroke-width="14" stroke-linecap="round" opacity="0.25"/>
+    <path d="M322 372 a44 44 0 0 1 0 74" fill="none" stroke="#1e1c1a" stroke-width="14" stroke-linecap="round" opacity="0.25"/>
     <!-- Damp -->
-    <path d="M204 314 q14 -22 0 -44 q-14 -22 0 -40" fill="none" stroke="#2c324e" stroke-width="6" stroke-linecap="round" opacity="0.2"/>
-    <path d="M262 314 q14 -22 0 -44 q-14 -22 0 -40" fill="none" stroke="#2c324e" stroke-width="6" stroke-linecap="round" opacity="0.14"/>
+    <path d="M204 314 q14 -22 0 -44 q-14 -22 0 -40" fill="none" stroke="#1e1c1a" stroke-width="6" stroke-linecap="round" opacity="0.2"/>
+    <path d="M262 314 q14 -22 0 -44 q-14 -22 0 -40" fill="none" stroke="#1e1c1a" stroke-width="6" stroke-linecap="round" opacity="0.14"/>
   </g>
 
   <!-- ================================ Lille skilt ved betalingen med QR -->
   <g>
     <!-- Signaturform: skarpt oeverste venstre hjoerne -->
     <path d="M436 250 h214 a12 12 0 0 1 12 12 v214 a12 12 0 0 1 -12 12 h-214 a12 12 0 0 1 -12 -12 v-226 z" fill="#ffffff"/>
-    <path d="M436 250 h214 a12 12 0 0 1 12 12 v214 a12 12 0 0 1 -12 12 h-214 a12 12 0 0 1 -12 -12 v-226 z" fill="none" stroke="#2c324e" stroke-width="3" opacity="0.18"/>
+    <path d="M436 250 h214 a12 12 0 0 1 12 12 v214 a12 12 0 0 1 -12 12 h-214 a12 12 0 0 1 -12 -12 v-226 z" fill="none" stroke="#1e1c1a" stroke-width="3" opacity="0.18"/>
     <!-- Fod -->
-    <path d="M486 488 h114 l20 12 h-154 z" fill="#2c324e" opacity="0.2"/>
+    <path d="M486 488 h114 l20 12 h-154 z" fill="#1e1c1a" opacity="0.2"/>
 
     <!-- Overskrift paa skiltet -->
-    <rect x="456" y="278" width="104" height="13" rx="6.5" fill="#51624a"/>
-    <rect x="456" y="300" width="150" height="10" rx="5" fill="#2c324e" opacity="0.22"/>
+    <rect x="456" y="278" width="104" height="13" rx="6.5" fill="#1e1c1a"/>
+    <rect x="456" y="300" width="150" height="10" rx="5" fill="#1e1c1a" opacity="0.22"/>
 
     <!-- QR -->
     <g>
       <rect x="456" y="328" width="174" height="132" rx="8" fill="#ffffff"/>
-      <g fill="#2c324e">
+      <g fill="#1e1c1a">
         <rect x="470" y="342" width="34" height="34" rx="4"/>
         <rect x="582" y="342" width="34" height="34" rx="4"/>
         <rect x="470" y="412" width="34" height="34" rx="4"/>
@@ -66,17 +66,17 @@
 
   <!-- ============================== Telefon med stempelkort (ti felter) -->
   <g>
-    <rect x="754" y="128" width="242" height="372" rx="30" fill="#2c324e"/>
+    <rect x="754" y="128" width="242" height="372" rx="30" fill="#1e1c1a"/>
     <rect x="768" y="146" width="214" height="336" rx="18" fill="#ffffff"/>
     <rect x="836" y="138" width="78" height="7" rx="3.5" fill="#ffffff" opacity="0.5"/>
 
     <!-- Butiksnavn -->
-    <rect x="792" y="176" width="112" height="14" rx="7" fill="#2c324e" opacity="0.75"/>
-    <rect x="792" y="200" width="72" height="10" rx="5" fill="#2c324e" opacity="0.25"/>
+    <rect x="792" y="176" width="112" height="14" rx="7" fill="#1e1c1a" opacity="0.75"/>
+    <rect x="792" y="200" width="72" height="10" rx="5" fill="#1e1c1a" opacity="0.25"/>
 
     <!-- Ti felter: 7 stemplet, sidste er beloenningen -->
     <g>
-      <g fill="none" stroke="#2c324e" stroke-width="2.5" opacity="0.22">
+      <g fill="none" stroke="#1e1c1a" stroke-width="2.5" opacity="0.22">
         <circle cx="812" cy="264" r="22"/>
         <circle cx="874" cy="264" r="22"/>
         <circle cx="936" cy="264" r="22"/>
@@ -87,7 +87,7 @@
         <circle cx="874" cy="384" r="22"/>
         <circle cx="936" cy="384" r="22"/>
       </g>
-      <g fill="#51624a">
+      <g fill="#1e1c1a">
         <circle cx="812" cy="264" r="16"/>
         <circle cx="874" cy="264" r="16"/>
         <circle cx="936" cy="264" r="16"/>
@@ -101,17 +101,17 @@
       <path d="M936 373 l4.2 8.6 9.5 1.4 -6.9 6.7 1.6 9.5 -8.4 -4.4 -8.4 4.4 1.6 -9.5 -6.9 -6.7 9.5 -1.4 z" fill="#f59e0b"/>
     </g>
 
-    <rect x="792" y="428" width="158" height="11" rx="5.5" fill="#2c324e" opacity="0.15"/>
+    <rect x="792" y="428" width="158" height="11" rx="5.5" fill="#1e1c1a" opacity="0.15"/>
     <rect x="792" y="452" width="158" height="0" rx="0" fill="none"/>
   </g>
 
   <!-- Scanningsbue fra skilt til telefon -->
-  <path d="M676 356 q34 -20 50 0" fill="none" stroke="#51624a" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
-  <path d="M684 380 q26 -15 38 0" fill="none" stroke="#51624a" stroke-width="4" stroke-linecap="round" opacity="0.28"/>
+  <path d="M676 356 q34 -20 50 0" fill="none" stroke="#1e1c1a" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+  <path d="M684 380 q26 -15 38 0" fill="none" stroke="#1e1c1a" stroke-width="4" stroke-linecap="round" opacity="0.28"/>
 
   <!-- Kaffeboenne som lille detalje paa disken -->
   <g transform="rotate(-18 1070 470)">
-    <ellipse cx="1070" cy="470" rx="20" ry="13" fill="#2c324e" opacity="0.6"/>
+    <ellipse cx="1070" cy="470" rx="20" ry="13" fill="#1e1c1a" opacity="0.6"/>
     <path d="M1054 470 q16 -9 32 0" fill="none" stroke="#f6f4ee" stroke-width="2.5"/>
   </g>
 </svg>

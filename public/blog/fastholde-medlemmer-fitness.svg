@@ -1,15 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Håndvægt og et vægtstativ i et træningscenter ved siden af en telefon, der viser et fremmødekort med afkrydsede felter">
   <rect width="1200" height="630" fill="#f6f4ee"/>
-  <rect x="60" y="506" width="1080" height="16" rx="8" fill="#2c324e" opacity="0.16"/>
+  <rect x="60" y="506" width="1080" height="16" rx="8" fill="#1e1c1a" opacity="0.16"/>
 
   <!-- Vaegtstang paa stativ -->
   <g>
-    <rect x="120" y="238" width="18" height="268" rx="7" fill="#2c324e" opacity="0.32"/>
-    <rect x="452" y="238" width="18" height="268" rx="7" fill="#2c324e" opacity="0.32"/>
-    <path d="M112 246 l34 -26 v26 z" fill="#2c324e" opacity="0.4"/>
-    <path d="M478 246 l-34 -26 v26 z" fill="#2c324e" opacity="0.4"/>
-    <rect x="96" y="272" width="398" height="16" rx="8" fill="#2c324e" opacity="0.7"/>
-    <g fill="#2c324e" opacity="0.85">
+    <rect x="120" y="238" width="18" height="268" rx="7" fill="#1e1c1a" opacity="0.32"/>
+    <rect x="452" y="238" width="18" height="268" rx="7" fill="#1e1c1a" opacity="0.32"/>
+    <path d="M112 246 l34 -26 v26 z" fill="#1e1c1a" opacity="0.4"/>
+    <path d="M478 246 l-34 -26 v26 z" fill="#1e1c1a" opacity="0.4"/>
+    <rect x="96" y="272" width="398" height="16" rx="8" fill="#1e1c1a" opacity="0.7"/>
+    <g fill="#1e1c1a" opacity="0.85">
       <rect x="150" y="238" width="24" height="84" rx="8"/>
       <rect x="180" y="248" width="20" height="64" rx="7"/>
       <rect x="392" y="248" width="20" height="64" rx="7"/>
@@ -19,28 +19,28 @@
 
   <!-- Haandvaegt paa gulvet -->
   <g transform="translate(216 428)">
-    <rect x="0" y="16" width="118" height="14" rx="7" fill="#2c324e" opacity="0.6"/>
-    <rect x="-24" y="0" width="30" height="46" rx="10" fill="#2c324e" opacity="0.8"/>
-    <rect x="112" y="0" width="30" height="46" rx="10" fill="#2c324e" opacity="0.8"/>
+    <rect x="0" y="16" width="118" height="14" rx="7" fill="#1e1c1a" opacity="0.6"/>
+    <rect x="-24" y="0" width="30" height="46" rx="10" fill="#1e1c1a" opacity="0.8"/>
+    <rect x="112" y="0" width="30" height="46" rx="10" fill="#1e1c1a" opacity="0.8"/>
   </g>
 
   <!-- Telefon: fremmoedekort. Flueben og ikke prikker, fordi det er
        FREMMOEDE der belonnes og ikke koeb. -->
   <g>
-    <rect x="672" y="112" width="238" height="392" rx="30" fill="#2c324e"/>
+    <rect x="672" y="112" width="238" height="392" rx="30" fill="#1e1c1a"/>
     <rect x="686" y="130" width="210" height="356" rx="18" fill="#ffffff"/>
     <rect x="754" y="122" width="74" height="7" rx="3.5" fill="#ffffff" opacity="0.5"/>
 
-    <rect x="712" y="164" width="118" height="14" rx="7" fill="#2c324e" opacity="0.75"/>
-    <rect x="712" y="188" width="86" height="10" rx="5" fill="#2c324e" opacity="0.25"/>
+    <rect x="712" y="164" width="118" height="14" rx="7" fill="#1e1c1a" opacity="0.75"/>
+    <rect x="712" y="188" width="86" height="10" rx="5" fill="#1e1c1a" opacity="0.25"/>
 
     <g>
-      <g fill="none" stroke="#2c324e" stroke-width="2.5" opacity="0.22">
+      <g fill="none" stroke="#1e1c1a" stroke-width="2.5" opacity="0.22">
         <circle cx="732" cy="248" r="20"/><circle cx="788" cy="248" r="20"/><circle cx="844" cy="248" r="20"/>
         <circle cx="732" cy="304" r="20"/><circle cx="788" cy="304" r="20"/><circle cx="844" cy="304" r="20"/>
         <circle cx="732" cy="360" r="20"/><circle cx="788" cy="360" r="20"/><circle cx="844" cy="360" r="20"/>
       </g>
-      <g stroke="#51624a" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <g stroke="#1e1c1a" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
         <path d="M724 248 l6 7 12 -14"/><path d="M780 248 l6 7 12 -14"/><path d="M836 248 l6 7 12 -14"/>
         <path d="M724 304 l6 7 12 -14"/><path d="M780 304 l6 7 12 -14"/><path d="M836 304 l6 7 12 -14"/>
         <path d="M724 360 l6 7 12 -14"/>
@@ -49,16 +49,16 @@
       <path d="M844 350 l3.9 7.9 8.7 1.3 -6.3 6.1 1.5 8.7 -7.8 -4.1 -7.8 4.1 1.5 -8.7 -6.3 -6.1 8.7 -1.3 z" fill="#f59e0b"/>
     </g>
 
-    <rect x="712" y="404" width="158" height="10" rx="5" fill="#2c324e" opacity="0.15"/>
-    <rect x="712" y="434" width="158" height="24" rx="7" fill="#51624a"/>
+    <rect x="712" y="404" width="158" height="10" rx="5" fill="#1e1c1a" opacity="0.15"/>
+    <rect x="712" y="434" width="158" height="24" rx="7" fill="#1e1c1a"/>
   </g>
 
   <!-- Fremmoedekurve: signalet, der advarer FOER opsigelsen. Den gule prik
        er det punkt, hvor der stadig kan gribes ind; den roede er for sent. -->
   <g transform="translate(956 300)">
-    <path d="M0 120 h180" stroke="#2c324e" stroke-width="3" opacity="0.2"/>
-    <path d="M0 120 v-140" stroke="#2c324e" stroke-width="3" opacity="0.2"/>
-    <path d="M8 30 L44 18 L80 34 L116 66 L152 100 L176 112" fill="none" stroke="#51624a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M0 120 h180" stroke="#1e1c1a" stroke-width="3" opacity="0.2"/>
+    <path d="M0 120 v-140" stroke="#1e1c1a" stroke-width="3" opacity="0.2"/>
+    <path d="M8 30 L44 18 L80 34 L116 66 L152 100 L176 112" fill="none" stroke="#1e1c1a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
     <circle cx="116" cy="66" r="8" fill="#f59e0b"/>
     <circle cx="176" cy="112" r="7" fill="#dc2626" opacity="0.75"/>
   </g>

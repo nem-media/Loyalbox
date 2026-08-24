@@ -39,7 +39,7 @@ export async function SiteHeader() {
         <div className="flex items-center gap-2">
           <div className="hidden items-center gap-2 lg:flex">
             {user ? (
-              <ButtonLink href={dashboardHref} size="md">
+              <ButtonLink variant="secondary" href={dashboardHref} size="md">
                 Dashboard
               </ButtonLink>
             ) : (

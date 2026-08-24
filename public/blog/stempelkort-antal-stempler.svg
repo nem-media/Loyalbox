@@ -2,7 +2,7 @@
   <rect width="1200" height="630" fill="#f6f4ee"/>
 
   <!-- Kortet -->
-  <rect x="180" y="120" width="840" height="390" rx="10" fill="#2c324e"/>
+  <rect x="180" y="120" width="840" height="390" rx="10" fill="#1e1c1a"/>
   <rect x="180" y="120" width="840" height="390" rx="10" fill="none" stroke="#0f2440" stroke-width="2"/>
 
   <!-- Overskrift på kortet -->
@@ -12,7 +12,7 @@
   <!-- Stempelrække: 5 + 5 -->
   <g>
     <!-- Række 1 — alle fyldt -->
-    <g fill="#51624a">
+    <g fill="#1e1c1a">
       <circle cx="272" cy="310" r="36"/><circle cx="368" cy="310" r="36"/>
       <circle cx="464" cy="310" r="36"/><circle cx="560" cy="310" r="36"/>
       <circle cx="656" cy="310" r="36"/>
@@ -26,7 +26,7 @@
     </g>
 
     <!-- Række 2 — to fyldte, to tomme, og belønningen -->
-    <g fill="#51624a">
+    <g fill="#1e1c1a">
       <circle cx="272" cy="410" r="36"/><circle cx="368" cy="410" r="36"/>
     </g>
     <g fill="#f59e0b">
@@ -41,7 +41,7 @@
 
     <!-- Felt 10: belønningen -->
     <circle cx="656" cy="410" r="40" fill="#f59e0b"/>
-    <text x="656" y="423" font-family="system-ui, sans-serif" font-size="32" font-weight="700" fill="#2c324e" text-anchor="middle">10</text>
+    <text x="656" y="423" font-family="system-ui, sans-serif" font-size="32" font-weight="700" fill="#1e1c1a" text-anchor="middle">10</text>
   </g>
 
   <!-- Belønningsetiket -->

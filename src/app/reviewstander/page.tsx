@@ -236,7 +236,11 @@ export default function ReviewstanderPage() {
                 direkte videre på deres telefon.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <ButtonLink href="/produkter/reviewstander" size="lg">
+                <ButtonLink
+                  variant="secondary"
+                  href="/produkter/reviewstander"
+                  size="lg"
+                >
                   Bestil reviewstander
                 </ButtonLink>
                 <ButtonLink href="#saadan" variant="outline-invert" size="lg">
@@ -712,7 +716,11 @@ export default function ReviewstanderPage() {
               chance for at sige det højt.
             </p>
             <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-              <ButtonLink href="/produkter/reviewstander" size="lg">
+              <ButtonLink
+                variant="secondary"
+                href="/produkter/reviewstander"
+                size="lg"
+              >
                 Bestil reviewstander
               </ButtonLink>
               <ButtonLink href="/signup" variant="outline-invert" size="lg">

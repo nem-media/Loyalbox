@@ -113,7 +113,7 @@ export default async function MemberPage({
                 <div className="grid gap-6 md:grid-cols-2">
                   <StampCardPreview
                     name={program.name}
-                    color={program.color ?? "#2c324e"}
+                    color={program.color ?? "#1e1c1a"}
                     requiredStamps={reward?.required_stamps ?? 10}
                     filled={ms.balance_cache}
                     rewardName={reward?.name ?? null}

@@ -214,7 +214,7 @@ export default function LandingPage() {
                   tilbage.
                 </p>
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                  <ButtonLink href="/signup" size="lg">
+                  <ButtonLink variant="secondary" href="/signup" size="lg">
                     Kom i gang
                   </ButtonLink>
                   <ButtonLink href="/#loop" variant="outline-invert" size="lg">
@@ -261,8 +261,8 @@ export default function LandingPage() {
                 <p className="mt-4 text-muted">
                   Du bruger tid og penge på at få folk ind ad døren. Men værdien
                   stopper ikke ved første besøg — den opstår, når kunden får en
-                  god oplevelse, deler den, kommer igen og trækker nye kunder med
-                  sig.
+                  god oplevelse, deler den, kommer igen og trækker nye kunder
+                  med sig.
                 </p>
                 <p className="mt-3 text-muted">
                   Det er præcis den proces, LoyalSum samler ét sted.
@@ -290,8 +290,13 @@ export default function LandingPage() {
                 </h3>
                 <ul className="mt-5 divide-y divide-border/70">
                   {UDEN_SYSTEM.map((t) => (
-                    <li key={t} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
-                      <span className="mt-0.5 shrink-0 text-muted">{IconCross}</span>
+                    <li
+                      key={t}
+                      className="flex items-start gap-3 py-3 first:pt-0 last:pb-0"
+                    >
+                      <span className="mt-0.5 shrink-0 text-muted">
+                        {IconCross}
+                      </span>
                       <span className="text-sm">{t}</span>
                     </li>
                   ))}
@@ -302,10 +307,15 @@ export default function LandingPage() {
         </section>
 
         {/* ------------------------------------------------ LoyalSum-loopet */}
-        <section id="loop" className="scroll-mt-24 border-t border-border bg-muted-bg">
+        <section
+          id="loop"
+          className="scroll-mt-24 border-t border-border bg-muted-bg"
+        >
           <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="text-sm font-semibold text-accent">LoyalSum-loopet</p>
+              <p className="text-sm font-semibold text-accent">
+                LoyalSum-loopet
+              </p>
               <h2 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
                 Fra første besøg til næste besøg
               </h2>
@@ -407,7 +417,9 @@ export default function LandingPage() {
         >
           <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
             <div className="text-center">
-              <p className="text-sm font-semibold text-accent">Kom godt fra start</p>
+              <p className="text-sm font-semibold text-accent">
+                Kom godt fra start
+              </p>
               <h2 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
                 Sådan virker det
               </h2>
@@ -470,10 +482,11 @@ export default function LandingPage() {
               Få flere kunder. Og flere af dem tilbage.
             </h2>
             <p className="mx-auto mt-3 max-w-lg text-white/70">
-              Få anmeldelser, loyalitet, feedback og synlighed samlet i LoyalSum.
+              Få anmeldelser, loyalitet, feedback og synlighed samlet i
+              LoyalSum.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <ButtonLink href="/signup" size="lg">
+              <ButtonLink variant="secondary" href="/signup" size="lg">
                 Kom i gang
               </ButtonLink>
               <Link
