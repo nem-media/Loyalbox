@@ -24,7 +24,7 @@
   </g>
 
   <!-- Bue fra stander til telefon -->
-  <path d="M430 300 C 540 220, 620 220, 700 268" stroke="#4a6b47" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="2 22"/>
+  <path d="M430 300 C 540 220, 620 220, 700 268" stroke="#26616e" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="2 22"/>
 
   <!-- Telefon med anmeldelse -->
   <g>
@@ -32,7 +32,7 @@
     <rect x="716" y="166" width="238" height="348" rx="22" fill="#ffffff"/>
 
     <!-- Firmalinje -->
-    <circle cx="758" cy="212" r="20" fill="#4a6b47"/>
+    <circle cx="758" cy="212" r="20" fill="#26616e"/>
     <rect x="790" y="200" width="120" height="12" rx="6" fill="#1e1c1a" opacity="0.7"/>
     <rect x="790" y="220" width="80" height="10" rx="5" fill="#1e1c1a" opacity="0.3"/>
 
@@ -51,7 +51,7 @@
     <rect x="740" y="416" width="120" height="12" rx="6" fill="#1e1c1a" opacity="0.25"/>
 
     <!-- Knap -->
-    <rect x="740" y="452" width="190" height="42" rx="8" fill="#4a6b47"/>
+    <rect x="740" y="452" width="190" height="42" rx="8" fill="#26616e"/>
     <rect x="778" y="468" width="114" height="12" rx="6" fill="#ffffff" opacity="0.9"/>
   </g>
 </svg>

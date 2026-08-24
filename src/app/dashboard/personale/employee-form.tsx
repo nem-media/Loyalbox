@@ -62,7 +62,7 @@ export function EmployeeForm() {
                 type="checkbox"
                 name={f.name}
                 defaultChecked={f.name !== "can_discount"}
-                className="mt-0.5 h-4 w-4 accent-[color:var(--color-accent,#1e1c1a)]"
+                className="mt-0.5 h-4 w-4 accent-[color:var(--color-accent,#26616e)]"
               />
               <span className="text-sm">
                 {f.label}

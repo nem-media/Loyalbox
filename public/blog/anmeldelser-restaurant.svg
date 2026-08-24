@@ -40,7 +40,7 @@
     <!-- Det lille QR-kort, der ligger i mappen -->
     <g>
       <rect x="470" y="372" width="180" height="66" rx="8" fill="#f6f4ee"/>
-      <rect x="470" y="372" width="180" height="66" rx="8" fill="none" stroke="#4a6b47" stroke-width="2.5" opacity="0.5"/>
+      <rect x="470" y="372" width="180" height="66" rx="8" fill="none" stroke="#26616e" stroke-width="2.5" opacity="0.5"/>
       <!-- QR -->
       <g fill="#1e1c1a">
         <rect x="484" y="384" width="42" height="42" rx="4" fill="#ffffff"/>
@@ -76,17 +76,17 @@
     <rect x="868" y="326" width="164" height="11" rx="5.5" fill="#1e1c1a" opacity="0.16"/>
     <rect x="868" y="350" width="140" height="11" rx="5.5" fill="#1e1c1a" opacity="0.16"/>
     <rect x="868" y="374" width="104" height="11" rx="5.5" fill="#1e1c1a" opacity="0.16"/>
-    <rect x="868" y="420" width="164" height="24" rx="7" fill="#4a6b47"/>
+    <rect x="868" y="420" width="164" height="24" rx="7" fill="#26616e"/>
   </g>
 
   <!-- Fire smaa personmarkeringer: hele bordet, ikke kun betaleren -->
-  <g fill="#4a6b47" opacity="0.4" transform="translate(392 520)">
+  <g fill="#26616e" opacity="0.4" transform="translate(392 520)">
     <circle cx="0" cy="0" r="13"/>
     <circle cx="40" cy="0" r="13"/>
     <circle cx="80" cy="0" r="13"/>
     <circle cx="120" cy="0" r="13"/>
   </g>
-  <g fill="#4a6b47" opacity="0.9" transform="translate(392 520)">
+  <g fill="#26616e" opacity="0.9" transform="translate(392 520)">
     <circle cx="0" cy="0" r="13"/>
   </g>
 </svg>

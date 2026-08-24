@@ -18,9 +18,9 @@
     <rect x="172" y="380" width="90" height="14" rx="7" fill="#1e1c1a" opacity="0.55"/>
     <rect x="366" y="380" width="68" height="14" rx="7" fill="#1e1c1a" opacity="0.55"/>
     <g transform="translate(172 420)">
-      <circle cx="14" cy="14" r="14" fill="#4a6b47" opacity="0.14"/>
-      <path d="M7 14 l5 6 10 -12" fill="none" stroke="#4a6b47" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-      <rect x="40" y="8" width="150" height="11" rx="5.5" fill="#4a6b47" opacity="0.35"/>
+      <circle cx="14" cy="14" r="14" fill="#26616e" opacity="0.14"/>
+      <path d="M7 14 l5 6 10 -12" fill="none" stroke="#26616e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="40" y="8" width="150" height="11" rx="5.5" fill="#26616e" opacity="0.35"/>
     </g>
   </g>
 
@@ -51,9 +51,9 @@
     </g>
     <rect x="852" y="304" width="166" height="11" rx="5.5" fill="#1e1c1a" opacity="0.16"/>
     <rect x="852" y="328" width="134" height="11" rx="5.5" fill="#1e1c1a" opacity="0.16"/>
-    <rect x="852" y="374" width="3" height="34" rx="1.5" fill="#4a6b47"/>
-    <rect x="870" y="376" width="140" height="9" rx="4.5" fill="#4a6b47" opacity="0.45"/>
-    <rect x="870" y="394" width="96" height="9" rx="4.5" fill="#4a6b47" opacity="0.3"/>
-    <rect x="852" y="434" width="166" height="24" rx="7" fill="#4a6b47"/>
+    <rect x="852" y="374" width="3" height="34" rx="1.5" fill="#26616e"/>
+    <rect x="870" y="376" width="140" height="9" rx="4.5" fill="#26616e" opacity="0.45"/>
+    <rect x="870" y="394" width="96" height="9" rx="4.5" fill="#26616e" opacity="0.3"/>
+    <rect x="852" y="434" width="166" height="24" rx="7" fill="#26616e"/>
   </g>
 </svg>

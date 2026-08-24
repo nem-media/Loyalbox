@@ -5,7 +5,13 @@
   FORSLAG TIL NY PALET (ikke besluttet):
     #1e1c1a  varm koksgraa — primaer. Moerke sektioner og overskrifter
     #b4a189  beige — sekundaer. Knapper paa MOERK bund
-    #4a6b47  groen — accent. Knapper og links paa LYS bund
+    #26616e  petroleum — accent. Knapper og links paa LYS bund
+
+  HVORFOR PETROLEUM OG IKKE RUST: rust ligger kun 14° fra beigen i kuloer og
+  ville laeses som "beige, bare moerkere". Petroleum ligger 158° vaek — paa
+  den modsatte side af farvecirklen — og kan derfor aldrig forveksles med
+  den. Kold mod varm er samtidig dét, der faar en palet til at se valgt ud
+  frem for tilfaeldig.
     #f6f4ee  raahvid — sidens grund. Varm, saa den klaeder beigen
 
   Koksgraaen er VARM og ikke ren sort: ren sort ved siden af en varm beige
@@ -43,9 +49,9 @@
      under det, øjet kan opfatte på hvidt. Menuen så gennemført ud, fordi den
      var det eneste element på siden med en grund at stå på. */
   --app-bg: #f6f4ee;
-  --accent: #4a6b47; /* accent — handling på LYS bund: knapper og links */
+  --accent: #26616e; /* accent — handling på LYS bund: knapper og links */
   --accent-fg: #ffffff;
-  --accent-hover: #3d5a3a;
+  --accent-hover: #1f5058;
   --secondary: #b4a189; /* sekundær — bruges minimalt */
   --secondary-fg: #1e1c1a;
   --dark: #1e1c1a; /* mørk sektionsbaggrund */

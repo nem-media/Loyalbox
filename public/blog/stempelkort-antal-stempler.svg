@@ -12,7 +12,7 @@
   <!-- Stempelrække: 5 + 5 -->
   <g>
     <!-- Række 1 — alle fyldt -->
-    <g fill="#4a6b47">
+    <g fill="#26616e">
       <circle cx="272" cy="310" r="36"/><circle cx="368" cy="310" r="36"/>
       <circle cx="464" cy="310" r="36"/><circle cx="560" cy="310" r="36"/>
       <circle cx="656" cy="310" r="36"/>
@@ -26,7 +26,7 @@
     </g>
 
     <!-- Række 2 — to fyldte, to tomme, og belønningen -->
-    <g fill="#4a6b47">
+    <g fill="#26616e">
       <circle cx="272" cy="410" r="36"/><circle cx="368" cy="410" r="36"/>
     </g>
     <g fill="#b4a189">

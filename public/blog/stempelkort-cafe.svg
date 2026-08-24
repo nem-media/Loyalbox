@@ -31,7 +31,7 @@
     <path d="M486 488 h114 l20 12 h-154 z" fill="#1e1c1a" opacity="0.2"/>
 
     <!-- Overskrift paa skiltet -->
-    <rect x="456" y="278" width="104" height="13" rx="6.5" fill="#4a6b47"/>
+    <rect x="456" y="278" width="104" height="13" rx="6.5" fill="#26616e"/>
     <rect x="456" y="300" width="150" height="10" rx="5" fill="#1e1c1a" opacity="0.22"/>
 
     <!-- QR -->
@@ -87,7 +87,7 @@
         <circle cx="874" cy="384" r="22"/>
         <circle cx="936" cy="384" r="22"/>
       </g>
-      <g fill="#4a6b47">
+      <g fill="#26616e">
         <circle cx="812" cy="264" r="16"/>
         <circle cx="874" cy="264" r="16"/>
         <circle cx="936" cy="264" r="16"/>
@@ -106,8 +106,8 @@
   </g>
 
   <!-- Scanningsbue fra skilt til telefon -->
-  <path d="M676 356 q34 -20 50 0" fill="none" stroke="#4a6b47" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
-  <path d="M684 380 q26 -15 38 0" fill="none" stroke="#4a6b47" stroke-width="4" stroke-linecap="round" opacity="0.28"/>
+  <path d="M676 356 q34 -20 50 0" fill="none" stroke="#26616e" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+  <path d="M684 380 q26 -15 38 0" fill="none" stroke="#26616e" stroke-width="4" stroke-linecap="round" opacity="0.28"/>
 
   <!-- Kaffeboenne som lille detalje paa disken -->
   <g transform="rotate(-18 1070 470)">

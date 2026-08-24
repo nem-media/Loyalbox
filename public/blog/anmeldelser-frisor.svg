@@ -73,10 +73,10 @@
     <rect x="840" y="354" width="120" height="11" rx="5.5" fill="#1e1c1a" opacity="0.16"/>
 
     <!-- Svar fra salonen: indrykket, fordi svaret er halvdelen af pointen -->
-    <rect x="858" y="390" width="158" height="9" rx="4.5" fill="#4a6b47" opacity="0.45"/>
-    <rect x="858" y="408" width="128" height="9" rx="4.5" fill="#4a6b47" opacity="0.3"/>
-    <rect x="840" y="386" width="3" height="34" rx="1.5" fill="#4a6b47"/>
+    <rect x="858" y="390" width="158" height="9" rx="4.5" fill="#26616e" opacity="0.45"/>
+    <rect x="858" y="408" width="128" height="9" rx="4.5" fill="#26616e" opacity="0.3"/>
+    <rect x="840" y="386" width="3" height="34" rx="1.5" fill="#26616e"/>
 
-    <rect x="840" y="444" width="176" height="24" rx="7" fill="#4a6b47"/>
+    <rect x="840" y="444" width="176" height="24" rx="7" fill="#26616e"/>
   </g>
 </svg>

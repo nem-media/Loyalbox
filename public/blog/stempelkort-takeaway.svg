@@ -13,7 +13,7 @@
     <!-- QR paa aesken: naar leveringskunden hjemme i stuen -->
     <g>
       <rect x="288" y="366" width="88" height="88" rx="8" fill="#ffffff"/>
-      <rect x="288" y="366" width="88" height="88" rx="8" fill="none" stroke="#4a6b47" stroke-width="2.5" opacity="0.55"/>
+      <rect x="288" y="366" width="88" height="88" rx="8" fill="none" stroke="#26616e" stroke-width="2.5" opacity="0.55"/>
       <g fill="#1e1c1a">
         <rect x="300" y="378" width="22" height="22" rx="3"/>
         <rect x="342" y="378" width="22" height="22" rx="3"/>
@@ -32,7 +32,7 @@
     <path d="M436 336 h150 l14 144 h-178 z" fill="none" stroke="#1e1c1a" stroke-width="3" opacity="0.22"/>
     <path d="M436 336 h150 l-8 26 h-134 z" fill="#1e1c1a" opacity="0.12"/>
     <path d="M478 336 a32 22 0 0 1 64 0" fill="none" stroke="#1e1c1a" stroke-width="5" opacity="0.3"/>
-    <rect x="470" y="392" width="82" height="11" rx="5.5" fill="#4a6b47" opacity="0.55"/>
+    <rect x="470" y="392" width="82" height="11" rx="5.5" fill="#26616e" opacity="0.55"/>
     <rect x="470" y="414" width="60" height="9" rx="4.5" fill="#1e1c1a" opacity="0.18"/>
   </g>
 
@@ -41,7 +41,7 @@
     <path d="M652 232 h150 a10 10 0 0 1 10 10 v186 a10 10 0 0 1 -10 10 h-150 a10 10 0 0 1 -10 -10 v-196 z" fill="#ffffff"/>
     <path d="M652 232 h150 a10 10 0 0 1 10 10 v186 a10 10 0 0 1 -10 10 h-150 a10 10 0 0 1 -10 -10 v-196 z" fill="none" stroke="#1e1c1a" stroke-width="3" opacity="0.18"/>
     <path d="M688 438 h78 l16 12 h-110 z" fill="#1e1c1a" opacity="0.2"/>
-    <rect x="668" y="256" width="78" height="12" rx="6" fill="#4a6b47"/>
+    <rect x="668" y="256" width="78" height="12" rx="6" fill="#26616e"/>
     <rect x="668" y="276" width="112" height="9" rx="4.5" fill="#1e1c1a" opacity="0.22"/>
     <g>
       <rect x="668" y="300" width="118" height="118" rx="8" fill="#ffffff"/>
@@ -72,14 +72,14 @@
         <circle cx="921" cy="334" r="20"/><circle cx="977" cy="334" r="20"/><circle cx="1033" cy="334" r="20"/>
         <circle cx="921" cy="390" r="20"/><circle cx="977" cy="390" r="20"/>
       </g>
-      <g fill="#4a6b47">
+      <g fill="#26616e">
         <circle cx="921" cy="278" r="14"/><circle cx="977" cy="278" r="14"/><circle cx="1033" cy="278" r="14"/>
         <circle cx="921" cy="334" r="14"/><circle cx="977" cy="334" r="14"/><circle cx="1033" cy="334" r="14"/>
       </g>
       <circle cx="977" cy="390" r="20" fill="none" stroke="#f59e0b" stroke-width="3"/>
       <path d="M977 380 l3.9 7.9 8.7 1.3 -6.3 6.1 1.5 8.7 -7.8 -4.1 -7.8 4.1 1.5 -8.7 -6.3 -6.1 8.7 -1.3 z" fill="#f59e0b"/>
     </g>
-    <rect x="901" y="428" width="146" height="22" rx="7" fill="#4a6b47"/>
+    <rect x="901" y="428" width="146" height="22" rx="7" fill="#26616e"/>
   </g>
-  <path d="M826 358 q26 -16 38 0" fill="none" stroke="#4a6b47" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+  <path d="M826 358 q26 -16 38 0" fill="none" stroke="#26616e" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
 </svg>
