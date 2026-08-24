@@ -6,7 +6,7 @@ import { HeroVisual } from "@/components/home/hero-visual";
 import { LoyalsumLoop } from "@/components/home/loyalsum-loop";
 import { PlatformShowcase } from "@/components/home/platform-showcase";
 import { SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
-import { getSiteUrl } from "@/lib/site";
+import { getSiteUrl, organisationsLogo } from "@/lib/site";
 import {
   SetupIcon,
   InviteIcon,
@@ -163,7 +163,7 @@ export default function LandingPage() {
     name: SITE_NAME,
     url: base,
     // Mørk variant: strukturdata-logoer vises på hvid baggrund hos Google.
-    logo: `${base}/loyalsum-logo-dark.png`,
+    logo: organisationsLogo(),
     description: SITE_TAGLINE,
   };
 

@@ -70,7 +70,7 @@ export default async function StaffPage({
     <div className="min-h-screen bg-muted-bg">
       <header className="border-b border-border bg-dark px-4 py-4 text-dark-fg">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
-          <Logo image="light" className="h-7" />
+          <Logo image="light" hoejde="h-7" />
           <span className="text-sm text-white/70">Personale</span>
         </div>
       </header>

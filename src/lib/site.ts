@@ -9,7 +9,6 @@ export function reviewUrl(slug: string): string {
   return `${getSiteUrl()}/r/${slug}`;
 }
 
-
 /**
  * Metadata til sider, der aldrig må stå i et søgeresultat.
  *
@@ -32,3 +31,23 @@ export function reviewUrl(slug: string): string {
 export const PRIVAT_SIDE = {
   robots: { index: false, follow: false },
 } as const;
+
+/**
+ * Logoet til `Organization.logo` i strukturdata.
+ *
+ * EGEN FIL OG IKKE HEADERENS LOGO. Google beskærer et logo til noget nær
+ * kvadratisk, og det brede ordmærke (1450×340) ville miste enderne. Denne er
+ * 1250×1250 med stjernen over navnet, så den tåler beskæringen.
+ *
+ * Stien står HER og ikke i de to sider, der bruger den. Da den var skrevet af
+ * to steder, kunne den ene blive opdateret og den anden blive stående — og en
+ * strukturdatafejl ses ikke på siden, kun i Search Console uger senere.
+ */
+export function organisationsLogo() {
+  return {
+    "@type": "ImageObject" as const,
+    url: `${getSiteUrl()}/loyalsum-organization.png`,
+    width: 1250,
+    height: 1250,
+  };
+}
