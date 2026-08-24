@@ -1,6 +1,10 @@
 import { LoginForm } from "./login-form";
+import { PRIVAT_SIDE } from "@/lib/site";
 
-export const metadata = { title: "Log ind" };
+export const metadata = {
+  title: "Log ind",
+  ...PRIVAT_SIDE,
+};
 
 export default async function LoginPage({
   searchParams,
