@@ -2,8 +2,16 @@ import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
 import { getCurrentUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { DESTINATIONER, erGyldigUrl } from "@/lib/bestilling-uden-konto";
+import type { DestinationType } from "@/lib/types/database";
 import { stripe, nextBillingAnchor, INTEGRATION_ID } from "@/lib/stripe";
-import { stripeIdsFor, stripeMode, isTestBuyer, canSell } from "@/lib/commerce";
+import {
+  stripeIdsFor,
+  stripeMode,
+  isTestBuyer,
+  canSell,
+  kraeverDestination,
+} from "@/lib/commerce";
 import {
   getProduct,
   priceFor,
@@ -254,11 +262,11 @@ export async function POST(request: NextRequest) {
   /**
    * Hvilken stander skal skiltet trykkes med? (0022)
    *
-   * EJERSKABET LIGGER I FORESPOERGSLEN og ikke i en kontrol bagefter: et
-   * stand-id, der tilhoerer en anden butik, giver ingen raekke og dermed
+   * EJERSKABET LIGGER I FORESPØRGSLEN og ikke i en kontrol bagefter: et
+   * stand-id, der tilhoerer en anden butik, giver ingen række og dermed
    * ingen kobling. Sendes der et ukendt id, fejler bestillingen ikke — der
-   * bliver bare ingen stander paa ordren, praecis som foer 0022. En ordre
-   * maa ikke falde paa noget, der kun er en oplysning til produktionen.
+   * bliver bare ingen stander på ordren, præcis som før 0022. En ordre
+   * må ikke falde på noget, der kun er en oplysning til produktionen.
    */
   let standId: string | null = null;
   if (typeof body.stand === "string" && body.stand) {
@@ -269,6 +277,40 @@ export async function POST(request: NextRequest) {
       .eq("company_id", company.id)
       .maybeSingle();
     standId = data?.id ?? null;
+  }
+
+  /**
+   * Hvad skal skiltet pege på? (0022)
+   *
+   * HÅNDHÆVES HER OG IKKE KUN I FORMULAREN. Et fysisk skilt uden abonnement
+   * har en trykt QR og ingen dynamiske links: destinationen er afgjort én
+   * gang for alle. Mangler den, ville vi tage imod penge for et skilt, der
+   * fører ingen steder hen, og som kun kan rettes med et nyt tryk. Derfor
+   * afvises købet — det er den ene gang, hvor en manglende oplysning SKAL
+   * stoppe en bestilling.
+   *
+   * `kraeverDestination()` er samme funktion, som formularen spørger. Ét
+   * sted, så feltet ikke kan blive vist uden at blive krævet, eller omvendt.
+   */
+  let destType: DestinationType | null = null;
+  let destUrl: string | null = null;
+
+  if (kraeverDestination(product, company)) {
+    const t = String(body.destination_type ?? "");
+    const u = String(body.destination_url ?? "").trim();
+
+    if (!DESTINATIONER.some((d) => d.vaerdi === t) || !erGyldigUrl(u)) {
+      return NextResponse.json(
+        {
+          error:
+            "Vi mangler at vide, hvad skiltet skal pege på. Uden abonnement " +
+            "trykkes linket fast og kan ikke ændres bagefter.",
+        },
+        { status: 400 },
+      );
+    }
+    destType = t as DestinationType;
+    destUrl = u;
   }
 
   const betalerFrontfarve = design ? skalBetaleFrontfarve(design) : false;
@@ -496,8 +538,10 @@ export async function POST(request: NextRequest) {
       total_amount: pricing.oneTimeTotal,
       design_id: design?.id ?? null,
       // Designet siger HVORDAN skiltet ser ud; standeren siger HVILKEN
-      // QR-adresse der skal trykkes paa det.
+      // QR-adresse der skal trykkes på det.
       stand_id: standId,
+      destination_type: destType,
+      destination_url: destUrl,
       // Står også på ordren, så beløbet kan læses uden at slå designet op —
       // også efter designet er slettet.
       frontfarve_beloeb: pricing.frontfarve,

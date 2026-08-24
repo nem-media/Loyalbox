@@ -20,7 +20,9 @@ export function LegalSection({
   return (
     <section id={id} className="mt-10 scroll-mt-24">
       <h2 className="text-lg font-bold tracking-tight">{title}</h2>
-      <div className="mt-3 space-y-3 leading-relaxed text-muted">{children}</div>
+      <div className="mt-3 space-y-3 leading-relaxed text-muted">
+        {children}
+      </div>
     </section>
   );
 }

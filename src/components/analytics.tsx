@@ -168,7 +168,8 @@ function ConsentDialog() {
     marketing: false,
   });
 
-  const alle = () => gem({ statistics: Boolean(GA_ID), marketing: Boolean(ADS_ID) });
+  const alle = () =>
+    gem({ statistics: Boolean(GA_ID), marketing: Boolean(ADS_ID) });
   const ingen = () => gem({ statistics: false, marketing: false });
   const valgte = () =>
     gem({
@@ -211,7 +212,10 @@ function ConsentDialog() {
             <p className="mt-1.5 text-sm leading-relaxed text-muted">
               Vi bruger visse nødvendige cookies til at levere vores tjenester.
               Læs mere i vores{" "}
-              <a href="/privatliv" className="font-medium text-accent underline">
+              <a
+                href="/privatliv"
+                className="font-medium text-accent underline"
+              >
                 privatlivspolitik
               </a>
               .
@@ -232,7 +236,10 @@ function ConsentDialog() {
             </li>
 
             {tilgaengelige.map((c) => (
-              <li key={c.key} className="flex items-start justify-between gap-4 py-3">
+              <li
+                key={c.key}
+                className="flex items-start justify-between gap-4 py-3"
+              >
                 <div>
                   <p className="text-sm font-medium">{c.label}</p>
                   <p className="text-xs leading-relaxed text-muted">
@@ -255,7 +262,6 @@ function ConsentDialog() {
               </li>
             ))}
           </ul>
-
         </div>
 
         {/* Knapperne står uden for det rullende felt, så de altid kan nås. */}

@@ -19,9 +19,7 @@ export function PurchaseNotice({ className }: { className?: string }) {
         (className ?? "")
       }
     >
-      <p className="font-bold tracking-tight">
-        Du kan ikke købe online endnu
-      </p>
+      <p className="font-bold tracking-tight">Du kan ikke købe online endnu</p>
       <p className="mt-1 text-muted">
         Vi er ved at sætte betaling op. Vil du bestille allerede nu, så skriv
         til{" "}

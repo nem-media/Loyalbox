@@ -113,7 +113,9 @@ function Maerkat({
 
 /** "for 4 timer siden" — tal, ikke tidsstempler. Alderen er pointen. */
 function siden(tidspunkt: string): string {
-  const minutter = Math.floor((Date.now() - new Date(tidspunkt).getTime()) / 60_000);
+  const minutter = Math.floor(
+    (Date.now() - new Date(tidspunkt).getTime()) / 60_000,
+  );
   if (minutter < 60) return `for ${Math.max(minutter, 1)} min. siden`;
   const timer = Math.floor(minutter / 60);
   if (timer < 24) return `for ${timer} ${timer === 1 ? "time" : "timer"} siden`;

@@ -24,9 +24,7 @@ export function Logo({
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={
-            image === "dark"
-              ? "/loyalsum-logo-dark.png"
-              : "/loyalsum-logo.png"
+            image === "dark" ? "/loyalsum-logo-dark.png" : "/loyalsum-logo.png"
           }
           alt={SITE_NAME}
           width={1450}

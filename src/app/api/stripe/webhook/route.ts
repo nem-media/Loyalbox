@@ -71,9 +71,13 @@ function leveringsadresse(
   session: Stripe.Checkout.Session,
 ): Record<string, string | null> | null {
   const s = session as unknown as {
-    shipping_details?: { address?: Record<string, string | null> | null } | null;
+    shipping_details?: {
+      address?: Record<string, string | null> | null;
+    } | null;
     collected_information?: {
-      shipping_details?: { address?: Record<string, string | null> | null } | null;
+      shipping_details?: {
+        address?: Record<string, string | null> | null;
+      } | null;
     } | null;
   };
   return (
@@ -144,7 +148,10 @@ export async function POST(request: NextRequest) {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!secret) {
     console.error("[stripe] STRIPE_WEBHOOK_SECRET mangler");
-    await noterFejl("stripe-webhook", "STRIPE_WEBHOOK_SECRET mangler — betalinger registreres ikke");
+    await noterFejl(
+      "stripe-webhook",
+      "STRIPE_WEBHOOK_SECRET mangler — betalinger registreres ikke",
+    );
     return NextResponse.json({ error: "ikke konfigureret" }, { status: 500 });
   }
 
@@ -206,6 +213,50 @@ export async function POST(request: NextRequest) {
           }
         }
 
+        /**
+         * Sæt destinationen på standeren, når pengene er hjemme (0022).
+         *
+         * Den står også på ORDREN, men dét er bilaget. Standeren er dét,
+         * QR-koden faktisk peger på, og uden dette skridt ville kunden have
+         * betalt for et skilt med en destination, der kun fandtes i en
+         * ordrelinje.
+         *
+         * Kolonnerne skrives EKSPLICIT og ikke via en beregnet nøgle: en
+         * dynamisk nøgle river typerne fra Supabase-klienten fra hinanden,
+         * og så er der ingen, der fanger en stavefejl i et kolonnenavn.
+         */
+        const { data: ordreDest } = await admin
+          .from("orders")
+          .select("stand_id, destination_type, destination_url")
+          .eq("stripe_session_id", session.id)
+          .maybeSingle();
+
+        const dType = ordreDest?.destination_type;
+        const dUrl = ordreDest?.destination_url;
+
+        if (ordreDest?.stand_id && dType && dUrl) {
+          const { error } = await admin
+            .from("stands")
+            .update({
+              destination_type: dType,
+              ...(dType === "google"
+                ? { google_review_url: dUrl }
+                : dType === "trustpilot"
+                  ? { trustpilot_url: dUrl }
+                  : dType === "facebook"
+                    ? { facebook_url: dUrl }
+                    : { custom_url: dUrl }),
+            })
+            .eq("id", ordreDest.stand_id);
+
+          if (error) {
+            await noterFejl(
+              "stripe-webhook",
+              `Kunne ikke sætte destination på stander ${ordreDest.stand_id}: ${error.message}`,
+            );
+          }
+        }
+
         const erAbonnement = typeof session.subscription === "string";
         const type: Koebstype = erAbonnement
           ? bestaaende?.product_slug
@@ -229,7 +280,9 @@ export async function POST(request: NextRequest) {
          * `after()` er lavet til netop dette: Stripe får sit svar med det
          * samme, og platformen holder funktionen i live, til varslet er sendt.
          */
-        after(() => varslOmKoeb(session, productSlug, type, bestaaende ?? null));
+        after(() =>
+          varslOmKoeb(session, productSlug, type, bestaaende ?? null),
+        );
 
         if (erAbonnement && typeof session.subscription === "string") {
           // ABONNEMENTSKØB. Det er her kundeforholdet sættes eller genoptages:
@@ -294,8 +347,7 @@ export async function POST(request: NextRequest) {
             // Adressen gemmes HER og ikke ved bestillingen: den indsamles først
             // hos Stripe. Uden den kan ordren ses i admin, men ikke pakkes.
             leveringsadresse: leveringsadresse(session),
-            kontakt_email:
-              session.customer_details?.email ?? undefined,
+            kontakt_email: session.customer_details?.email ?? undefined,
           })
           .eq("stripe_session_id", session.id);
         break;
@@ -319,7 +371,9 @@ export async function POST(request: NextRequest) {
           await admin
             .from("companies")
             .update({
-              ...(slug ? { product_slug: slug, plan: planForProduct(slug) } : {}),
+              ...(slug
+                ? { product_slug: slug, plan: planForProduct(slug) }
+                : {}),
               stripe_status: sub.status,
               suspenderet_siden: null,
               ophoert_den: null,

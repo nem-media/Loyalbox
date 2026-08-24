@@ -5,6 +5,12 @@ import { useId, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { laesBetalingssvar } from "@/lib/betalingssvar";
+import {
+  DestinationFelt,
+  destinationKlar,
+} from "@/components/destination-felt";
+import type { DestinationType } from "@/lib/types/database";
+
 import { Input } from "@/components/ui/input";
 import {
   MAX_QTY,
@@ -81,6 +87,8 @@ export function StanderDesigner({
   initialQty = 1,
   kraeverDpa = true,
   standId,
+  kraeverDestination = false,
+  destinationStart,
 }: {
   product: Product;
   companyId: string;
@@ -89,11 +97,21 @@ export function StanderDesigner({
   /**
    * Standeren, skiltet skal trykkes med (0022).
    *
-   * Foelger med fra `/dashboard/standere/<id>` gennem `/bestil?stand=<id>`.
-   * Uden den ved produktionen ikke, hvilken QR-adresse der skal paa skiltet,
-   * naar butikken har mere end en stander.
+   * Følger med fra `/dashboard/standere/<id>` gennem `/bestil?stand=<id>`.
+   * Uden den ved produktionen ikke, hvilken QR-adresse der skal på skiltet,
+   * når butikken har mere end en stander.
    */
   standId?: string;
+  /**
+   * Skal kunden oplyse, hvad skiltet peger på?
+   *
+   * Afgøres af `kraeverDestination()` i commerce.ts — samme funktion, som
+   * ruten spørger. Vises feltet uden at være krævet (eller omvendt), er
+   * det en fejl, kunden opdager først ved betalingen.
+   */
+  kraeverDestination?: boolean;
+  /** Forudfyldes fra standeren, hvis den allerede har en destination. */
+  destinationStart?: { type: DestinationType; url: string };
 }) {
   const clamp = (n: number) =>
     Math.max(1, Math.min(MAX_QTY, Math.floor(n) || 1));
@@ -110,6 +128,11 @@ export function StanderDesigner({
   const [logoFejl, setLogoFejl] = useState<string | null>(null);
   const [advarsler, setAdvarsler] = useState<string[]>([]);
   const [accepteret, setAccepteret] = useState(false);
+  const [destType, setDestType] = useState<DestinationType>(
+    destinationStart?.type ?? "google",
+  );
+  const [destUrl, setDestUrl] = useState(destinationStart?.url ?? "");
+  const [proevet, setProevet] = useState(false);
   const [pending, setPending] = useState(false);
   const [fejl, setFejl] = useState<string | null>(null);
 
@@ -177,6 +200,9 @@ export function StanderDesigner({
           antal: qty,
           accepterVilkaar: accepteret,
           ...(standId ? { stand: standId } : {}),
+          ...(kraeverDestination
+            ? { destination_type: destType, destination_url: destUrl.trim() }
+            : {}),
           design: {
             stander_farve: standerFarve,
             front_type: front.egen ? "egen" : "matcher",
@@ -471,11 +497,27 @@ export function StanderDesigner({
           </label>
         </div>
 
+        {kraeverDestination ? (
+          <div className="mb-4">
+            <DestinationFelt
+              type={destType}
+              url={destUrl}
+              onType={setDestType}
+              onUrl={setDestUrl}
+              visFejl={proevet}
+            />
+          </div>
+        ) : null}
+
         <Button
           type="button"
           size="lg"
           className="w-full"
-          onClick={betal}
+          onClick={() => {
+            setProevet(true);
+            if (kraeverDestination && !destinationKlar(destUrl)) return;
+            void betal();
+          }}
           disabled={
             pending || !accepteret || (egenFront && !normaliserHex(hex))
           }

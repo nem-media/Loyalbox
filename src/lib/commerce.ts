@@ -9,9 +9,12 @@ import { getSiteUrl } from "@/lib/site";
 import {
   COMMERCE,
   STRIPE_TAX_RATES,
+  harFysiskSkilt,
+  tierCan,
   type Product,
   type StripeIds,
   type StripeMode,
+  type Tier,
 } from "@/lib/constants";
 import { erGyldigtCvr } from "@/lib/cvr";
 
@@ -25,7 +28,9 @@ export function isStripeConfigured(): boolean {
  * indstilling — så kan de to ikke komme i utakt.
  */
 export function stripeMode(): StripeMode {
-  return process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_") ? "live" : "test";
+  return process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_")
+    ? "live"
+    : "test";
 }
 
 /**
@@ -219,4 +224,36 @@ export function toGoogleShoppingItem(product: Product) {
     // Google kræver identifier_exists=no, når hverken GTIN eller brand+MPN findes.
     identifier_exists: hasIdentifier ? "yes" : "no",
   };
+}
+
+/**
+ * Skal bestillingen oplyse, hvad skiltet peger på?
+ *
+ * REGLEN: et fysisk skilt uden abonnement kan IKKE omdirigeres bagefter.
+ * Kunden har ingen dynamiske links, QR-koden er trykt, og destinationen er
+ * dermed afgjort én gang for alle i det øjeblik, skiltet gaar i trykken.
+ * Oplyses den ikke ved bestillingen, findes den aldrig — og resultatet er et
+ * skilt, der fører ingen steder hen og kun kan rettes med et nyt tryk.
+ *
+ * MED ABONNEMENT er det harmløst at vente: destinationen sættes i
+ * dashboardet når som helst, og QR'en peger på /r/<slug>, som vi styrer.
+ *
+ * TO KILDER TIL ET ABONNEMENT, og begge skal med:
+ *
+ *  - Varen, der købes nu (`monthlyPrice`) — førstegangskøb af Pro/Komplet.
+ *  - Kundens BESTÅENDE forhold (`plan`) — et tilkøb som "Ekstra stander"
+ *    har ingen månedspris, men køberen kan sagtens være Pro-kunde i
+ *    forvejen. Uden dette led ville en Pro-kunde blive tvunget til at
+ *    oplyse en destination, de kan skifte fem minutter senere.
+ *
+ * Bruges BÅDE af bestillingsformularen og af /api/checkout — ét sted, så
+ * feltet ikke kan blive vist uden at blive krævet, eller omvendt.
+ */
+export function kraeverDestination(
+  product: Product | undefined,
+  company: { plan?: string | null } | null | undefined,
+): boolean {
+  if (!product || !harFysiskSkilt(product)) return false;
+  if (product.monthlyPrice) return false;
+  return !tierCan((company?.plan ?? "basic") as Tier, "dynamicLinks");
 }

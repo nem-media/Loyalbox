@@ -34,7 +34,8 @@ function isStandaloneSnapshot() {
   return (
     window.matchMedia(STANDALONE_QUERY).matches ||
     // iOS Safari kender ikke display-mode og sætter sit eget flag i stedet.
-    (window.navigator as Navigator & { standalone?: boolean }).standalone === true
+    (window.navigator as Navigator & { standalone?: boolean }).standalone ===
+      true
   );
 }
 
@@ -122,7 +123,8 @@ export function PwaInstall({ className }: { className?: string }) {
         <p className="text-sm font-medium">Få kortet som app</p>
         <p className="mt-1 text-xs text-muted">
           Tryk på Del-ikonet nederst i Safari, og vælg{" "}
-          <span className="font-medium">&laquo;Føj til hjemmeskærm&raquo;</span>.
+          <span className="font-medium">&laquo;Føj til hjemmeskærm&raquo;</span>
+          .
         </p>
       </div>
     );

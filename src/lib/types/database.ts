@@ -363,6 +363,16 @@ export interface Database {
            * ordre skulle trykkes med "Disken" eller "Bordene".
            */
           stand_id: string | null;
+          /**
+           * Hvad skiltet skal pege paa (0022).
+           *
+           * KRAEVES ved koeb UDEN abonnement: et saadant skilt kan ikke
+           * omdirigeres bagefter, saa oplyses destinationen ikke ved
+           * bestillingen, findes den aldrig. Med abonnement er den null —
+           * dér saettes destinationen i dashboardet naar som helst.
+           */
+          destination_type: DestinationType | null;
+          destination_url: string | null;
           /** Kontaktmail paa en ordre uden konto (0019). */
           kontakt_email: string | null;
           /**
@@ -388,6 +398,8 @@ export interface Database {
           total_amount?: number;
           design_id?: string | null;
           stand_id?: string | null;
+          destination_type?: DestinationType | null;
+          destination_url?: string | null;
           kontakt_email?: string | null;
           leveringsadresse?: Record<string, string | null> | null;
           uden_konto?: boolean;

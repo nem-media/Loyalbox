@@ -5,6 +5,11 @@ import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { laesBetalingssvar } from "@/lib/betalingssvar";
 import {
+  DestinationFelt,
+  destinationKlar,
+} from "@/components/destination-felt";
+import type { DestinationType } from "@/lib/types/database";
+import {
   MAX_QTY,
   TERMS_VERSION,
   VOLUME_DISCOUNTS,
@@ -51,6 +56,8 @@ export function GenbestilDesign({
   design,
   kraeverDpa = true,
   standId,
+  kraeverDestination = false,
+  destinationStart,
 }: {
   product: Product;
   design: GemtDesign;
@@ -58,16 +65,25 @@ export function GenbestilDesign({
   /**
    * Standeren, skiltet skal trykkes med (0022).
    *
-   * Foelger med fra `/dashboard/standere/<id>` gennem `/bestil?stand=<id>`.
-   * Uden den ved produktionen ikke, hvilken QR-adresse der skal paa skiltet,
-   * naar butikken har mere end en stander.
+   * Følger med fra `/dashboard/standere/<id>` gennem `/bestil?stand=<id>`.
+   * Uden den ved produktionen ikke, hvilken QR-adresse der skal på skiltet,
+   * når butikken har mere end en stander.
    */
   standId?: string;
+  /** Se `kraeverDestination()` i commerce.ts — samme regel som ruten bruger. */
+  kraeverDestination?: boolean;
+  /** Forudfyldes fra standeren, hvis den allerede har en destination. */
+  destinationStart?: { type: DestinationType; url: string };
 }) {
   const clamp = (n: number) =>
     Math.max(1, Math.min(MAX_QTY, Math.floor(n) || 1));
   const [qty, setQty] = useState(1);
   const [accepteret, setAccepteret] = useState(false);
+  const [destType, setDestType] = useState<DestinationType>(
+    destinationStart?.type ?? "google",
+  );
+  const [destUrl, setDestUrl] = useState(destinationStart?.url ?? "");
+  const [proevet, setProevet] = useState(false);
   const [pending, setPending] = useState(false);
   const [fejl, setFejl] = useState<string | null>(null);
   const vilkaarId = useId();
@@ -89,6 +105,9 @@ export function GenbestilDesign({
           accepterVilkaar: accepteret,
           design_id: design.id,
           ...(standId ? { stand: standId } : {}),
+          ...(kraeverDestination
+            ? { destination_type: destType, destination_url: destUrl.trim() }
+            : {}),
         }),
       });
       const svar = await laesBetalingssvar(res);
@@ -254,11 +273,27 @@ export function GenbestilDesign({
           </label>
         </div>
 
+        {kraeverDestination ? (
+          <div className="mb-4">
+            <DestinationFelt
+              type={destType}
+              url={destUrl}
+              onType={setDestType}
+              onUrl={setDestUrl}
+              visFejl={proevet}
+            />
+          </div>
+        ) : null}
+
         <Button
           type="button"
           size="lg"
           className="w-full"
-          onClick={betal}
+          onClick={() => {
+            setProevet(true);
+            if (kraeverDestination && !destinationKlar(destUrl)) return;
+            void betal();
+          }}
           disabled={pending || !accepteret}
         >
           {pending ? "Åbner betaling…" : "Gå til betaling"}

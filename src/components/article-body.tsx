@@ -116,7 +116,10 @@ export function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
             );
           case "faq":
             return (
-              <div key={i} className="my-6 divide-y divide-border border-y border-border">
+              <div
+                key={i}
+                className="my-6 divide-y divide-border border-y border-border"
+              >
                 {block.items.map((item, j) => (
                   // `details` og ikke JavaScript: indholdet står i kildekoden
                   // uanset om feltet er åbnet, så Google kan læse svaret. Et

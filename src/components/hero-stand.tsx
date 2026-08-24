@@ -43,7 +43,9 @@ function FakeQR() {
     >
       {matrix.flatMap((row, r) =>
         row.map((on, c) =>
-          on ? <rect key={`${r}-${c}`} x={c} y={r} width={1} height={1} /> : null,
+          on ? (
+            <rect key={`${r}-${c}`} x={c} y={r} width={1} height={1} />
+          ) : null,
         ),
       )}
     </svg>
