@@ -13,7 +13,7 @@ import {
   relaterede,
 } from "@/lib/blog";
 import { SITE_NAME } from "@/lib/constants";
-import { getSiteUrl } from "@/lib/site";
+import { getSiteUrl, organisationsLogo } from "@/lib/site";
 
 export function generateStaticParams() {
   return POSTS.map((p) => ({ slug: p.slug }));
@@ -73,7 +73,7 @@ export default async function BlogPostPage({
       "@type": "Organization",
       name: SITE_NAME,
       // Mørk variant: strukturdata-logoer vises på hvid baggrund hos Google.
-      logo: { "@type": "ImageObject", url: `${base}/loyalsum-logo-dark.png` },
+      logo: organisationsLogo(),
     },
     image: `${base}${post.image}`,
     mainEntityOfPage: `${base}/blog/${post.slug}`,
