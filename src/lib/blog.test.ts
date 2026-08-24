@@ -138,9 +138,9 @@ describe("blogindhold", () => {
     const slugs = new Set(POSTS.map((p) => p.slug));
 
     for (const p of POSTS) {
-      for (const href of alHtml(p).flatMap(links).concat(
-        p.body.flatMap((b) => (b.type === "cta" ? [b.href] : [])),
-      )) {
+      for (const href of alHtml(p)
+        .flatMap(links)
+        .concat(p.body.flatMap((b) => (b.type === "cta" ? [b.href] : [])))) {
         if (!href.startsWith("/")) continue; // eksterne links efterprøves ikke
         const sti = href.split(/[?#]/)[0].replace(/\/$/, "");
 
@@ -209,6 +209,49 @@ describe("blogindhold", () => {
       ).toBe(ider.length);
 
       for (const id of ider) expect(id.length).toBeGreaterThan(0);
+    }
+  });
+
+  /**
+   * UDGIVELSESKADENCE.
+   *
+   * Seks artikler med samme dato er præcis det mønster, Google bruger til at
+   * genkende masseproduceret indhold — og det så bloggen ud til at være, fordi
+   * hele batchen blev skrevet på én dag. En blog, der udkommer med mellemrum,
+   * ligner en, nogen passer.
+   *
+   * Reglen er mindst to dage mellem to udgivelser. Den står som en test og
+   * ikke som en note, fordi den ellers bliver glemt af den, der tilføjer den
+   * næste artikel — og fejlen kan først ses, når alle datoerne ligger der.
+   */
+  const MINDST_DAGES_MELLEMRUM = 2;
+
+  it("udgiver ikke to artikler for tæt på hinanden", () => {
+    const datoer = POSTS.map((p) => ({
+      slug: p.slug,
+      dato: new Date(p.date),
+    })).sort((a, b) => a.dato.getTime() - b.dato.getTime());
+
+    for (let i = 1; i < datoer.length; i++) {
+      const dage =
+        (datoer[i].dato.getTime() - datoer[i - 1].dato.getTime()) / 86_400_000;
+
+      expect(
+        dage,
+        `"${datoer[i].slug}" udkommer ${dage} dag(e) efter "${datoer[i - 1].slug}"`,
+      ).toBeGreaterThanOrEqual(MINDST_DAGES_MELLEMRUM);
+    }
+  });
+
+  it("udgiver ikke i fremtiden", () => {
+    // En udgivelsesdato frem i tiden får Google til at udskyde indekseringen,
+    // og læseren ser en artikel, der endnu ikke er skrevet.
+    const iDag = new Date().toISOString().slice(0, 10);
+    for (const p of POSTS) {
+      expect(
+        p.date <= iDag,
+        `${p.slug}: udgivet ${p.date}, i dag er ${iDag}`,
+      ).toBe(true);
     }
   });
 
