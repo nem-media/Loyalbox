@@ -51,7 +51,10 @@ export function SetupIcon({ className }: IconProps) {
   return (
     <Svg className={className}>
       <rect x="5" y="3" width="14" height="12" rx="1.5" />
-      <path d="M8 17.5 6.5 21h11L16 17.5" />
+      {/* Hals mellem skilt og fod. Uden den svævede skiltet over sin egen
+          stander med 2,5 enheders luft. */}
+      <path d="M12 15v2.5" />
+      <path d="M9 17.5 7.5 21h9L15 17.5" />
       <circle cx="12" cy="9" r="2.5" fill={ACCENT} stroke="none" />
     </Svg>
   );
@@ -81,7 +84,8 @@ export function AutomationIcon({ className }: IconProps) {
       <rect x="3" y="4" width="18" height="14" rx="2" />
       <path d="M7 14l3.5-4 3 3L18 8" />
       <circle cx="18" cy="8" r="1.75" fill={ACCENT} stroke="none" />
-      <path d="M9 21h6" />
+      {/* Hals mellem skærm og fod — foden lå før løsrevet tre enheder under. */}
+      <path d="M12 18v3M9 21h6" />
     </Svg>
   );
 }
@@ -94,7 +98,9 @@ export function NewCustomersIcon({ className }: IconProps) {
     <Svg className={className}>
       <path d="M4 5.5h16v10H8l-4 3.5z" />
       <path
-        d="M12 8l1.2 2.5 2.8.4-2 2 .5 2.7L12 14.3 9.5 15.6l.5-2.7-2-2 2.8-.4z"
+        // Stjernens nederste spidser lå på y=15,6 — under boblens bund på
+        // y=15,5. Den stak altså ud af den boble, den ligger i.
+        d="M12 7.6l1.15 2.35 2.6.38-1.88 1.83.44 2.58L12 13.5l-2.31 1.22.44-2.58L8.25 10.33l2.6-.38z"
         fill={GOLD}
         stroke="none"
       />
@@ -133,7 +139,15 @@ export function ScanIcon({ className }: IconProps) {
   return (
     <Svg className={className}>
       <path d="M3 8V5.5A1.5 1.5 0 0 1 4.5 4H7M17 4h2.5A1.5 1.5 0 0 1 21 5.5V8M21 16v2.5a1.5 1.5 0 0 1-1.5 1.5H17M7 20H4.5A1.5 1.5 0 0 1 3 18.5V16" />
-      <rect x="7.5" y="8.5" width="4" height="4" rx="0.5" fill={ACCENT} stroke="none" />
+      <rect
+        x="7.5"
+        y="8.5"
+        width="4"
+        height="4"
+        rx="0.5"
+        fill={ACCENT}
+        stroke="none"
+      />
       <path d="M13.5 8.5h3M13.5 12h1.5M7.5 15.5h3M14 15.5h2.5" />
     </Svg>
   );
@@ -143,8 +157,18 @@ export function ScanIcon({ className }: IconProps) {
 export function StampIcon({ className }: IconProps) {
   return (
     <Svg className={className}>
-      <path d="M8 4.5h8v4.5l-2 2v2h-4v-2l-2-2z" />
-      <rect x="4.5" y="15" width="15" height="4.5" rx="1" fill={ACCENT} stroke="none" />
+      {/* Halsen når NED til foden (y=15). Før sluttede den på y=13, så
+          stemplet stod som to løsrevne stykker med luft imellem. */}
+      <path d="M8 4.5h8v4.5l-2 2v4h-4v-4l-2-2z" />
+      <rect
+        x="4.5"
+        y="15"
+        width="15"
+        height="4.5"
+        rx="1"
+        fill={ACCENT}
+        stroke="none"
+      />
     </Svg>
   );
 }
@@ -155,7 +179,11 @@ export function RewardIcon({ className }: IconProps) {
     <Svg className={className}>
       <rect x="3" y="9" width="18" height="11" rx="1.5" />
       <path d="M3 13h18M12 9v11" />
-      <path d="M12 9C10 9 8 8 8 6.2A2.2 2.2 0 0 1 12 5a2.2 2.2 0 0 1 4 1.2C16 8 14 9 12 9z" fill={GOLD} stroke="none" />
+      <path
+        d="M12 9C10 9 8 8 8 6.2A2.2 2.2 0 0 1 12 5a2.2 2.2 0 0 1 4 1.2C16 8 14 9 12 9z"
+        fill={GOLD}
+        stroke="none"
+      />
     </Svg>
   );
 }
@@ -166,21 +194,36 @@ export function ReturnVisitIcon({ className }: IconProps) {
     <Svg className={className}>
       <path d="M5 20V5.5A1.5 1.5 0 0 1 6.5 4h8A1.5 1.5 0 0 1 16 5.5V20" />
       <path d="M3.5 20h17" />
-      <circle cx="13" cy="12.5" r="1.25" fill={ACCENT} stroke="none" />
-      {/* Pilen peger IND mod døren. Peger den ud, læses ikonet som "log ud". */}
-      <path d="M19 8.5l-2 2 2 2" />
-      <path d="M17 10.5h4" />
+      <circle cx="13.5" cy="12.5" r="1.1" fill={ACCENT} stroke="none" />
+      {/* Pilen peger IND mod døren. Peger den ud, læses ikonet som "log ud".
+          Den RAMMER nu dørkarmen (x=16). Før lå den fra x=17 til x=21 —
+          altså løsrevet ude i højre margen med luft ind til døren. */}
+      <path d="M21 12h-5M18.5 9.5 16 12l2.5 2.5" stroke={ACCENT} />
     </Svg>
   );
 }
 
-/** Fremskridt mod målet. */
+/**
+ * Fremskridt mod målet.
+ *
+ * Sporet var før kun 5 enheder højt i et felt på 24 og blev til en tynd
+ * strimmel, der sad og flød ved siden af naboikoner, som fyldte hele feltet.
+ * Oveni lå en prik PRÆCIS for enden af den grønne bjælke, så de to smeltede
+ * sammen til en klat frem for at betyde noget.
+ */
 export function ProgressIcon({ className }: IconProps) {
   return (
     <Svg className={className}>
-      <rect x="3" y="9.5" width="18" height="5" rx="2.5" />
-      <path d="M5.5 12h7" stroke={ACCENT} strokeWidth={3} />
-      <circle cx="12" cy="12" r="1" fill={ACCENT} stroke="none" />
+      <rect x="2.5" y="7.5" width="19" height="9" rx="4.5" />
+      <rect
+        x="5"
+        y="10"
+        width="8"
+        height="4"
+        rx="2"
+        fill={ACCENT}
+        stroke="none"
+      />
     </Svg>
   );
 }
@@ -191,9 +234,14 @@ export function ProgressIcon({ className }: IconProps) {
 export function TapIcon({ className }: IconProps) {
   return (
     <Svg className={className}>
-      <rect x="7" y="3" width="10" height="16" rx="2" />
-      <path d="M10 21h4" />
-      <path d="M19.5 8.5a4.5 4.5 0 0 1 0 7M21.5 6a8 8 0 0 1 0 12" stroke={GOLD} />
+      <rect x="4" y="3" width="10" height="18" rx="2" />
+      {/* Stregen ligger INDE i telefonen. Før lå den på y=21, altså to
+          enheder under telefonens bund, og svævede løsrevet under den. */}
+      <path d="M7.5 18h3" />
+      {/* Den yderste bølge var `a8 8` fra x=21,5 og bulnede ud til x≈24,2 —
+          plus halvdelen af stregtykkelsen ≈ 25 i et felt på 24. Den blev
+          altså klippet af ved kanten. Mindre radius, kortere korde. */}
+      <path d="M17 9.5a4 4 0 0 1 0 5M20 7a7 7 0 0 1 0 10" stroke={GOLD} />
     </Svg>
   );
 }
@@ -217,9 +265,19 @@ export function GrowthIcon({ className }: IconProps) {
   return (
     <Svg className={className}>
       <path d="M4 20V4M4 20h16" />
-      <rect x="7" y="13" width="3" height="4" fill={ACCENT} stroke="none" />
-      <rect x="12" y="9.5" width="3" height="7.5" fill={ACCENT} stroke="none" />
-      <rect x="17" y="6" width="3" height="11" fill={GOLD} stroke="none" />
+      {/* Søjlerne SKAL slutte på aksen (y=20). De sluttede før på y=17 og
+          svævede altså tre enheder over grundlinjen — et søjlediagram, hvor
+          søjlerne ikke rører bunden, læses som en fejl, ikke som et diagram. */}
+      <rect x="7" y="13" width="3" height="7" fill={ACCENT} stroke="none" />
+      <rect
+        x="12"
+        y="9.5"
+        width="3"
+        height="10.5"
+        fill={ACCENT}
+        stroke="none"
+      />
+      <rect x="17" y="6" width="3" height="14" fill={GOLD} stroke="none" />
     </Svg>
   );
 }
