@@ -12,12 +12,12 @@
   <!-- Stempelrække: 5 + 5 -->
   <g>
     <!-- Række 1 — alle fyldt -->
-    <g fill="#1e1c1a">
+    <g fill="#4a6b47">
       <circle cx="272" cy="310" r="36"/><circle cx="368" cy="310" r="36"/>
       <circle cx="464" cy="310" r="36"/><circle cx="560" cy="310" r="36"/>
       <circle cx="656" cy="310" r="36"/>
     </g>
-    <g fill="#f59e0b">
+    <g fill="#b4a189">
       <path d="M272 292l7 15 16 2-12 11 3 16-14-8-14 8 3-16-12-11 16-2z"/>
       <path d="M368 292l7 15 16 2-12 11 3 16-14-8-14 8 3-16-12-11 16-2z"/>
       <path d="M464 292l7 15 16 2-12 11 3 16-14-8-14 8 3-16-12-11 16-2z"/>
@@ -26,10 +26,10 @@
     </g>
 
     <!-- Række 2 — to fyldte, to tomme, og belønningen -->
-    <g fill="#1e1c1a">
+    <g fill="#4a6b47">
       <circle cx="272" cy="410" r="36"/><circle cx="368" cy="410" r="36"/>
     </g>
-    <g fill="#f59e0b">
+    <g fill="#b4a189">
       <path d="M272 392l7 15 16 2-12 11 3 16-14-8-14 8 3-16-12-11 16-2z"/>
       <path d="M368 392l7 15 16 2-12 11 3 16-14-8-14 8 3-16-12-11 16-2z"/>
     </g>
@@ -40,13 +40,13 @@
     <text x="560" y="422" font-family="system-ui, sans-serif" font-size="30" fill="#ffffff" opacity="0.6" text-anchor="middle">9</text>
 
     <!-- Felt 10: belønningen -->
-    <circle cx="656" cy="410" r="40" fill="#f59e0b"/>
+    <circle cx="656" cy="410" r="40" fill="#b4a189"/>
     <text x="656" y="423" font-family="system-ui, sans-serif" font-size="32" font-weight="700" fill="#1e1c1a" text-anchor="middle">10</text>
   </g>
 
   <!-- Belønningsetiket -->
   <rect x="740" y="380" width="230" height="60" rx="8" fill="#ffffff" opacity="0.12"/>
-  <rect x="766" y="398" width="24" height="24" rx="4" fill="#f59e0b"/>
+  <rect x="766" y="398" width="24" height="24" rx="4" fill="#b4a189"/>
   <rect x="806" y="402" width="140" height="16" rx="8" fill="#ffffff" opacity="0.8"/>
 
   <!-- Fremdriftstekst -->

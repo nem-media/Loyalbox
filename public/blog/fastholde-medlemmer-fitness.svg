@@ -40,7 +40,7 @@
         <circle cx="732" cy="304" r="20"/><circle cx="788" cy="304" r="20"/><circle cx="844" cy="304" r="20"/>
         <circle cx="732" cy="360" r="20"/><circle cx="788" cy="360" r="20"/><circle cx="844" cy="360" r="20"/>
       </g>
-      <g stroke="#1e1c1a" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <g stroke="#4a6b47" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
         <path d="M724 248 l6 7 12 -14"/><path d="M780 248 l6 7 12 -14"/><path d="M836 248 l6 7 12 -14"/>
         <path d="M724 304 l6 7 12 -14"/><path d="M780 304 l6 7 12 -14"/><path d="M836 304 l6 7 12 -14"/>
         <path d="M724 360 l6 7 12 -14"/>
@@ -50,7 +50,7 @@
     </g>
 
     <rect x="712" y="404" width="158" height="10" rx="5" fill="#1e1c1a" opacity="0.15"/>
-    <rect x="712" y="434" width="158" height="24" rx="7" fill="#1e1c1a"/>
+    <rect x="712" y="434" width="158" height="24" rx="7" fill="#4a6b47"/>
   </g>
 
   <!-- Fremmoedekurve: signalet, der advarer FOER opsigelsen. Den gule prik
@@ -58,7 +58,7 @@
   <g transform="translate(956 300)">
     <path d="M0 120 h180" stroke="#1e1c1a" stroke-width="3" opacity="0.2"/>
     <path d="M0 120 v-140" stroke="#1e1c1a" stroke-width="3" opacity="0.2"/>
-    <path d="M8 30 L44 18 L80 34 L116 66 L152 100 L176 112" fill="none" stroke="#1e1c1a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M8 30 L44 18 L80 34 L116 66 L152 100 L176 112" fill="none" stroke="#4a6b47" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
     <circle cx="116" cy="66" r="8" fill="#f59e0b"/>
     <circle cx="176" cy="112" r="7" fill="#dc2626" opacity="0.75"/>
   </g>

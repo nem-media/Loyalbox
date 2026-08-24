@@ -3,8 +3,9 @@
 /*
   LoyalSum design system
   FORSLAG TIL NY PALET (ikke besluttet):
-    #1e1c1a  varm koksgraa — primaer. Moerke sektioner OG knapper paa lys bund
+    #1e1c1a  varm koksgraa — primaer. Moerke sektioner og overskrifter
     #b4a189  beige — sekundaer. Knapper paa MOERK bund
+    #4a6b47  groen — accent. Knapper og links paa LYS bund
     #f6f4ee  raahvid — sidens grund. Varm, saa den klaeder beigen
 
   Koksgraaen er VARM og ikke ren sort: ren sort ved siden af en varm beige
@@ -42,9 +43,9 @@
      under det, øjet kan opfatte på hvidt. Menuen så gennemført ud, fordi den
      var det eneste element på siden med en grund at stå på. */
   --app-bg: #f6f4ee;
-  --accent: #1e1c1a; /* primær — handling på LYS bund: knapper og links */
+  --accent: #4a6b47; /* accent — handling på LYS bund: knapper og links */
   --accent-fg: #ffffff;
-  --accent-hover: #37332e;
+  --accent-hover: #3d5a3a;
   --secondary: #b4a189; /* sekundær — bruges minimalt */
   --secondary-fg: #1e1c1a;
   --dark: #1e1c1a; /* mørk sektionsbaggrund */

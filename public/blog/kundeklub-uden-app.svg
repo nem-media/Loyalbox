@@ -27,8 +27,8 @@
   </g>
 
   <!-- Pil fra skilt til telefon -->
-  <path d="M540 320h120" stroke="#1e1c1a" stroke-width="8" stroke-linecap="round"/>
-  <path d="M648 300l32 20-32 20z" fill="#1e1c1a"/>
+  <path d="M540 320h120" stroke="#4a6b47" stroke-width="8" stroke-linecap="round"/>
+  <path d="M648 300l32 20-32 20z" fill="#4a6b47"/>
 
   <!-- Telefon med stempelkort -->
   <g>
@@ -37,7 +37,7 @@
     <rect x="820" y="140" width="80" height="10" rx="5" fill="#1e1c1a" opacity="0.25"/>
 
     <!-- Kort i telefonen -->
-    <rect x="760" y="176" width="200" height="150" rx="8" fill="#1e1c1a"/>
+    <rect x="760" y="176" width="200" height="150" rx="8" fill="#4a6b47"/>
     <rect x="780" y="198" width="90" height="10" rx="5" fill="#ffffff" opacity="0.6"/>
     <rect x="780" y="218" width="130" height="14" rx="7" fill="#ffffff" opacity="0.9"/>
     <g fill="#ffffff">

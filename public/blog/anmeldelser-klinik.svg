@@ -30,7 +30,7 @@
     <rect x="572" y="196" width="200" height="256" rx="12" fill="#ffffff"/>
     <rect x="572" y="196" width="200" height="256" rx="12" fill="none" stroke="#1e1c1a" stroke-width="3" opacity="0.2"/>
     <!-- Faneblad -->
-    <rect x="596" y="182" width="60" height="20" rx="6" fill="#1e1c1a" opacity="0.7"/>
+    <rect x="596" y="182" width="60" height="20" rx="6" fill="#4a6b47" opacity="0.7"/>
     <!-- Linjer -->
     <g fill="#1e1c1a" opacity="0.14">
       <rect x="600" y="234" width="144" height="10" rx="5"/>
@@ -70,10 +70,10 @@
     <rect x="880" y="332" width="132" height="11" rx="5.5" fill="#1e1c1a" opacity="0.16"/>
 
     <!-- Klinikkens svar: kort og neutralt, derfor kun to korte linjer -->
-    <rect x="880" y="376" width="3" height="34" rx="1.5" fill="#1e1c1a"/>
-    <rect x="898" y="378" width="112" height="9" rx="4.5" fill="#1e1c1a" opacity="0.45"/>
-    <rect x="898" y="396" width="78" height="9" rx="4.5" fill="#1e1c1a" opacity="0.3"/>
+    <rect x="880" y="376" width="3" height="34" rx="1.5" fill="#4a6b47"/>
+    <rect x="898" y="378" width="112" height="9" rx="4.5" fill="#4a6b47" opacity="0.45"/>
+    <rect x="898" y="396" width="78" height="9" rx="4.5" fill="#4a6b47" opacity="0.3"/>
 
-    <rect x="880" y="436" width="160" height="24" rx="7" fill="#1e1c1a"/>
+    <rect x="880" y="436" width="160" height="24" rx="7" fill="#4a6b47"/>
   </g>
 </svg>
