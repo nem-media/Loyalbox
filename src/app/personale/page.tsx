@@ -4,9 +4,13 @@ import { getCompanyAccess } from "@/lib/loyalty/access";
 import { getCurrentUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Logo } from "@/components/brand";
+import { PRIVAT_SIDE } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Personale" };
+export const metadata = {
+  title: "Personale",
+  ...PRIVAT_SIDE,
+};
 
 /**
  * Medarbejderens arbejdsflade.
@@ -44,8 +48,12 @@ export default async function StaffPage({
     .maybeSingle();
 
   const search = (q ?? "").trim();
-  let members: { id: string; name: string | null; phone: string | null; public_token: string }[] =
-    [];
+  let members: {
+    id: string;
+    name: string | null;
+    phone: string | null;
+    public_token: string;
+  }[] = [];
 
   if (search) {
     const { data } = await admin

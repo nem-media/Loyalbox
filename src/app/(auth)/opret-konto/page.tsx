@@ -1,6 +1,10 @@
 import { CustomerSignupForm } from "./customer-signup-form";
+import { PRIVAT_SIDE } from "@/lib/site";
 
-export const metadata = { title: "Opret kundekonto" };
+export const metadata = {
+  title: "Opret kundekonto",
+  ...PRIVAT_SIDE,
+};
 
 export default async function CustomerSignupPage({
   searchParams,

@@ -6,9 +6,13 @@ import { ButtonLink } from "@/components/ui/button";
 import { PwaInstall } from "@/components/pwa-install";
 import { Logo } from "@/components/brand";
 import { signout } from "@/app/(auth)/actions";
+import { PRIVAT_SIDE } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Mine stempelkort" };
+export const metadata = {
+  title: "Mine stempelkort",
+  ...PRIVAT_SIDE,
+};
 
 export default async function MyCardsPage() {
   const user = await getCurrentUser();
@@ -34,7 +38,10 @@ export default async function MyCardsPage() {
           </div>
         ) : (
           cards.map((card) => (
-            <div key={`${card.memberId}-${card.programName ?? "ingen"}`} className="space-y-2">
+            <div
+              key={`${card.memberId}-${card.programName ?? "ingen"}`}
+              className="space-y-2"
+            >
               {card.programName ? (
                 <StampCardPreview
                   name={card.programName}
@@ -74,7 +81,10 @@ export default async function MyCardsPage() {
         <PwaInstall />
 
         <form action={signout} className="pt-2 text-center">
-          <button type="submit" className="text-sm font-medium text-muted underline">
+          <button
+            type="submit"
+            className="text-sm font-medium text-muted underline"
+          >
             Log ud
           </button>
         </form>

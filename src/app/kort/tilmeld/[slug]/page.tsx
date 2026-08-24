@@ -2,9 +2,13 @@ import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Logo } from "@/components/brand";
 import { SelfEnrollForm } from "./self-enroll-form";
+import { PRIVAT_SIDE } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Opret stempelkort" };
+export const metadata = {
+  title: "Opret stempelkort",
+  ...PRIVAT_SIDE,
+};
 
 export default async function EnrollCardPage({
   params,
@@ -22,7 +26,10 @@ export default async function EnrollCardPage({
   if (!stand || !stand.is_active) notFound();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const company = (stand as any).company as { name: string; logo_url: string | null };
+  const company = (stand as any).company as {
+    name: string;
+    logo_url: string | null;
+  };
 
   const { data: program } = await admin
     .from("loyalty_programs")
@@ -38,7 +45,11 @@ export default async function EnrollCardPage({
         <div className="mb-6 text-center">
           {company.logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={company.logo_url} alt={company.name} className="mx-auto mb-3 h-14 w-14 rounded-xl object-contain" />
+            <img
+              src={company.logo_url}
+              alt={company.name}
+              className="mx-auto mb-3 h-14 w-14 rounded-xl object-contain"
+            />
           ) : null}
           <h1 className="text-xl font-semibold tracking-tight">
             {program ? `Få dit stempelkort hos ${company.name}` : company.name}

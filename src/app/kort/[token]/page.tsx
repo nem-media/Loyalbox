@@ -14,9 +14,13 @@ import { SaveCardPanel } from "./save-card-panel";
 import { stampProgress, progressLabel } from "@/lib/loyalty/balance";
 import { TXN_TYPE_LABELS } from "@/lib/loyalty/constants";
 import { Logo } from "@/components/brand";
+import { PRIVAT_SIDE } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Mit stempelkort" };
+export const metadata = {
+  title: "Mit stempelkort",
+  ...PRIVAT_SIDE,
+};
 
 export default async function CardPage({
   params,
@@ -38,10 +42,14 @@ export default async function CardPage({
   // Kunder og anonyme får det uændrede, skrivebeskyttede kort.
   const access = await getCompanyAccess();
   const canStampHere = Boolean(
-    access && access.companyId === member.company_id && access.permissions.canStamp,
+    access &&
+    access.companyId === member.company_id &&
+    access.permissions.canStamp,
   );
   const canRedeemHere = Boolean(
-    access && access.companyId === member.company_id && access.permissions.canRedeem,
+    access &&
+    access.companyId === member.company_id &&
+    access.permissions.canRedeem,
   );
 
   // Konto-tilstand: kortet virker uden konto, men en indlogget kunde kan gemme
@@ -64,33 +72,39 @@ export default async function CardPage({
     .eq("member_id", member.id);
 
   const programIds = (memberships ?? []).map((m) => m.program_id);
-  const [{ data: programs }, { data: rewards }, { data: available }, { data: txns }] =
-    await Promise.all([
-      programIds.length
-        ? admin.from("loyalty_programs").select("*").in("id", programIds)
-        : Promise.resolve({ data: [] as never[] }),
-      programIds.length
-        ? admin
-            .from("loyalty_rewards")
-            .select("*")
-            .in("program_id", programIds)
-            .eq("is_primary", true)
-        : Promise.resolve({ data: [] as never[] }),
-      admin
-        .from("customer_rewards")
-        .select("*")
-        .eq("member_id", member.id)
-        .eq("status", "available"),
-      admin
-        .from("loyalty_transactions")
-        .select("*")
-        .eq("member_id", member.id)
-        .order("created_at", { ascending: false })
-        .limit(15),
-    ]);
+  const [
+    { data: programs },
+    { data: rewards },
+    { data: available },
+    { data: txns },
+  ] = await Promise.all([
+    programIds.length
+      ? admin.from("loyalty_programs").select("*").in("id", programIds)
+      : Promise.resolve({ data: [] as never[] }),
+    programIds.length
+      ? admin
+          .from("loyalty_rewards")
+          .select("*")
+          .in("program_id", programIds)
+          .eq("is_primary", true)
+      : Promise.resolve({ data: [] as never[] }),
+    admin
+      .from("customer_rewards")
+      .select("*")
+      .eq("member_id", member.id)
+      .eq("status", "available"),
+    admin
+      .from("loyalty_transactions")
+      .select("*")
+      .eq("member_id", member.id)
+      .order("created_at", { ascending: false })
+      .limit(15),
+  ]);
 
   const programById = new Map((programs ?? []).map((p) => [p.id, p]));
-  const rewardByProgram = new Map((rewards ?? []).map((r) => [r.program_id, r]));
+  const rewardByProgram = new Map(
+    (rewards ?? []).map((r) => [r.program_id, r]),
+  );
 
   const { data: memberDiscounts } = await admin
     .from("customer_discounts")
@@ -114,17 +128,26 @@ export default async function CardPage({
         <div className="flex items-center gap-3">
           {company?.logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={company.logo_url} alt={company.name} className="h-12 w-12 rounded-xl object-contain" />
+            <img
+              src={company.logo_url}
+              alt={company.name}
+              className="h-12 w-12 rounded-xl object-contain"
+            />
           ) : null}
           <div>
-            <h1 className="text-lg font-bold tracking-tight">{company?.name}</h1>
-            <p className="text-sm text-muted">{member.name ? `Hej ${member.name}` : "Dit stempelkort"}</p>
+            <h1 className="text-lg font-bold tracking-tight">
+              {company?.name}
+            </h1>
+            <p className="text-sm text-muted">
+              {member.name ? `Hej ${member.name}` : "Dit stempelkort"}
+            </p>
           </div>
         </div>
 
         {canStampHere ? (
           <div className="box-shape border border-accent/40 bg-accent/5 p-3 text-center text-sm font-medium text-accent">
-            Personale-tilstand — du kan give stempler på {member.name ?? "kundens"} kort nedenfor.
+            Personale-tilstand — du kan give stempler på{" "}
+            {member.name ?? "kundens"} kort nedenfor.
           </div>
         ) : null}
 
@@ -133,8 +156,13 @@ export default async function CardPage({
           const program = programById.get(ms.program_id);
           const reward = rewardByProgram.get(ms.program_id);
           if (!program) return null;
-          const p = stampProgress(ms.balance_cache, reward?.required_stamps ?? 10);
-          const rewardsForMs = (available ?? []).filter((r) => r.membership_id === ms.id);
+          const p = stampProgress(
+            ms.balance_cache,
+            reward?.required_stamps ?? 10,
+          );
+          const rewardsForMs = (available ?? []).filter(
+            (r) => r.membership_id === ms.id,
+          );
           return (
             <div key={ms.id} className="space-y-2">
               <StampCardPreview
@@ -148,10 +176,13 @@ export default async function CardPage({
               />
               {rewardsForMs.length > 0 ? (
                 <div className="box-shape border border-success/30 bg-success/10 p-3 text-center text-sm font-medium text-success">
-                  🎉 Du har en belønning klar: {reward?.name}. Vis kortet til personalet.
+                  🎉 Du har en belønning klar: {reward?.name}. Vis kortet til
+                  personalet.
                 </div>
               ) : (
-                <p className="text-center text-sm text-muted">{progressLabel(p)}</p>
+                <p className="text-center text-sm text-muted">
+                  {progressLabel(p)}
+                </p>
               )}
               {canStampHere ? (
                 <StaffStampPanel token={token} membershipId={ms.id} />
@@ -188,7 +219,9 @@ export default async function CardPage({
                 </li>
               ))}
             </ul>
-            <p className="mt-2 text-xs text-muted">Vis kortet til personalet for at bruge dem.</p>
+            <p className="mt-2 text-xs text-muted">
+              Vis kortet til personalet for at bruge dem.
+            </p>
           </div>
         ) : null}
 
@@ -222,7 +255,9 @@ export default async function CardPage({
               </p>
               <ButtonLink
                 href={`/opret-konto?token=${token}${
-                  member.email ? `&email=${encodeURIComponent(member.email)}` : ""
+                  member.email
+                    ? `&email=${encodeURIComponent(member.email)}`
+                    : ""
                 }`}
                 size="sm"
                 className="mt-3"
@@ -248,7 +283,10 @@ export default async function CardPage({
             <p className="mb-2 text-sm font-medium">Seneste aktivitet</p>
             <ul className="divide-y divide-border text-sm">
               {txns.map((t) => (
-                <li key={t.id} className="flex items-center justify-between py-2">
+                <li
+                  key={t.id}
+                  className="flex items-center justify-between py-2"
+                >
                   <span>{TXN_TYPE_LABELS[t.type]}</span>
                   <span className="text-xs text-muted">
                     {new Date(t.created_at).toLocaleDateString("da-DK")}

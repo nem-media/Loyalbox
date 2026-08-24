@@ -2,8 +2,12 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardBody } from "@/components/ui/card";
 import { NewPasswordForm } from "./new-password-form";
+import { PRIVAT_SIDE } from "@/lib/site";
 
-export const metadata = { title: "Vælg ny adgangskode" };
+export const metadata = {
+  title: "Vælg ny adgangskode",
+  ...PRIVAT_SIDE,
+};
 
 /**
  * Nås kun via linket i nulstillingsmailen, der går gennem `/auth/callback` og

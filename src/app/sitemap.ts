@@ -61,18 +61,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.5,
       lastModified,
     },
-    {
-      url: `${base}/signup`,
-      changeFrequency: "monthly",
-      priority: 0.6,
-      lastModified,
-    },
-    {
-      url: `${base}/login`,
-      changeFrequency: "yearly",
-      priority: 0.3,
-      lastModified,
-    },
+    // `/signup` og `/login` stod her og var faktisk indekseret. En loginside
+    // kan ikke besvare noget, nogen søger på, og et sitemap, der beder Google
+    // indeksere en side, vi samtidig markerer `noindex`, er et modsigende
+    // signal. De er nu markeret private i `PRIVAT_SIDE` og hører ikke til her.
   ];
 
   const productRoutes: MetadataRoute.Sitemap = KATALOG.map((p) => ({
