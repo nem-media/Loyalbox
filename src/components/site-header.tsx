@@ -52,7 +52,11 @@ export async function SiteHeader() {
                 >
                   Log ind
                 </ButtonLink>
-                <ButtonLink href="/signup" size="md" className="whitespace-nowrap">
+                <ButtonLink
+                  href="/signup"
+                  size="md"
+                  className="whitespace-nowrap"
+                >
                   Kom i gang
                 </ButtonLink>
               </>

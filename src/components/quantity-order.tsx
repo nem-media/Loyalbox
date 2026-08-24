@@ -34,7 +34,8 @@ export function QuantityOrder({
   mode?: "order" | "checkout" | "kun-pris";
   ctaLabel?: string;
 }) {
-  const clamp = (n: number) => Math.max(1, Math.min(MAX_QTY, Math.floor(n) || 1));
+  const clamp = (n: number) =>
+    Math.max(1, Math.min(MAX_QTY, Math.floor(n) || 1));
   const [qty, setQty] = useState(clamp(initialQty));
   const p = priceFor(product, qty);
 
@@ -107,7 +108,9 @@ export function QuantityOrder({
           <span className="text-muted">Pris pr. stander</span>
           <span className="font-medium">
             {p.discountPct > 0 ? (
-              <s className="mr-2 text-muted">{formatCurrency(p.standUnitBase)}</s>
+              <s className="mr-2 text-muted">
+                {formatCurrency(p.standUnitBase)}
+              </s>
             ) : null}
             {formatCurrency(p.standUnit)}
           </span>
@@ -139,8 +142,7 @@ export function QuantityOrder({
         {p.monthly > 0 ? (
           <div className="flex items-baseline justify-between">
             <span className="text-muted">
-              + abonnement{" "}
-              <span className="text-xs">(fast, uanset antal)</span>
+              + abonnement <span className="text-xs">(fast, uanset antal)</span>
             </span>
             <span className="font-semibold">
               {formatCurrency(p.monthly)}
@@ -155,7 +157,9 @@ export function QuantityOrder({
       {tiers.length > 0 ? (
         <p className="mt-3 text-xs text-muted">
           Køb flere, spar mere:{" "}
-          {tiers.map((v) => `${v.minQty}+ stk. − ${v.discountPct}%`).join(" · ")}
+          {tiers
+            .map((v) => `${v.minQty}+ stk. − ${v.discountPct}%`)
+            .join(" · ")}
         </p>
       ) : null}
 

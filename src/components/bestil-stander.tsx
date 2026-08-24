@@ -50,8 +50,8 @@ export async function BestilStander({
       {spaerre === "cvr-mangler" ? (
         <>
           <p className="mt-1.5 text-sm leading-relaxed text-muted">
-            Vi mangler dit CVR-nummer, før du kan bestille. Det tager et
-            øjeblik at skrive ind.
+            Vi mangler dit CVR-nummer, før du kan bestille. Det tager et øjeblik
+            at skrive ind.
           </p>
           <Link
             href="/dashboard/profil"
@@ -65,8 +65,7 @@ export async function BestilStander({
           <p className="mt-1.5 text-sm leading-relaxed text-muted">
             En QR-adresse er ikke et skilt. Bestil et fysisk skilt med dit logo
             til {formatCurrency(vare.price)} pr. stk. — køber du flere, falder
-            prisen med op til {stoersteRabat} %. Det ændrer ikke dit
-            abonnement.
+            prisen med op til {stoersteRabat} %. Det ændrer ikke dit abonnement.
           </p>
           <Link
             href={`/bestil?produkt=${EKSTRA_STANDER_SLUG}`}

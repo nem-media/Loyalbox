@@ -5,8 +5,13 @@ import { Pricing } from "@/components/pricing";
 import { QuantityOrder } from "@/components/quantity-order";
 import { PRODUCTS, LEVERINGSLAND_NAVN, harFysiskSkilt } from "@/lib/constants";
 import { StanderDesigner } from "@/components/stander-designer";
-import { GenbestilDesign, type GemtDesign } from "@/components/genbestil-design";
+import {
+  GenbestilDesign,
+  type GemtDesign,
+} from "@/components/genbestil-design";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { kraeverDestination } from "@/lib/commerce";
+import type { DestinationType } from "@/lib/types/database";
 import { designFrontfarve } from "@/lib/design";
 import { Badge } from "@/components/ui/badge";
 import { PurchaseNotice } from "@/components/purchase-notice";
@@ -56,12 +61,62 @@ async function hentDesign(
   };
 }
 
+/**
+ * Standerens nuværende destination, hvis den har en.
+ *
+ * Ejerskabet ligger i forespørgslen: et stand-id fra en anden butik giver
+ * ingen række og dermed ingen forudfyldning.
+ */
+async function hentStandDestination(
+  standId: string,
+  companyId: string,
+): Promise<{ type: DestinationType; url: string } | undefined> {
+  const { data } = await createAdminClient()
+    .from("stands")
+    .select(
+      "destination_type, google_review_url, trustpilot_url, facebook_url, custom_url",
+    )
+    .eq("id", standId)
+    .eq("company_id", companyId)
+    .maybeSingle();
+
+  if (!data) return undefined;
+  const type = data.destination_type as DestinationType;
+  const url =
+    type === "google"
+      ? data.google_review_url
+      : type === "trustpilot"
+        ? data.trustpilot_url
+        : type === "facebook"
+          ? data.facebook_url
+          : data.custom_url;
+
+  return url ? { type, url } : undefined;
+}
+
 export default async function OrderPage({
   searchParams,
 }: {
-  searchParams: Promise<{ produkt?: string; antal?: string; design?: string }>;
+  searchParams: Promise<{
+    produkt?: string;
+    antal?: string;
+    design?: string;
+    /**
+     * Standeren, skiltet skal trykkes med (0022).
+     *
+     * Foelger med fra `/dashboard/standere/<id>`. Vaerdien sendes videre til
+     * `/api/checkout`, der KONTROLLERER ejerskabet — her bruges den kun til
+     * at faa den med igennem, saa siden ikke behoever at slaa noget op.
+     */
+    stand?: string;
+  }>;
 }) {
-  const { produkt, antal, design: designId } = await searchParams;
+  const {
+    produkt,
+    antal,
+    design: designId,
+    stand: standId,
+  } = await searchParams;
   const selected = PRODUCTS.find((p) => p.slug === produkt);
   const initialQty = Number(antal) || 1;
 
@@ -73,6 +128,27 @@ export default async function OrderPage({
   // brugbar. En knap, der forsvinder, forklarer ingenting — og "du mangler et
   // CVR-nummer" er en helt anden besked end "vi har ikke åbnet for salg".
   const user = await getCurrentUser();
+
+  /**
+   * Skal kunden oplyse, hvad skiltet peger på?
+   *
+   * Reglen ligger i `kraeverDestination()` — samme funktion, som
+   * `/api/checkout` håndhæver. Vises feltet uden at være krævet (eller
+   * omvendt), opdager kunden det først ved betalingen.
+   */
+  const skalHaveDestination = kraeverDestination(selected, user?.company);
+
+  /**
+   * Har standeren allerede en destination, forudfyldes den.
+   *
+   * Kunden har måske sat linket på standersiden før bestillingen, og at
+   * bede om det igen ville se ud, som om vi ikke havde gemt det.
+   */
+  const standDest =
+    skalHaveDestination && standId && user?.company
+      ? await hentStandDestination(standId, user.company.id)
+      : undefined;
+
   const spaerre = koebSpaerre(user, selected);
 
   /**
@@ -118,13 +194,21 @@ export default async function OrderPage({
                 product={selected}
                 design={gemt}
                 kraeverDpa={requiresDpa(selected)}
+                standId={standId}
+                kraeverDestination={skalHaveDestination}
+                destinationStart={standDest}
               />
-            ) : spaerre === null && harFysiskSkilt(selected) && user?.company ? (
+            ) : spaerre === null &&
+              harFysiskSkilt(selected) &&
+              user?.company ? (
               <StanderDesigner
                 product={selected}
                 companyId={user.company.id}
                 initialQty={initialQty}
                 kraeverDpa={requiresDpa(selected)}
+                standId={standId}
+                kraeverDestination={skalHaveDestination}
+                destinationStart={standDest}
               />
             ) : spaerre === null ? (
               <div className="box-shape border border-accent/30 bg-accent/5 p-4">
@@ -203,7 +287,10 @@ export default async function OrderPage({
               />
             )}
 
-            <Link href="/bestil" className="inline-block text-sm font-medium text-accent">
+            <Link
+              href="/bestil"
+              className="inline-block text-sm font-medium text-accent"
+            >
               ← Se alle produkter
             </Link>
           </div>

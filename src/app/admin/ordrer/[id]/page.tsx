@@ -36,7 +36,7 @@ export default async function AdminOrderPage({
   const { data: order } = await admin
     .from("orders")
     .select(
-      "*, company:companies(name, cvr, contact_email, phone), design:designs(*)",
+      "*, company:companies(name, cvr, contact_email, phone), design:designs(*), stand:stands(id, name, slug)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -51,9 +51,11 @@ export default async function AdminOrderPage({
       phone: string | null;
     } | null;
     design: Database["public"]["Tables"]["designs"]["Row"] | null;
+    stand: { id: string; name: string; slug: string } | null;
   };
   const firma = o.company;
   const design = o.design;
+  const stand = o.stand;
   const front = design ? designFrontfarve(design) : null;
   const adresse = o.leveringsadresse as Record<string, string | null> | null;
 
@@ -74,6 +76,31 @@ export default async function AdminOrderPage({
         <Card>
           <CardBody className="space-y-4">
             <h2 className="font-bold tracking-tight">Sådan skal den trykkes</h2>
+
+            {/* HVILKEN QR-KODE. Designet siger, hvordan skiltet ser ud;
+                standeren siger, hvad der skal stå på det. Har butikken to
+                standere, måtte produktionen før gætte eller spørge — og en
+                forkert QR opdages først, når skiltet står hos kunden.
+                `stand_id` kom med migration 0022; ældre ordrer har den ikke. */}
+            <div className="box-shape border border-border bg-muted-bg/50 p-3">
+              <p className="etiket">QR-adresse der skal trykkes</p>
+              {stand ? (
+                <>
+                  <p className="mt-1 font-mono text-sm font-medium">
+                    /r/{stand.slug}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted">
+                    Standeren hedder “{stand.name}” hos kunden.
+                  </p>
+                </>
+              ) : (
+                <p className="mt-1 text-sm text-muted">
+                  Ikke oplyst — ordren er fra før QR-adressen fulgte med, eller
+                  bestilt uden konto. <strong>Spørg kunden</strong>, hvilken
+                  stander skiltet skal pege på, før den trykkes.
+                </p>
+              )}
+            </div>
 
             {design && front ? (
               <>
@@ -142,7 +169,9 @@ export default async function AdminOrderPage({
                     </p>
                     <p className="mt-1">
                       {design.logo_transparent === true ? (
-                        <span className="text-accent">Transparent baggrund</span>
+                        <span className="text-accent">
+                          Transparent baggrund
+                        </span>
                       ) : design.logo_transparent === false ? (
                         <span className="text-secondary-fg">
                           Fast baggrund — kontrollér før tryk

@@ -7,7 +7,6 @@ import { DesignListe } from "./design-liste";
 import { Card, CardBody } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CreateStand } from "./create-stand";
-import { BestilStander } from "@/components/bestil-stander";
 import { GuideHint } from "@/components/guide";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StandIcon } from "@/components/nav-icons";
@@ -42,17 +41,26 @@ export default async function StandsPage() {
         </CardBody>
       </Card>
 
-      {/* Det, der oprettes ovenfor, er en QR-adresse og en side. Skiltet til
-          disken er en vare, og den vej manglede helt. */}
-      <BestilStander className="mb-6" />
-
+      {/* Bestillingen ligger nu INDE PAA den enkelte stander og ikke her.
+          Den generelle boks lavede en ordre uden at sige, hvilken QR-adresse
+          skiltet skulle trykkes med — og et skilt uden en QR er ingenting.
+          Hver stander har sin egen vej ind via "Tilpas og bestil skilt". */}
       {stands && stands.length ? (
         <div className="grid gap-4 sm:grid-cols-2">
           {stands.map((s) => (
-            <Link key={s.id} href={`/dashboard/standere/${s.id}`}>
-              <Card className="h-full transition-colors hover:border-accent">
-                <CardBody className="space-y-3">
-                  <div className="flex items-center justify-between">
+            /* Hele kortet er stadig ét link, men "Tilpas" står nu skrevet.
+               Et kort, der bare bliver lidt grønt i kanten ved hover, kan
+               kunden ikke se er en vej videre — og på en telefon findes hover
+               slet ikke, så dér var der INGEN antydning af, at man kunne
+               klikke. Knappen er derfor tekst og ikke kun en farve. */
+            <Link
+              key={s.id}
+              href={`/dashboard/standere/${s.id}`}
+              className="group"
+            >
+              <Card className="h-full transition-colors group-hover:border-accent">
+                <CardBody className="flex h-full flex-col gap-3">
+                  <div className="flex items-center justify-between gap-2">
                     <h3 className="font-semibold">{s.name}</h3>
                     <Badge tone={s.is_active ? "success" : "neutral"}>
                       {s.is_active ? "Aktiv" : "Inaktiv"}
@@ -64,6 +72,16 @@ export default async function StandsPage() {
                   <p className="text-xs text-muted">
                     Destination: {s.destination_type}
                   </p>
+
+                  <span className="mt-auto flex items-center gap-1.5 pt-1 text-sm font-medium text-accent">
+                    Tilpas og bestil skilt
+                    <span
+                      aria-hidden="true"
+                      className="transition-transform group-hover:translate-x-0.5"
+                    >
+                      →
+                    </span>
+                  </span>
                 </CardBody>
               </Card>
             </Link>
