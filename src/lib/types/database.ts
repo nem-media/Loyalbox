@@ -23,17 +23,9 @@ export type CompanyPlan = "basic" | "premium" | "pro";
 export type DestinationType = "google" | "trustpilot" | "facebook" | "custom";
 export type DeviceType = "mobile" | "tablet" | "desktop" | "unknown";
 export type OrderStatus =
-  | "new"
-  | "needs_onboarding"
-  | "ready_for_production"
-  | "shipped"
-  | "cancelled";
+  "new" | "needs_onboarding" | "ready_for_production" | "shipped" | "cancelled";
 export type SubscriptionStatus =
-  | "active"
-  | "trialing"
-  | "past_due"
-  | "canceled"
-  | "incomplete";
+  "active" | "trialing" | "past_due" | "canceled" | "incomplete";
 
 export interface Database {
   public: {
@@ -363,6 +355,14 @@ export interface Database {
           total_amount: number;
           /** Designet ordren blev trykt efter (0018). Null hvis det er slettet. */
           design_id: string | null;
+          /**
+           * Standeren hvis QR-adresse skal trykkes paa skiltet (0022).
+           *
+           * Designet siger HVORDAN skiltet ser ud; standeren siger HVILKET
+           * link der skal staa paa det. Uden den kunne admin ikke se, om en
+           * ordre skulle trykkes med "Disken" eller "Bordene".
+           */
+          stand_id: string | null;
           /** Kontaktmail paa en ordre uden konto (0019). */
           kontakt_email: string | null;
           /**
@@ -387,6 +387,7 @@ export interface Database {
           status?: OrderStatus;
           total_amount?: number;
           design_id?: string | null;
+          stand_id?: string | null;
           kontakt_email?: string | null;
           leveringsadresse?: Record<string, string | null> | null;
           uden_konto?: boolean;
@@ -409,6 +410,15 @@ export interface Database {
             columns: ["design_id"];
             isOneToOne: false;
             referencedRelation: "designs";
+            referencedColumns: ["id"];
+          },
+          {
+            // Uden denne kan admin ikke join'e standeren med på ordren, og
+            // opslaget fejler med "could not find the relation".
+            foreignKeyName: "orders_stand_id_fkey";
+            columns: ["stand_id"];
+            isOneToOne: false;
+            referencedRelation: "stands";
             referencedColumns: ["id"];
           },
         ];

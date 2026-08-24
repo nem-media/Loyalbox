@@ -17,6 +17,15 @@ export interface FormResult {
    * på skærmen — fx at der er sendt en mail — og så er "gemt" ikke nok.
    */
   message?: string;
+  /**
+   * Hvor brugeren skal hen bagefter.
+   *
+   * Bruges af `createStand`: den nye stander er ikke faerdig, naar den er
+   * oprettet — den har hverken destinationslink eller et skilt endnu. Foer
+   * landede kunden tilbage paa listen med et navn, der lignede noget faerdigt,
+   * og kunne ikke se, at der manglede noget.
+   */
+  gaaTil?: string;
 }
 
 /** Update the current customer's company profile. */
@@ -124,16 +133,22 @@ export async function createStand(
   if (!name) return { error: "Giv standeren et navn." };
 
   const supabase = await createClient();
-  const { error } = await supabase.from("stands").insert({
-    company_id: user.company.id,
-    name,
-    slug: generateSlug(),
-  });
+  // `select().single()` fordi vi skal bruge id'et til at sende kunden VIDERE
+  // til den nye stander. En insert uden select giver ingen raekke tilbage.
+  const { data, error } = await supabase
+    .from("stands")
+    .insert({
+      company_id: user.company.id,
+      name,
+      slug: generateSlug(),
+    })
+    .select("id")
+    .single();
 
   if (error) return { error: error.message };
 
   revalidatePath("/dashboard/standere");
-  return { ok: true };
+  return { ok: true, gaaTil: `/dashboard/standere/${data.id}` };
 }
 
 /** Update a stand's destination links and settings. */
@@ -159,11 +174,9 @@ export async function updateStand(
         ) as DestinationType,
         trustpilot_url:
           String(formData.get("trustpilot_url") ?? "").trim() || null,
-        facebook_url:
-          String(formData.get("facebook_url") ?? "").trim() || null,
+        facebook_url: String(formData.get("facebook_url") ?? "").trim() || null,
         custom_url: String(formData.get("custom_url") ?? "").trim() || null,
-        custom_label:
-          String(formData.get("custom_label") ?? "").trim() || null,
+        custom_label: String(formData.get("custom_label") ?? "").trim() || null,
       }
     : { destination_type: "google" as DestinationType };
 

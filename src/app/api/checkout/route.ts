@@ -46,9 +46,10 @@ function laesDesign(raw: Record<string, unknown>) {
   if (!erStanderFarve(standerFarve)) return null;
 
   const vilEgen = raw.front_type === "egen";
-  const hex = vilEgen && typeof raw.front_hex === "string"
-    ? normaliserHex(raw.front_hex)
-    : null;
+  const hex =
+    vilEgen && typeof raw.front_hex === "string"
+      ? normaliserHex(raw.front_hex)
+      : null;
 
   // "Egen farve" uden en gyldig farve er ikke et design, vi kan trykke.
   if (vilEgen && !hex) return null;
@@ -61,7 +62,8 @@ function laesDesign(raw: Record<string, unknown>) {
     front_type: hex ? ("egen" as const) : ("matcher" as const),
     front_hex: hex,
     logo_url: typeof raw.logo_url === "string" ? raw.logo_url : null,
-    logo_filnavn: typeof raw.logo_filnavn === "string" ? raw.logo_filnavn : null,
+    logo_filnavn:
+      typeof raw.logo_filnavn === "string" ? raw.logo_filnavn : null,
     logo_mime: typeof raw.logo_mime === "string" ? raw.logo_mime : null,
     logo_bytes: tal(raw.logo_bytes),
     logo_bredde: tal(raw.logo_bredde),
@@ -145,7 +147,10 @@ export async function POST(request: NextRequest) {
    * er kvitteringen for, hvad de faktisk har.
    */
   const genoptag = body.genoptag === true;
-  if (genoptag && (!company.product_slug || company.product_slug !== product.slug)) {
+  if (
+    genoptag &&
+    (!company.product_slug || company.product_slug !== product.slug)
+  ) {
     return NextResponse.json(
       { error: "Der er intet abonnement at genoptage." },
       { status: 400 },
@@ -158,7 +163,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const qty = genoptag ? 1 : Math.max(1, Math.min(MAX_QTY, Number(body.antal) || 1));
+  const qty = genoptag
+    ? 1
+    : Math.max(1, Math.min(MAX_QTY, Number(body.antal) || 1));
   // Varen skal være fuldt oprettet i den aktuelle tilstand — produkt, månedspris
   // OG momssats. Uden spærren ville et manglende led fejle stille; se canSell.
   if (!canSell(product)) {
@@ -242,6 +249,26 @@ export async function POST(request: NextRequest) {
       }
       design = data as DesignValg & { id: string };
     }
+  }
+
+  /**
+   * Hvilken stander skal skiltet trykkes med? (0022)
+   *
+   * EJERSKABET LIGGER I FORESPOERGSLEN og ikke i en kontrol bagefter: et
+   * stand-id, der tilhoerer en anden butik, giver ingen raekke og dermed
+   * ingen kobling. Sendes der et ukendt id, fejler bestillingen ikke — der
+   * bliver bare ingen stander paa ordren, praecis som foer 0022. En ordre
+   * maa ikke falde paa noget, der kun er en oplysning til produktionen.
+   */
+  let standId: string | null = null;
+  if (typeof body.stand === "string" && body.stand) {
+    const { data } = await admin
+      .from("stands")
+      .select("id")
+      .eq("id", body.stand)
+      .eq("company_id", company.id)
+      .maybeSingle();
+    standId = data?.id ?? null;
   }
 
   const betalerFrontfarve = design ? skalBetaleFrontfarve(design) : false;
@@ -355,75 +382,78 @@ export async function POST(request: NextRequest) {
   let session: Stripe.Checkout.Session;
   try {
     session = await stripe().checkout.sessions.create({
-    mode: sub ? "subscription" : "payment",
-    // payment_method_types sættes bevidst IKKE — Stripe vælger dynamisk de
-    // metoder, der er slået til i dashboardet, og som passer til kunden.
-    line_items: lineItems as never,
-    integration_identifier: INTEGRATION_ID,
-    client_reference_id: company.id,
-    locale: "da",
-    billing_address_collection: "required",
-    // Leveringsadressen indsamles KUN ved et fysisk køb. Ved en genoptagelse
-    // sendes der ikke noget — standeren står allerede på disken.
-    //
-    // Uden dette blev der aldrig spurgt om en leveringsadresse nogen steder,
-    // mens handelsbetingelserne lovede levering "til den adresse, du oplyser".
-    // Landet er låst til Danmark; se LEVERINGSLANDE for hvorfor.
-    ...(genoptag
-      ? {}
-      : {
-          shipping_address_collection: {
-            allowed_countries: [...LEVERINGSLANDE],
-          },
-        }),
-    // Momsnummer på fakturaen — dansk B2B skal kunne bogføre den.
-    tax_id_collection: { enabled: true },
-    /**
-     * EKSISTERENDE KUNDE KRÆVER `customer_update`.
-     *
-     * Stripe afviser en session, der både peger på en eksisterende kunde OG
-     * indsamler momsnummer, medmindre den får lov at opdatere kundens navn:
-     * "Tax ID collection requires updating business name on the customer."
-     *
-     * Fejlen var latent fra begyndelsen. Ved FØRSTE køb har virksomheden intet
-     * `stripe_customer_id`, så grenen med `customer_email` bruges, og alt gik
-     * godt. Først ved det ANDET køb — den første genkøbende kunde — slår den
-     * til. Adresserne sættes med af samme grund: indsamler vi dem, skal
-     * kunden hos Stripe også opdateres med dem.
-     */
-    ...(company.stripe_customer_id
-      ? {
-          customer: company.stripe_customer_id,
-          customer_update: {
-            name: "auto" as const,
-            address: "auto" as const,
-            // Kun når vi rent faktisk beder om en leveringsadresse.
-            ...(genoptag ? {} : { shipping: "auto" as const }),
-          },
-        }
-      : { customer_email: company.billing_email ?? company.contact_email ?? user.email }),
-    metadata: {
-      company_id: company.id,
-      product_slug: product.slug,
-      quantity: String(qty),
-      // Webhooken bruger den til at markere tillægget betalt, så en
-      // genbestilling af samme design er gratis.
-      ...(design ? { design_id: design.id } : {}),
-    },
-    ...(sub
-      ? {
-          subscription_data: {
-            // Fast trækdato den 20. Perioden fra køb til første fulde træk
-            // faktureres med det samme (Stripes standard create_prorations),
-            // så kunden betaler fra købsdato og derefter fast den 20.
-            billing_cycle_anchor: nextBillingAnchor(),
-            metadata: {
-              company_id: company.id,
-              product_slug: product.slug,
+      mode: sub ? "subscription" : "payment",
+      // payment_method_types sættes bevidst IKKE — Stripe vælger dynamisk de
+      // metoder, der er slået til i dashboardet, og som passer til kunden.
+      line_items: lineItems as never,
+      integration_identifier: INTEGRATION_ID,
+      client_reference_id: company.id,
+      locale: "da",
+      billing_address_collection: "required",
+      // Leveringsadressen indsamles KUN ved et fysisk køb. Ved en genoptagelse
+      // sendes der ikke noget — standeren står allerede på disken.
+      //
+      // Uden dette blev der aldrig spurgt om en leveringsadresse nogen steder,
+      // mens handelsbetingelserne lovede levering "til den adresse, du oplyser".
+      // Landet er låst til Danmark; se LEVERINGSLANDE for hvorfor.
+      ...(genoptag
+        ? {}
+        : {
+            shipping_address_collection: {
+              allowed_countries: [...LEVERINGSLANDE],
             },
-          },
-        }
-      : { invoice_creation: { enabled: true } }),
+          }),
+      // Momsnummer på fakturaen — dansk B2B skal kunne bogføre den.
+      tax_id_collection: { enabled: true },
+      /**
+       * EKSISTERENDE KUNDE KRÆVER `customer_update`.
+       *
+       * Stripe afviser en session, der både peger på en eksisterende kunde OG
+       * indsamler momsnummer, medmindre den får lov at opdatere kundens navn:
+       * "Tax ID collection requires updating business name on the customer."
+       *
+       * Fejlen var latent fra begyndelsen. Ved FØRSTE køb har virksomheden intet
+       * `stripe_customer_id`, så grenen med `customer_email` bruges, og alt gik
+       * godt. Først ved det ANDET køb — den første genkøbende kunde — slår den
+       * til. Adresserne sættes med af samme grund: indsamler vi dem, skal
+       * kunden hos Stripe også opdateres med dem.
+       */
+      ...(company.stripe_customer_id
+        ? {
+            customer: company.stripe_customer_id,
+            customer_update: {
+              name: "auto" as const,
+              address: "auto" as const,
+              // Kun når vi rent faktisk beder om en leveringsadresse.
+              ...(genoptag ? {} : { shipping: "auto" as const }),
+            },
+          }
+        : {
+            customer_email:
+              company.billing_email ?? company.contact_email ?? user.email,
+          }),
+      metadata: {
+        company_id: company.id,
+        product_slug: product.slug,
+        quantity: String(qty),
+        // Webhooken bruger den til at markere tillægget betalt, så en
+        // genbestilling af samme design er gratis.
+        ...(design ? { design_id: design.id } : {}),
+      },
+      ...(sub
+        ? {
+            subscription_data: {
+              // Fast trækdato den 20. Perioden fra køb til første fulde træk
+              // faktureres med det samme (Stripes standard create_prorations),
+              // så kunden betaler fra købsdato og derefter fast den 20.
+              billing_cycle_anchor: nextBillingAnchor(),
+              metadata: {
+                company_id: company.id,
+                product_slug: product.slug,
+              },
+            },
+          }
+        : { invoice_creation: { enabled: true } }),
       success_url: genoptag
         ? `${base}/dashboard/abonnement?genoptaget=1`
         : `${base}/bestil/tak?session_id={CHECKOUT_SESSION_ID}`,
@@ -458,20 +488,21 @@ export async function POST(request: NextRequest) {
   // sendes en stander mere. Ellers ville admin-oversigten bede om at pakke en
   // vare, kunden allerede har stående på disken.
   if (!genoptag) {
-    await admin
-      .from("orders")
-      .insert({
-        company_id: company.id,
-        product_name: product.name,
-        product_slug: product.slug,
-        quantity: qty,
-        total_amount: pricing.oneTimeTotal,
-        design_id: design?.id ?? null,
-        // Står også på ordren, så beløbet kan læses uden at slå designet op —
-        // også efter designet er slettet.
-        frontfarve_beloeb: pricing.frontfarve,
-        stripe_session_id: session.id,
-      });
+    await admin.from("orders").insert({
+      company_id: company.id,
+      product_name: product.name,
+      product_slug: product.slug,
+      quantity: qty,
+      total_amount: pricing.oneTimeTotal,
+      design_id: design?.id ?? null,
+      // Designet siger HVORDAN skiltet ser ud; standeren siger HVILKEN
+      // QR-adresse der skal trykkes paa det.
+      stand_id: standId,
+      // Står også på ordren, så beløbet kan læses uden at slå designet op —
+      // også efter designet er slettet.
+      frontfarve_beloeb: pricing.frontfarve,
+      stripe_session_id: session.id,
+    });
   }
 
   return NextResponse.json({ url: session.url });

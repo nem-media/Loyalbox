@@ -82,7 +82,10 @@ export function EditStand({
                 placeholder="https://…"
               />
             </Field>
-            <Field label="Tekst på eget link" hint="Fx “Menukort” eller “Book bord”.">
+            <Field
+              label="Tekst på eget link"
+              hint="Fx “Menukort” eller “Book bord”."
+            >
               <Input
                 name="custom_label"
                 defaultValue={stand.custom_label ?? ""}
@@ -112,10 +115,7 @@ export function EditStand({
           <div className="box-shape border border-accent/20 bg-accent/5 p-4 text-sm text-muted">
             Flere destinationstyper (Trustpilot, Facebook, eget link) og
             dynamiske links, du kan skifte når som helst, er en del af Pro.{" "}
-            <a
-              href="/dashboard/abonnement"
-              className="font-medium text-accent"
-            >
+            <a href="/dashboard/abonnement" className="font-medium text-accent">
               Opgrader til Pro →
             </a>
           </div>

@@ -22,7 +22,13 @@ import {
   normaliserHex,
   type StanderFarve,
 } from "@/lib/stander-tilvalg";
-import { LOGO_KRAV, LOGO_TEKSTER, laesPngHoved, validerLogo, type PngHoved } from "@/lib/logo";
+import {
+  LOGO_KRAV,
+  LOGO_TEKSTER,
+  laesPngHoved,
+  validerLogo,
+  type PngHoved,
+} from "@/lib/logo";
 import { formatCurrency } from "@/lib/utils";
 
 /**
@@ -74,16 +80,28 @@ export function StanderDesigner({
   companyId,
   initialQty = 1,
   kraeverDpa = true,
+  standId,
 }: {
   product: Product;
   companyId: string;
   initialQty?: number;
   kraeverDpa?: boolean;
+  /**
+   * Standeren, skiltet skal trykkes med (0022).
+   *
+   * Foelger med fra `/dashboard/standere/<id>` gennem `/bestil?stand=<id>`.
+   * Uden den ved produktionen ikke, hvilken QR-adresse der skal paa skiltet,
+   * naar butikken har mere end en stander.
+   */
+  standId?: string;
 }) {
-  const clamp = (n: number) => Math.max(1, Math.min(MAX_QTY, Math.floor(n) || 1));
+  const clamp = (n: number) =>
+    Math.max(1, Math.min(MAX_QTY, Math.floor(n) || 1));
 
   const [qty, setQty] = useState(clamp(initialQty));
-  const [standerFarve, setStanderFarve] = useState<StanderFarve>(STANDARD_STANDERFARVE);
+  const [standerFarve, setStanderFarve] = useState<StanderFarve>(
+    STANDARD_STANDERFARVE,
+  );
   const [egenFront, setEgenFront] = useState(false);
   const [hex, setHex] = useState("#1b916a");
   const [fil, setFil] = useState<File | null>(null);
@@ -121,7 +139,10 @@ export function StanderDesigner({
 
     // Målene læses ud af PNG'ens egne bytes. Ingen upload, intet bibliotek,
     // intet serverkald — checkout bliver ikke tungere af kontrollen.
-    const png = valgt.type === "image/png" ? laesPngHoved(await valgt.arrayBuffer()) : null;
+    const png =
+      valgt.type === "image/png"
+        ? laesPngHoved(await valgt.arrayBuffer())
+        : null;
     const kontrol = validerLogo(
       { navn: valgt.name, type: valgt.type, storrelse: valgt.size },
       png,
@@ -155,6 +176,7 @@ export function StanderDesigner({
           produkt: product.slug,
           antal: qty,
           accepterVilkaar: accepteret,
+          ...(standId ? { stand: standId } : {}),
           design: {
             stander_farve: standerFarve,
             front_type: front.egen ? "egen" : "matcher",
@@ -270,13 +292,17 @@ export function StanderDesigner({
           className="mt-3 block w-full text-sm file:btn-shape file:mr-3 file:border file:border-border file:bg-transparent file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-muted-bg"
         />
 
-        {logoFejl ? <p className="mt-2 text-sm text-danger">{logoFejl}</p> : null}
+        {logoFejl ? (
+          <p className="mt-2 text-sm text-danger">{logoFejl}</p>
+        ) : null}
 
         {advarsler.map((a) => (
           <p
             key={a}
             className={`mt-2 text-sm ${
-              a === LOGO_TEKSTER.transparentFundet ? "text-accent" : "text-muted"
+              a === LOGO_TEKSTER.transparentFundet
+                ? "text-accent"
+                : "text-muted"
             }`}
           >
             {a}
@@ -352,7 +378,9 @@ export function StanderDesigner({
             ) : (
               <span
                 className="text-center text-xs"
-                style={{ color: standerFarve === "hvid" ? "#8a8a8a" : "#9a9a9a" }}
+                style={{
+                  color: standerFarve === "hvid" ? "#8a8a8a" : "#9a9a9a",
+                }}
               >
                 Dit logo
               </span>
@@ -361,7 +389,9 @@ export function StanderDesigner({
         </div>
         <p className="mt-3 text-center text-xs text-muted">
           Front: {front.beskrivelse} · Stander:{" "}
-          {STANDER_FARVER.find((f) => f.vaerdi === standerFarve)!.navn.toLowerCase()}
+          {STANDER_FARVER.find(
+            (f) => f.vaerdi === standerFarve,
+          )!.navn.toLowerCase()}
         </p>
       </div>
 
@@ -381,13 +411,17 @@ export function StanderDesigner({
           {pris.frontfarve > 0 ? (
             <div className="flex justify-between">
               <dt>{FRONT_TEKSTER.tilvalg}</dt>
-              <dd className="tabular-nums">{formatCurrency(pris.frontfarve)}</dd>
+              <dd className="tabular-nums">
+                {formatCurrency(pris.frontfarve)}
+              </dd>
             </div>
           ) : null}
 
           <div className="flex justify-between border-t border-border pt-1.5 font-semibold">
             <dt>I alt nu</dt>
-            <dd className="tabular-nums">{formatCurrency(pris.oneTimeTotal)}</dd>
+            <dd className="tabular-nums">
+              {formatCurrency(pris.oneTimeTotal)}
+            </dd>
           </div>
 
           {pris.monthly > 0 ? (
@@ -414,14 +448,21 @@ export function StanderDesigner({
           />
           <label htmlFor={vilkaarId} className="text-sm leading-relaxed">
             Jeg accepterer{" "}
-            <Link href="/handelsbetingelser" className="font-medium text-accent hover:underline">
+            <Link
+              href="/handelsbetingelser"
+              className="font-medium text-accent hover:underline"
+            >
               handelsbetingelserne
             </Link>{" "}
             (version {TERMS_VERSION})
             {kraeverDpa ? (
               <>
-                {" "}og{" "}
-                <Link href="/databehandleraftale" className="font-medium text-accent hover:underline">
+                {" "}
+                og{" "}
+                <Link
+                  href="/databehandleraftale"
+                  className="font-medium text-accent hover:underline"
+                >
                   databehandleraftalen
                 </Link>
               </>
@@ -435,7 +476,9 @@ export function StanderDesigner({
           size="lg"
           className="w-full"
           onClick={betal}
-          disabled={pending || !accepteret || (egenFront && !normaliserHex(hex))}
+          disabled={
+            pending || !accepteret || (egenFront && !normaliserHex(hex))
+          }
         >
           {pending ? "Åbner betaling…" : "Gå til betaling"}
         </Button>

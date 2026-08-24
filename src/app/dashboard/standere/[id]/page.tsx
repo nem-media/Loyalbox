@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { reviewUrl } from "@/lib/site";
 import { qrDataUrl } from "@/lib/qr";
 import { PageHeader } from "@/components/dashboard-shell";
-import { BestilStander } from "@/components/bestil-stander";
+import { BestilTilStander } from "@/components/bestil-til-stander";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Stat } from "@/components/ui/stat";
 import { CopyButton } from "@/components/copy-button";
@@ -115,9 +115,13 @@ export default async function StandDetailPage({
         </Card>
       </div>
 
-      {/* Vejen fra en QR-adresse til det skilt, den skal sidde på. */}
-      <BestilStander
-        overskrift="Mangler du et skilt til denne?"
+      {/* Vejen fra en QR-adresse til det skilt, den skal sidde på.
+          `BestilTilStander` og ikke den generelle boks: herfra følger
+          standeren med hele vejen til ordren, så skiltet trykkes med DENNE
+          QR-kode og ikke bare "en" af butikkens. */}
+      <BestilTilStander
+        standId={stand.id}
+        standNavn={stand.name}
         className="mt-6"
       />
     </>

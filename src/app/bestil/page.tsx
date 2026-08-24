@@ -5,7 +5,10 @@ import { Pricing } from "@/components/pricing";
 import { QuantityOrder } from "@/components/quantity-order";
 import { PRODUCTS, LEVERINGSLAND_NAVN, harFysiskSkilt } from "@/lib/constants";
 import { StanderDesigner } from "@/components/stander-designer";
-import { GenbestilDesign, type GemtDesign } from "@/components/genbestil-design";
+import {
+  GenbestilDesign,
+  type GemtDesign,
+} from "@/components/genbestil-design";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { designFrontfarve } from "@/lib/design";
 import { Badge } from "@/components/ui/badge";
@@ -59,9 +62,26 @@ async function hentDesign(
 export default async function OrderPage({
   searchParams,
 }: {
-  searchParams: Promise<{ produkt?: string; antal?: string; design?: string }>;
+  searchParams: Promise<{
+    produkt?: string;
+    antal?: string;
+    design?: string;
+    /**
+     * Standeren, skiltet skal trykkes med (0022).
+     *
+     * Foelger med fra `/dashboard/standere/<id>`. Vaerdien sendes videre til
+     * `/api/checkout`, der KONTROLLERER ejerskabet — her bruges den kun til
+     * at faa den med igennem, saa siden ikke behoever at slaa noget op.
+     */
+    stand?: string;
+  }>;
 }) {
-  const { produkt, antal, design: designId } = await searchParams;
+  const {
+    produkt,
+    antal,
+    design: designId,
+    stand: standId,
+  } = await searchParams;
   const selected = PRODUCTS.find((p) => p.slug === produkt);
   const initialQty = Number(antal) || 1;
 
@@ -118,13 +138,17 @@ export default async function OrderPage({
                 product={selected}
                 design={gemt}
                 kraeverDpa={requiresDpa(selected)}
+                standId={standId}
               />
-            ) : spaerre === null && harFysiskSkilt(selected) && user?.company ? (
+            ) : spaerre === null &&
+              harFysiskSkilt(selected) &&
+              user?.company ? (
               <StanderDesigner
                 product={selected}
                 companyId={user.company.id}
                 initialQty={initialQty}
                 kraeverDpa={requiresDpa(selected)}
+                standId={standId}
               />
             ) : spaerre === null ? (
               <div className="box-shape border border-accent/30 bg-accent/5 p-4">
@@ -203,7 +227,10 @@ export default async function OrderPage({
               />
             )}
 
-            <Link href="/bestil" className="inline-block text-sm font-medium text-accent">
+            <Link
+              href="/bestil"
+              className="inline-block text-sm font-medium text-accent"
+            >
               ← Se alle produkter
             </Link>
           </div>

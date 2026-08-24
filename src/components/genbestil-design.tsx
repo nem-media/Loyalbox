@@ -50,12 +50,22 @@ export function GenbestilDesign({
   product,
   design,
   kraeverDpa = true,
+  standId,
 }: {
   product: Product;
   design: GemtDesign;
   kraeverDpa?: boolean;
+  /**
+   * Standeren, skiltet skal trykkes med (0022).
+   *
+   * Foelger med fra `/dashboard/standere/<id>` gennem `/bestil?stand=<id>`.
+   * Uden den ved produktionen ikke, hvilken QR-adresse der skal paa skiltet,
+   * naar butikken har mere end en stander.
+   */
+  standId?: string;
 }) {
-  const clamp = (n: number) => Math.max(1, Math.min(MAX_QTY, Math.floor(n) || 1));
+  const clamp = (n: number) =>
+    Math.max(1, Math.min(MAX_QTY, Math.floor(n) || 1));
   const [qty, setQty] = useState(1);
   const [accepteret, setAccepteret] = useState(false);
   const [pending, setPending] = useState(false);
@@ -78,6 +88,7 @@ export function GenbestilDesign({
           antal: qty,
           accepterVilkaar: accepteret,
           design_id: design.id,
+          ...(standId ? { stand: standId } : {}),
         }),
       });
       const svar = await laesBetalingssvar(res);
@@ -192,13 +203,17 @@ export function GenbestilDesign({
           {pris.frontfarve > 0 ? (
             <div className="flex justify-between">
               <dt>{FRONT_TEKSTER.tilvalg}</dt>
-              <dd className="tabular-nums">{formatCurrency(pris.frontfarve)}</dd>
+              <dd className="tabular-nums">
+                {formatCurrency(pris.frontfarve)}
+              </dd>
             </div>
           ) : null}
 
           <div className="flex justify-between border-t border-border pt-1.5 font-semibold">
             <dt>I alt</dt>
-            <dd className="tabular-nums">{formatCurrency(pris.oneTimeTotal)}</dd>
+            <dd className="tabular-nums">
+              {formatCurrency(pris.oneTimeTotal)}
+            </dd>
           </div>
         </dl>
         <p className="mt-2 text-xs text-muted">Alle priser er uden moms.</p>
@@ -216,14 +231,21 @@ export function GenbestilDesign({
           />
           <label htmlFor={vilkaarId} className="text-sm leading-relaxed">
             Jeg accepterer{" "}
-            <Link href="/handelsbetingelser" className="font-medium text-accent hover:underline">
+            <Link
+              href="/handelsbetingelser"
+              className="font-medium text-accent hover:underline"
+            >
               handelsbetingelserne
             </Link>{" "}
             (version {TERMS_VERSION})
             {kraeverDpa ? (
               <>
-                {" "}og{" "}
-                <Link href="/databehandleraftale" className="font-medium text-accent hover:underline">
+                {" "}
+                og{" "}
+                <Link
+                  href="/databehandleraftale"
+                  className="font-medium text-accent hover:underline"
+                >
                   databehandleraftalen
                 </Link>
               </>
