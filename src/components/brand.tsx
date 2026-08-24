@@ -4,7 +4,6 @@ import { SITE_NAME } from "@/lib/constants";
 
 const dotIndex = SITE_NAME.indexOf(".");
 const brandBase = dotIndex === -1 ? SITE_NAME : SITE_NAME.slice(0, dotIndex);
-const brandTld = dotIndex === -1 ? "" : SITE_NAME.slice(dotIndex);
 
 /**
  * Stjernen i logoet.
@@ -27,7 +26,7 @@ function BrandStar({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      className={cn("h-[0.95em] w-[0.95em] shrink-0", className)}
+      className={cn("h-[0.72em] w-[0.72em] shrink-0", className)}
       fill="currentColor"
       fillRule="evenodd"
       aria-hidden="true"
@@ -66,19 +65,21 @@ export function Logo({
       href={href}
       aria-label={SITE_NAME}
       className={cn(
-        "inline-flex items-baseline gap-[0.04em] text-[1.75rem] font-bold leading-none tracking-tight",
+        "inline-flex items-center text-[1.75rem] font-bold leading-none tracking-tight",
         paaMoerk ? "text-dark-fg" : "text-dark",
         className,
       )}
     >
+      {/* Ordmærket er "LoyalSum" UDEN toplevel-domænet — sådan er det også i
+          det oprindelige logo. `SITE_NAME` indeholder ".dk", fordi den bruges
+          i sidetitler, men et logo med et domæne hængende bagpå er en anden
+          ting end et navnetræk. */}
       <span aria-hidden="true">{brandBase[0]}</span>
-      {/* Stjernen står, hvor "o" ellers ville stå. `text-accent` giver den
-          paletten; resten af ordet arver farven fra linket. */}
-      <BrandStar className="translate-y-[0.06em] text-accent" />
-      <span aria-hidden="true">
-        {brandBase.slice(2)}
-        {brandTld ? <span className="text-accent">{brandTld}</span> : null}
-      </span>
+      {/* Stjernen står, hvor "o" ellers ville stå, og er derfor sat til
+          bredden af et "o" i denne vægt (~0,72em). Var den bredere, ville der
+          komme et hul på hver side, og ordet ville falde fra hinanden. */}
+      <BrandStar className="mx-[0.02em] text-accent" />
+      <span aria-hidden="true">{brandBase.slice(2)}</span>
     </Link>
   );
 }
