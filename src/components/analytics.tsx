@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Script from "next/script";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
+import { Logo } from "@/components/brand";
 import {
   CONSENT_KEY,
   CONSENT_ID_KEY,
@@ -193,14 +194,10 @@ function ConsentDialog() {
         className="box-shape flex max-h-[calc(100dvh-1.5rem)] w-full max-w-lg flex-col overflow-hidden border border-border bg-background shadow-xl sm:max-h-[calc(100dvh-2rem)]"
       >
         <div className="flex shrink-0 items-center justify-between bg-dark px-5 py-4">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/loyalsum-logo.png"
-            alt="LoyalSum"
-            width={1450}
-            height={340}
-            className="h-7 w-auto"
-          />
+          {/* Komponenten og ikke PNG-en: filen har den gamle palet bagt ind,
+              og stjernen ville staa turkis i en dialog, der ellers foelger
+              den nye. Cookiedialogen er tit det FOERSTE en ny besoegende ser. */}
+          <Logo image="light" className="text-lg" />
           <span className="text-xs text-white/60">Cookies</span>
         </div>
 

@@ -1,20 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Pizzaæske og en papirspose på en takeaway-disk ved siden af et skilt med QR-kode og en telefon med stempelkort">
   <rect width="1200" height="630" fill="#f6f4ee"/>
-  <rect x="60" y="498" width="1080" height="16" rx="8" fill="#19375c" opacity="0.17"/>
+  <rect x="60" y="498" width="1080" height="16" rx="8" fill="#1e1c1a" opacity="0.17"/>
 
   <!-- Pizzaaeske, let aabnet -->
   <g>
     <path d="M96 330 h300 v150 h-300 z" fill="#ffffff"/>
-    <path d="M96 330 h300 v150 h-300 z" fill="none" stroke="#19375c" stroke-width="3.5" opacity="0.25"/>
-    <path d="M96 330 l40 -74 h300 l-40 74 z" fill="#19375c" opacity="0.14"/>
-    <path d="M96 330 l40 -74 h300 l-40 74 z" fill="none" stroke="#19375c" stroke-width="3" opacity="0.2"/>
-    <rect x="150" y="368" width="120" height="12" rx="6" fill="#19375c" opacity="0.4"/>
-    <rect x="150" y="396" width="80" height="10" rx="5" fill="#19375c" opacity="0.2"/>
+    <path d="M96 330 h300 v150 h-300 z" fill="none" stroke="#1e1c1a" stroke-width="3.5" opacity="0.25"/>
+    <path d="M96 330 l40 -74 h300 l-40 74 z" fill="#1e1c1a" opacity="0.14"/>
+    <path d="M96 330 l40 -74 h300 l-40 74 z" fill="none" stroke="#1e1c1a" stroke-width="3" opacity="0.2"/>
+    <rect x="150" y="368" width="120" height="12" rx="6" fill="#1e1c1a" opacity="0.4"/>
+    <rect x="150" y="396" width="80" height="10" rx="5" fill="#1e1c1a" opacity="0.2"/>
     <!-- QR paa aesken: naar leveringskunden hjemme i stuen -->
     <g>
       <rect x="288" y="366" width="88" height="88" rx="8" fill="#ffffff"/>
-      <rect x="288" y="366" width="88" height="88" rx="8" fill="none" stroke="#1b916a" stroke-width="2.5" opacity="0.55"/>
-      <g fill="#19375c">
+      <rect x="288" y="366" width="88" height="88" rx="8" fill="none" stroke="#26616e" stroke-width="2.5" opacity="0.55"/>
+      <g fill="#1e1c1a">
         <rect x="300" y="378" width="22" height="22" rx="3"/>
         <rect x="342" y="378" width="22" height="22" rx="3"/>
         <rect x="300" y="420" width="22" height="22" rx="3"/>
@@ -29,23 +29,23 @@
   <!-- Papirspose -->
   <g>
     <path d="M436 336 h150 l14 144 h-178 z" fill="#ffffff"/>
-    <path d="M436 336 h150 l14 144 h-178 z" fill="none" stroke="#19375c" stroke-width="3" opacity="0.22"/>
-    <path d="M436 336 h150 l-8 26 h-134 z" fill="#19375c" opacity="0.12"/>
-    <path d="M478 336 a32 22 0 0 1 64 0" fill="none" stroke="#19375c" stroke-width="5" opacity="0.3"/>
-    <rect x="470" y="392" width="82" height="11" rx="5.5" fill="#1b916a" opacity="0.55"/>
-    <rect x="470" y="414" width="60" height="9" rx="4.5" fill="#19375c" opacity="0.18"/>
+    <path d="M436 336 h150 l14 144 h-178 z" fill="none" stroke="#1e1c1a" stroke-width="3" opacity="0.22"/>
+    <path d="M436 336 h150 l-8 26 h-134 z" fill="#1e1c1a" opacity="0.12"/>
+    <path d="M478 336 a32 22 0 0 1 64 0" fill="none" stroke="#1e1c1a" stroke-width="5" opacity="0.3"/>
+    <rect x="470" y="392" width="82" height="11" rx="5.5" fill="#26616e" opacity="0.55"/>
+    <rect x="470" y="414" width="60" height="9" rx="4.5" fill="#1e1c1a" opacity="0.18"/>
   </g>
 
   <!-- Skilt hvor kunden venter -->
   <g>
     <path d="M652 232 h150 a10 10 0 0 1 10 10 v186 a10 10 0 0 1 -10 10 h-150 a10 10 0 0 1 -10 -10 v-196 z" fill="#ffffff"/>
-    <path d="M652 232 h150 a10 10 0 0 1 10 10 v186 a10 10 0 0 1 -10 10 h-150 a10 10 0 0 1 -10 -10 v-196 z" fill="none" stroke="#19375c" stroke-width="3" opacity="0.18"/>
-    <path d="M688 438 h78 l16 12 h-110 z" fill="#19375c" opacity="0.2"/>
-    <rect x="668" y="256" width="78" height="12" rx="6" fill="#1b916a"/>
-    <rect x="668" y="276" width="112" height="9" rx="4.5" fill="#19375c" opacity="0.22"/>
+    <path d="M652 232 h150 a10 10 0 0 1 10 10 v186 a10 10 0 0 1 -10 10 h-150 a10 10 0 0 1 -10 -10 v-196 z" fill="none" stroke="#1e1c1a" stroke-width="3" opacity="0.18"/>
+    <path d="M688 438 h78 l16 12 h-110 z" fill="#1e1c1a" opacity="0.2"/>
+    <rect x="668" y="256" width="78" height="12" rx="6" fill="#26616e"/>
+    <rect x="668" y="276" width="112" height="9" rx="4.5" fill="#1e1c1a" opacity="0.22"/>
     <g>
       <rect x="668" y="300" width="118" height="118" rx="8" fill="#ffffff"/>
-      <g fill="#19375c">
+      <g fill="#1e1c1a">
         <rect x="682" y="314" width="28" height="28" rx="4"/>
         <rect x="744" y="314" width="28" height="28" rx="4"/>
         <rect x="682" y="376" width="28" height="28" rx="4"/>
@@ -61,25 +61,25 @@
 
   <!-- Telefon med stempelkort, otte felter -->
   <g>
-    <rect x="866" y="150" width="222" height="336" rx="28" fill="#19375c"/>
+    <rect x="866" y="150" width="222" height="336" rx="28" fill="#1e1c1a"/>
     <rect x="879" y="167" width="196" height="302" rx="16" fill="#ffffff"/>
     <rect x="943" y="159" width="70" height="7" rx="3.5" fill="#ffffff" opacity="0.5"/>
-    <rect x="901" y="196" width="104" height="13" rx="6.5" fill="#19375c" opacity="0.75"/>
-    <rect x="901" y="218" width="66" height="9" rx="4.5" fill="#19375c" opacity="0.25"/>
+    <rect x="901" y="196" width="104" height="13" rx="6.5" fill="#1e1c1a" opacity="0.75"/>
+    <rect x="901" y="218" width="66" height="9" rx="4.5" fill="#1e1c1a" opacity="0.25"/>
     <g>
-      <g fill="none" stroke="#19375c" stroke-width="2.5" opacity="0.22">
+      <g fill="none" stroke="#1e1c1a" stroke-width="2.5" opacity="0.22">
         <circle cx="921" cy="278" r="20"/><circle cx="977" cy="278" r="20"/><circle cx="1033" cy="278" r="20"/>
         <circle cx="921" cy="334" r="20"/><circle cx="977" cy="334" r="20"/><circle cx="1033" cy="334" r="20"/>
         <circle cx="921" cy="390" r="20"/><circle cx="977" cy="390" r="20"/>
       </g>
-      <g fill="#1b916a">
+      <g fill="#26616e">
         <circle cx="921" cy="278" r="14"/><circle cx="977" cy="278" r="14"/><circle cx="1033" cy="278" r="14"/>
         <circle cx="921" cy="334" r="14"/><circle cx="977" cy="334" r="14"/><circle cx="1033" cy="334" r="14"/>
       </g>
       <circle cx="977" cy="390" r="20" fill="none" stroke="#f59e0b" stroke-width="3"/>
       <path d="M977 380 l3.9 7.9 8.7 1.3 -6.3 6.1 1.5 8.7 -7.8 -4.1 -7.8 4.1 1.5 -8.7 -6.3 -6.1 8.7 -1.3 z" fill="#f59e0b"/>
     </g>
-    <rect x="901" y="428" width="146" height="22" rx="7" fill="#1b916a"/>
+    <rect x="901" y="428" width="146" height="22" rx="7" fill="#26616e"/>
   </g>
-  <path d="M826 358 q26 -16 38 0" fill="none" stroke="#1b916a" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+  <path d="M826 358 q26 -16 38 0" fill="none" stroke="#26616e" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
 </svg>

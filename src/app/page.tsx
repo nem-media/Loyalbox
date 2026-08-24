@@ -186,7 +186,7 @@ export default function LandingPage() {
             className="absolute inset-0 -z-10"
             style={{
               backgroundImage:
-                "radial-gradient(60% 60% at 78% 12%, rgba(27,145,106,0.32), transparent 62%), radial-gradient(55% 55% at 4% 96%, rgba(255,183,0,0.10), transparent 60%)",
+                "radial-gradient(60% 60% at 78% 12%, rgba(180,161,137,0.22), transparent 62%), radial-gradient(55% 55% at 4% 96%, rgba(180,161,137,0.10), transparent 60%)",
             }}
           />
           <div className="mx-auto max-w-6xl px-4 py-20 sm:py-28">
@@ -214,7 +214,7 @@ export default function LandingPage() {
                   tilbage.
                 </p>
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                  <ButtonLink href="/signup" size="lg">
+                  <ButtonLink variant="secondary" href="/signup" size="lg">
                     Kom i gang
                   </ButtonLink>
                   <ButtonLink href="/#loop" variant="outline-invert" size="lg">
@@ -261,8 +261,8 @@ export default function LandingPage() {
                 <p className="mt-4 text-muted">
                   Du bruger tid og penge på at få folk ind ad døren. Men værdien
                   stopper ikke ved første besøg — den opstår, når kunden får en
-                  god oplevelse, deler den, kommer igen og trækker nye kunder med
-                  sig.
+                  god oplevelse, deler den, kommer igen og trækker nye kunder
+                  med sig.
                 </p>
                 <p className="mt-3 text-muted">
                   Det er præcis den proces, LoyalSum samler ét sted.
@@ -281,7 +281,7 @@ export default function LandingPage() {
                 er noget at være opmærksom på, uden at stjæle blikket fra
                 overskriften til venstre, som er sektionens egentlige budskab.
               */}
-              <div className="box-shape border border-border bg-card p-7 shadow-[0_20px_40px_-28px_rgba(25,55,92,0.4)]">
+              <div className="box-shape border border-border bg-card p-7 shadow-[0_20px_40px_-28px_rgba(30,28,26,0.4)]">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary/15 text-dark">
                   {IconAlert}
                 </div>
@@ -290,8 +290,13 @@ export default function LandingPage() {
                 </h3>
                 <ul className="mt-5 divide-y divide-border/70">
                   {UDEN_SYSTEM.map((t) => (
-                    <li key={t} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
-                      <span className="mt-0.5 shrink-0 text-muted">{IconCross}</span>
+                    <li
+                      key={t}
+                      className="flex items-start gap-3 py-3 first:pt-0 last:pb-0"
+                    >
+                      <span className="mt-0.5 shrink-0 text-muted">
+                        {IconCross}
+                      </span>
                       <span className="text-sm">{t}</span>
                     </li>
                   ))}
@@ -302,10 +307,15 @@ export default function LandingPage() {
         </section>
 
         {/* ------------------------------------------------ LoyalSum-loopet */}
-        <section id="loop" className="scroll-mt-24 border-t border-border bg-muted-bg">
+        <section
+          id="loop"
+          className="scroll-mt-24 border-t border-border bg-muted-bg"
+        >
           <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="text-sm font-semibold text-accent">LoyalSum-loopet</p>
+              <p className="text-sm font-semibold text-accent">
+                LoyalSum-loopet
+              </p>
               <h2 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
                 Fra første besøg til næste besøg
               </h2>
@@ -330,7 +340,7 @@ export default function LandingPage() {
             </div>
 
             <div className="mt-12 grid gap-6 md:grid-cols-2">
-              <div className="box-shape border border-accent/25 bg-card p-7 shadow-[0_20px_40px_-28px_rgba(27,145,106,0.5)]">
+              <div className="box-shape border border-accent/25 bg-card p-7 shadow-[0_20px_40px_-28px_rgba(30,28,26,0.5)]">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-accent-fg">
                   {IconMagnet}
                 </div>
@@ -347,7 +357,7 @@ export default function LandingPage() {
                 </ul>
               </div>
 
-              <div className="box-shape border border-secondary/50 bg-card p-7 shadow-[0_20px_40px_-28px_rgba(255,183,0,0.55)]">
+              <div className="box-shape border border-secondary/50 bg-card p-7 shadow-[0_20px_40px_-28px_rgba(180,161,137,0.55)]">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-secondary-fg">
                   {IconRepeat}
                 </div>
@@ -407,7 +417,9 @@ export default function LandingPage() {
         >
           <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
             <div className="text-center">
-              <p className="text-sm font-semibold text-accent">Kom godt fra start</p>
+              <p className="text-sm font-semibold text-accent">
+                Kom godt fra start
+              </p>
               <h2 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
                 Sådan virker det
               </h2>
@@ -453,7 +465,7 @@ export default function LandingPage() {
               {INDUSTRIES.map((branche) => (
                 <li
                   key={branche.navn}
-                  className="btn-shape inline-flex items-center gap-2.5 border border-border bg-card py-2 pl-2.5 pr-4 text-sm font-medium shadow-[0_10px_24px_-20px_rgba(25,55,92,0.65)]"
+                  className="btn-shape inline-flex items-center gap-2.5 border border-border bg-card py-2 pl-2.5 pr-4 text-sm font-medium shadow-[0_10px_24px_-20px_rgba(30,28,26,0.65)]"
                 >
                   <IndustryBadge branche={branche.branche} />
                   {branche.navn}
@@ -470,10 +482,11 @@ export default function LandingPage() {
               Få flere kunder. Og flere af dem tilbage.
             </h2>
             <p className="mx-auto mt-3 max-w-lg text-white/70">
-              Få anmeldelser, loyalitet, feedback og synlighed samlet i LoyalSum.
+              Få anmeldelser, loyalitet, feedback og synlighed samlet i
+              LoyalSum.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <ButtonLink href="/signup" size="lg">
+              <ButtonLink variant="secondary" href="/signup" size="lg">
                 Kom i gang
               </ButtonLink>
               <Link

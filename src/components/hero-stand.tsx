@@ -60,7 +60,7 @@ export function HeroStand() {
       <div className="box-shape border border-border bg-card p-6 text-foreground shadow-[0_30px_60px_-25px_rgba(0,0,0,0.4)]">
         {/* Example business logo */}
         <div className="flex flex-col items-center text-center">
-          <span className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-lg font-bold text-white shadow-sm">
+          <span className="grid h-14 w-14 place-items-center rounded-2xl bg-dark text-lg font-bold text-white shadow-sm">
             CA
           </span>
           <p className="mt-3 text-sm font-bold tracking-tight">Café Aurora</p>

@@ -2,8 +2,30 @@
 
 /*
   LoyalSum design system
-  Premium, clean. Primær grøn (#1b916a), sekundær gul (#ffb700),
-  råhvid til lyse sektioner, #19375c til mørke sektioner.
+  FORSLAG TIL NY PALET (ikke besluttet):
+    #1e1c1a  varm koksgraa — primaer. Moerke sektioner og overskrifter
+    #b4a189  beige — sekundaer. Knapper paa MOERK bund
+    #26616e  petroleum — accent. Knapper og links paa LYS bund
+
+  HVORFOR PETROLEUM OG IKKE RUST: rust ligger kun 14° fra beigen i kuloer og
+  ville laeses som "beige, bare moerkere". Petroleum ligger 158° vaek — paa
+  den modsatte side af farvecirklen — og kan derfor aldrig forveksles med
+  den. Kold mod varm er samtidig dét, der faar en palet til at se valgt ud
+  frem for tilfaeldig.
+    #f6f4ee  raahvid — sidens grund. Varm, saa den klaeder beigen
+
+  Koksgraaen er VARM og ikke ren sort: ren sort ved siden af en varm beige
+  ser koldt og haardt ud, og de to farver hoerer ikke sammen.
+
+  PALETTEN VENDER EFTER KONTEKST, og det er ikke en finesse men et krav:
+    beige knap paa lys bund   2,27  — forsvinder i baggrunden
+    koks knap paa lys bund   16,99  — bruges dér
+    koks knap paa moerk bund     1  — usynlig
+    beige knap paa moerk bund 6,79  — bruges dér
+  Derfor bruger knapper i moerke sektioner variant="secondary".
+
+  Til sammenligning bestod den gamle groenne #1b916a IKKE WCAG AA: hvid tekst
+  paa den giver 3,96. Begge farver her ligger langt over.
 */
 :root {
   --background: #ffffff;
@@ -13,7 +35,7 @@
      #e5e7eb), som er BLÅLIGE — de sad på en varm baggrund og trak i hver sin
      retning. Det er dét, der læses som "ikke gennemtænkt", uden at man kan
      sætte fingeren på hvorfor. */
-  --muted: #5a6577;
+  --muted: #5f5b55;
   --muted-bg: #f6f4ee; /* råhvid — til sektioner uden ren hvid baggrund */
   --border: #e6e1d7;
   --card: #ffffff;
@@ -27,12 +49,12 @@
      under det, øjet kan opfatte på hvidt. Menuen så gennemført ud, fordi den
      var det eneste element på siden med en grund at stå på. */
   --app-bg: #f6f4ee;
-  --accent: #1b916a; /* primær */
+  --accent: #26616e; /* accent — handling på LYS bund: knapper og links */
   --accent-fg: #ffffff;
-  --accent-hover: #157a58;
-  --secondary: #ffb700; /* sekundær — bruges minimalt */
-  --secondary-fg: #19375c;
-  --dark: #19375c; /* mørk sektionsbaggrund */
+  --accent-hover: #1f5058;
+  --secondary: #b4a189; /* sekundær — bruges minimalt */
+  --secondary-fg: #1e1c1a;
+  --dark: #1e1c1a; /* mørk sektionsbaggrund */
   --dark-fg: #ffffff;
   --success: #16a34a;
   --danger: #dc2626;
@@ -50,11 +72,11 @@
      overskrive Tailwinds egne `shadow-*`-utilities overalt i projektet.
      Bruges som `shadow-[var(--hoejde-1)]`. */
   --hoejde-1:
-    0 1px 2px rgba(25, 55, 92, 0.06), 0 1px 3px -1px rgba(25, 55, 92, 0.05);
+    0 1px 2px rgba(30, 28, 26, 0.06), 0 1px 3px -1px rgba(30, 28, 26, 0.05);
   --hoejde-2:
-    0 2px 4px rgba(25, 55, 92, 0.06), 0 6px 16px -4px rgba(25, 55, 92, 0.1);
+    0 2px 4px rgba(30, 28, 26, 0.06), 0 6px 16px -4px rgba(30, 28, 26, 0.1);
   --hoejde-3:
-    0 4px 8px rgba(25, 55, 92, 0.07), 0 12px 32px -8px rgba(25, 55, 92, 0.14);
+    0 4px 8px rgba(30, 28, 26, 0.07), 0 12px 32px -8px rgba(30, 28, 26, 0.14);
 }
 
 @theme inline {

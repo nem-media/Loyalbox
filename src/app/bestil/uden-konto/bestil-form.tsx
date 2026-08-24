@@ -59,7 +59,7 @@ export function BestilUdenKontoForm({ product }: { product: Product }) {
   const [qty, setQty] = useState(1);
   const [standerFarve, setStanderFarve] = useState<StanderFarve>(STANDARD_STANDERFARVE);
   const [egenFront, setEgenFront] = useState(false);
-  const [hex, setHex] = useState("#1b916a");
+  const [hex, setHex] = useState("#26616e");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoFejl, setLogoFejl] = useState<string | null>(null);
   const [advarsler, setAdvarsler] = useState<string[]>([]);
@@ -296,7 +296,7 @@ export function BestilUdenKontoForm({ product }: { product: Product }) {
           <div className="mt-4 flex items-center gap-3">
             <input
               type="color"
-              value={normaliserHex(hex) ?? "#1b916a"}
+              value={normaliserHex(hex) ?? "#26616e"}
               onChange={(e) => setHex(e.target.value)}
               aria-label="Vælg frontfarve"
               className="h-10 w-14 cursor-pointer border border-border bg-transparent p-1"

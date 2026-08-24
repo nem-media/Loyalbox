@@ -4,8 +4,8 @@
   <!-- QR-kode i kort -->
   <g>
     <rect x="150" y="115" width="400" height="400" rx="12" fill="#ffffff"/>
-    <rect x="150" y="115" width="400" height="400" rx="12" fill="none" stroke="#19375c" stroke-width="3" opacity="0.15"/>
-    <g fill="#19375c">
+    <rect x="150" y="115" width="400" height="400" rx="12" fill="none" stroke="#1e1c1a" stroke-width="3" opacity="0.15"/>
+    <g fill="#1e1c1a">
       <!-- Hjørnemarkører -->
       <rect x="190" y="155" width="86" height="86" rx="8"/>
       <rect x="424" y="155" width="86" height="86" rx="8"/>
@@ -15,7 +15,7 @@
         <rect x="442" y="173" width="50" height="50" rx="4"/>
         <rect x="208" y="407" width="50" height="50" rx="4"/>
       </g>
-      <g fill="#19375c">
+      <g fill="#1e1c1a">
         <rect x="220" y="185" width="26" height="26" rx="2"/>
         <rect x="454" y="185" width="26" height="26" rx="2"/>
         <rect x="220" y="419" width="26" height="26" rx="2"/>
@@ -35,7 +35,7 @@
   </g>
 
   <!-- Kamerasøger over koden -->
-  <g fill="none" stroke="#1b916a" stroke-width="10" stroke-linecap="round">
+  <g fill="none" stroke="#26616e" stroke-width="10" stroke-linecap="round">
     <path d="M170 210v-30a20 20 0 0 1 20-20h30"/>
     <path d="M530 210v-30a20 20 0 0 0-20-20h-30"/>
     <path d="M170 420v30a20 20 0 0 0 20 20h30"/>
@@ -43,25 +43,25 @@
   </g>
 
   <!-- Pil -->
-  <path d="M610 315h100" stroke="#19375c" stroke-width="8" stroke-linecap="round" opacity="0.4"/>
-  <path d="M700 295l32 20-32 20z" fill="#19375c" opacity="0.4"/>
+  <path d="M610 315h100" stroke="#1e1c1a" stroke-width="8" stroke-linecap="round" opacity="0.4"/>
+  <path d="M700 295l32 20-32 20z" fill="#1e1c1a" opacity="0.4"/>
 
   <!-- Telefon med anmeldelsesside -->
   <g>
-    <rect x="770" y="115" width="280" height="400" rx="32" fill="#19375c"/>
+    <rect x="770" y="115" width="280" height="400" rx="32" fill="#1e1c1a"/>
     <rect x="786" y="131" width="248" height="368" rx="22" fill="#ffffff"/>
-    <circle cx="830" cy="188" r="22" fill="#1b916a"/>
-    <rect x="864" y="176" width="130" height="12" rx="6" fill="#19375c" opacity="0.7"/>
-    <rect x="864" y="196" width="90" height="10" rx="5" fill="#19375c" opacity="0.3"/>
-    <g fill="#ffb700">
+    <circle cx="830" cy="188" r="22" fill="#26616e"/>
+    <rect x="864" y="176" width="130" height="12" rx="6" fill="#1e1c1a" opacity="0.7"/>
+    <rect x="864" y="196" width="90" height="10" rx="5" fill="#1e1c1a" opacity="0.3"/>
+    <g fill="#b4a189">
       <path d="M824 268l9 19 21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z"/>
       <path d="M872 268l9 19 21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z"/>
       <path d="M920 268l9 19 21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z"/>
       <path d="M968 268l9 19 21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z"/>
     </g>
-    <path d="M1016 268l9 19 21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z" fill="#ffb700" opacity="0.3"/>
-    <rect x="812" y="348" width="196" height="12" rx="6" fill="#19375c" opacity="0.2"/>
-    <rect x="812" y="372" width="150" height="12" rx="6" fill="#19375c" opacity="0.2"/>
-    <rect x="812" y="420" width="196" height="44" rx="8" fill="#1b916a"/>
+    <path d="M1016 268l9 19 21 3-15 15 4 21-19-10-19 10 4-21-15-15 21-3z" fill="#b4a189" opacity="0.3"/>
+    <rect x="812" y="348" width="196" height="12" rx="6" fill="#1e1c1a" opacity="0.2"/>
+    <rect x="812" y="372" width="150" height="12" rx="6" fill="#1e1c1a" opacity="0.2"/>
+    <rect x="812" y="420" width="196" height="44" rx="8" fill="#26616e"/>
   </g>
 </svg>

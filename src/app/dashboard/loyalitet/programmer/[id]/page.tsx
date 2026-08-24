@@ -107,7 +107,7 @@ export default async function ProgramDetailPage({
         <div className="lg:sticky lg:top-24 lg:self-start">
           <StampCardPreview
             name={program.name}
-            color={program.color ?? "#19375c"}
+            color={program.color ?? "#1e1c1a"}
             requiredStamps={reward?.required_stamps ?? 10}
             filled={0}
             rewardName={reward?.name ?? null}

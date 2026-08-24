@@ -2,47 +2,47 @@
   <rect width="1200" height="630" fill="#f6f4ee"/>
 
   <!-- Bordplade -->
-  <rect x="60" y="470" width="1080" height="18" rx="9" fill="#19375c" opacity="0.16"/>
-  <rect x="60" y="488" width="1080" height="10" rx="5" fill="#19375c" opacity="0.07"/>
+  <rect x="60" y="470" width="1080" height="18" rx="9" fill="#1e1c1a" opacity="0.16"/>
+  <rect x="60" y="488" width="1080" height="10" rx="5" fill="#1e1c1a" opacity="0.07"/>
 
   <!-- ================================================== To vinglas -->
   <g opacity="0.85">
     <!-- Glas 1 -->
-    <path d="M118 168 h96 v54 a48 48 0 0 1 -96 0 z" fill="#19375c" opacity="0.55"/>
-    <path d="M118 168 h96 v92 a48 48 0 0 1 -96 0 z" fill="none" stroke="#19375c" stroke-width="3.5" opacity="0.35"/>
-    <rect x="162" y="308" width="8" height="120" rx="4" fill="#19375c" opacity="0.3"/>
-    <ellipse cx="166" cy="434" rx="46" ry="11" fill="#19375c" opacity="0.25"/>
-    <path d="M118 260 a48 48 0 0 0 96 0" fill="none" stroke="#19375c" stroke-width="3.5" opacity="0.35"/>
+    <path d="M118 168 h96 v54 a48 48 0 0 1 -96 0 z" fill="#1e1c1a" opacity="0.55"/>
+    <path d="M118 168 h96 v92 a48 48 0 0 1 -96 0 z" fill="none" stroke="#1e1c1a" stroke-width="3.5" opacity="0.35"/>
+    <rect x="162" y="308" width="8" height="120" rx="4" fill="#1e1c1a" opacity="0.3"/>
+    <ellipse cx="166" cy="434" rx="46" ry="11" fill="#1e1c1a" opacity="0.25"/>
+    <path d="M118 260 a48 48 0 0 0 96 0" fill="none" stroke="#1e1c1a" stroke-width="3.5" opacity="0.35"/>
 
     <!-- Glas 2, lidt bagved -->
-    <path d="M232 196 h80 v42 a40 40 0 0 1 -80 0 z" fill="#19375c" opacity="0.4"/>
-    <path d="M232 196 h80 v76 a40 40 0 0 1 -80 0 z" fill="none" stroke="#19375c" stroke-width="3" opacity="0.25"/>
-    <rect x="268" y="308" width="7" height="112" rx="3.5" fill="#19375c" opacity="0.22"/>
-    <ellipse cx="271" cy="426" rx="38" ry="9" fill="#19375c" opacity="0.18"/>
+    <path d="M232 196 h80 v42 a40 40 0 0 1 -80 0 z" fill="#1e1c1a" opacity="0.4"/>
+    <path d="M232 196 h80 v76 a40 40 0 0 1 -80 0 z" fill="none" stroke="#1e1c1a" stroke-width="3" opacity="0.25"/>
+    <rect x="268" y="308" width="7" height="112" rx="3.5" fill="#1e1c1a" opacity="0.22"/>
+    <ellipse cx="271" cy="426" rx="38" ry="9" fill="#1e1c1a" opacity="0.18"/>
   </g>
 
   <!-- ======================================= Regningsmappe med QR-kort -->
   <g transform="rotate(-5 560 330)">
     <!-- Mappe -->
-    <rect x="392" y="196" width="336" height="266" rx="12" fill="#19375c" opacity="0.85"/>
+    <rect x="392" y="196" width="336" height="266" rx="12" fill="#1e1c1a" opacity="0.85"/>
     <rect x="404" y="208" width="312" height="242" rx="8" fill="#ffffff"/>
     <!-- Regningslinjer -->
-    <g fill="#19375c" opacity="0.16">
+    <g fill="#1e1c1a" opacity="0.16">
       <rect x="428" y="234" width="150" height="10" rx="5"/>
       <rect x="428" y="260" width="196" height="9" rx="4.5"/>
       <rect x="428" y="282" width="172" height="9" rx="4.5"/>
       <rect x="428" y="304" width="188" height="9" rx="4.5"/>
     </g>
-    <rect x="428" y="330" width="264" height="2" fill="#19375c" opacity="0.15"/>
-    <rect x="428" y="344" width="96" height="12" rx="6" fill="#19375c" opacity="0.5"/>
-    <rect x="606" y="344" width="86" height="12" rx="6" fill="#19375c" opacity="0.5"/>
+    <rect x="428" y="330" width="264" height="2" fill="#1e1c1a" opacity="0.15"/>
+    <rect x="428" y="344" width="96" height="12" rx="6" fill="#1e1c1a" opacity="0.5"/>
+    <rect x="606" y="344" width="86" height="12" rx="6" fill="#1e1c1a" opacity="0.5"/>
 
     <!-- Det lille QR-kort, der ligger i mappen -->
     <g>
       <rect x="470" y="372" width="180" height="66" rx="8" fill="#f6f4ee"/>
-      <rect x="470" y="372" width="180" height="66" rx="8" fill="none" stroke="#1b916a" stroke-width="2.5" opacity="0.5"/>
+      <rect x="470" y="372" width="180" height="66" rx="8" fill="none" stroke="#26616e" stroke-width="2.5" opacity="0.5"/>
       <!-- QR -->
-      <g fill="#19375c">
+      <g fill="#1e1c1a">
         <rect x="484" y="384" width="42" height="42" rx="4" fill="#ffffff"/>
         <rect x="490" y="390" width="12" height="12" rx="2"/>
         <rect x="510" y="390" width="12" height="12" rx="2"/>
@@ -50,19 +50,19 @@
         <rect x="510" y="410" width="6" height="6"/>
         <rect x="518" y="418" width="6" height="6"/>
       </g>
-      <rect x="540" y="392" width="94" height="9" rx="4.5" fill="#19375c" opacity="0.4"/>
-      <rect x="540" y="410" width="70" height="8" rx="4" fill="#19375c" opacity="0.22"/>
+      <rect x="540" y="392" width="94" height="9" rx="4.5" fill="#1e1c1a" opacity="0.4"/>
+      <rect x="540" y="410" width="70" height="8" rx="4" fill="#1e1c1a" opacity="0.22"/>
     </g>
   </g>
 
   <!-- ================================= Telefon med stjerner (højre) -->
   <g>
-    <rect x="828" y="132" width="236" height="360" rx="30" fill="#19375c"/>
+    <rect x="828" y="132" width="236" height="360" rx="30" fill="#1e1c1a"/>
     <rect x="842" y="150" width="208" height="324" rx="18" fill="#ffffff"/>
     <rect x="908" y="142" width="76" height="7" rx="3.5" fill="#ffffff" opacity="0.5"/>
 
-    <rect x="868" y="184" width="120" height="14" rx="7" fill="#19375c" opacity="0.75"/>
-    <rect x="868" y="208" width="76" height="10" rx="5" fill="#19375c" opacity="0.25"/>
+    <rect x="868" y="184" width="120" height="14" rx="7" fill="#1e1c1a" opacity="0.75"/>
+    <rect x="868" y="208" width="76" height="10" rx="5" fill="#1e1c1a" opacity="0.25"/>
 
     <!-- Fem stjerner -->
     <g fill="#f59e0b">
@@ -73,20 +73,20 @@
       <path d="M1035 258 l6.2 12.6 13.9 2 -10 9.8 2.4 13.8 -12.5 -6.6 -12.5 6.6 2.4 -13.8 -10 -9.8 13.9 -2 z"/>
     </g>
 
-    <rect x="868" y="326" width="164" height="11" rx="5.5" fill="#19375c" opacity="0.16"/>
-    <rect x="868" y="350" width="140" height="11" rx="5.5" fill="#19375c" opacity="0.16"/>
-    <rect x="868" y="374" width="104" height="11" rx="5.5" fill="#19375c" opacity="0.16"/>
-    <rect x="868" y="420" width="164" height="24" rx="7" fill="#1b916a"/>
+    <rect x="868" y="326" width="164" height="11" rx="5.5" fill="#1e1c1a" opacity="0.16"/>
+    <rect x="868" y="350" width="140" height="11" rx="5.5" fill="#1e1c1a" opacity="0.16"/>
+    <rect x="868" y="374" width="104" height="11" rx="5.5" fill="#1e1c1a" opacity="0.16"/>
+    <rect x="868" y="420" width="164" height="24" rx="7" fill="#26616e"/>
   </g>
 
   <!-- Fire smaa personmarkeringer: hele bordet, ikke kun betaleren -->
-  <g fill="#1b916a" opacity="0.4" transform="translate(392 520)">
+  <g fill="#26616e" opacity="0.4" transform="translate(392 520)">
     <circle cx="0" cy="0" r="13"/>
     <circle cx="40" cy="0" r="13"/>
     <circle cx="80" cy="0" r="13"/>
     <circle cx="120" cy="0" r="13"/>
   </g>
-  <g fill="#1b916a" opacity="0.9" transform="translate(392 520)">
+  <g fill="#26616e" opacity="0.9" transform="translate(392 520)">
     <circle cx="0" cy="0" r="13"/>
   </g>
 </svg>

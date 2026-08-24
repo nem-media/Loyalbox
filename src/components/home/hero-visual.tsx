@@ -13,7 +13,7 @@ export function HeroVisual() {
       {/* Kundens kort — hovedelementet */}
       <div className="box-shape border border-white/10 bg-white p-6 text-foreground shadow-[0_40px_80px_-30px_rgba(0,0,0,0.65)]">
         <div className="flex items-center gap-3">
-          <span className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-sm font-bold text-white">
+          <span className="grid h-11 w-11 place-items-center rounded-xl bg-dark text-sm font-bold text-white">
             CA
           </span>
           <div>
