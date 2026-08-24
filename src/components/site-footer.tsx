@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand";
 import { ConsentSettingsLink } from "@/components/analytics";
-import { SITE_NAME, SITE_TAGLINE, KATALOG, COMPANY, mangler } from "@/lib/constants";
+import {
+  SITE_NAME,
+  SITE_TAGLINE,
+  KATALOG,
+  COMPANY,
+  mangler,
+} from "@/lib/constants";
 
 interface FooterLink {
   href: string;
@@ -62,7 +68,10 @@ export function SiteFooter() {
               <ul className="mt-3 space-y-2 text-sm">
                 {col.links.map((l) => (
                   <li key={l.href + l.label}>
-                    <Link href={l.href} className="text-foreground/80 hover:text-accent">
+                    <Link
+                      href={l.href}
+                      className="text-foreground/80 hover:text-accent"
+                    >
                       {l.label}
                     </Link>
                   </li>
@@ -92,7 +101,16 @@ export function SiteFooter() {
               </a>
             </p>
           </div>
-          <nav aria-label="Juridisk" className="flex gap-4 sm:shrink-0">
+          {/* `flex-wrap` OG intet `shrink-0`.
+              Fire lange danske ord — Handelsbetingelser, Privatlivspolitik,
+              Databehandleraftale og cookielinket — stod på én linje, der ikke
+              måtte ombryde OG ikke måtte krympe. Tilsammen godt 500 px i en
+              footer på en telefon, der er 375 px bred. Resultatet var, at HELE
+              siden kunne rulles til højre, ikke bare footeren. */}
+          <nav
+            aria-label="Juridisk"
+            className="flex flex-wrap gap-x-4 gap-y-2 sm:justify-end"
+          >
             <Link href="/handelsbetingelser" className="hover:text-accent">
               Handelsbetingelser
             </Link>
