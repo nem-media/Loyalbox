@@ -45,7 +45,7 @@ export function ProgramWizard({ companyName }: { companyName?: string | null }) 
   const [requiredStamps, setRequiredStamps] = useState("10");
   const [rewardDescription, setRewardDescription] = useState("");
   const [rewardValue, setRewardValue] = useState("");
-  const [color, setColor] = useState("#19375c");
+  const [color, setColor] = useState("#2c324e");
   const [icon, setIcon] = useState("star");
   const [cardText, setCardText] = useState("");
   const [resetOnRedeem, setResetOnRedeem] = useState(true);

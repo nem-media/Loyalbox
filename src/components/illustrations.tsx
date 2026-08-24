@@ -3,7 +3,7 @@
  *
  * STIL: 24×24 viewBox, streger i `currentColor` (arver tekstfarven, så samme
  * ikon virker på både lys og mørk baggrund) med ét farvet element som blikfang
- * — grøn `#1b916a` eller gul `#ffb700`, samme palet som blogillustrationerne.
+ * — grøn `#51624a` eller sand `#b4a189`, samme palet som resten af sitet.
  *
  * Hvorfor inline SVG og ikke filer: de er små, farves af konteksten og koster
  * ingen ekstra netværkskald. Blogindlæggenes store scener ligger derimod som
@@ -16,8 +16,8 @@
  */
 import { cn } from "@/lib/utils";
 
-const ACCENT = "#1b916a";
-const GOLD = "#ffb700";
+const ACCENT = "#51624a";
+const GOLD = "#b4a189";
 
 function Svg({
   children,

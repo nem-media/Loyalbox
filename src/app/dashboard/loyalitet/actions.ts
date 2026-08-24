@@ -112,7 +112,7 @@ export async function createProgram(
       end_date: str(formData.get("end_date")) || null,
       reset_on_redeem: bool(formData.get("reset_on_redeem")),
       keep_overflow: bool(formData.get("keep_overflow")),
-      color: str(formData.get("color")) || "#19375c",
+      color: str(formData.get("color")) || "#2c324e",
       icon: str(formData.get("icon")) || "star",
       card_text: str(formData.get("card_text")) || null,
       max_stamps_per_txn: Math.max(1, int(formData.get("max_stamps_per_txn"), 1)),

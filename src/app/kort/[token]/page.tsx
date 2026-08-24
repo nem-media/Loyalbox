@@ -167,7 +167,7 @@ export default async function CardPage({
             <div key={ms.id} className="space-y-2">
               <StampCardPreview
                 name={program.name}
-                color={program.color ?? "#19375c"}
+                color={program.color ?? "#2c324e"}
                 requiredStamps={reward?.required_stamps ?? 10}
                 filled={ms.balance_cache}
                 rewardName={reward?.name ?? null}

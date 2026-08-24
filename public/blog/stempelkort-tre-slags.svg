@@ -5,15 +5,15 @@
   <!-- Let drejet, med et flænset hjørne: det bliver slidt og bliver væk -->
   <g transform="rotate(-4 240 315)">
     <path d="M96 208 h288 v190 l-14 14 h-274 z" fill="#ffffff"/>
-    <path d="M96 208 h288 v190 l-14 14 h-274 z" fill="none" stroke="#19375c" stroke-width="3" opacity="0.2"/>
+    <path d="M96 208 h288 v190 l-14 14 h-274 z" fill="none" stroke="#2c324e" stroke-width="3" opacity="0.2"/>
     <!-- Ombukket hjørne -->
-    <path d="M384 398 l-14 14 v-14 z" fill="#19375c" opacity="0.18"/>
+    <path d="M384 398 l-14 14 v-14 z" fill="#2c324e" opacity="0.18"/>
 
-    <rect x="124" y="234" width="118" height="13" rx="6.5" fill="#19375c" opacity="0.65"/>
+    <rect x="124" y="234" width="118" height="13" rx="6.5" fill="#2c324e" opacity="0.65"/>
 
     <!-- Ti felter, seks stemplet -->
     <g>
-      <g fill="none" stroke="#19375c" stroke-width="2.5" opacity="0.3">
+      <g fill="none" stroke="#2c324e" stroke-width="2.5" opacity="0.3">
         <circle cx="152" cy="300" r="21"/>
         <circle cx="204" cy="300" r="21"/>
         <circle cx="256" cy="300" r="21"/>
@@ -25,7 +25,7 @@
         <circle cx="308" cy="362" r="21"/>
         <circle cx="360" cy="362" r="21"/>
       </g>
-      <g fill="#19375c" opacity="0.7">
+      <g fill="#2c324e" opacity="0.7">
         <circle cx="152" cy="300" r="15"/>
         <circle cx="204" cy="300" r="15"/>
         <circle cx="256" cy="300" r="15"/>
@@ -38,40 +38,40 @@
 
   <!-- ================================================= 2. APP-TELEFONEN -->
   <g>
-    <rect x="480" y="150" width="200" height="330" rx="26" fill="#19375c"/>
+    <rect x="480" y="150" width="200" height="330" rx="26" fill="#2c324e"/>
     <rect x="492" y="166" width="176" height="298" rx="16" fill="#ffffff"/>
     <rect x="546" y="158" width="68" height="7" rx="3.5" fill="#ffffff" opacity="0.5"/>
 
     <!-- App-butik: ikonet skal først hentes -->
-    <rect x="524" y="204" width="112" height="112" rx="26" fill="#1b916a" opacity="0.14"/>
-    <rect x="524" y="204" width="112" height="112" rx="26" fill="none" stroke="#1b916a" stroke-width="3" stroke-dasharray="9 8" opacity="0.6"/>
+    <rect x="524" y="204" width="112" height="112" rx="26" fill="#51624a" opacity="0.14"/>
+    <rect x="524" y="204" width="112" height="112" rx="26" fill="none" stroke="#51624a" stroke-width="3" stroke-dasharray="9 8" opacity="0.6"/>
     <!-- Pil ned = download -->
-    <path d="M580 234 v42 m0 0 l-17 -17 m17 17 l17 -17" fill="none" stroke="#1b916a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M580 234 v42 m0 0 l-17 -17 m17 17 l17 -17" fill="none" stroke="#51624a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
 
-    <rect x="524" y="342" width="112" height="11" rx="5.5" fill="#19375c" opacity="0.2"/>
-    <rect x="546" y="366" width="68" height="11" rx="5.5" fill="#19375c" opacity="0.14"/>
+    <rect x="524" y="342" width="112" height="11" rx="5.5" fill="#2c324e" opacity="0.2"/>
+    <rect x="546" y="366" width="68" height="11" rx="5.5" fill="#2c324e" opacity="0.14"/>
 
     <!-- Trin, kunden skal igennem -->
-    <rect x="524" y="404" width="112" height="24" rx="7" fill="#19375c" opacity="0.12"/>
-    <rect x="524" y="436" width="112" height="24" rx="7" fill="#19375c" opacity="0.08"/>
+    <rect x="524" y="404" width="112" height="24" rx="7" fill="#2c324e" opacity="0.12"/>
+    <rect x="524" y="436" width="112" height="24" rx="7" fill="#2c324e" opacity="0.08"/>
   </g>
 
   <!-- ============================== 3. DET DIGITALE KORT I BROWSEREN -->
   <g>
-    <rect x="800" y="150" width="200" height="330" rx="26" fill="#19375c"/>
+    <rect x="800" y="150" width="200" height="330" rx="26" fill="#2c324e"/>
     <rect x="812" y="166" width="176" height="298" rx="16" fill="#ffffff"/>
     <rect x="866" y="158" width="68" height="7" rx="3.5" fill="#ffffff" opacity="0.5"/>
 
     <!-- Browserlinje: ingen app, bare en side -->
-    <rect x="826" y="182" width="148" height="20" rx="10" fill="#19375c" opacity="0.1"/>
-    <circle cx="840" cy="192" r="4" fill="#1b916a"/>
-    <rect x="852" y="187" width="86" height="10" rx="5" fill="#19375c" opacity="0.22"/>
+    <rect x="826" y="182" width="148" height="20" rx="10" fill="#2c324e" opacity="0.1"/>
+    <circle cx="840" cy="192" r="4" fill="#51624a"/>
+    <rect x="852" y="187" width="86" height="10" rx="5" fill="#2c324e" opacity="0.22"/>
 
-    <rect x="838" y="224" width="86" height="12" rx="6" fill="#19375c" opacity="0.65"/>
+    <rect x="838" y="224" width="86" height="12" rx="6" fill="#2c324e" opacity="0.65"/>
 
     <!-- Stempelfelter -->
     <g>
-      <g fill="none" stroke="#19375c" stroke-width="2.5" opacity="0.25">
+      <g fill="none" stroke="#2c324e" stroke-width="2.5" opacity="0.25">
         <circle cx="856" cy="288" r="19"/>
         <circle cx="900" cy="288" r="19"/>
         <circle cx="944" cy="288" r="19"/>
@@ -79,7 +79,7 @@
         <circle cx="900" cy="342" r="19"/>
         <circle cx="944" cy="342" r="19"/>
       </g>
-      <g fill="#1b916a">
+      <g fill="#51624a">
         <circle cx="856" cy="288" r="14"/>
         <circle cx="900" cy="288" r="14"/>
         <circle cx="944" cy="288" r="14"/>
@@ -90,15 +90,15 @@
       <path d="M944 333 l3.6 7.3 8.1 1.2 -5.9 5.7 1.4 8.1 -7.2 -3.8 -7.2 3.8 1.4 -8.1 -5.9 -5.7 8.1 -1.2 z" fill="#f59e0b"/>
     </g>
 
-    <rect x="838" y="392" width="124" height="11" rx="5.5" fill="#19375c" opacity="0.16"/>
-    <rect x="838" y="428" width="124" height="26" rx="7" fill="#1b916a"/>
+    <rect x="838" y="392" width="124" height="11" rx="5.5" fill="#2c324e" opacity="0.16"/>
+    <rect x="838" y="428" width="124" height="26" rx="7" fill="#51624a"/>
   </g>
 
   <!-- QR-koden, der forbinder disken med kortet -->
   <g>
     <rect x="1040" y="290" width="112" height="112" rx="10" fill="#ffffff"/>
-    <rect x="1040" y="290" width="112" height="112" rx="10" fill="none" stroke="#19375c" stroke-width="2.5" opacity="0.18"/>
-    <g fill="#19375c">
+    <rect x="1040" y="290" width="112" height="112" rx="10" fill="none" stroke="#2c324e" stroke-width="2.5" opacity="0.18"/>
+    <g fill="#2c324e">
       <rect x="1054" y="304" width="26" height="26" rx="4"/>
       <rect x="1112" y="304" width="26" height="26" rx="4"/>
       <rect x="1054" y="362" width="26" height="26" rx="4"/>
@@ -119,5 +119,5 @@
       <rect x="1090" y="386" width="8" height="8"/>
     </g>
   </g>
-  <path d="M1030 346 h-14" stroke="#1b916a" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+  <path d="M1030 346 h-14" stroke="#51624a" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
 </svg>

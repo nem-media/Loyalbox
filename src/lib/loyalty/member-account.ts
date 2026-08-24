@@ -102,7 +102,7 @@ export async function getCardsForUser(userId: string): Promise<MemberCard[]> {
       cards.push({
         ...base,
         programName: null,
-        color: "#19375c",
+        color: "#2c324e",
         filled: 0,
         requiredStamps: 10,
         rewardName: null,
@@ -118,7 +118,7 @@ export async function getCardsForUser(userId: string): Promise<MemberCard[]> {
       cards.push({
         ...base,
         programName: program?.name ?? "Stempelkort",
-        color: program?.color ?? "#19375c",
+        color: program?.color ?? "#2c324e",
         filled: ms.balance_cache,
         requiredStamps: reward?.required_stamps ?? 10,
         rewardName: reward?.name ?? null,

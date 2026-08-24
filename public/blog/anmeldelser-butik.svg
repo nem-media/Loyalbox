@@ -1,32 +1,32 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Butiksdisk med en papirspose og en bon ved siden af et lille skilt med QR-kode og en telefon med stjernebedømmelse">
   <rect width="1200" height="630" fill="#f6f4ee"/>
-  <rect x="60" y="500" width="1080" height="16" rx="8" fill="#19375c" opacity="0.16"/>
-  <rect x="60" y="516" width="1080" height="10" rx="5" fill="#19375c" opacity="0.07"/>
+  <rect x="60" y="500" width="1080" height="16" rx="8" fill="#2c324e" opacity="0.16"/>
+  <rect x="60" y="516" width="1080" height="10" rx="5" fill="#2c324e" opacity="0.07"/>
 
   <!-- Papirspose med haank -->
   <g>
     <path d="M126 268 h226 l18 232 h-262 z" fill="#ffffff"/>
-    <path d="M126 268 h226 l18 232 h-262 z" fill="none" stroke="#19375c" stroke-width="3.5" opacity="0.24"/>
-    <path d="M126 268 h226 l-6 30 h-214 z" fill="#19375c" opacity="0.12"/>
-    <path d="M186 268 a52 34 0 0 1 104 0" fill="none" stroke="#19375c" stroke-width="7" opacity="0.32"/>
-    <rect x="172" y="352" width="128" height="14" rx="7" fill="#1b916a" opacity="0.5"/>
-    <rect x="172" y="382" width="92" height="11" rx="5.5" fill="#19375c" opacity="0.18"/>
+    <path d="M126 268 h226 l18 232 h-262 z" fill="none" stroke="#2c324e" stroke-width="3.5" opacity="0.24"/>
+    <path d="M126 268 h226 l-6 30 h-214 z" fill="#2c324e" opacity="0.12"/>
+    <path d="M186 268 a52 34 0 0 1 104 0" fill="none" stroke="#2c324e" stroke-width="7" opacity="0.32"/>
+    <rect x="172" y="352" width="128" height="14" rx="7" fill="#51624a" opacity="0.5"/>
+    <rect x="172" y="382" width="92" height="11" rx="5.5" fill="#2c324e" opacity="0.18"/>
   </g>
 
   <!-- Bon med QR nederst: rammer sent, men rammer alle -->
   <g transform="rotate(6 470 400)">
     <path d="M400 262 h140 v250 l-14 -10 -14 10 -14 -10 -14 10 -14 -10 -14 10 -14 -10 -14 10 -14 -10 -14 10 z" fill="#ffffff"/>
-    <path d="M400 262 h140 v250 l-14 -10 -14 10 -14 -10 -14 10 -14 -10 -14 10 -14 -10 -14 10 -14 -10 -14 10 z" fill="none" stroke="#19375c" stroke-width="2.5" opacity="0.2"/>
-    <g fill="#19375c" opacity="0.16">
+    <path d="M400 262 h140 v250 l-14 -10 -14 10 -14 -10 -14 10 -14 -10 -14 10 -14 -10 -14 10 -14 -10 -14 10 z" fill="none" stroke="#2c324e" stroke-width="2.5" opacity="0.2"/>
+    <g fill="#2c324e" opacity="0.16">
       <rect x="420" y="288" width="86" height="9" rx="4.5"/>
       <rect x="420" y="308" width="100" height="8" rx="4"/>
       <rect x="420" y="326" width="72" height="8" rx="4"/>
     </g>
-    <rect x="420" y="348" width="100" height="2" fill="#19375c" opacity="0.16"/>
+    <rect x="420" y="348" width="100" height="2" fill="#2c324e" opacity="0.16"/>
     <g>
       <rect x="432" y="368" width="76" height="76" rx="6" fill="#ffffff"/>
-      <rect x="432" y="368" width="76" height="76" rx="6" fill="none" stroke="#1b916a" stroke-width="2" opacity="0.5"/>
-      <g fill="#19375c">
+      <rect x="432" y="368" width="76" height="76" rx="6" fill="none" stroke="#51624a" stroke-width="2" opacity="0.5"/>
+      <g fill="#2c324e">
         <rect x="442" y="378" width="18" height="18" rx="3"/>
         <rect x="480" y="378" width="18" height="18" rx="3"/>
         <rect x="442" y="416" width="18" height="18" rx="3"/>
@@ -42,12 +42,12 @@
        staar stille og kigger ned. -->
   <g>
     <path d="M600 296 h160 a10 10 0 0 1 10 10 v148 a10 10 0 0 1 -10 10 h-160 a10 10 0 0 1 -10 -10 v-158 z" fill="#ffffff"/>
-    <path d="M600 296 h160 a10 10 0 0 1 10 10 v148 a10 10 0 0 1 -10 10 h-160 a10 10 0 0 1 -10 -10 v-158 z" fill="none" stroke="#19375c" stroke-width="3" opacity="0.18"/>
-    <path d="M638 464 h84 l16 12 h-116 z" fill="#19375c" opacity="0.2"/>
-    <rect x="614" y="316" width="86" height="12" rx="6" fill="#1b916a"/>
+    <path d="M600 296 h160 a10 10 0 0 1 10 10 v148 a10 10 0 0 1 -10 10 h-160 a10 10 0 0 1 -10 -10 v-158 z" fill="none" stroke="#2c324e" stroke-width="3" opacity="0.18"/>
+    <path d="M638 464 h84 l16 12 h-116 z" fill="#2c324e" opacity="0.2"/>
+    <rect x="614" y="316" width="86" height="12" rx="6" fill="#51624a"/>
     <g>
       <rect x="614" y="340" width="112" height="112" rx="8" fill="#ffffff"/>
-      <g fill="#19375c">
+      <g fill="#2c324e">
         <rect x="626" y="352" width="26" height="26" rx="4"/>
         <rect x="688" y="352" width="26" height="26" rx="4"/>
         <rect x="626" y="414" width="26" height="26" rx="4"/>
@@ -63,11 +63,11 @@
 
   <!-- Telefon: stjerner + linjer om OPLEVELSEN, ikke om varen -->
   <g>
-    <rect x="830" y="126" width="240" height="376" rx="30" fill="#19375c"/>
+    <rect x="830" y="126" width="240" height="376" rx="30" fill="#2c324e"/>
     <rect x="844" y="144" width="212" height="340" rx="18" fill="#ffffff"/>
     <rect x="912" y="136" width="76" height="7" rx="3.5" fill="#ffffff" opacity="0.5"/>
-    <rect x="870" y="180" width="122" height="14" rx="7" fill="#19375c" opacity="0.75"/>
-    <rect x="870" y="204" width="78" height="10" rx="5" fill="#19375c" opacity="0.25"/>
+    <rect x="870" y="180" width="122" height="14" rx="7" fill="#2c324e" opacity="0.75"/>
+    <rect x="870" y="204" width="78" height="10" rx="5" fill="#2c324e" opacity="0.25"/>
     <g fill="#f59e0b">
       <path d="M881 252 l6.2 12.6 13.9 2 -10 9.8 2.4 13.8 -12.5 -6.6 -12.5 6.6 2.4 -13.8 -10 -9.8 13.9 -2 z"/>
       <path d="M920 252 l6.2 12.6 13.9 2 -10 9.8 2.4 13.8 -12.5 -6.6 -12.5 6.6 2.4 -13.8 -10 -9.8 13.9 -2 z"/>
@@ -75,9 +75,9 @@
       <path d="M998 252 l6.2 12.6 13.9 2 -10 9.8 2.4 13.8 -12.5 -6.6 -12.5 6.6 2.4 -13.8 -10 -9.8 13.9 -2 z"/>
       <path d="M1037 252 l6.2 12.6 13.9 2 -10 9.8 2.4 13.8 -12.5 -6.6 -12.5 6.6 2.4 -13.8 -10 -9.8 13.9 -2 z"/>
     </g>
-    <rect x="870" y="320" width="164" height="11" rx="5.5" fill="#19375c" opacity="0.16"/>
-    <rect x="870" y="344" width="142" height="11" rx="5.5" fill="#19375c" opacity="0.16"/>
-    <rect x="870" y="368" width="108" height="11" rx="5.5" fill="#19375c" opacity="0.16"/>
-    <rect x="870" y="422" width="164" height="24" rx="7" fill="#1b916a"/>
+    <rect x="870" y="320" width="164" height="11" rx="5.5" fill="#2c324e" opacity="0.16"/>
+    <rect x="870" y="344" width="142" height="11" rx="5.5" fill="#2c324e" opacity="0.16"/>
+    <rect x="870" y="368" width="108" height="11" rx="5.5" fill="#2c324e" opacity="0.16"/>
+    <rect x="870" y="422" width="164" height="24" rx="7" fill="#51624a"/>
   </g>
 </svg>
