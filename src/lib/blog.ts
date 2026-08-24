@@ -92,6 +92,702 @@ export function overskriftId(tekst: string): string {
 
 export const POSTS: BlogPost[] = [
   {
+    slug: "flere-anmeldelser-autovaerksted",
+    title:
+      "Flere anmeldelser til autoværkstedet: tillid er det, kunden bedømmer",
+    metaTitle: "Flere anmeldelser til autoværksted — timing, pris og svaret",
+    description:
+      "Kunden kan ikke bedømme dit arbejde, kun om du var ærlig om prisen. Derfor handler værkstedsanmeldelser om regningen. Her er øjeblikket at spørge og svaret på den dyre anmeldelse.",
+    keyword: "flere anmeldelser autoværksted",
+    date: "2026-08-20",
+    readingMinutes: 8,
+    excerpt:
+      "Ingen kunde kan vurdere, om bremserne blev skiftet rigtigt. De kan kun vurdere, om regningen matchede det, du sagde. Det ændrer, hvad du skal spørge om og hvornår.",
+    image: "/blog/anmeldelser-autovaerksted.svg",
+    imageAlt:
+      "Bilnøgler og en faktura på en værkstedsskranke ved siden af en telefon, der viser en anmeldelse med stjerner",
+    related: [
+      "saadan-faar-du-flere-google-anmeldelser",
+      "flere-anmeldelser-frisor",
+    ],
+    body: [
+      {
+        type: "p",
+        html: "Et autoværksted sælger noget, kunden ikke kan kontrollere. De ved ikke, om bremseklodserne var slidte, om olien blev skiftet, eller om den time, der står på regningen, tog en time.",
+      },
+      {
+        type: "p",
+        html: "Derfor handler anmeldelser af værksteder næsten aldrig om håndværket. De handler om <strong>ærlighed</strong> — og det ændrer både, hvad du skal gøre, og hvad du skal svare.",
+      },
+
+      { type: "h2", text: "Kunden bedømmer ikke arbejdet — kun dig" },
+      {
+        type: "p",
+        html: "Læs ti anmeldelser af værksteder, og mønsteret er tydeligt. De gode siger &quot;ærlige folk&quot;, &quot;ringede og spurgte først&quot;, &quot;prisen holdt&quot;. De dårlige siger &quot;dyrere end aftalt&quot;, &quot;fandt pludselig noget mere&quot;, &quot;kunne ikke få en forklaring&quot;.",
+      },
+      {
+        type: "p",
+        html: "Ingen af dem handler om, hvorvidt reparationen var fagligt korrekt. Det er ikke fordi kunderne er ligeglade — det er fordi <strong>de ikke kan vurdere det</strong>. Så vurderer de det eneste, de kan: om de blev behandlet ordentligt.",
+      },
+      {
+        type: "note",
+        title: "Det betyder, at du kan påvirke dine anmeldelser direkte",
+        html: "En restaurant kan have en dårlig aften i køkkenet. Et værksted får dårlige anmeldelser af <strong>kommunikation</strong>, og kommunikation kan sættes i system. Ét opkald, før du udvider arbejdet, fjerner den hyppigste årsag til en etter.",
+      },
+
+      { type: "h2", text: "Ring altid, før regningen vokser" },
+      {
+        type: "p",
+        html: "Den enkeltstående vigtigste ting, et værksted kan gøre for sine anmeldelser, sker ikke ved afleveringen. Den sker <strong>midt i arbejdet</strong>.",
+      },
+      {
+        type: "p",
+        html: "Finder du noget mere, så ring. Ikke fordi kunden siger nej — det gør de sjældent — men fordi <strong>overraskelsen</strong> er det, der bliver til en anmeldelse. En regning på 4.000 kr., der var varslet, opleves som rimelig. Den samme regning uvarslet opleves som snyd.",
+      },
+      {
+        type: "p",
+        html: "Det samme gælder tiden. Bliver bilen ikke færdig i dag, så sig det, mens kunden stadig kan nå at planlægge — ikke klokken 16, når de står ved skranken.",
+      },
+
+      { type: "h2", text: "Afleveringsøjeblikket" },
+      {
+        type: "p",
+        html: "Her er timingen sværere end i andre brancher. Kunden henter bilen, betaler et beløb, der som regel er større, end de havde håbet, og skal videre. Det er ikke et godt tidspunkt at bede om noget.",
+      },
+      {
+        type: "p",
+        html: "Der er to måder at løse det på:",
+      },
+      {
+        type: "ol",
+        items: [
+          "<strong>Læg opfordringen på skranken, ikke i samtalen.</strong> Et lille skilt, kunden selv ser, mens du forklarer regningen. Så beder du ikke om noget oveni betalingen — det gør skiltet, og kunden vælger selv.",
+          "<strong>Læg et kort i bilen.</strong> Sammen med serviceattesten eller på passagersædet. Kunden ser det, når de sætter sig — efter regningen er betalt og bilen kører igen. Der er den gode følelse tilbage.",
+        ],
+      },
+      {
+        type: "p",
+        html: "Det andet er værkstedets version af restaurantens regningsmappe: du rammer kunden, når oplevelsen er færdig, ikke midt i den ubehagelige del.",
+      },
+
+      { type: "h2", text: "Den dyre anmeldelse: &quot;de tog for meget&quot;" },
+      {
+        type: "p",
+        html: "Den anmeldelse kommer før eller siden, og den skader mere end nogen anden, fordi den rammer præcis den frygt, alle bilejere har.",
+      },
+      {
+        type: "p",
+        html: "Fristelsen er at forsvare sig med fakta: hvad der blev lavet, hvor lang tid det tog, hvad delene kostede. Det er også den værste måde at svare på, af tre grunde:",
+      },
+      {
+        type: "ul",
+        items: [
+          "Læseren kan <strong>ikke vurdere</strong>, hvem der har ret — det var jo hele problemet til at begynde med.",
+          "Et langt teknisk svar får dig til at fremstå <strong>som en, der argumenterer med sine kunder</strong>.",
+          "Detaljer om kundens bil og aftale kan være <strong>oplysninger, der ikke hører hjemme offentligt</strong>.",
+        ],
+      },
+      {
+        type: "p",
+        html: "Det, der virker, er kort og ubevæbnet: beklag oplevelsen, oplys at I altid ringer før ekstraarbejde, og bed dem kontakte jer. Læseren tænker: &quot;de ringer altså først&quot;. Det er hele pointen med svaret.",
+      },
+      {
+        type: "note",
+        title: "Skriv den sætning ind i alle svar",
+        html: "&quot;Vi ringer altid, før vi laver noget, der ikke var aftalt.&quot; Står den i svaret på hver eneste prisanmeldelse — også de positive — bliver den til det, folk husker om jeres værksted. Det er den billigste markedsføring, der findes, og den koster ét minut pr. svar.",
+      },
+
+      { type: "h2", text: "Genbesøget: påmindelsen slår stempelkortet" },
+      {
+        type: "p",
+        html: "Her skal jeg være ærlig om vores eget produkt: <strong>et stempelkort er sjældent det rigtige for et autoværksted</strong>.",
+      },
+      {
+        type: "p",
+        html: "En bilejer kommer en til to gange om året. Fem felter ville tage tre til fem år, og det motiverer ingen. Regnestykket, der får stempelkort til at fungere i en café, holder simpelthen ikke her.",
+      },
+      {
+        type: "p",
+        html: "Det, der virker for et værksted, er <strong>servicepåmindelsen</strong>: en besked, når det er tid til det næste serviceeftersyn eller dæk skifte. Den rammer et reelt behov på det rigtige tidspunkt, og den er langt mere værd end nogen rabat.",
+      },
+      {
+        type: "p",
+        html: "Vil du alligevel have et kort, så knyt det til noget hyppigere end reparationer — dækskift, vask eller olieskift — og hold antallet nede på tre til fire felter.",
+      },
+      {
+        type: "faq",
+        items: [
+          {
+            q: "Hvorfor handler værkstedsanmeldelser altid om prisen?",
+            a: "Fordi kunden ikke kan vurdere det faglige. De ved ikke, om bremseklodserne var slidte, eller om timen tog en time. Så vurderer de det eneste, de kan bedømme: om de blev behandlet ordentligt, og om regningen matchede det, der blev aftalt.",
+          },
+          {
+            q: "Hvornår skal jeg bede kunden om en anmeldelse?",
+            a: "Ikke i selve betalingsøjeblikket, hvor kunden lige har set en regning, der ofte er større end håbet. Læg i stedet opfordringen på skranken som et skilt, kunden selv ser, eller læg et kort i bilen, som de finder, når de sætter sig og bilen kører igen.",
+          },
+          {
+            q: "Hvordan svarer jeg på en anmeldelse om, at jeg tog for meget?",
+            a: "Kort og uden at argumentere. Beklag oplevelsen, oplys at I altid ringer, før I laver noget der ikke var aftalt, og bed dem kontakte jer. Et langt teknisk forsvar virker mod hensigten: læseren kan ikke vurdere, hvem der har ret, og du kommer til at fremstå som en, der diskuterer med sine kunder.",
+          },
+          {
+            q: "Hvad kan jeg gøre for at få færre dårlige anmeldelser?",
+            a: "Ring altid, før regningen vokser. Overraskelsen er det, der bliver til en anmeldelse — en varslet regning på 4.000 kroner opleves som rimelig, mens den samme uvarslede opleves som snyd. Det samme gælder, hvis bilen ikke bliver færdig til tiden.",
+          },
+          {
+            q: "Giver et stempelkort mening for et autoværksted?",
+            a: "Sjældent. En bilejer kommer en til to gange om året, så selv fem felter ville tage tre til fem år. Servicepåmindelser virker langt bedre. Vil du have et kort, så knyt det til noget hyppigere som dækskift, vask eller olieskift, og hold det på tre-fire felter.",
+          },
+          {
+            q: "Må jeg give rabat på næste service for en anmeldelse?",
+            a: "Nej. Belønninger knyttet til anmeldelser er forbudt efter både Googles og Trustpilots regler og efter markedsføringslovens bilag 1. Du må gerne belønne, at kunden kommer igen — bare ikke det, de skriver om jer.",
+          },
+        ],
+      },
+      {
+        type: "cta",
+        text: "Gør det nemt for kunderne at anmelde værkstedet — uden at du skal spørge.",
+        href: "/reviewstander",
+        label: "Se reviewstanderen",
+      },
+    ],
+  },
+  {
+    slug: "flere-anmeldelser-butik",
+    title: "Flere anmeldelser til din butik: du konkurrerer med en webshop",
+    metaTitle:
+      "Flere anmeldelser til butikken — sådan får du dem på 30 sekunder",
+    description:
+      "En fysisk butik konkurrerer ikke med butikken ved siden af, men med en webshop. Anmeldelser er det, der gør turen ind til byen værd — her er hvordan du får dem.",
+    keyword: "flere anmeldelser butik",
+    date: "2026-08-22",
+    readingMinutes: 7,
+    excerpt:
+      "Kunden er ude ad døren på tredive sekunder, og der er intet naturligt øjeblik at spørge i. Her er hvad butikker gør i stedet — og hvad folk faktisk skriver om en butik.",
+    image: "/blog/anmeldelser-butik.svg",
+    imageAlt:
+      "Butiksdisk med en papirspose og en bon ved siden af et lille skilt med QR-kode og en telefon med stjernebedømmelse",
+    related: [
+      "saadan-faar-du-flere-google-anmeldelser",
+      "google-review-stander-guide",
+    ],
+    body: [
+      {
+        type: "p",
+        html: "En fysisk butik konkurrerer sjældent med butikken to gader væk. Den konkurrerer med en telefon, kunden har i lommen, hvor den samme vare kan være fremme i morgen.",
+      },
+      {
+        type: "p",
+        html: "Det, der stadig får folk til at tage turen, er ikke varen — den er ens. Det er <strong>rådgivningen, udvalget og at kunne se tingene</strong>. Og det er præcis det, anmeldelser fortæller om, før nogen sætter sig i bilen.",
+      },
+
+      { type: "h2", text: "Anmeldelser er det, der gør turen værd" },
+      {
+        type: "p",
+        html: "Når nogen søger &quot;cykelhandler i nærheden&quot; eller &quot;legetøjsbutik i nærheden&quot;, sammenligner de ikke priser. De vurderer, om det er værd at køre derhen.",
+      },
+      {
+        type: "p",
+        html: "Det er derfor anmeldelser om <em>oplevelsen</em> — at nogen tog sig tid, at der var det rigtige på hylden, at man fik hjælp — er mere værdifulde for en butik end anmeldelser om varen. Varen kan læseren købe alle mulige steder. Hjælpen kan de ikke.",
+      },
+      {
+        type: "note",
+        title: "Det ændrer, hvad du skal opfordre til",
+        html: "En neutral opfordring som &quot;fortæl hvordan det gik&quot; giver oftere en anmeldelse om oplevelsen end &quot;bedøm dit køb&quot;, der leder tanken hen på produktet. Formuleringen skal stadig være neutral — men den må gerne handle om besøget frem for om varen.",
+      },
+
+      { type: "h2", text: "De tredive sekunder ved kassen" },
+      {
+        type: "p",
+        html: "Butikken har det sværeste udgangspunkt af alle brancherne her. En restaurantgæst sidder ned. En takeaway-kunde venter på maden. En butikskunde er ude ad døren på et halvt minut.",
+      },
+      {
+        type: "p",
+        html: "Der er intet naturligt ophold, hvor man kan spørge om noget. Derfor virker det heller ikke at bede personalet om det: der er hverken tid eller en god måde at gøre det på, uden at det bliver akavet.",
+      },
+      {
+        type: "p",
+        html: "Tre placeringer virker i praksis, og de har det til fælles, at <strong>de ikke kræver en samtale</strong>:",
+      },
+      {
+        type: "table",
+        head: ["Placering", "Hvornår den ses", "Note"],
+        rows: [
+          [
+            "<strong>Ved betalingsterminalen</strong>",
+            "Mens kortet trækkes",
+            "De eneste sekunder, hvor kunden står stille og kigger ned",
+          ],
+          [
+            "<strong>På bonnen</strong>",
+            "Hjemme, ved oprydning",
+            "Rammer sent, men rammer alle — og koster ingenting",
+          ],
+          [
+            "<strong>I posen</strong>",
+            "Når varen pakkes ud",
+            "Bedst når købet skal prøves eller samles hjemme",
+          ],
+        ],
+      },
+      {
+        type: "p",
+        html: "Terminalen er stærkest, fordi timingen er rigtig. Posen er stærkest for det, kunden først danner sig et indtryk af derhjemme — møbler, tøj, elektronik.",
+      },
+
+      { type: "h2", text: "Sæsonudsving er en fælde" },
+      {
+        type: "p",
+        html: "En butik har travle og stille perioder, og det smitter af på anmeldelserne. Er du fuldstændig overrendt i december, får du både færre anmeldelser og dårligere — fordi der var kø, og fordi personalet ikke havde tid til nogen.",
+      },
+      {
+        type: "p",
+        html: "Det er dobbelt uheldigt, fordi december også er den måned, hvor flest nye kunder kigger på din profil. Modtrækket er ikke at gøre en ekstra indsats i december; det er at have <strong>samlet nok anmeldelser resten af året</strong> til, at julemåneden ikke fylder alt.",
+      },
+      {
+        type: "p",
+        html: 'Både Google og forbrugerne vægter friske anmeldelser højest, så en jævn strøm året rundt slår enhver kampagne. <a href="/blog/saadan-faar-du-flere-google-anmeldelser">Metoden gennemgår vi i en guide for sig</a>.',
+      },
+
+      { type: "h2", text: "Hvad du skal svare på" },
+      {
+        type: "p",
+        html: "For en butik er det mest almindelige kritikpunkt ikke varen — det er, at der ikke var nogen at spørge, eller at noget var udsolgt.",
+      },
+      {
+        type: "p",
+        html: "Begge dele har det til fælles, at et godt svar kan gøre dem til en reklame: fortæl at man kan ringe i forvejen og få lagt varen til side, eller at man kan bestille hjem. Læseren, der overvejer turen, får en grund til at komme alligevel.",
+      },
+      {
+        type: "p",
+        html: "Undgå at forklare, hvorfor der ikke var personale nok. Det er en indrømmelse uden en løsning, og det er dét, læseren husker.",
+      },
+
+      { type: "h2", text: "Stempelkort i en butik" },
+      {
+        type: "p",
+        html: "Om et stempelkort giver mening, afhænger helt af, hvor tit dine kunder kommer — og butikker spænder vidt.",
+      },
+      {
+        type: "ul",
+        items: [
+          "<strong>Hyppige, små køb</strong> — bager, blomster, dyrefoder, kiosk: stempelkort passer godt, typisk otte til ti felter.",
+          "<strong>Sjældne, store køb</strong> — møbler, elektronik, cykler: et kort giver ikke mening. Kunden når aldrig i mål.",
+          "<strong>Midt imellem</strong> — tøj, bøger, isenkram: overvej et kort med få felter og en belønning, der er værd at komme efter.",
+        ],
+      },
+      {
+        type: "p",
+        html: 'Er dine kunder i den sjældne ende, er anmeldelser klart det bedste sted at bruge din energi. <a href="/blog/hvor-mange-stempler-stempelkort">Regnemetoden for antallet står her</a>, hvis du er i tvivl om, hvor du ligger.',
+      },
+      {
+        type: "note",
+        title: "Bland aldrig de to ting sammen",
+        html: "Giv aldrig et stempel eller en rabat for en anmeldelse. Det er forbudt efter både Googles og Trustpilots regler og efter markedsføringslovens bilag 1 — og konsekvensen rammer butikken. Du må belønne, at kunden kommer igen. Bare ikke det, de skriver.",
+      },
+      {
+        type: "faq",
+        items: [
+          {
+            q: "Hvordan får jeg anmeldelser, når kunderne kun er i butikken i et halvt minut?",
+            a: "Ved ikke at gøre det til en samtale. Et lille skilt ved betalingsterminalen ses i de sekunder, hvor kunden står stille og kigger ned, mens kortet trækkes. En QR-kode på bonnen eller et kort i posen rammer senere, men rammer til gengæld alle.",
+          },
+          {
+            q: "Hvad skriver folk om en butik i anmeldelser?",
+            a: "Oftest om oplevelsen frem for varen: om nogen tog sig tid, om der var hjælp at få, og om der var det rigtige på hylden. Det giver mening — varen kan de købe mange steder, men hjælpen kan de ikke, og det er den, der afgør, om turen var værd.",
+          },
+          {
+            q: "Bør jeg lave en kampagne for anmeldelser op til jul?",
+            a: "Nej. December er den travleste måned, hvor kunderne oplever kø og mindre hjælp — så både antal og karakter bliver dårligere. Sørg i stedet for at have samlet nok anmeldelser resten af året, så julemåneden ikke fylder alt.",
+          },
+          {
+            q: "Hvad svarer jeg, når nogen skriver, at varen var udsolgt?",
+            a: "Fortæl, hvad kunden kan gøre næste gang: ringe i forvejen og få varen lagt til side, eller få den bestilt hjem. Så bliver kritikken til nyttig information for den læser, der overvejer turen. Undgå at forklare, hvorfor der ikke var nok personale — det er en indrømmelse uden en løsning.",
+          },
+          {
+            q: "Giver et stempelkort mening i en butik?",
+            a: "Det afhænger af, hvor tit kunderne kommer. Hyppige, små køb som bager, blomster eller dyrefoder passer godt til otte-ti felter. Sjældne, store køb som møbler eller cykler gør ikke — der når kunden aldrig i mål, og din energi er bedre brugt på anmeldelser.",
+          },
+          {
+            q: "Må jeg give rabat for en anmeldelse?",
+            a: "Nej. Både Google og Trustpilot forbyder belønninger knyttet til anmeldelser, og i Danmark er det samtidig i strid med markedsføringslovens bilag 1. Du må gerne belønne, at kunden kommer igen — bare ikke det, de skriver om butikken.",
+          },
+        ],
+      },
+      {
+        type: "cta",
+        text: "Gør det nemt for kunderne at anmelde butikken på de tredive sekunder, du har.",
+        href: "/reviewstander",
+        label: "Se reviewstanderen",
+      },
+    ],
+  },
+  {
+    slug: "stempelkort-til-takeaway",
+    title:
+      "Stempelkort til takeaway: få kunderne til at bestille hos dig direkte",
+    metaTitle: "Stempelkort til takeaway og pizzeria — og hvad det sparer dig",
+    description:
+      "Leveringsplatformen tager op mod en tredjedel af ordren. Et stempelkort koster en brøkdel og flytter kunderne til din egen bestilling. Her er regnestykket og de tre fælder.",
+    keyword: "stempelkort til takeaway",
+    date: "2026-08-17",
+    readingMinutes: 8,
+    excerpt:
+      "Ventetiden på maden er de eneste fem minutter, du har kundens opmærksomhed. Her er hvordan du bruger dem — og hvorfor et stempelkort er dramatisk billigere end en leveringsplatform.",
+    image: "/blog/stempelkort-takeaway.svg",
+    imageAlt:
+      "Pizzaæske og en papirspose på en takeaway-disk ved siden af et skilt med QR-kode og en telefon med stempelkort",
+    related: ["stempelkort-til-cafe", "stempelkort-app-eller-papkort"],
+    body: [
+      {
+        type: "p",
+        html: "Takeaway har den bedste økonomi for et stempelkort af alle brancher: kunderne kommer ofte, købene er små, og valget mellem dig og pizzeriaet to gader væk er ren vane.",
+      },
+      {
+        type: "p",
+        html: "Men takeaway har også den korteste kontakt med kunden af alle brancher. De er ude ad døren på halvandet minut, og en stor del af dine ordrer kommer fra folk, der <strong>aldrig sætter fod i butikken</strong>.",
+      },
+
+      { type: "h2", text: "Ventetiden er din bedste chance" },
+      {
+        type: "p",
+        html: "Der er ét øjeblik, hvor du har kundens fulde opmærksomhed: mens de venter på maden. Fem til ti minutter, hvor de står med telefonen fremme og ikke laver noget.",
+      },
+      {
+        type: "p",
+        html: "Det er langt bedre end betalingsøjeblikket, som i en café er det bedste. Ved betalingen har kunden travlt og vil videre. I ventetiden keder de sig — og en QR-kode i øjenhøjde er en velkommen afbrydelse.",
+      },
+      {
+        type: "p",
+        html: "Placér derfor skiltet <strong>dér hvor folk står og venter</strong>, ikke ved kassen. Det er som regel en anden væg end den, du først tænker på.",
+      },
+
+      { type: "h2", text: "Kunderne der aldrig kommer ind" },
+      {
+        type: "p",
+        html: "Bestiller kunden på telefon eller gennem en leveringsplatform, ser de aldrig dit skilt. For mange takeaway-steder er det halvdelen af omsætningen eller mere.",
+      },
+      {
+        type: "p",
+        html: "Løsningen er, at kortet også skal <strong>følge med maden ud</strong>. Et lille kort i posen eller et klistermærke på pizzaæsken rammer præcis den kunde, du ellers ikke kan nå — og det er den kunde, det er dyrest at have.",
+      },
+      {
+        type: "note",
+        title: "Æsken er reklameplads, du allerede betaler for",
+        html: "Du køber alligevel æsker og poser. En QR-kode trykt på dem koster stort set ingenting ekstra pr. styk og er det eneste, der når hjem i stuen hos leveringskunden. Sørg for, at koden er <strong>dynamisk</strong>, så du kan ændre, hvad den peger på, uden at kassere et helt oplag æsker.",
+      },
+
+      { type: "h2", text: "Regnestykket mod leveringsplatformen" },
+      {
+        type: "p",
+        html: "Det her er den vigtigste udregning i hele artiklen, og de færreste laver den.",
+      },
+      {
+        type: "p",
+        html: "En leveringsplatform tager typisk <strong>en fjerdedel til en tredjedel</strong> af ordreværdien. På en ordre til 150 kr. er det 37-50 kr., hver eneste gang.",
+      },
+      {
+        type: "table",
+        head: ["", "Ordre via platform", "Ordre direkte + stempelkort"],
+        rows: [
+          ["<strong>Ordreværdi</strong>", "150 kr.", "150 kr."],
+          ["<strong>Kommission</strong>", "Cirka 37-50 kr.", "0 kr."],
+          [
+            "<strong>Loyalitetsomkostning</strong>",
+            "0 kr.",
+            "Cirka 2-3 kr. pr. ordre",
+          ],
+          [
+            "<strong>Du beholder</strong>",
+            "Cirka 100-113 kr.",
+            "Cirka 147 kr.",
+          ],
+        ],
+      },
+      {
+        type: "p",
+        html: "Loyalitetsomkostningen fremkommer sådan: giver du den tiende pizza gratis, og koster en pizza dig 25 kr. i råvarer, er det 2,50 kr. pr. ordre. <strong>Det er femten gange billigere end kommissionen.</strong>",
+      },
+      {
+        type: "p",
+        html: "Det betyder ikke, at du skal droppe platformene — de skaffer nye kunder, du ikke selv finder. Det betyder, at et stempelkort er det billigste værktøj, du har, til at flytte en kunde fra platformen til din egen bestilling, når de først har fundet dig.",
+      },
+
+      { type: "h2", text: "Det rigtige antal felter" },
+      {
+        type: "p",
+        html: "Takeaway ligner cafeen, bare med større og sjældnere køb. En familie, der bestiller fredag aften, kommer <strong>en gang om ugen</strong>. Ti felter er så cirka to en halv måned — det er i overkanten.",
+      },
+      {
+        type: "p",
+        html: "<strong>Otte er som regel bedre</strong>, og det svarer til godt to måneder. Bestiller dine kunder oftere — en frokost-takeaway i et kontorområde, for eksempel — kan du gå op på ti.",
+      },
+      {
+        type: "p",
+        html: 'Belønningen skal være noget, der kræver <em>en ny ordre</em>: en gratis ret, ikke en rabat på den ordre, kortet blev fyldt med. <a href="/blog/hvor-mange-stempler-stempelkort">Regnemetoden bag antallet står her</a>.',
+      },
+
+      { type: "h2", text: "Sådan stempler du, når der er kø" },
+      {
+        type: "p",
+        html: "Fredag klokken 18 har ingen tid til at finde en kunde frem i et system. Tre ting gør det muligt:",
+      },
+      {
+        type: "ol",
+        items: [
+          "<strong>Kunden scanner selv.</strong> De henter deres eget kort frem, mens de venter — personalet skal ikke slå noget op.",
+          "<strong>Stempl ved udlevering, ikke ved bestilling.</strong> Ved udleveringen er der et naturligt ophold, og ordren er betalt, så der ikke skal stemples og annulleres.",
+          "<strong>Én person, én opgave.</strong> Er der to bag disken, er det den, der udleverer, der stempler. Deles opgaven, bliver den ikke gjort.",
+        ],
+      },
+      {
+        type: "note",
+        title: "Test det på den travleste aften",
+        html: "Et loyalitetsprogram, der virker tirsdag klokken 14, siger ingenting. Virker det fredag klokken 18, virker det. Går der mere end få sekunder pr. kunde, skal flowet ændres — ellers dropper personalet det stille og roligt, og det er der ingen, der fortæller dig.",
+      },
+
+      { type: "h2", text: "Anmeldelser: takeawayens synlighed" },
+      {
+        type: "p",
+        html: "Stempelkortet holder på dem, der har fundet dig. Anmeldelser afgør, om nye kunder gør — og for takeaway sker næsten al opdagelse på telefonen, mens folk er sultne og utålmodige.",
+      },
+      {
+        type: "p",
+        html: 'Samme metode som alle andre steder: <a href="/blog/saadan-faar-du-flere-google-anmeldelser">spørg alle, spørg mens oplevelsen er frisk, og fjern klikkene</a>. Forskellen er, at &quot;frisk&quot; for takeaway er, når maden er spist — ikke når den blev hentet. Et kort i posen rammer bedre end et skilt på væggen.',
+      },
+      {
+        type: "note",
+        title: "Bland aldrig de to ting sammen",
+        html: "Giv aldrig et ekstra stempel eller en gratis ret for en anmeldelse. Det er forbudt efter både Googles og Trustpilots regler og efter markedsføringslovens bilag 1 — og konsekvensen rammer din forretning. Du må belønne genbestilling. Bare ikke det, kunden skriver.",
+      },
+      {
+        type: "faq",
+        items: [
+          {
+            q: "Hvor mange felter skal et stempelkort til takeaway have?",
+            a: "Otte passer de fleste. En familie, der bestiller en gang om ugen, fylder så kortet på godt to måneder. Bestiller dine kunder oftere — for eksempel frokost i et kontorområde — kan du gå op på ti.",
+          },
+          {
+            q: "Kan jeg give stempler til kunder, der bestiller gennem en leveringsplatform?",
+            a: "Ikke automatisk, da ordren ikke går gennem dit eget system. Men du kan lægge et kort med QR-kode i posen, så kunden kan tilmelde sig og få stempler, næste gang de bestiller direkte hos dig. Det er præcis den bevægelse, kortet skal skabe.",
+          },
+          {
+            q: "Kan et stempelkort betale sig mod kommissionen på en leveringsplatform?",
+            a: "Ja, med stor margin. En platform tager typisk en fjerdedel til en tredjedel af ordreværdien. Giver du hver tiende ret gratis, og koster retten dig 25 kroner i råvarer, er loyalitetsomkostningen omkring 2,50 kroner pr. ordre — mange gange billigere.",
+          },
+          {
+            q: "Hvor skal skiltet stå i en takeaway?",
+            a: "Dér hvor kunderne står og venter på maden, ikke ved kassen. Ventetiden er de eneste minutter, hvor kunden har telefonen fremme og ikke laver noget. Ved kassen har de travlt med at komme videre.",
+          },
+          {
+            q: "Skal kunden hente en app?",
+            a: "Nej. Kortet kan ligge i kundens browser: de scanner en QR-kode, og kortet er der. Det er afgørende i en takeaway, hvor der står folk bag i køen og ingen har tid til at vente på en download.",
+          },
+          {
+            q: "Hvornår skal der stemples — ved bestilling eller udlevering?",
+            a: "Ved udleveringen. Der er et naturligt ophold, ordren er betalt, og du undgår at skulle annullere stempler på afbestilte ordrer. Ved bestillingen er der som regel kø og travlhed.",
+          },
+        ],
+      },
+      {
+        type: "cta",
+        text: "Vil du se, hvordan et stempelkort uden app fungerer i en takeaway?",
+        href: "/stempelkort",
+        label: "Se stempelkortet",
+      },
+    ],
+  },
+  {
+    slug: "fastholde-medlemmer-fitness",
+    title:
+      "Fastholde medlemmer i fitnesscentret: fremmøde er det tal, der afgør det",
+    metaTitle:
+      "Fastholde medlemmer i fitness — sådan bruger du fremmøde mod frafald",
+    description:
+      "Medlemmet siger ikke op, når de holder op med at komme — de siger op måneder senere. Her er hvorfor fremmøde er dit varslingssignal, og hvordan du belønner det uden at give abonnementet væk.",
+    keyword: "fastholde medlemmer fitness",
+    date: "2026-08-24",
+    readingMinutes: 8,
+    excerpt:
+      "Frafaldet sker ikke, når opsigelsen kommer. Det sker to måneder før, da medlemmet holdt op med at møde op — og det er et tal, du kan se, hvis du måler på det.",
+    image: "/blog/fastholde-medlemmer-fitness.svg",
+    imageAlt:
+      "Håndvægt og et vægtstativ i et træningscenter ved siden af en telefon, der viser et fremmødekort med afkrydsede felter",
+    related: ["kundeklub-uden-app-guide", "hvor-mange-stempler-stempelkort"],
+    body: [
+      {
+        type: "p",
+        html: "Et fitnesscenter har en anden økonomi end alle de andre brancher her. Kunden betaler <strong>uanset om de kommer</strong>. Der er ikke noget genkøb at motivere — der er et abonnement at holde fast i.",
+      },
+      {
+        type: "p",
+        html: "Det gør loyalitetsarbejdet grundlæggende anderledes, og det er derfor de fleste standardråd om kundeklubber ikke passer på et træningscenter.",
+      },
+
+      {
+        type: "h2",
+        text: "Medlemmet siger ikke op, når de holder op med at komme",
+      },
+      {
+        type: "p",
+        html: "Det her er hele indsigten: <strong>frafaldet sker længe før opsigelsen</strong>.",
+      },
+      {
+        type: "p",
+        html: "Et medlem holder op med at træne i januar. De betaler videre i februar, fordi de har tænkt sig at komme i gang igen. De betaler i marts med dårlig samvittighed. I april opsiger de.",
+      },
+      {
+        type: "p",
+        html: "Når opsigelsen kommer, er beslutningen tre måneder gammel, og der er intet at gøre. Men i februar var der. Derfor er <strong>fremmøde</strong> og ikke opsigelser det tal, du skal holde øje med — det er det eneste, der advarer dig, mens du stadig kan nå at gøre noget.",
+      },
+      {
+        type: "note",
+        title: "Det tal du skal kunne se hver uge",
+        html: "Hvor mange af dine medlemmer har <strong>ikke</strong> været her i tre uger? Det er dit vigtigste tal, og det er samtidig det, de færreste centre kan svare på uden at grave. Kan du se det ugentligt, kan du handle på det; kan du ikke, opdager du frafaldet på kontoudtoget.",
+      },
+
+      { type: "h2", text: "Januar-indtaget og februar-frafaldet" },
+      {
+        type: "p",
+        html: "Alle centre kender mønsteret: en stor tilgang i januar, og en stor del af dem er væk inden marts.",
+      },
+      {
+        type: "p",
+        html: "Det, der afgør, hvem der bliver, er sjældent motivationen. Det er, om de nåede at få <strong>en vane</strong> — og forskningen på området peger konsekvent på, at det handler om antallet af besøg i de første uger, ikke om hvor hårdt der blev trænet.",
+      },
+      {
+        type: "p",
+        html: "Derfor bør din indsats ligge i de første seks til otte uger af et medlemskab, og den bør belønne <em>fremmøde</em> og ikke præstation. Et nyt medlem, der kommer tre gange om ugen i seks uger, bliver et medlem, der stadig er der til jul.",
+      },
+
+      { type: "h2", text: "Et stempelkort der belønner fremmøde" },
+      {
+        type: "p",
+        html: "Her giver stempelkortet mening, men det skal vendes om i forhold til de andre brancher: du belønner ikke køb, du belønner <strong>at møde op</strong>.",
+      },
+      {
+        type: "p",
+        html: "Kortet stemples ved indtjekning. Det gør to ting på én gang: medlemmet får en synlig fremgang, der gør vanen konkret — og du får et fremmødetal, du ellers ikke havde.",
+      },
+      {
+        type: "ul",
+        items: [
+          "<strong>Ti besøg</strong> er et godt første kort. Med to-tre træninger om ugen er det tre-fire uger — præcis den periode, hvor vanen enten sætter sig eller ikke gør.",
+          "<strong>Start kortet ved indmeldelsen</strong>, ikke senere. Det er de første uger, der afgør det.",
+          "<strong>Gør fremgangen synlig.</strong> Otte ud af ti felter motiverer mere end en procentsats — det er derfor felter slår point.",
+        ],
+      },
+
+      { type: "h2", text: "Hvad belønningen ikke må være" },
+      {
+        type: "p",
+        html: "Den oplagte belønning i et fitnesscenter er en gratis måned. <strong>Det er også den dyreste, du kan vælge</strong>, og den underminerer din egen forretning.",
+      },
+      {
+        type: "p",
+        html: "En gratis måned koster dig en hel måneds omsætning fra et medlem, der <em>allerede kom</em> — altså den kunde, du ikke havde brug for at overtale. Og du lærer medlemmet, at abonnementet har en pris, der kan forhandles.",
+      },
+      {
+        type: "table",
+        head: ["Belønning", "Koster dig", "Vurdering"],
+        rows: [
+          [
+            "<strong>Gratis måned</strong>",
+            "En fuld måneds abonnement",
+            "Undgå — rammer din kerneindtægt direkte",
+          ],
+          [
+            "<strong>Gæstepas til en ven</strong>",
+            "Stort set intet",
+            "Bedst — koster ingenting og skaffer måske et nyt medlem",
+          ],
+          [
+            "<strong>Proteinshake eller drikkevare</strong>",
+            "Indkøbspris, få kroner",
+            "God — konkret og opleves som noget værd",
+          ],
+          [
+            "<strong>En personlig træningssession</strong>",
+            "En times løn",
+            "God til nye medlemmer; styrker samtidig fastholdelsen",
+          ],
+        ],
+      },
+      {
+        type: "p",
+        html: "Gæstepasset er værd at bemærke: det er den eneste belønning på listen, der kan skaffe dig et <strong>nyt</strong> medlem, mens den belønner et eksisterende.",
+      },
+
+      { type: "h2", text: "Anmeldelser: januarbeslutningen" },
+      {
+        type: "p",
+        html: "Fitness er et af de køb, hvor beslutningen tages i en kort, intens periode — og hvor folk sammenligner tre centre på telefonen, før de går ind i nogen af dem.",
+      },
+      {
+        type: "p",
+        html: "Det, folk skriver om et træningscenter, handler sjældent om udstyret. Det handler om <strong>rengøring, hvor fyldt der er, og om personalet er til at komme i kontakt med</strong>. Det er også dét, du kan gøre noget ved.",
+      },
+      {
+        type: "p",
+        html: 'Bed om anmeldelser hele året, ikke i december. En profil, der får to anmeldelser om ugen året rundt, står stærkt i januar. En, der får tredive i december, ser ud, som om nogen har taget sig sammen. <a href="/blog/saadan-faar-du-flere-google-anmeldelser">Metoden er den samme som i andre brancher</a>.',
+      },
+      {
+        type: "note",
+        title: "Beløn aldrig en anmeldelse med træning",
+        html: "En gratis måned eller et gæstepas for en anmeldelse er forbudt efter både Googles og Trustpilots regler og efter markedsføringslovens bilag 1. Du må belønne fremmøde. Bare ikke det, medlemmet skriver om jer.",
+      },
+
+      { type: "h2", text: "Hvad du skal måle på" },
+      {
+        type: "p",
+        html: "Fire tal fortæller, om fastholdelsen virker — og de handler alle om fremmøde frem for om betaling:",
+      },
+      {
+        type: "ul",
+        items: [
+          "<strong>Andel medlemmer uden besøg i tre uger.</strong> Dit varslingssignal. Stiger det, falder omsætningen om to måneder.",
+          "<strong>Besøg pr. medlem pr. uge</strong> for nye medlemmer i deres første otte uger. Det er dét, der afgør, om de bliver.",
+          "<strong>Hvor mange nye der fylder deres første kort.</strong> Er det under halvdelen, er målet sat for højt eller kortet startet for sent.",
+          "<strong>Opsigelser pr. måned</strong> — men som facitliste, ikke som styringsredskab. Når tallet bevæger sig, er beslutningerne allerede truffet.",
+        ],
+      },
+      {
+        type: "faq",
+        items: [
+          {
+            q: "Hvornår mister jeg reelt et medlem?",
+            a: "Længe før opsigelsen. Et medlem holder typisk op med at komme to-tre måneder før de siger op, fordi de bliver ved med at betale i håbet om at komme i gang igen. Derfor er fremmøde og ikke opsigelser det tal, der advarer dig, mens du stadig kan gøre noget.",
+          },
+          {
+            q: "Giver et stempelkort mening i et fitnesscenter?",
+            a: "Ja, men vendt om: du belønner fremmøde i stedet for køb. Kortet stemples ved indtjekning, hvilket både giver medlemmet en synlig fremgang og giver dig et fremmødetal, du ellers ikke havde.",
+          },
+          {
+            q: "Skal belønningen være en gratis måned?",
+            a: "Nej — det er den dyreste mulige belønning, fordi den koster en fuld måneds abonnement fra et medlem, der allerede kom. Et gæstepas til en ven koster stort set ingenting og kan endda skaffe dig et nyt medlem.",
+          },
+          {
+            q: "Hvor mange besøg skal der til for at fylde kortet?",
+            a: "Ti er et godt første kort. Med to-tre træninger om ugen svarer det til tre-fire uger — netop den periode, hvor en træningsvane enten sætter sig eller ikke gør. Start kortet ved indmeldelsen og ikke senere.",
+          },
+          {
+            q: "Hvad skriver folk om et fitnesscenter i anmeldelser?",
+            a: "Sjældent om udstyret. Det handler næsten altid om rengøring, hvor fyldt der er på de populære tidspunkter, og om personalet er til at komme i kontakt med. Det er også de tre ting, du realistisk kan gøre noget ved.",
+          },
+          {
+            q: "Hvornår skal jeg bede om anmeldelser?",
+            a: "Hele året, og ikke som en kampagne op til januar. En profil med to anmeldelser om ugen året rundt står stærkt, når folk sammenligner centre i januar. Tredive anmeldelser i december ser derimod ud, som om nogen har taget sig sammen.",
+          },
+        ],
+      },
+      {
+        type: "cta",
+        text: "Vil du kunne se, hvem der er holdt op med at komme?",
+        href: "/stempelkort",
+        label: "Se stempelkortet",
+      },
+    ],
+  },
+  {
     slug: "flere-anmeldelser-restaurant",
     title: "Flere anmeldelser til din restaurant: timingen, gruppen og svaret",
     metaTitle:
@@ -99,7 +795,7 @@ export const POSTS: BlogPost[] = [
     description:
       "En restaurant får flere kritiske anmeldelser end de fleste brancher, og de ældes hurtigere. Her er det rigtige øjeblik at spørge, gruppen du overser, og hvordan du svarer.",
     keyword: "flere anmeldelser restaurant",
-    date: "2026-08-23",
+    date: "2026-08-11",
     readingMinutes: 8,
     excerpt:
       "Fire gæster spiste, én betalte — og du bad kun om én anmeldelse. Her er de tre, du lod ligge på bordet, og hvorfor en restaurants anmeldelser forældes hurtigere end andres.",
@@ -281,7 +977,7 @@ export const POSTS: BlogPost[] = [
     description:
       "Et venligt svar på en anmeldelse kan bekræfte, at personen var patient — og det er fortroligt. Her er tavshedspligten, de særlige markedsføringsregler og hvordan du svarer alligevel.",
     keyword: "anmeldelser klinik",
-    date: "2026-08-23",
+    date: "2026-08-14",
     readingMinutes: 9,
     excerpt:
       "Klinikker er underlagt regler, ingen andre brancher har: tavshedspligt, særlige markedsføringsregler og helbredsoplysninger. Det ændrer både hvad du må skrive, og hvem der fører tilsyn.",
@@ -469,7 +1165,7 @@ export const POSTS: BlogPost[] = [
     description:
       "Caféen er den branche, stempelkort passer allerbedst til. Her er det rigtige antal felter, hvad belønningen må koste, og den fælde i morgenrykket, der koster flest tilmeldinger.",
     keyword: "stempelkort til café",
-    date: "2026-08-23",
+    date: "2026-08-05",
     readingMinutes: 8,
     excerpt:
       "Hyppige, billige køb er præcis det, et stempelkort er bygget til. Men de fleste caféer taber tilmeldingerne i det travleste kvarter af dagen — her er hvorfor, og hvad du gør ved det.",
@@ -655,7 +1351,7 @@ export const POSTS: BlogPost[] = [
     description:
       "En ny kunde vælger frisør på anmeldelser, fordi de ikke kan prøve sig frem. Her er det rigtige øjeblik at spørge, hvad du aldrig må gøre, og hvordan du svarer på kritik af en klipning.",
     keyword: "flere anmeldelser frisør",
-    date: "2026-08-23",
+    date: "2026-08-08",
     readingMinutes: 8,
     excerpt:
       "For en frisør er anmeldelser ikke pynt — de er hele grundlaget for at blive valgt første gang. Her er øjeblikket, reglerne og svaret på den dårlige anmeldelse.",
@@ -836,7 +1532,7 @@ export const POSTS: BlogPost[] = [
     description:
       "Trustpilot afviser ikke bare belønnede anmeldelser — de straffer profilen. Her er reglerne, den fælde de fleste danske virksomheder falder i, og de metoder der faktisk giver flere anmeldelser.",
     keyword: "flere trustpilot anmeldelser",
-    date: "2026-08-23",
+    date: "2026-07-29",
     readingMinutes: 9,
     excerpt:
       "De fleste råd om Trustpilot-anmeldelser er i strid med Trustpilots egne regler — og med dansk lov. Her er hvad du faktisk må, hvad der virker, og hvad der kan koste dig hele profilen.",
@@ -1084,7 +1780,7 @@ export const POSTS: BlogPost[] = [
     description:
       "Papkortet bliver væk, appen bliver aldrig hentet. Her er den reelle forskel på de tre slags stempelkort, hvad de koster i drift, og hvornår et stempelkort tjener sig hjem.",
     keyword: "stempelkort app",
-    date: "2026-08-23",
+    date: "2026-08-02",
     readingMinutes: 9,
     excerpt:
       "De fleste vælger stempelkort efter, hvad der er billigst at starte. Det er sjældent det billigste at drive. Her er regnestykket og de tre løsningers reelle styrker.",
@@ -1309,7 +2005,7 @@ export const POSTS: BlogPost[] = [
     description:
       "10 stempler til en café, 6 til en frisør — men hvorfor? Sådan finder du det rigtige antal stempler ud fra, hvor tit dine kunder kommer, og hvad belønningen koster dig.",
     keyword: "hvor mange stempler stempelkort",
-    date: "2026-07-22",
+    date: "2026-07-25",
     updated: "2026-08-23",
     readingMinutes: 6,
     excerpt:
