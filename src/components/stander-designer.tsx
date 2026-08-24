@@ -121,7 +121,7 @@ export function StanderDesigner({
     STANDARD_STANDERFARVE,
   );
   const [egenFront, setEgenFront] = useState(false);
-  const [hex, setHex] = useState("#1b916a");
+  const [hex, setHex] = useState("#26616e");
   const [fil, setFil] = useState<File | null>(null);
   const [hoved, setHoved] = useState<PngHoved | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -364,7 +364,7 @@ export function StanderDesigner({
           <div className="mt-4 flex items-center gap-3">
             <input
               type="color"
-              value={normaliserHex(hex) ?? "#1b916a"}
+              value={normaliserHex(hex) ?? "#26616e"}
               onChange={(e) => setHex(e.target.value)}
               aria-label="Vælg frontfarve"
               className="h-10 w-14 cursor-pointer border border-border bg-transparent p-1"
@@ -372,7 +372,7 @@ export function StanderDesigner({
             <Input
               value={hex}
               onChange={(e) => setHex(e.target.value)}
-              placeholder="#1b916a"
+              placeholder="#26616e"
               aria-label="Frontfarve som hex"
               className="max-w-32 font-mono"
             />
