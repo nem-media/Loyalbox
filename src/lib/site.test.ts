@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import sitemap from "@/app/sitemap";
-import { PRIVAT_SIDE } from "./site";
+import { PRIVAT_SIDE, isoTidspunkt } from "./site";
 
 /**
  * Sitemap og robots.
@@ -43,7 +43,13 @@ describe("sitemap", () => {
   });
 
   it("indeholder de sider, der skal kunne findes", () => {
-    for (const sti of ["", "/produkter", "/blog", "/reviewstander", "/stempelkort"]) {
+    for (const sti of [
+      "",
+      "/produkter",
+      "/blog",
+      "/reviewstander",
+      "/stempelkort",
+    ]) {
       expect(urls, `${sti || "/"} mangler i sitemappet`).toContain(sti);
     }
   });
@@ -85,6 +91,29 @@ describe("private sider", () => {
         kilde.includes("PRIVAT_SIDE"),
         `${sti.slice(ROD.length + 1)} mangler PRIVAT_SIDE`,
       ).toBe(true);
+    }
+  });
+});
+
+describe("isoTidspunkt", () => {
+  it("lægger dansk sommertid på en sommerdato", () => {
+    expect(isoTidspunkt("2026-07-29")).toBe("2026-07-29T09:00:00+02:00");
+  });
+
+  it("lægger normaltid på en vinterdato", () => {
+    expect(isoTidspunkt("2026-01-15")).toBe("2026-01-15T09:00:00+01:00");
+  });
+
+  /**
+   * DEN, FEJLEN VILLE GEMME SIG I. Med midnat ville sommertidens +02.00
+   * gøre tidspunktet til 22.00 UTC DAGEN FØR, og artiklen ville fremstå
+   * udgivet et døgn for tidligt overalt, hvor datoen læses i UTC.
+   */
+  it("peger på SAMME dato, når tidspunktet læses i UTC", () => {
+    for (const dato of ["2026-07-29", "2026-01-15", "2026-03-29"]) {
+      expect(new Date(isoTidspunkt(dato)).toISOString().slice(0, 10)).toBe(
+        dato,
+      );
     }
   });
 });
