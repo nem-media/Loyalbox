@@ -79,10 +79,9 @@ export default function TermsPage() {
         <LegalSection id="saelger" title="1. Sælger og hvem vi sælger til">
           <CompanyDetails />
           <p>
-            <strong>Vi sælger kun til virksomheder.</strong> Derfor kræver vi et
-            gyldigt CVR-nummer, både når du opretter din konto og før du kan
-            købe. Priserne vises uden moms, og der er ikke fortrydelsesret — se
-            afsnit 2 og 5. Er du privatperson, kan du ikke handle her.
+            <strong>Vi sælger kun til virksomheder.</strong> Priserne vises uden
+            moms, og der er ikke fortrydelsesret — se afsnit 2 og 5. Er du
+            privatperson, kan du ikke handle her.
           </p>
           <p>
             Aftalen indgås på dansk. Du bestiller ved at vælge produkt og antal,
@@ -97,7 +96,13 @@ export default function TermsPage() {
           <p>
             Alle priser på sitet er angivet <strong>uden moms</strong>, fordi vi
             sælger til virksomheder. Dansk moms på 25 % lægges oveni ved
-            betaling og fremgår af fakturaen sammen med dit CVR-nummer.
+            betaling og fremgår af fakturaen.
+          </p>
+          <p>
+            Dit CVR-nummer er ikke et krav for at bestille, men skriv det gerne
+            — enten i din virksomhedsprofil eller i betalingsvinduet. Uden det
+            kommer nummeret ikke på fakturaen, og så kan du ikke trække momsen
+            fra.
           </p>
           <p>
             Standeren betales som et engangsbeløb. Abonnementet er en fast
@@ -149,9 +154,9 @@ export default function TermsPage() {
             )}
           </p>
           <p>
-            Din adgang til dashboardet åbnes, så snart betalingen er
-            gennemført — du kan altså gå i gang med at sætte op, mens standeren
-            er undervejs.
+            Din adgang til dashboardet åbnes, så snart betalingen er gennemført
+            — du kan altså gå i gang med at sætte op, mens standeren er
+            undervejs.
           </p>
           <p>
             Risikoen for standeren overgår til dig, når den er overgivet til
@@ -169,7 +174,10 @@ export default function TermsPage() {
           </p>
           <p>
             Er der noget galt med din bestilling, så kontakt os på{" "}
-            <a href={`mailto:${COMPANY.email}`} className="font-medium text-accent">
+            <a
+              href={`mailto:${COMPANY.email}`}
+              className="font-medium text-accent"
+            >
               {COMPANY.email}
             </a>
             . Vi finder en løsning.
@@ -223,14 +231,16 @@ export default function TermsPage() {
           <p>
             Har du bedt om at skifte til en anden leverandør, udskydes
             sletningen, indtil du har haft den tid til at hente dine data, som
-            afsnit 12 giver dig. Loven kræver det, og vi må ikke slette
-            imens.
+            afsnit 12 giver dig. Loven kræver det, og vi må ikke slette imens.
           </p>
           <p>
-            Går der {SUSPENSION_MAANEDER} måneder uden betaling, ophører aftalen.
-            Vi sletter derefter alle personoplysninger inden for{" "}
+            Går der {SUSPENSION_MAANEDER} måneder uden betaling, ophører
+            aftalen. Vi sletter derefter alle personoplysninger inden for{" "}
             {SLETNING_EFTER_OPHOER_DAGE} dage, som vores{" "}
-            <Link href="/databehandleraftale" className="font-medium text-accent">
+            <Link
+              href="/databehandleraftale"
+              className="font-medium text-accent"
+            >
               databehandleraftale
             </Link>{" "}
             kræver. Standerne holder op med at virke, når det sker.
@@ -241,7 +251,10 @@ export default function TermsPage() {
             bekræftelse til virksomhedens mailadresse, og derefter går der{" "}
             {SLETNING_ANGREFRIST_DAGE} dage, hvor du kan fortryde. Du er
             velkommen til at skrive til{" "}
-            <a href={`mailto:${COMPANY.email}`} className="font-medium text-accent">
+            <a
+              href={`mailto:${COMPANY.email}`}
+              className="font-medium text-accent"
+            >
               {COMPANY.email}
             </a>{" "}
             i stedet — så bekræfter vi først, hvem der spørger, og klarer det
@@ -309,7 +322,10 @@ export default function TermsPage() {
             at du selv skal have et lovligt grundlag for at indsamle dem og selv
             skal oplyse dine kunder om det. Vores rolle og dine forpligtelser
             står i{" "}
-            <Link href="/databehandleraftale" className="font-medium text-accent">
+            <Link
+              href="/databehandleraftale"
+              className="font-medium text-accent"
+            >
               databehandleraftalen
             </Link>
             .
@@ -343,8 +359,8 @@ export default function TermsPage() {
 
         <LegalSection id="drift" title="11. Drift, support og vedligehold">
           <p>
-            Vi gør vores bedste for at holde tjenesten kørende, men vi garanterer
-            ikke en bestemt oppetid. Tjenesten leveres, som den er og
+            Vi gør vores bedste for at holde tjenesten kørende, men vi
+            garanterer ikke en bestemt oppetid. Tjenesten leveres, som den er og
             forefindes.
           </p>
           <p>
@@ -354,7 +370,10 @@ export default function TermsPage() {
           </p>
           <p>
             Support fås på{" "}
-            <a href={`mailto:${COMPANY.email}`} className="font-medium text-accent">
+            <a
+              href={`mailto:${COMPANY.email}`}
+              className="font-medium text-accent"
+            >
               {COMPANY.email}
             </a>
             . Vi svarer normalt inden for én hverdag.
@@ -397,10 +416,10 @@ export default function TermsPage() {
             maskinlæsbart format:
           </p>
           <ul className="space-y-1">
-            <li>Din virksomhedsprofil: navn, CVR, kontaktoplysninger og logo</li>
             <li>
-              Dine standere med deres links, QR-adresser og indstillinger
+              Din virksomhedsprofil: navn, CVR, kontaktoplysninger og logo
             </li>
+            <li>Dine standere med deres links, QR-adresser og indstillinger</li>
             <li>
               Dine stempelkort: programmer, belønninger, rabatter, medlemmer,
               optjente og indløste stempler samt hele posteringshistorikken
@@ -436,8 +455,8 @@ export default function TermsPage() {
             </li>
             <li>
               Vores samlede ansvar over for dig kan ikke overstige det højeste
-              af (a) det beløb, du har betalt os i de seneste 12 måneder, og
-              (b) 12 måneders abonnement til den pris, du betaler i dag.
+              af (a) det beløb, du har betalt os i de seneste 12 måneder, og (b)
+              12 måneders abonnement til den pris, du betaler i dag.
             </li>
           </ul>
           <p>

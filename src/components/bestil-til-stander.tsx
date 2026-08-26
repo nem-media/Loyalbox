@@ -46,28 +46,6 @@ export async function BestilTilStander({
     return null;
   }
 
-  if (spaerre === "cvr-mangler") {
-    return (
-      <div
-        className={`box-shape border border-border bg-card p-5 ${className ?? ""}`}
-      >
-        <p className="font-semibold tracking-tight">
-          Bestil skilt til {standNavn}
-        </p>
-        <p className="mt-1.5 text-sm leading-relaxed text-muted">
-          Vi mangler dit CVR-nummer, før du kan bestille. Det tager et øjeblik
-          at skrive ind.
-        </p>
-        <Link
-          href="/dashboard/profil"
-          className="mt-3 inline-block text-sm font-medium text-accent hover:underline"
-        >
-          Udfyld CVR-nummer →
-        </Link>
-      </div>
-    );
-  }
-
   const { data: designs } = company
     ? await createAdminClient()
         .from("designs")

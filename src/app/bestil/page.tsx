@@ -251,23 +251,6 @@ export default async function OrderPage({
                   Bestil uden konto →
                 </Link>
               </div>
-            ) : spaerre === "cvr-mangler" ? (
-              <div className="box-shape border border-secondary/50 bg-secondary/10 p-4 text-sm">
-                <p className="font-bold tracking-tight">
-                  Vi mangler dit CVR-nummer
-                </p>
-                <p className="mt-1 text-muted">
-                  LoyalSum sælges kun til virksomheder — priserne er uden moms,
-                  og der er ikke fortrydelsesret. Skriv nummeret under
-                  Virksomhedsprofil, så er du klar til at bestille.
-                </p>
-                <Link
-                  href="/dashboard/profil"
-                  className="mt-3 inline-block font-medium text-accent hover:underline"
-                >
-                  Udfyld CVR-nummer →
-                </Link>
-              </div>
             ) : (
               <PurchaseNotice />
             )}

@@ -47,34 +47,19 @@ export async function BestilStander({
     >
       <p className="font-semibold tracking-tight">{overskrift}</p>
 
-      {spaerre === "cvr-mangler" ? (
-        <>
-          <p className="mt-1.5 text-sm leading-relaxed text-muted">
-            Vi mangler dit CVR-nummer, før du kan bestille. Det tager et øjeblik
-            at skrive ind.
-          </p>
-          <Link
-            href="/dashboard/profil"
-            className="mt-3 inline-block text-sm font-medium text-accent hover:underline"
-          >
-            Udfyld CVR-nummer →
-          </Link>
-        </>
-      ) : (
-        <>
-          <p className="mt-1.5 text-sm leading-relaxed text-muted">
-            En QR-adresse er ikke et skilt. Bestil et fysisk skilt med dit logo
-            til {formatCurrency(vare.price)} pr. stk. — køber du flere, falder
-            prisen med op til {stoersteRabat} %. Det ændrer ikke dit abonnement.
-          </p>
-          <Link
-            href={`/bestil?produkt=${EKSTRA_STANDER_SLUG}`}
-            className="mt-3 inline-block text-sm font-medium text-accent hover:underline"
-          >
-            Bestil skilt →
-          </Link>
-        </>
-      )}
+      {/* CVR-grenen er væk: et manglende nummer spærrer ikke længere for et
+          køb, så der er intet at bede om her. */}
+      <p className="mt-1.5 text-sm leading-relaxed text-muted">
+        En QR-adresse er ikke et skilt. Bestil et fysisk skilt med dit logo til{" "}
+        {formatCurrency(vare.price)} pr. stk. — køber du flere, falder prisen
+        med op til {stoersteRabat} %. Det ændrer ikke dit abonnement.
+      </p>
+      <Link
+        href={`/bestil?produkt=${EKSTRA_STANDER_SLUG}`}
+        className="mt-3 inline-block text-sm font-medium text-accent hover:underline"
+      >
+        Bestil skilt →
+      </Link>
     </div>
   );
 }

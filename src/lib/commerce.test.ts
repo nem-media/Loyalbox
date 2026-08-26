@@ -105,11 +105,18 @@ describe("canStartCheckout", () => {
   });
 
   it("afviser en rigtig kunde i testtilstand", () => {
-    expect(canStartCheckout({ ...ejer, email: "cafe@eksempel.dk" }, KOMPLET)).toBe(false);
+    expect(
+      canStartCheckout({ ...ejer, email: "cafe@eksempel.dk" }, KOMPLET),
+    ).toBe(false);
   });
 
   it("afviser uden virksomhed — også admin, der aldrig har en", () => {
-    expect(canStartCheckout({ email: "admin@loyalbox.test", company: null }, KOMPLET)).toBe(false);
+    expect(
+      canStartCheckout(
+        { email: "admin@loyalbox.test", company: null },
+        KOMPLET,
+      ),
+    ).toBe(false);
     expect(canStartCheckout(null, KOMPLET)).toBe(false);
   });
 
@@ -120,7 +127,10 @@ describe("canStartCheckout", () => {
   it("holder knappen lukket i live for en vare, der kun findes i test", () => {
     process.env.STRIPE_SECRET_KEY = "sk_live_abc";
     expect(
-      canStartCheckout({ ...ejer, email: "cafe@eksempel.dk" }, kunTest(KOMPLET)),
+      canStartCheckout(
+        { ...ejer, email: "cafe@eksempel.dk" },
+        kunTest(KOMPLET),
+      ),
     ).toBe(false);
   });
 
@@ -131,14 +141,23 @@ describe("canStartCheckout", () => {
     ).toBe(true);
   });
 
-  it("afviser en virksomhed uden gyldigt CVR", () => {
-    // Vi sælger kun til virksomheder. Stod kravet kun i /api/checkout, ville
-    // knappen blive vist til nogen, ruten afviser.
+  /**
+   * CVR SPÆRRER IKKE. Kravet blev fjernet bevidst: vi sælger stadig kun til
+   * virksomheder, men Stripe spørger selv om momsnummeret ved betalingen, og
+   * momsen opkræves via en fast sats uanset hvad. At afvise en betaling,
+   * fordi kunden ikke havde nummeret ved hånden, kostede mere end det
+   * beskyttede.
+   *
+   * Testen står tilbage VENDT OM, så en genindførelse i `koebSpaerre()` uden
+   * en beslutning bliver fanget — også for et ugyldigt nummer, som er den
+   * nemmeste at komme til at spærre på igen.
+   */
+  it("spærrer IKKE på et manglende eller forkert CVR", () => {
     for (const cvr of [null, undefined, "", "1234", "37811768"]) {
       expect(
         canStartCheckout({ ...ejer, company: { cvr } }, KOMPLET),
         String(cvr),
-      ).toBe(false);
+      ).toBe(true);
     }
   });
 });
@@ -171,14 +190,13 @@ describe("koebSpaerre", () => {
       "ingen-virksomhed",
     );
     expect(koebSpaerre(ejer, undefined)).toBe("ikke-aabnet");
+    // Uden CVR er der intet i vejen — se testen ovenfor for hvorfor.
     expect(
       koebSpaerre({ ...ejer, company: { cvr: null } }, KOMPLET),
-    ).toBe("cvr-mangler");
+    ).toBeNull();
   });
 
-  it("nævner ikke CVR i et miljø, hvor der alligevel ikke kan købes", () => {
-    // En rigtig besøgende i testtilstand skal ikke sendes ud at finde sit
-    // CVR-nummer for derefter at få at vide, at salget ikke er åbnet.
+  it("lukker stadig for salg i et miljø, hvor der ikke kan købes", () => {
     expect(
       koebSpaerre(
         { email: "cafe@eksempel.dk", company: { cvr: null } },

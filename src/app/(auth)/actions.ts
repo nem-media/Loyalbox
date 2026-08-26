@@ -54,7 +54,8 @@ export async function login(
 
   // Uden et eksplicit `next` sendes brugeren derhen hvor de hører hjemme:
   // butiksejer/medarbejder → dashboard, slutkunde med stempelkort → /mine-kort.
-  const destination = safeNext(next) ?? (await resolveLandingPath(data.user.id));
+  const destination =
+    safeNext(next) ?? (await resolveLandingPath(data.user.id));
 
   revalidatePath("/", "layout");
   redirect(destination);
@@ -69,20 +70,22 @@ export async function signup(
   const companyName = String(formData.get("company_name") ?? "").trim();
   const cvrRaw = String(formData.get("cvr") ?? "");
 
-  if (!email || !password || !companyName || !cvrRaw.trim()) {
-    return { error: "Udfyld alle felter." };
+  // CVR er IKKE med i den her: feltet er frivilligt, jf. nedenfor.
+  if (!email || !password || !companyName) {
+    return { error: "Udfyld navn, mail og adgangskode." };
   }
   if (password.length < 6) {
     return { error: "Adgangskoden skal være mindst 6 tegn." };
   }
 
-  // LoyalSum sælges kun til virksomheder — priserne er uden moms, og der er
-  // ingen fortrydelsesret. Uden CVR er det bare en påstand i en tekst. Se
-  // src/lib/cvr.ts.
-  if (!erGyldigtCvr(cvrRaw)) {
+  // CVR ER FRIVILLIGT ved oprettelsen, men skal være rigtigt, hvis det
+  // skrives. Det ville være bagvendt at kræve nummeret for at få en konto,
+  // når man kan købe uden — og de konti, der blev oprettet før kravet, findes
+  // i forvejen uden. Se src/lib/cvr.ts.
+  if (cvrRaw && !erGyldigtCvr(cvrRaw)) {
     return { error: CVR_FEJL };
   }
-  const cvr = normaliserCvr(cvrRaw);
+  const cvr = cvrRaw ? normaliserCvr(cvrRaw) : null;
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({

@@ -16,7 +16,6 @@ import {
   type StripeMode,
   type Tier,
 } from "@/lib/constants";
-import { erGyldigtCvr } from "@/lib/cvr";
 
 /** True hvis Stripe-nøglen er sat i miljøet (server-only). */
 export function isStripeConfigured(): boolean {
@@ -77,16 +76,16 @@ export function canSell(product: Product): boolean {
  * Varen skal desuden være klar i den aktuelle tilstand, jf. canSell — ellers
  * ville live-nøglen åbne en købsknap, der fejler for enhver rigtig kunde.
  *
- * Og virksomheden skal have et gyldigt CVR: betingelserne forudsætter et
- * erhvervskøb, og /api/checkout afviser uden. Stod kravet kun i ruten, ville
- * knappen blive vist til nogen, ruten afviser — og det er netop den utakt,
- * denne funktion findes for at forhindre.
+ * CVR SPÆRRER IKKE LÆNGERE. Vi sælger fortsat kun til virksomheder, men et
+ * tomt felt er ikke længere en lukket dør: Stripe spørger selv om
+ * momsnummeret ved betalingen (`tax_id_collection`), og momsen opkræves
+ * uanset hvad via en fast sats. Kravet stod i vejen for en kunde, der bare
+ * ikke havde nummeret ved hånden — og det er en dårlig grund til at afvise en
+ * betaling. Nummeret valideres stadig med modulus 11, når det ER udfyldt.
  */
 export type KoebSpaerre =
   /** Ingen virksomhed at knytte købet til. */
   | "ingen-virksomhed"
-  /** Virksomheden mangler et gyldigt CVR — vi sælger kun til virksomheder. */
-  | "cvr-mangler"
   /** Varen er ikke klar i denne tilstand, eller salget er ikke åbnet endnu. */
   | "ikke-aabnet";
 
@@ -94,8 +93,8 @@ export type KoebSpaerre =
  * Hvad spærrer for et køb — eller null, hvis der ikke er noget i vejen.
  *
  * ÉN funktion, fordi knappen og ruten ellers kommer i utakt. Returnerer den en
- * GRUND og ikke bare falsk, kan /bestil skrive noget brugbart: "du mangler et
- * CVR-nummer" er en anden besked end "vi har ikke åbnet for salg endnu", og en
+ * GRUND og ikke bare falsk, kan /bestil skrive noget brugbart: "du har ingen
+ * virksomhed" er en anden besked end "vi har ikke åbnet for salg endnu", og en
  * knap, der bare forsvinder, forklarer ingen af delene.
  */
 export function koebSpaerre(
@@ -120,10 +119,6 @@ export function koebSpaerre(
 
   if (!product || !canSell(product)) return "ikke-aabnet";
   if (stripeMode() !== "live" && !isTestBuyer(user.email)) return "ikke-aabnet";
-
-  // CVR-spærren står SIDST, så en besøgende ikke får at vide, at de mangler et
-  // nummer, i et miljø hvor de alligevel ikke kunne købe.
-  if (!erGyldigtCvr(user.company.cvr)) return "cvr-mangler";
 
   return null;
 }

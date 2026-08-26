@@ -73,9 +73,9 @@ describe("læsning af bestillingen", () => {
   });
 
   it("normaliserer CVR, så mellemrum og DK-præfiks ikke er en fejl", () => {
-    expect(laesBestilling(gyldig({ cvr: "DK 37 81 17 69" })).vaerdier?.cvr).toBe(
-      "37811769",
-    );
+    expect(
+      laesBestilling(gyldig({ cvr: "DK 37 81 17 69" })).vaerdier?.cvr,
+    ).toBe("37811769");
   });
 
   it("samler ALLE fejl på én gang", () => {
@@ -103,9 +103,17 @@ describe("læsning af bestillingen", () => {
     expect(felter).toContain("accepterVilkaar");
   });
 
-  it("kræver et gyldigt CVR — vi sælger kun til virksomheder", () => {
+  /**
+   * CVR ER FRIVILLIGT, men skal være rigtigt, hvis det skrives.
+   *
+   * Et forkert nummer må ikke slippe igennem som "så lader vi det være":
+   * kunden tror, det står på fakturaen, og opdager først noget, når momsen
+   * ikke kan trækkes fra. Et TOMT felt er derimod et valg, kunden har taget.
+   */
+  it("accepterer et tomt CVR, men ikke et forkert", () => {
+    expect(laesBestilling(gyldig({ cvr: "" })).fejl.cvr).toBeUndefined();
     expect(laesBestilling(gyldig({ cvr: "37811768" })).fejl.cvr).toBeTruthy();
-    expect(laesBestilling(gyldig({ cvr: "" })).fejl.cvr).toBeTruthy();
+    expect(laesBestilling(gyldig({ cvr: "1234" })).fejl.cvr).toBeTruthy();
   });
 
   it("kræver accept af betingelserne", () => {
@@ -116,7 +124,8 @@ describe("læsning af bestillingen", () => {
 
   it("kræver en farve, når egen frontfarve er valgt", () => {
     expect(
-      laesBestilling(gyldig({ egenFrontfarve: true, frontHex: "" })).fejl.frontHex,
+      laesBestilling(gyldig({ egenFrontfarve: true, frontHex: "" })).fejl
+        .frontHex,
     ).toBeTruthy();
     expect(
       laesBestilling(gyldig({ egenFrontfarve: true, frontHex: "#1b916a" })).ok,
@@ -126,7 +135,9 @@ describe("læsning af bestillingen", () => {
   it("ignorerer en hex, når tilvalget er slået fra", () => {
     // Et felt, der er blevet stående efter tilvalget blev slået fra, må ikke
     // koste penge eller bestemme trykket.
-    const r = laesBestilling(gyldig({ egenFrontfarve: false, frontHex: "#ff0000" }));
+    const r = laesBestilling(
+      gyldig({ egenFrontfarve: false, frontHex: "#ff0000" }),
+    );
     expect(r.ok).toBe(true);
     expect(r.vaerdier?.frontHex).toBeNull();
     expect(r.vaerdier?.egenFrontfarve).toBe(false);

@@ -40,9 +40,7 @@ export function SignupForm() {
     <Card className="shadow-[0_30px_60px_-25px_rgba(0,0,0,0.5)]">
       <CardBody className="space-y-5">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">
-            Opret virksomhed
-          </h1>
+          <h1 className="text-xl font-bold tracking-tight">Opret virksomhed</h1>
           <p className="mt-1 text-sm text-muted">
             Kom i gang med at samle anmeldelser på minutter.
           </p>
@@ -53,15 +51,14 @@ export function SignupForm() {
             <Input name="company_name" required />
           </Field>
           <Field
-            label="CVR-nummer"
-            hint="Otte cifre. LoyalSum sælges kun til virksomheder — priserne er uden moms."
+            label="CVR-nummer (valgfrit)"
+            hint="Otte cifre. LoyalSum sælges kun til virksomheder — priserne er uden moms. Du kan skrive nummeret senere."
           >
             <Input
               name="cvr"
               inputMode="numeric"
               autoComplete="off"
               placeholder="12345678"
-              required
             />
           </Field>
           <Field label="E-mail">
