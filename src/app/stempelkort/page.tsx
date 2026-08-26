@@ -362,11 +362,24 @@ export default function StempelkortPage() {
                   className="h-1.5 w-1.5 rounded-full bg-secondary"
                   aria-hidden="true"
                 />
-                Digitalt stempelkort · uden app
+                Uden app · uden konto for kunden
               </span>
+              {/* SØGEORDET STÅR I H1, men som anden linje.
+                  Overskriftens løfte er "nye kunder bliver faste kunder", og
+                  det skal læses først; "med et digitalt stempelkort" er
+                  MIDLET og hører derfor til i en mindre vægt. De to linjer er
+                  én sætning, så betydningen er præcis den samme som før — der
+                  er kun sat navn på værktøjet.
+
+                  Eyebrow'en sagde det samme og er derfor lavet om: to
+                  gentagelser af "digitalt stempelkort" inden for tre
+                  centimeter læses som udfyldning, ikke som vægt. */}
               <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
                 Få nye kunder til at blive til{" "}
                 <span className="text-secondary">faste kunder</span>
+                <span className="mt-3 block text-xl font-semibold text-white/60 sm:text-2xl">
+                  med et digitalt stempelkort
+                </span>
               </h1>
               <p className="mt-5 max-w-xl text-lg text-white/70">
                 Et digitalt stempelkort giver det tilfældige besøg en
@@ -382,9 +395,6 @@ export default function StempelkortPage() {
                   Se hvordan det virker
                 </ButtonLink>
               </div>
-              <p className="mt-5 text-sm text-white/50">
-                Ingen app for dine kunder · du bestemmer stempler og belønning
-              </p>
             </div>
 
             {/* Samme kort som forsidens hero, uden de to notifikationer —
@@ -406,8 +416,57 @@ export default function StempelkortPage() {
                   className="pointer-events-none absolute -inset-16 rounded-full bg-accent/30 blur-3xl"
                 />
                 <div className="relative">
-                  <StempelkortVisual />
-                  <p className="mt-5 text-center text-xs text-white/50">
+                  {/* EGEN relative-boks om KORTET ALENE. Lå emblemerne i den
+                      ydre boks, målte `-bottom-6` fra bunden af billedteksten
+                      og ikke fra kortet — og det nederste emblem landede oven
+                      i teksten. Målt: 517 mod tekstens 509-525. */}
+                  <div className="relative">
+                    <StempelkortVisual />
+
+                    {/* TO EMBLEMER — de to valg, der ER produktet. De peger på
+                      hver sin del af kortet: prikkerne foroven og pillen med
+                      belønningen forneden.
+
+                      Samme form og placering som forsidens notifikationer, så
+                      de to heroer taler samme sprog. Og KUN to: forsidens
+                      egen kommentar advarer mod at lade kompositionen blive
+                      et rodet collage, og et tredje emblem ville dække kortet
+                      frem for at pege på det.
+
+                      De to linjer læses som én sætning ovenfra og ned.
+                      Teksten findes ikke andre steder i heroen — den linje,
+                      der stod under knapperne, sagde det samme og er væk. */}
+                    <div className="absolute -top-6 -right-2 sm:-right-7">
+                      <div className="btn-shape flex items-center gap-2 bg-white px-3 py-2 text-foreground shadow-[0_16px_32px_-16px_rgba(0,0,0,0.6)]">
+                        <StampIcon className="h-4 w-4 shrink-0 text-accent" />
+                        <span className="text-xs font-semibold tracking-tight">
+                          Du bestemmer antal stempler
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="absolute -bottom-6 -left-2 sm:-left-8">
+                      <div className="btn-shape flex items-center gap-2 bg-dark px-3 py-2 text-white shadow-[0_16px_32px_-16px_rgba(0,0,0,0.6)] ring-1 ring-white/15">
+                        {/* Beige og ikke accent: på koks giver beigen 6,79 i
+                          kontrast, petroleum kun 2,44. */}
+                        <RewardIcon className="h-4 w-4 shrink-0 text-secondary" />
+                        <span className="text-xs font-medium">
+                          Og hvad kunden får
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Emblemerne overlapper kun kortets POLSTRING (p-6),
+                        aldrig indholdet: de er 32 px høje og forskudt 24 px, så
+                        de rager 8 px ind over en kant, der har 24 px luft.
+                        Første forsøg lå 16 px oppe og skar toppen af
+                        "Café Aurora" — det er dét, målingen nedenfor fanger.
+
+                        mt-10 og ikke mt-5: det nederste emblem hænger 24 px ud
+                        under kortet og lå ellers oven i billedteksten. */}
+                  </div>
+
+                  <p className="mt-10 text-center text-xs text-white/50">
                     Sådan ser kundens kort ud undervejs
                   </p>
                 </div>

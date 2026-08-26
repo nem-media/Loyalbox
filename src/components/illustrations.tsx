@@ -13,8 +13,17 @@
  * De er dekorative: teksten ved siden af bærer betydningen, så de er markeret
  * aria-hidden og har ingen alt-tekst. Bruges et ikon nogensinde ALENE som
  * betydningsbærer, skal det have en <title> i stedet.
+ *
+ * STØRRELSEN SÆTTES AF KALDESTEDET, og der er ingen standard. Der var før
+ * `cn("h-10 w-10", className)` — og fordi `cn()` er en simpel sammenføjer og
+ * IKKE tailwind-merge, endte "h-10 w-10 h-4 w-4" begge i output, hvor
+ * Tailwinds egen rækkefølge lod h-10 vinde. Alle ti kaldesteder bad om en
+ * størrelse, og alle ti fik 40 px: h-8 i trinrækkerne, h-6 i
+ * belønningskortene, h-4 i emblemerne. Målt i browseren, ikke gættet.
+ *
+ * Standarden er fjernet frem for at blive gjort betinget: hvert kaldested
+ * sætter allerede sin egen, så den beskyttede ingen — den overdøvede dem.
  */
-import { cn } from "@/lib/utils";
 
 const ACCENT = "#26616e";
 const GOLD = "#b4a189";
@@ -34,7 +43,7 @@ function Svg({
       strokeWidth={1.5}
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={cn("h-10 w-10", className)}
+      className={className}
       aria-hidden="true"
     >
       {children}
