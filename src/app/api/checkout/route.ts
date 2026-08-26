@@ -20,7 +20,6 @@ import {
   TERMS_VERSION,
   LEVERINGSLANDE,
 } from "@/lib/constants";
-import { erGyldigtCvr } from "@/lib/cvr";
 import { harFysiskSkilt } from "@/lib/constants";
 import {
   erStanderFarve,
@@ -118,24 +117,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  /**
-   * CVR-SPÆRREN. Handelsbetingelserne forudsætter et erhvervskøb — priser uden
-   * moms, ingen fortrydelsesret. Uden et gyldigt CVR ved vi ikke, om det er
-   * sandt, og så ville vi sælge på vilkår, der ikke gjaldt.
-   *
-   * Kontrollen ligger HER og ikke kun ved oprettelsen: de konti, der blev
-   * oprettet før kravet, skal kunne bruge det, de allerede har — men de skal
-   * udfylde nummeret, før de kan købe mere.
+  /*
+   * CVR AFVISER IKKE LÆNGERE. Ruten svarede 400 uden et gyldigt nummer, fordi
+   * betingelserne forudsatte et erhvervskøb. Vi sælger stadig kun til
+   * virksomheder — men Stripe spørger selv om momsnummeret nedenfor
+   * (`tax_id_collection`), og momsen opkræves via en fast sats uanset hvad.
+   * At afvise en betaling, fordi kunden ikke har nummeret ved hånden, kostede
+   * mere end det beskyttede. Nummeret valideres stadig med modulus 11, når det
+   * udfyldes i profilen.
    */
-  if (!erGyldigtCvr(company.cvr)) {
-    return NextResponse.json(
-      {
-        error:
-          "Vi mangler dit CVR-nummer, før du kan købe. Du kan skrive det under Virksomhedsprofil i dashboardet.",
-      },
-      { status: 400 },
-    );
-  }
 
   const body = await request.json().catch(() => ({}));
   const product = getProduct(String(body.produkt ?? ""));

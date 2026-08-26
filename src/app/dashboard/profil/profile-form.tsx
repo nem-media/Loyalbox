@@ -159,7 +159,7 @@ export function ProfileForm({ company }: { company: Company }) {
             <div className="mt-4 space-y-5">
               <Field
                 label="CVR-nummer"
-                hint="Otte cifre. Står på fakturaen og er påkrævet for at kunne købe."
+                hint="Otte cifre. Står på fakturaen, så du kan trække momsen fra. Du kan købe uden."
               >
                 <Input
                   name="cvr"

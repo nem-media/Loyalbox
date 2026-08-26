@@ -1,5 +1,9 @@
 import { erGyldigtCvr, normaliserCvr } from "@/lib/cvr";
-import { erStanderFarve, normaliserHex, type StanderFarve } from "@/lib/stander-tilvalg";
+import {
+  erStanderFarve,
+  normaliserHex,
+  type StanderFarve,
+} from "@/lib/stander-tilvalg";
 import type { DestinationType } from "@/lib/types/database";
 
 /**
@@ -23,10 +27,18 @@ export const DESTINATIONER: {
   navn: string;
   hjaelp: string;
 }[] = [
-  { vaerdi: "google", navn: "Google", hjaelp: "Linket til at skrive en Google-anmeldelse" },
+  {
+    vaerdi: "google",
+    navn: "Google",
+    hjaelp: "Linket til at skrive en Google-anmeldelse",
+  },
   { vaerdi: "trustpilot", navn: "Trustpilot", hjaelp: "Din Trustpilot-side" },
   { vaerdi: "facebook", navn: "Facebook", hjaelp: "Din Facebook-side" },
-  { vaerdi: "custom", navn: "Mit eget link", hjaelp: "Fx menukort, booking eller webshop" },
+  {
+    vaerdi: "custom",
+    navn: "Mit eget link",
+    hjaelp: "Fx menukort, booking eller webshop",
+  },
 ];
 
 export interface BestillingFelter {
@@ -86,9 +98,11 @@ export function laesBestilling(
     fejl.firmanavn = "Skriv virksomhedens navn.";
   }
 
+  // CVR er FRIVILLIGT, men skal være rigtigt, hvis det skrives. Et tomt felt
+  // spærrer ikke længere for et køb — se koebSpaerre() i commerce.ts.
   const cvrRaw = tekst(raw.cvr);
-  if (!erGyldigtCvr(cvrRaw)) {
-    fejl.cvr = "Otte cifre. Vi sælger kun til virksomheder.";
+  if (cvrRaw && !erGyldigtCvr(cvrRaw)) {
+    fejl.cvr = "Otte cifre — tjek nummeret, eller lad feltet stå tomt.";
   }
 
   const email = tekst(raw.email);
@@ -113,7 +127,9 @@ export function laesBestilling(
   }
 
   const destinationType = raw.destinationType;
-  const kendtDestination = DESTINATIONER.some((d) => d.vaerdi === destinationType);
+  const kendtDestination = DESTINATIONER.some(
+    (d) => d.vaerdi === destinationType,
+  );
   if (!kendtDestination) {
     fejl.destinationType = "Vælg hvor QR-koden skal føre hen.";
   }

@@ -112,7 +112,8 @@ export async function bestilUdenKonto(
     );
     // Kontrolleres HER OG IKKE KUN I BROWSEREN. Formularen er offentlig, og en
     // browser kan sende hvad som helst — også en 40 MB fil eller en exe.
-    if (!kontrol.ok) return { fejl: { firmanavn: undefined }, besked: kontrol.fejl };
+    if (!kontrol.ok)
+      return { fejl: { firmanavn: undefined }, besked: kontrol.fejl };
 
     const ext = logo.name.split(".").pop()?.toLowerCase() || "png";
     const sti = `uden-konto/${crypto.randomUUID()}.${ext}`;
@@ -135,11 +136,26 @@ export async function bestilUdenKonto(
   }
 
   /* ------------------------------------------------------------ virksomhed */
-  const { data: fundet } = await admin
-    .from("companies")
-    .select("id, user_id, stripe_customer_id")
-    .eq("cvr", v.cvr)
-    .maybeSingle();
+  /*
+   * GENBRUG KUN, NÅR DER ER ET CVR AT GENBRUGE PÅ.
+   *
+   * Da CVR blev frivilligt, blev `.eq("cvr", "")` pludselig en fælde: to
+   * forskellige butikker uden nummer ville matche hinanden, og den anden
+   * ordre ville lande på den førstes virksomhed — med dens ordrer, standere
+   * og logo. Uden opslaget får hver bestilling sin egen række, hvilket er den
+   * eneste rigtige antagelse, når vi ikke har noget at kende dem på.
+   *
+   * Nummeret gemmes desuden som NULL og ikke "": der er et unikt indeks på
+   * `cvr where cvr is not null` (migration 0015), så den anden tomme streng
+   * ville få indsættelsen til at fejle.
+   */
+  const { data: fundet } = v.cvr
+    ? await admin
+        .from("companies")
+        .select("id, user_id, stripe_customer_id")
+        .eq("cvr", v.cvr)
+        .maybeSingle()
+    : { data: null };
 
   if (fundet?.user_id) return { fejl: { cvr: CVR_HAR_KONTO } };
 
@@ -150,7 +166,7 @@ export async function bestilUdenKonto(
       .from("companies")
       .insert({
         name: v.firmanavn,
-        cvr: v.cvr,
+        cvr: v.cvr || null,
         contact_email: v.email,
         logo_url: logoUrl,
         // Ingen bruger: der oprettes hverken login eller dashboard.
