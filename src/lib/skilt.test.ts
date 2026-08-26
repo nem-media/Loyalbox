@@ -7,6 +7,8 @@ import {
   SKIVE_R,
   RING_PROCENT,
   SKILT_BREDDE,
+  QR_FELT,
+  laesQrSvg,
 } from "./skilt-format";
 import { STANDARD_ACCENT } from "./stander-tilvalg";
 
@@ -115,5 +117,58 @@ describe("geometrien om logoet", () => {
     // Logoet skal kunne være i skiven.
     expect(RING_PROCENT.logoAndel).toBeLessThanOrEqual(100);
     expect(RING_PROCENT.logoAndel).toBeGreaterThan(50);
+  });
+});
+
+describe("laesQrSvg", () => {
+  /**
+   * DEN FEJL, DER FAKTISK SKETE. `qrcode` tegner modulerne med STROKE på
+   * åbne, vandrette linjer — ikke med fill. Første udgave satte en fyldning
+   * på dem, og QR-feltet stod næsten tomt med et par svage konturer.
+   *
+   * Der prøves mod bibliotekets FAKTISKE output og ikke mod en efterligning:
+   * det, der skal fanges, er netop at svaret en dag ser anderledes ud.
+   */
+  it("finder koden i qrcodes svar — og ikke baggrundsfladen", async () => {
+    const QRCode = (await import("qrcode")).default;
+    const raa = await QRCode.toString("https://loyalsum.dk/r/abc123", {
+      type: "svg",
+      errorCorrectionLevel: "M",
+      margin: 2,
+    });
+
+    const kode = laesQrSvg(raa);
+    expect(kode).not.toBeNull();
+    // Finderpatternet øverst til venstre, forskudt af hvilezonen på 2.
+    expect(kode!.d.startsWith("M2 2.5h7")).toBe(true);
+    // Nettet er koden plus hvilezone i begge ender.
+    expect(kode!.net).toBeGreaterThan(20);
+    expect(kode!.net % 2).toBe(1); // QR-net er altid ulige
+  });
+
+  it("afviser en sti uden stroke — det er baggrunden, ikke koden", () => {
+    expect(
+      laesQrSvg(
+        '<svg viewBox="0 0 29 29"><path fill="#fff" d="M0 0h29v29H0z"/></svg>',
+      ),
+    ).toBeNull();
+  });
+
+  it("afviser et svar, den ikke forstår, frem for at tegne noget forkert", () => {
+    expect(laesQrSvg("")).toBeNull();
+    expect(laesQrSvg("<svg></svg>")).toBeNull();
+  });
+
+  /** Koden skal fylde feltet — ellers bliver modulerne for små til at læse. */
+  it("skalerer koden til QR-feltet", async () => {
+    const QRCode = (await import("qrcode")).default;
+    const raa = await QRCode.toString("https://loyalsum.dk/r/abc123", {
+      type: "svg",
+      errorCorrectionLevel: "M",
+      margin: 2,
+    });
+    const { net } = laesQrSvg(raa)!;
+    const skala = QR_FELT.side / net;
+    expect(skala).toBeGreaterThan(2);
   });
 });

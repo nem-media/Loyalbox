@@ -79,3 +79,44 @@ export const RING_PROCENT = {
   /** Logoets andel af skivens bredde. */
   logoAndel: (LOGO_SIDE / (SKIVE_R * 2)) * 100,
 } as const;
+
+/**
+ * QR-kodens felt i skabelonen.
+ *
+ * Målt på klippemasken `fd856c2e98`, som er 116×115 og placeret med
+ * `transform="matrix(1, 0, 0, 1, 190, 268)"`. Pladsholderen tegnes inden i
+ * netop dette felt, så en rigtig kode i samme felt lander præcis oven på den.
+ */
+export const QR_FELT = { x: 190, y: 268, side: 115 } as const;
+
+/**
+ * Modulernes farve pr. skabelon.
+ *
+ * BEMÆRK AT DEN SORTE ER INVERTERET: lyse moduler på mørk bund. Det er
+ * designets eget valg — pladsholderen ser sådan ud — og telefonkameraer
+ * læser inverterede koder. Skal det laves om, er det HER, og så skal
+ * baggrunden bag koden også skifte, ellers forsvinder den.
+ */
+export const QR_MODUL = { sort: "#ffffff", hvid: "#000000" } as const;
+
+/**
+ * Trækker modulerne ud af `qrcode`s SVG-svar.
+ *
+ * EGEN FUNKTION, FORDI DET ER HER, DET GIK GALT. Svaret indeholder TO stier:
+ * en hvid baggrundsflade og selve koden — og koden er tegnet med STROKE, ikke
+ * fill: åbne, vandrette linjer på halve koordinater (`M0 0.5h7m3 0h1…`) med
+ * en stregbredde på 1. Første udgave satte en fyldning på dem, og QR-feltet
+ * stod næsten tomt med et par svage konturer. Set i previewet, ikke gættet.
+ *
+ * Eksporteret for at kunne prøves mod bibliotekets faktiske output, så en
+ * opdatering, der ændrer formen på svaret, bliver fanget her og ikke af en
+ * kunde med et ubrugeligt skilt.
+ */
+export function laesQrSvg(raa: string): { d: string; net: number } | null {
+  // Sidste sti er koden; den første er baggrunden, vi ikke bruger.
+  const sti = raa.match(/<path[^>]*\/>/g)?.pop();
+  const d = sti?.match(/d="([^"]+)"/)?.[1];
+  const net = Number(raa.match(/viewBox="0 0 (\d+)/)?.[1] ?? 0);
+  if (!d || !net || !sti?.includes("stroke=")) return null;
+  return { d, net };
+}

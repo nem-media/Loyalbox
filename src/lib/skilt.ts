@@ -2,11 +2,15 @@ import "server-only";
 import { SKABELON_SORT } from "./print/skabelon-sort";
 import { SKABELON_HVID } from "./print/skabelon-hvid";
 import { normaliserHex } from "./stander-tilvalg";
+import QRCode from "qrcode";
 import {
+  laesQrSvg,
   RING,
   SKIVE_R,
   SKIVE_FARVE,
   LOGO_SIDE,
+  QR_FELT,
+  QR_MODUL,
   skabelonTil,
   kontrast,
 } from "./skilt-format";
@@ -38,6 +42,15 @@ export interface SkiltValg {
   /** Farven på stjerner, ring og "Scan eller tap". Frit valg, uden beregning. */
   accent: string;
   /**
+   * Adressen QR-koden skal føre til — `https://loyalsum.dk/r/<slug>`.
+   *
+   * Udeladt betyder, at standeren ikke er kendt endnu, og så bliver
+   * pladsholderen stående. Et skilt med en FORKERT kode er værre end et med
+   * en pladsholder: den forkerte bliver trykt og opdaget af en kunde, der
+   * står og scanner.
+   */
+  qrAdresse?: string | null;
+  /**
    * Kundens logo som en `data:`-URI.
    *
    * IKKE EN ADRESSE, og det er ikke til pynt: en SVG, der indlæses gennem et
@@ -57,7 +70,7 @@ export interface SkiltValg {
  * den — præcis som den bliver trykt. Skjulte vi den, ville kunden først
  * opdage det på skiltet, og et skilt kan ikke kaldes tilbage.
  */
-export function byggSkilt(valg: SkiltValg): string {
+export async function byggSkilt(valg: SkiltValg): Promise<string> {
   const baggrund = normaliserHex(valg.baggrund) ?? "#111111";
   const accent = normaliserHex(valg.accent) ?? "#4ea4ad";
 
@@ -67,6 +80,13 @@ export function byggSkilt(valg: SkiltValg): string {
   let svg = skabelon
     .replaceAll("{{BG}}", baggrund)
     .replaceAll("{{ACCENT}}", accent);
+
+  if (valg.qrAdresse) {
+    svg = svg.replace(
+      "</svg>",
+      `${await qrLag(valg.qrAdresse, variant, baggrund)}</svg>`,
+    );
+  }
 
   if (valg.logoDataUri) {
     const x = RING.cx - LOGO_SIDE / 2;
@@ -81,6 +101,58 @@ export function byggSkilt(valg: SkiltValg): string {
   }
 
   return svg;
+}
+
+/**
+ * QR-koden som et lag, der lægges oven på pladsholderen.
+ *
+ * DÆKKER FREM FOR AT FJERNE. Pladsholderen er en gruppe kurver midt i 440
+ * andre, og at klippe den ud ville kræve at parse et dokument, vi ikke selv
+ * har lavet. Et dækkende felt i baggrundsfarven og koden ovenpå giver samme
+ * resultat uden gætværk — og feltets mål er målt på skabelonens egen
+ * klippemaske, så de to flugter.
+ *
+ * MODULERNE ER LYSE PÅ DEN SORTE SKABELON. Det er designets eget valg;
+ * pladsholderen ser sådan ud. Telefonkameraer læser inverterede koder.
+ *
+ * Fejlkorrektion "M": QR-koden sidder på et trykt skilt, der kan blive ridset
+ * eller få kaffe på sig, og et niveau over det laveste koster kun lidt plads.
+ */
+async function qrLag(
+  adresse: string,
+  variant: "sort" | "hvid",
+  baggrund: string,
+): Promise<string> {
+  const raa = await QRCode.toString(adresse, {
+    type: "svg",
+    errorCorrectionLevel: "M",
+    /*
+     * HVILEZONE PÅ 2 MODULER. Standarden foreskriver 4, men koden ligger på
+     * en ren flade, der fortsætter langt ud over feltet, så baggrunden selv
+     * er zonen. De 2 sikrer, at der ALTID er luft, også hvis feltet en dag
+     * rykker tættere på noget andet. Marginen tegnes ikke — den falder
+     * sammen med dækfeltet nedenfor, som har baggrundens farve.
+     */
+    margin: 2,
+  });
+
+  const kode = laesQrSvg(raa);
+  if (!kode) return "";
+  const { d, net } = kode;
+
+  const skala = QR_FELT.side / net;
+
+  return (
+    `<rect x="${QR_FELT.x}" y="${QR_FELT.y}" width="${QR_FELT.side}" ` +
+    `height="${QR_FELT.side}" fill="${baggrund}"/>` +
+    `<g transform="translate(${QR_FELT.x} ${QR_FELT.y}) scale(${skala})">` +
+    // STROKE OG IKKE FILL. `qrcode` tegner modulerne som åbne, vandrette
+    // linjer på halve koordinater (`M0 0.5h7m3 0h1…`) med en stregbredde på
+    // 1. En fyldning på dem tegner næsten ingenting — set i previewet, hvor
+    // QR-feltet stod tomt med et par svage konturer.
+    `<path d="${d}" stroke="${QR_MODUL[variant]}" stroke-width="1" ` +
+    `shape-rendering="crispEdges"/></g>`
+  );
 }
 
 /**
@@ -110,6 +182,19 @@ export function skiltAdvarsler(valg: SkiltValg): string[] {
   if (kontrast(accent, baggrund) < 3) {
     ud.push(
       "Din farve ligger tæt på baggrunden. Stjernerne og teksten “Scan eller tap” bliver svære at se på det trykte skilt.",
+    );
+  }
+
+  /*
+   * QR-KODEN ER DEN ENE TING, DER SKAL VIRKE. Stjerner, man ikke kan se, er
+   * en skønhedsfejl; en kode, et kamera ikke kan læse, gør hele skiltet
+   * nytteløst. Grænsen er sat højere end de 3, fordi aflæsningen sker på en
+   * skrå skærm i dårligt lys og ikke under en lampe.
+   */
+  const modul = QR_MODUL[skabelonTil(baggrund)];
+  if (kontrast(modul, baggrund) < 4) {
+    ud.push(
+      "QR-koden får for lidt kontrast mod din baggrund. Vælg en tydeligt lysere eller mørkere farve — ellers kan kameraet ikke læse den.",
     );
   }
 

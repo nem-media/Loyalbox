@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { byggSkilt } from "@/lib/skilt";
+import { reviewUrl } from "@/lib/site";
 import { STANDER_FARVER, normaliserHex } from "@/lib/stander-tilvalg";
 
 /**
@@ -62,9 +63,26 @@ export async function GET(request: NextRequest) {
       ? raa
       : null;
 
-  const svg = byggSkilt({
+  /*
+   * QR-KODEN BYGGES PÅ ET SLUG, IKKE PÅ EN FRI ADRESSE.
+   *
+   * Kunne adressen indeholde en vilkårlig URL, kunne nogen bede om et skilt,
+   * der scanner videre til hvad som helst — og filen bliver serveret fra
+   * vores domæne. Her kan der kun peges på `/r/<slug>` hos os selv.
+   *
+   * Der slås IKKE op i basen, om standeren findes: ruten er åben, og et
+   * opslag ville gøre den til en måde at afprøve, hvilke slugs der er i brug.
+   * Et forkert slug giver et skilt, der fører til vores egen 404 — og
+   * trykfilen hentes af os i admin, hvor slug'en kommer fra ordren.
+   */
+  const slug = p.get("stand");
+  const qrAdresse =
+    slug && /^[a-z0-9-]{4,40}$/i.test(slug) ? reviewUrl(slug) : null;
+
+  const svg = await byggSkilt({
     baggrund,
     accent,
+    qrAdresse,
     logoDataUri: await hentLogo(logoUrl),
   });
 
