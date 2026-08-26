@@ -13,7 +13,7 @@ import {
   relaterede,
 } from "@/lib/blog";
 import { SITE_NAME } from "@/lib/constants";
-import { getSiteUrl, organisationsLogo } from "@/lib/site";
+import { getSiteUrl, isoTidspunkt, organisationsLogo } from "@/lib/site";
 
 export function generateStaticParams() {
   return POSTS.map((p) => ({ slug: p.slug }));
@@ -36,7 +36,7 @@ export async function generateMetadata({
       title: post.metaTitle ?? post.title,
       description: post.description,
       url: `/blog/${post.slug}`,
-      publishedTime: post.date,
+      publishedTime: isoTidspunkt(post.date),
       images: [
         { url: post.image, width: 1200, height: 630, alt: post.imageAlt },
       ],
@@ -63,12 +63,16 @@ export default async function BlogPostPage({
     "@type": "BlogPosting",
     headline: post.title,
     description: post.description,
-    datePublished: post.date,
+    // Med tidspunkt og tidszone: en ren dato er "ugyldig datetime-værdi" i
+    // Rich Results Test. Se isoTidspunkt() for hvorfor klokken er 9.
+    datePublished: isoTidspunkt(post.date),
     // Var før hårdkodet til udgivelsesdatoen, så artiklen fortalte Google, at
     // den aldrig var rørt — uanset hvor meget den var rettet.
-    dateModified: post.updated ?? post.date,
+    dateModified: isoTidspunkt(post.updated ?? post.date),
     inLanguage: "da-DK",
-    author: { "@type": "Organization", name: SITE_NAME },
+    // `url` er valgfrit, men Google noterer det som manglende. Uden det er
+    // afsenderen bare et navn; med det kan den knyttes til organisationen.
+    author: { "@type": "Organization", name: SITE_NAME, url: base },
     publisher: {
       "@type": "Organization",
       name: SITE_NAME,
@@ -97,6 +101,14 @@ export default async function BlogPostPage({
 
   // Kun når artiklen FAKTISK viser spørgsmålene. Strukturdata, der beskriver
   // noget, læseren ikke kan se på siden, regnes som spam.
+  //
+  // DEN VISES IKKE I RICH RESULTS TEST, og det er hverken en fejl eller noget,
+  // der kan rettes: Google indskrænkede i september 2023 FAQ-visningen til
+  // "well-known, authoritative government and health websites". Et alm.
+  // firmasite får ingen FAQ-visning, og testen rapporterer derfor slet ikke
+  // typen. Markeringen bliver stående — den er gyldig, den ignoreres af
+  // Google frem for at tælle imod os, og andre læsere end Google bruger den.
+  // Værdien af FAQ-afsnittene ligger i teksten på siden, ikke i visningen.
   const faqLd = faq.length
     ? {
         "@context": "https://schema.org",
