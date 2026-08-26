@@ -148,6 +148,7 @@ export interface Database {
           front_type: "matcher" | "egen";
           /** Normaliseret hex med havelåge. Kun sat når front_type = "egen". */
           front_hex: string | null;
+          accent_hex: string | null;
           logo_url: string | null;
           logo_filnavn: string | null;
           logo_mime: string | null;
@@ -167,6 +168,7 @@ export interface Database {
           stander_farve?: "sort" | "hvid";
           front_type?: "matcher" | "egen";
           front_hex?: string | null;
+          accent_hex?: string | null;
           logo_url?: string | null;
           logo_filnavn?: string | null;
           logo_mime?: string | null;

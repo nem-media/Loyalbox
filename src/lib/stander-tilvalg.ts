@@ -30,6 +30,20 @@ export const STANDARD_STANDERFARVE: StanderFarve = "sort";
  */
 export const EGEN_FRONTFARVE_PRIS = 139;
 
+/**
+ * LoyalSums egen farve på skiltet: stjernerne, ringen om logoet og
+ * "Scan eller tap". Det er den, designet er tegnet med.
+ *
+ * ACCENTEN ER GRATIS AT SKIFTE, i modsætning til frontfarven. Det er ikke en
+ * venlighed, men en konsekvens: accenten er den samme trykfil med en anden
+ * farvekode, mens baggrunden er et selvstændigt tryk. Prisen følger, hvad der
+ * faktisk koster noget.
+ *
+ * BEMÆRK at det ikke er sitets accentfarve (#26616e). Skiltet er tegnet i
+ * logoets lysere turkis, som holder på både sort og hvid bund.
+ */
+export const STANDARD_ACCENT = "#4ea4ad";
+
 export function erStanderFarve(v: unknown): v is StanderFarve {
   return STANDER_FARVER.some((f) => f.vaerdi === v);
 }
