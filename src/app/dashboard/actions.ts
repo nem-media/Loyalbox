@@ -61,7 +61,12 @@ export async function updateCompany(
       contact_email: String(formData.get("contact_email") ?? "").trim() || null,
       phone: String(formData.get("phone") ?? "").trim() || null,
       address: String(formData.get("address") ?? "").trim() || null,
-      stand_text: String(formData.get("stand_text") ?? "").trim() || null,
+      // `stand_text` skrives IKKE længere. Feltet "Ønsket tekst på
+      // standeren" var write-only: det blev gemt her og læst af ingenting.
+      // Standerens udseende afgøres i designflowet (`designs`: farve, front,
+      // logo), som ikke har et fritekstfelt — kolonnen er en rest fra før
+      // det fandtes. Kolonnen bliver stående, fordi tre sletterutiner
+      // (migration 0014, 0017 og 0018) nulstiller den ved navn.
       // Kun planer med customBranding må sætte/ændre logo; andre bevarer nuværende.
       ...(canBrand
         ? { logo_url: String(formData.get("logo_url") ?? "").trim() || null }

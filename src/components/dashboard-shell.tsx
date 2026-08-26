@@ -29,7 +29,7 @@ export function DashboardShell({
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
       <aside className="flex shrink-0 flex-col border-b border-white/10 bg-dark text-dark-fg md:w-64 md:border-b-0 md:border-r">
-        <div className="flex items-center justify-between p-4 md:pb-2">
+        <div className="flex items-center justify-between p-4 md:pb-6">
           <Logo image="light" />
 
           {/* På mobil er brugerblokken i bunden skjult, og dermed var der
@@ -64,7 +64,15 @@ export function DashboardShell({
 
         <DashboardNav sections={sections} />
 
-        <div className="mt-auto hidden border-t border-white/10 p-3 md:block">
+        {/* LIGGER EFTER SIDSTE MENUPUNKT og ikke i bunden af skærmen.
+            Med `mt-auto` blev blokken skubbet helt ned, så der på en høj
+            skærm stod et stort tomt felt mellem "Hjælp" og brugeren — og
+            afstanden flyttede sig, hver gang menuen skiftede længde. Nu
+            følger den menuen.
+
+            Vandret polstring holdes på 3 som menupunkternes, så navnet står
+            på linje med dem. Kun luften over og under er øget. */}
+        <div className="mt-5 hidden border-t border-white/10 px-3 pb-3 pt-4 md:block">
           <div className="flex items-center gap-2.5 px-1">
             <span
               aria-hidden="true"
