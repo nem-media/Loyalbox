@@ -8,11 +8,39 @@ import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { FeedbackList } from "@/components/feedback-list";
 import { ButtonLink } from "@/components/ui/button";
 import { UpgradeNotice } from "@/components/upgrade-notice";
-import { tierCan, type Tier } from "@/lib/constants";
+import { tierCan, PRODUCTS, type Tier } from "@/lib/constants";
+import { harAbonnement } from "@/lib/abonnement";
 import { GuideCard } from "@/components/guide";
 import { getGuide } from "@/lib/guides";
 import { PeriodPicker } from "@/components/period-picker";
 import { parsePeriod, FORRIGE_LABEL } from "@/lib/period";
+
+/** Varerne med et abonnement. Udledt, så navnene ikke kan drive. */
+const ABONNEMENTER = PRODUCTS.filter((p) => p.monthlyPrice && !p.addon).map(
+  (p) => p.name,
+);
+
+/**
+ * De tre skridt, en ny konto har foran sig.
+ *
+ * Beskriver dét, der FAKTISK sker i bestillingen: designeren (farve, front,
+ * logo), trykket og leveringen, og QR-adressen der kommer med abonnementet.
+ * Lov ikke et fjerde skridt her uden at bygge det.
+ */
+const OPSTART = [
+  {
+    titel: "Vælg dit design",
+    body: "Farve, front og dit eget logo — du ser skiltet, mens du sætter det sammen.",
+  },
+  {
+    titel: "Vi trykker og sender",
+    body: "Skiltet kommer med posten, klar til at stille på disken.",
+  },
+  {
+    titel: "Du får din QR-adresse",
+    body: "Peg den hvorhen du vil, og skift den siden uden at trykke skiltet om.",
+  },
+];
 
 export const metadata = { title: "Oversigt" };
 
@@ -38,6 +66,84 @@ export default async function DashboardPage({
             <p className="text-muted">
               Du har endnu ingen virksomhed. Kontakt support for at komme i
               gang.
+            </p>
+          </CardBody>
+        </Card>
+      </>
+    );
+  }
+
+  /*
+   * UDEN ABONNEMENT ER OVERSIGTEN EN OPSTART, IKKE ET OVERBLIK.
+   *
+   * Der er ingenting at give overblik OVER: statistik er slået fra, der er
+   * ingen QR-adresse, og feedback samles ikke. Siden viste før tomme tal og
+   * guiden "Kom godt i gang", hvis første trin er "Opret din første stander
+   * under Standere" — netop dét, de ikke kan. En vejledning, der beder om
+   * noget umuligt, er værre end ingen.
+   *
+   * Står FØR getCompanyStats(): der er ikke noget at hente, og forespørgslen
+   * ville alligevel svare nul.
+   */
+  if (!harAbonnement(company)) {
+    return (
+      <>
+        <PageHeader
+          title={`Velkommen, ${company.name}`}
+          description="Der mangler kun ét: et skilt på disken."
+        />
+
+        <Card>
+          <CardBody>
+            <p className="etiket text-accent">Første skridt</p>
+            <h2 className="mt-1 text-xl font-bold tracking-tight sm:text-2xl">
+              Bestil din første stander
+            </h2>
+            <p className="mt-2 max-w-2xl leading-relaxed text-muted">
+              Du vælger farve, lægger dit logo på og bestemmer, hvor QR-koden
+              skal føre hen. Vi trykker skiltet og sender det til dig.
+            </p>
+
+            <ol className="mt-6 grid gap-4 sm:grid-cols-3">
+              {OPSTART.map((trin, i) => (
+                <li key={trin.titel} className="flex gap-3">
+                  <span
+                    aria-hidden="true"
+                    className="btn-shape grid h-7 w-7 shrink-0 place-items-center bg-accent text-xs font-bold text-accent-fg"
+                  >
+                    {i + 1}
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold tracking-tight">
+                      {trin.titel}
+                    </p>
+                    <p className="mt-0.5 text-sm leading-relaxed text-muted">
+                      {trin.body}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+              <ButtonLink href="/bestil" size="lg">
+                Design og bestil
+              </ButtonLink>
+              <ButtonLink href="/produkter" variant="outline" size="lg">
+                Se de tre løsninger
+              </ButtonLink>
+            </div>
+
+            <p className="mt-5 border-t border-border pt-4 text-sm leading-relaxed text-muted">
+              Din QR-adresse, din anmeldelsesside og indsigten følger med{" "}
+              {ABONNEMENTER.join(" eller ")} — de kommer, så snart du har
+              bestilt.{" "}
+              <Link
+                href="/dashboard/abonnement"
+                className="font-medium text-accent hover:underline"
+              >
+                Se dit abonnement →
+              </Link>
             </p>
           </CardBody>
         </Card>

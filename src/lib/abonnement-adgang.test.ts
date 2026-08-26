@@ -91,6 +91,22 @@ describe("spærringerne findes, hvor de skal", () => {
   });
 
   /**
+   * Oversigten skal møde en ny konto med "Bestil din første stander" — og
+   * IKKE med guiden "Kom godt i gang", hvis første trin er "Opret din første
+   * stander under Standere". Netop dét kan de ikke længere, og en vejledning,
+   * der beder om noget umuligt, er værre end ingen.
+   */
+  it("oversigten viser en opstart i stedet for tomme tal", () => {
+    const s = kilde("src/app/dashboard/page.tsx");
+    expect(s).toContain("harAbonnement");
+    expect(s).toContain("Bestil din første stander");
+    // Grenen skal ligge FØR statistikken hentes — der er intet at hente.
+    expect(s.indexOf("harAbonnement(company)")).toBeLessThan(
+      s.indexOf("await getCompanyStats"),
+    );
+  });
+
+  /**
    * BESTILLINGEN SKAL BLIVE VED AT VÆRE ÅBEN. Det er hele pointen: man skal
    * kunne designe og bestille uden abonnement — adressen er det, man får
    * bagefter. Spærres den, er der ingen vej ind i produktet overhovedet.
