@@ -5,8 +5,15 @@ import { ProductPrice } from "@/components/product-price";
 import { StanderPlaceholder } from "@/components/product-placeholder";
 
 /**
- * Produktkort over standerne (platform-baseret katalog). Bruges på forsiden og
- * på /reviewstander. Hvert kort linker til produktets egen SEO-side.
+ * Produktkort over standerne, drevet af KATALOG. Hvert kort linker til
+ * produktets egen SEO-side.
+ *
+ * BRUGES KUN PÅ /bestil. Der stod før, at den blev brugt "på forsiden og på
+ * /reviewstander", og ingen af delene passede: prissektionen blev taget af
+ * forsiden, dengang den blev positioneret som platform frem for som stander,
+ * og /reviewstander har sin egen sammenligning. En doc-kommentar, der peger
+ * på kaldesteder, der ikke findes, er værre end ingen — den bruges til at
+ * vurdere, hvad en ændring rammer.
  */
 export function Pricing() {
   return (

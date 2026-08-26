@@ -378,12 +378,55 @@ export default function LandingPage() {
             <p className="mx-auto mt-8 max-w-xl text-center text-lg font-medium">
               Det hele hænger sammen i LoyalSum.
             </p>
-            <p className="mx-auto mt-3 max-w-xl text-center text-sm text-muted">
-              Genbesøgene starter med et{" "}
+            {/* HVILKEN VARE GIVER HVAD.
+                De to lister ovenfor er platformen som helhed, og sådan skal
+                forsiden læses — men uden denne linje står stempelkort og
+                belønninger som noget, ENHVER stander kan. Den enkle
+                Reviewstander til 399 kr. viderestiller bare og har hverken
+                side, indbakke eller stempelkort. Et løfte, kunden først
+                opdager ikke gjaldt efter købet, er ikke en detalje.
+
+                DELT OP EFTER FUNKTION OG IKKE EFTER KORT: "opslag" står i
+                venstre kort, men er ikke en Pro-funktion, og "privat
+                feedback" står i højre, men er netop Pro. En sætning om
+                "venstre halvdel" ville altså tage fejl begge veje — og på en
+                telefon står kortene alligevel over hinanden.
+
+                Opslag står nu under Komplet, og det er også dér, koden
+                sætter dem: `/dashboard/opslag` var slet ikke spærret, så en
+                Pro-kunde havde funktionen uden at have købt den. Spærringen
+                ligger i dashboardets opslag-layout.
+
+                Bevidst en SÆTNING og ikke en prissektion: prissektionen blev
+                taget af forsiden, dengang den blev positioneret som platform
+                frem for som stander, og "Priser" peger på /produkter. */}
+            <p className="mx-auto mt-3 max-w-2xl text-center text-sm leading-relaxed text-muted">
+              Anmeldelsessiden og den private feedback følger med{" "}
+              <Link
+                href="/produkter/reviewstander-pro"
+                className="font-medium text-accent"
+              >
+                Reviewstander Pro
+              </Link>
+              .{" "}
               <Link href="/stempelkort" className="font-medium text-accent">
-                digitalt stempelkort
+                Stempelkort
+              </Link>
+              , belønninger og opslag er en del af{" "}
+              <Link
+                href="/produkter/loyalsum-komplet"
+                className="font-medium text-accent"
+              >
+                LoyalSum Komplet
+              </Link>
+              . Den enkle{" "}
+              <Link
+                href="/produkter/reviewstander"
+                className="font-medium text-accent"
+              >
+                Reviewstander
               </Link>{" "}
-              — kunden samler stempler og optjener den belønning, du vælger.
+              sender kunden direkte videre til det link, du vælger.
             </p>
           </div>
         </section>
