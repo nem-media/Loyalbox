@@ -6,6 +6,34 @@ import { Card, CardBody } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { OrderStatusSelect } from "../order-status";
 import { designFrontfarve } from "@/lib/design";
+import { SKILT_BREDDE, SKILT_HOEJDE } from "@/lib/skilt-format";
+import { STANDARD_ACCENT, STANDER_FARVER } from "@/lib/stander-tilvalg";
+
+/**
+ * Adressen på trykfilen for et design.
+ *
+ * Bygger den samme adresse, som bestillingens preview bruger, så filen her
+ * ikke kan vise noget andet end det, kunden godkendte. Logoet sendes med:
+ * ruten henter det og bager det ind, så SVG'en er selvbærende og kan åbnes i
+ * et trykprogram uden at afhænge af, at vores lager svarer.
+ */
+function skiltAdresse(d: {
+  stander_farve: string;
+  front_type: string;
+  front_hex: string | null;
+  accent_hex: string | null;
+  logo_url: string | null;
+}): string {
+  const q = new URLSearchParams({
+    farve: STANDER_FARVER.some((f) => f.vaerdi === d.stander_farve)
+      ? d.stander_farve
+      : "sort",
+    accent: d.accent_hex ?? STANDARD_ACCENT,
+  });
+  if (d.front_type === "egen" && d.front_hex) q.set("bg", d.front_hex);
+  if (d.logo_url) q.set("logo", d.logo_url);
+  return `/api/skilt?${q.toString()}`;
+}
 import { standerFarveNavn } from "@/lib/stander-tilvalg";
 import { visCvr } from "@/lib/cvr";
 import { formatDate, formatCurrency } from "@/lib/utils";
@@ -153,6 +181,26 @@ export default async function AdminOrderPage({
                       <dd className="font-medium">{design.print_skabelon}</dd>
                     </div>
                   </dl>
+                </div>
+
+                {/* TRYKFILEN, med kundens valg og logo bagt ind.
+                    Samme funktion som previewet i bestillingen, så det, der
+                    hentes her, er dét kunden godkendte. QR-koden er stadig
+                    en pladsholder og sættes på manuelt — se skiltAdresse(). */}
+                <div className="border-t border-border pt-3 text-sm">
+                  <p className="font-medium">Trykfil</p>
+                  <p className="mt-1 text-muted">
+                    SVG i {SKILT_BREDDE}×{SKILT_HOEJDE} enheder. Åbn og sæt
+                    QR-koden i feltet, før den sendes i produktion.
+                  </p>
+                  <a
+                    href={skiltAdresse(design)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 inline-block font-medium text-accent hover:underline"
+                  >
+                    Åbn trykfilen →
+                  </a>
                 </div>
 
                 {design.logo_url ? (

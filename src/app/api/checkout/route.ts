@@ -68,6 +68,14 @@ function laesDesign(raw: Record<string, unknown>) {
     stander_farve: standerFarve,
     front_type: hex ? ("egen" as const) : ("matcher" as const),
     front_hex: hex,
+    /*
+     * ACCENTEN VALIDERES, MEN AFVISER IKKE. Modsat frontfarven er den gratis
+     * og har en gyldig standard: falder koden ud som ugyldig, trykkes
+     * LoyalSums egen. At afvise hele bestillingen, fordi en farvekode var
+     * skrevet forkert, ville koste et salg for ingenting.
+     */
+    accent_hex:
+      typeof raw.accent_hex === "string" ? normaliserHex(raw.accent_hex) : null,
     logo_url: typeof raw.logo_url === "string" ? raw.logo_url : null,
     logo_filnavn:
       typeof raw.logo_filnavn === "string" ? raw.logo_filnavn : null,
@@ -201,7 +209,7 @@ export async function POST(request: NextRequest) {
     if (genbrug) {
       const { data } = await admin
         .from("designs")
-        .select("id, stander_farve, front_type, front_hex, frontfarve_betalt")
+        .select("id, stander_farve, front_type, front_hex, accent_hex, frontfarve_betalt")
         .eq("id", genbrug)
         // Ejerskabet kontrolleres i forespørgslen og ikke bagefter: et design,
         // der tilhører en anden butik, må ikke engang læses.
@@ -232,7 +240,7 @@ export async function POST(request: NextRequest) {
           print_skabelon: PRINT_SKABELON_VERSION,
           ...nyt,
         })
-        .select("id, stander_farve, front_type, front_hex, frontfarve_betalt")
+        .select("id, stander_farve, front_type, front_hex, accent_hex, frontfarve_betalt")
         .single();
 
       if (error || !data) {

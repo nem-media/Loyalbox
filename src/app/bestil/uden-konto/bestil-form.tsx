@@ -5,6 +5,7 @@ import { useActionState, useId, useState } from "react";
 import { bestilUdenKonto, type BestillingResultat } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input, Field } from "@/components/ui/input";
+import { SkiltPreview } from "@/components/skilt-preview";
 import {
   MAX_QTY,
   TERMS_VERSION,
@@ -19,6 +20,7 @@ import {
   frontFarve,
   normaliserHex,
   type StanderFarve,
+  STANDARD_ACCENT,
 } from "@/lib/stander-tilvalg";
 import { LOGO_KRAV, LOGO_TEKSTER, laesPngHoved, validerLogo } from "@/lib/logo";
 import { DESTINATIONER } from "@/lib/bestilling-uden-konto";
@@ -64,14 +66,21 @@ export function BestilUdenKontoForm({ product }: { product: Product }) {
   const [egenFront, setEgenFront] = useState(false);
   const [hex, setHex] = useState("#26616e");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  // Accenten er gratis at skifte — se STANDARD_ACCENT i stander-tilvalg.ts.
+  const [egenAccent, setEgenAccent] = useState(false);
+  const [accent, setAccent] = useState(STANDARD_ACCENT);
   const [logoFejl, setLogoFejl] = useState<string | null>(null);
   const [advarsler, setAdvarsler] = useState<string[]>([]);
   const [destination, setDestination] = useState(DESTINATIONER[0].vaerdi);
 
   const frontId = useId();
+  const accentId = useId();
   const vilkaarId = useId();
 
   const front = frontFarve(standerFarve, egenFront ? hex : null);
+  const brugtAccent =
+    egenAccent && normaliserHex(accent) ? normaliserHex(accent) : null;
+  const visAccent = brugtAccent ?? STANDARD_ACCENT;
   const pris = priceFor(product, qty, { egenFrontfarve: front.egen });
   const rabatter = VOLUME_DISCOUNTS.filter((v) => v.discountPct > 0);
   const fejl = state.fejl ?? {};
@@ -114,6 +123,7 @@ export function BestilUdenKontoForm({ product }: { product: Product }) {
       <input type="hidden" name="produkt" value={product.slug} />
       <input type="hidden" name="antal" value={qty} />
       <input type="hidden" name="standerFarve" value={standerFarve} />
+      <input type="hidden" name="accentHex" value={brugtAccent ?? ""} />
       <input type="hidden" name="frontHex" value={egenFront ? hex : ""} />
 
       {/* ------------------------------------------------------ virksomhed */}
@@ -335,31 +345,71 @@ export function BestilUdenKontoForm({ product }: { product: Product }) {
         ) : null}
       </div>
 
+      {/* ----------------------------------------------------- egen accent */}
+      {/* Samme tilvalg som i designeren for en kunde med konto — de to
+          bestillingsveje skal give det samme skilt. */}
+      <div className="box-shape border border-border bg-card p-5">
+        <div className="flex items-start gap-2.5">
+          <input
+            id={accentId}
+            type="checkbox"
+            checked={egenAccent}
+            onChange={(e) => setEgenAccent(e.target.checked)}
+            className="mt-1 h-4 w-4 shrink-0 accent-accent"
+          />
+          <label htmlFor={accentId} className="text-sm leading-relaxed">
+            <span className="font-medium">Egen farve på stjerner og tekst</span>{" "}
+            <span className="text-muted">— uden beregning</span>
+            <span className="mt-0.5 block text-xs text-muted">
+              Stjernerne, ringen om logoet og “Scan eller tap”. Det er den samme
+              trykfil med en anden farvekode, så den koster ikke ekstra.
+            </span>
+          </label>
+        </div>
+
+        {egenAccent ? (
+          <div className="mt-4 flex items-center gap-3">
+            <input
+              type="color"
+              value={normaliserHex(accent) ?? STANDARD_ACCENT}
+              onChange={(e) => setAccent(e.target.value)}
+              aria-label="Vælg farve på stjerner og tekst"
+              className="h-10 w-14 cursor-pointer border border-border bg-transparent p-1"
+            />
+            <Input
+              value={accent}
+              onChange={(e) => setAccent(e.target.value)}
+              placeholder={STANDARD_ACCENT}
+              aria-label="Farve på stjerner og tekst som hex"
+              className="max-w-32 font-mono"
+            />
+            {!normaliserHex(accent) ? (
+              <span className="text-xs text-danger">Ugyldig farvekode</span>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+
       {/* --------------------------------------------------------- preview */}
       <div className="box-shape border border-border bg-card p-5">
         <p className="text-sm font-medium">Sådan bliver den trykt</p>
         <div className="mt-3 flex justify-center">
-          <div
-            className="box-shape grid h-44 w-36 place-items-center overflow-hidden border border-border p-4"
-            style={{ background: front.hex }}
-          >
-            {logoUrl ? (
-              // Uden maskering: har logoet en hvid baggrund, skal den ses her
-              // og ikke først på det trykte skilt.
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={logoUrl}
-                alt="Dit logo som det bliver trykt"
-                className="max-h-full max-w-full object-contain"
-              />
-            ) : (
-              <span className="text-center text-xs text-muted">Dit logo</span>
-            )}
-          </div>
+          <SkiltPreview
+            standerFarve={standerFarve}
+            baggrund={front.egen ? front.hex : null}
+            accent={visAccent}
+            logoUrl={logoUrl}
+            className="box-shape w-full max-w-[15rem] overflow-hidden border border-border"
+          />
         </div>
         <p className="mt-3 text-center text-xs text-muted">
           Front: {front.beskrivelse}
         </p>
+        {!logoUrl ? (
+          <p className="mt-2 text-center text-xs text-muted">
+            Læg dit logo op, så kommer det i cirklen.
+          </p>
+        ) : null}
       </div>
 
       {/* ------------------------------------------------------------ pris */}

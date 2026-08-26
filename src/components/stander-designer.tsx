@@ -12,6 +12,7 @@ import {
 import type { DestinationType } from "@/lib/types/database";
 
 import { Input } from "@/components/ui/input";
+import { SkiltPreview } from "@/components/skilt-preview";
 import {
   MAX_QTY,
   TERMS_VERSION,
@@ -27,6 +28,7 @@ import {
   frontFarve,
   normaliserHex,
   type StanderFarve,
+  STANDARD_ACCENT,
 } from "@/lib/stander-tilvalg";
 import {
   LOGO_KRAV,
@@ -122,6 +124,18 @@ export function StanderDesigner({
   );
   const [egenFront, setEgenFront] = useState(false);
   const [hex, setHex] = useState("#26616e");
+  /*
+   * Accentfarven: stjernerne, ringen og "Scan eller tap".
+   *
+   * GRATIS, i modsætning til frontfarven. Det er ikke en venlighed, men en
+   * konsekvens: accenten er den samme trykfil med en anden farvekode, mens
+   * baggrunden er et selvstændigt tryk. Prisen skal følge, hvad der faktisk
+   * koster os noget.
+   *
+   * Starter på LoyalSums egen — den, designet er tegnet med.
+   */
+  const [egenAccent, setEgenAccent] = useState(false);
+  const [accent, setAccent] = useState(STANDARD_ACCENT);
   const [fil, setFil] = useState<File | null>(null);
   const [hoved, setHoved] = useState<PngHoved | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -138,11 +152,24 @@ export function StanderDesigner({
 
   const vilkaarId = useId();
   const frontId = useId();
+  const accentId = useId();
 
   // Den valgte hex tæller kun, når tilvalget er slået til. Slår kunden det fra,
   // forsvinder både farven og prisen med det samme — feltet bliver stående, så
   // de kan fortryde uden at skulle finde farven igen.
   const front = frontFarve(standerFarve, egenFront ? hex : null);
+
+  /*
+   * Den accent, der FAKTISK trykkes — og null, når det er vores egen.
+   *
+   * `null` og ikke "#4ea4ad": så kan et gammelt design ikke komme til at se
+   * ud som om, kunden aktivt har valgt vores farve. Falder hexkoden ud som
+   * ugyldig, bruges vores igen frem for at trykke noget tilfældigt.
+   */
+  const brugtAccent =
+    egenAccent && normaliserHex(accent) ? normaliserHex(accent) : null;
+  const visAccent = brugtAccent ?? STANDARD_ACCENT;
+
   const pris = priceFor(product, qty, { egenFrontfarve: front.egen });
   const rabatter = VOLUME_DISCOUNTS.filter((v) => v.discountPct > 0);
 
@@ -207,6 +234,7 @@ export function StanderDesigner({
             stander_farve: standerFarve,
             front_type: front.egen ? "egen" : "matcher",
             front_hex: front.egen ? front.hex : null,
+            accent_hex: brugtAccent,
             logo_url: uploadet,
             logo_filnavn: fil?.name ?? null,
             logo_mime: fil?.type ?? null,
@@ -383,35 +411,71 @@ export function StanderDesigner({
         ) : null}
       </div>
 
+      {/* ----------------------------------------------------- egen accent */}
+      <div className="box-shape border border-border bg-card p-5">
+        <div className="flex items-start gap-2.5">
+          <input
+            id={accentId}
+            type="checkbox"
+            checked={egenAccent}
+            onChange={(e) => setEgenAccent(e.target.checked)}
+            className="mt-1 h-4 w-4 shrink-0 accent-accent"
+          />
+          <label htmlFor={accentId} className="text-sm leading-relaxed">
+            <span className="font-medium">Egen farve på stjerner og tekst</span>{" "}
+            <span className="text-muted">— uden beregning</span>
+            <span className="mt-0.5 block text-xs text-muted">
+              Stjernerne, ringen om logoet og “Scan eller tap”. Det er den samme
+              trykfil med en anden farvekode, så den koster ikke ekstra.
+            </span>
+          </label>
+        </div>
+
+        {egenAccent ? (
+          <div className="mt-4 flex items-center gap-3">
+            <input
+              type="color"
+              value={normaliserHex(accent) ?? STANDARD_ACCENT}
+              onChange={(e) => setAccent(e.target.value)}
+              aria-label="Vælg farve på stjerner og tekst"
+              className="h-10 w-14 cursor-pointer border border-border bg-transparent p-1"
+            />
+            <Input
+              value={accent}
+              onChange={(e) => setAccent(e.target.value)}
+              placeholder={STANDARD_ACCENT}
+              aria-label="Farve på stjerner og tekst som hex"
+              className="max-w-32 font-mono"
+            />
+            {!normaliserHex(accent) ? (
+              <span className="text-xs text-danger">Ugyldig farvekode</span>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+
       {/* --------------------------------------------------------- preview */}
+      {/*
+        SKILTET SOM DET BLIVER TRYKT — ikke en antydning.
+        Det var før et farvet felt med logoet i, som ikke lignede resultatet.
+        Nu tegnes det af den SAMME funktion, der laver trykfilen (se
+        /api/skilt og src/lib/skilt.ts), så kunden ikke kan godkende ét skilt
+        og få et andet.
+
+        Der maskeres ikke: har logoet en hvid baggrund eller er det mørkt på
+        en sort stander, ses det her. Det er hele pointen — kunden finder sin
+        egen fejl, mens den stadig kan rettes.
+      */}
       <div className="box-shape border border-border bg-card p-5">
         <p className="text-sm font-medium">Sådan bliver den trykt</p>
         <div className="mt-3 flex justify-center">
-          <div
-            className="box-shape grid h-44 w-36 place-items-center overflow-hidden border border-border p-4"
-            style={{ background: front.hex }}
-          >
-            {logoUrl ? (
-              // BEVIDST uden maskering: har logoet en hvid baggrund, skal den
-              // ses her. Skjulte vi den, ville kunden først opdage det på det
-              // trykte skilt.
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={logoUrl}
-                alt="Dit logo som det bliver trykt"
-                className="max-h-full max-w-full object-contain"
-              />
-            ) : (
-              <span
-                className="text-center text-xs"
-                style={{
-                  color: standerFarve === "hvid" ? "#8a8a8a" : "#9a9a9a",
-                }}
-              >
-                Dit logo
-              </span>
-            )}
-          </div>
+          <SkiltPreview
+            standerFarve={standerFarve}
+            baggrund={front.egen ? front.hex : null}
+            accent={visAccent}
+            logoUrl={logoUrl}
+            className="box-shape w-full max-w-[15rem] overflow-hidden border border-border"
+          />
         </div>
         <p className="mt-3 text-center text-xs text-muted">
           Front: {front.beskrivelse} · Stander:{" "}
@@ -419,6 +483,11 @@ export function StanderDesigner({
             (f) => f.vaerdi === standerFarve,
           )!.navn.toLowerCase()}
         </p>
+        {!logoUrl ? (
+          <p className="mt-2 text-center text-xs text-muted">
+            Læg dit logo op, så kommer det i cirklen.
+          </p>
+        ) : null}
       </div>
 
       {/* ------------------------------------------------------------ pris */}

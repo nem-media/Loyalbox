@@ -49,6 +49,8 @@ export interface BestillingFelter {
   standerFarve: StanderFarve;
   egenFrontfarve: boolean;
   frontHex: string | null;
+  /** Kundens egen accentfarve, eller null for LoyalSums egen. Gratis tilvalg. */
+  accentHex: string | null;
   destinationType: DestinationType;
   destinationUrl: string;
   accepterVilkaar: boolean;
@@ -100,6 +102,15 @@ export function laesBestilling(
 
   // CVR er FRIVILLIGT, men skal være rigtigt, hvis det skrives. Et tomt felt
   // spærrer ikke længere for et køb — se koebSpaerre() i commerce.ts.
+  /*
+   * ACCENTEN AFVISER IKKE. Modsat frontfarven er den gratis og har en gyldig
+   * standard: falder koden ud som ugyldig, trykkes LoyalSums egen. At afvise
+   * hele bestillingen, fordi en farvekode var skrevet forkert, ville koste et
+   * salg for ingenting.
+   */
+  const accentRaw = tekst(raw.accentHex);
+  const accentHex = accentRaw ? normaliserHex(accentRaw) : null;
+
   const cvrRaw = tekst(raw.cvr);
   if (cvrRaw && !erGyldigtCvr(cvrRaw)) {
     fejl.cvr = "Otte cifre — tjek nummeret, eller lad feltet stå tomt.";
@@ -158,6 +169,7 @@ export function laesBestilling(
       standerFarve: standerFarve as StanderFarve,
       egenFrontfarve,
       frontHex,
+      accentHex,
       destinationType: destinationType as DestinationType,
       destinationUrl,
       accepterVilkaar: true,

@@ -78,6 +78,7 @@ export async function bestilUdenKonto(
   const laest = laesBestilling({
     firmanavn: formData.get("firmanavn"),
     cvr: formData.get("cvr"),
+    accentHex: formData.get("accentHex"),
     email: formData.get("email"),
     antal: formData.get("antal"),
     standerFarve: formData.get("standerFarve"),
@@ -206,6 +207,7 @@ export async function bestilUdenKonto(
       stander_farve: v.standerFarve,
       front_type: v.frontHex ? "egen" : "matcher",
       front_hex: v.frontHex,
+      accent_hex: v.accentHex,
       logo_url: logoUrl,
       logo_filnavn: logoNavn,
       logo_mime: logoMime,
