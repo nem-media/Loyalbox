@@ -35,6 +35,8 @@
  * med abonnementet.
  */
 
+import { getProduct } from "@/lib/constants";
+
 /** Hvor længe kundeforholdet består uden betaling, før aftalen ophører. */
 export const SUSPENSION_MAANEDER = 6;
 
@@ -137,7 +139,8 @@ export function erBetalende(status: string | null | undefined): boolean {
  */
 export function abonnementTilstand(c: AbonnementFelter): AbonnementTilstand {
   if (c.ophoert_den) return "ophoert";
-  if (c.suspenderet_siden && !erBetalende(c.stripe_status)) return "suspenderet";
+  if (c.suspenderet_siden && !erBetalende(c.stripe_status))
+    return "suspenderet";
   return "aktiv";
 }
 
@@ -231,7 +234,9 @@ export function genoptagVej(
  */
 export const BETALING_MANGLER_OVERSKRIFT = "Betaling mangler";
 
-export function betalingManglerBroedtekst(dageTilSletning: number | null): string {
+export function betalingManglerBroedtekst(
+  dageTilSletning: number | null,
+): string {
   const hale =
     dageTilSletning === null
       ? ""
@@ -242,4 +247,30 @@ export function betalingManglerBroedtekst(dageTilSletning: number | null): strin
     "dine kunders stempler kører videre som altid." +
     hale
   );
+}
+
+/**
+ * Har virksomheden købt et af abonnementerne?
+ *
+ * DET ER PRODUKTET, DER SPØRGES OM — ikke `plan`, og det er med vilje.
+ * `plan` kan sættes i hånden i admin og HAVDE været sat forkert på en rigtig
+ * kunde: LoyalSum Komplet med niveau `premium`. Havde spærringerne hængt på
+ * planen, ville dén fejl have slukket for en betalende kundes egen
+ * anmeldelsesside. Produktet er kvitteringen for, hvad der er købt, og det er
+ * dét, adgangen skal følge.
+ *
+ * SUSPENSION SPØRGES DER IKKE OM HER. Det er samme regel som stempelkortet:
+ * en manglende betaling lukker DASHBOARDET, ikke det kunderne møder. En
+ * butik, hvis skilt holder op med at virke midt i en betalingssag, har et
+ * problem ude i lokalet — og det er ikke det, en suspension skal gøre.
+ *
+ * Bemærk at et engangskøb af "Reviewstander" IKKE tæller: den har ingen
+ * månedspris, og den købes uden konto som et trykt skilt, der viderestiller.
+ */
+export function harAbonnement(
+  company: { product_slug?: string | null } | null | undefined,
+): boolean {
+  const slug = company?.product_slug;
+  if (!slug) return false;
+  return Boolean(getProduct(slug)?.monthlyPrice);
 }

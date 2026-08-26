@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { setCompanyPlan } from "../../actions";
-import { TIER_LABELS, TIER_ORDER } from "@/lib/constants";
+import { TIER_LABELS, VALGBARE_NIVEAUER } from "@/lib/constants";
 
 export function PlanSelect({
   companyId,
@@ -22,7 +22,7 @@ export function PlanSelect({
         onChange={() => formRef.current?.requestSubmit()}
         className="box-shape h-9 border border-border bg-background px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
-        {TIER_ORDER.map((t) => (
+        {VALGBARE_NIVEAUER.map((t) => (
           <option key={t} value={t}>
             {TIER_LABELS[t]}
           </option>

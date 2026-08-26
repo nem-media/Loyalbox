@@ -5,7 +5,12 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { generateSlug } from "@/lib/utils";
-import { TIER_ORDER, KATALOG, type Tier } from "@/lib/constants";
+import {
+  TIER_ORDER,
+  KATALOG,
+  planForProduct,
+  type Tier,
+} from "@/lib/constants";
 import type {
   CompanyPlan,
   DestinationType,
@@ -156,10 +161,21 @@ export async function setCompanyProduct(formData: FormData): Promise<void> {
   // et forsøg ville sænke niveauet til basic.
   if (slug && !KATALOG.some((p) => p.slug === slug)) return;
 
+  /*
+   * PLANEN SÆTTES MED. Det var den to felter, og de kunne komme i utakt:
+   * Frisør Nielsine blev solgt LoyalSum Komplet manuelt og endte på
+   * `premium`, fordi planvælgeren stod ved siden af og tilbød niveauet.
+   * Resultatet var en betalende kunde uden feedback-indbakke, statistik og
+   * dynamiske links — tre af de fire ting, produktet indeholder. Intet gik i
+   * stykker, og derfor blev det ikke opdaget.
+   *
+   * `planForProduct()` er den samme funktion, webhooken bruger, så et
+   * manuelt salg giver nu nøjagtig samme adgang som et betalt.
+   */
   const supabase = await createClient();
   await supabase
     .from("companies")
-    .update({ product_slug: slug || null })
+    .update({ product_slug: slug || null, plan: planForProduct(slug || null) })
     .eq("id", id);
   revalidatePath(`/admin/virksomheder/${id}`);
   revalidatePath("/admin/virksomheder");

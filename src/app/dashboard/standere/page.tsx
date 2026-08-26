@@ -10,12 +10,20 @@ import { CreateStand } from "./create-stand";
 import { GuideHint } from "@/components/guide";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StandIcon } from "@/components/nav-icons";
+import { harAbonnement } from "@/lib/abonnement";
+import { PRODUCTS } from "@/lib/constants";
+
+/** Varerne med en QR-adresse. Udledt, så navnene ikke kan drive. */
+const ABONNEMENTER = PRODUCTS.filter((p) => p.monthlyPrice && !p.addon).map(
+  (p) => p.name,
+);
 
 export const metadata = { title: "Standere" };
 
 export default async function StandsPage() {
   const user = await getCurrentUser();
   const company = user!.company;
+  const abonnement = harAbonnement(company);
   const supabase = await createClient();
 
   const { data: stands } = company
@@ -35,9 +43,34 @@ export default async function StandsPage() {
 
       <GuideHint id="standere" className="mb-6" />
 
+      {/* OPRETTELSEN VISES KUN MED ET ABONNEMENT. Selve spærringen ligger i
+          `createStand()` — en skjult knap er ikke adgangskontrol — men en
+          formular, der altid afviser, er en dårlig måde at sige det på. */}
       <Card className="mb-4">
         <CardBody>
-          <CreateStand />
+          {abonnement ? (
+            <CreateStand />
+          ) : (
+            <>
+              <p className="font-semibold tracking-tight">
+                QR-adresser følger med et abonnement
+              </p>
+              <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted">
+                Med {ABONNEMENTER.join(" eller ")} får du QR-adresser, du kan
+                pege hvorhen du vil, din egen anmeldelsesside og indsigt i, hvad
+                der sker. Du kan designe og bestille dit skilt uden — adressen
+                kommer med abonnementet.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-4 text-sm font-medium">
+                <Link href="/dashboard/abonnement" className="text-accent">
+                  Se dit abonnement →
+                </Link>
+                <Link href="/bestil" className="text-accent">
+                  Design og bestil et skilt →
+                </Link>
+              </div>
+            </>
+          )}
         </CardBody>
       </Card>
 
