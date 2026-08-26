@@ -387,9 +387,22 @@ export default function StempelkortPage() {
                 ingen konto — optjener den belønning, du selv vælger, og går ud
                 ad døren med noget, de kun kan hente hos dig.
               </p>
+              {/* FØRTE TIL /signup. En gratis konto giver et dashboard, hvor
+                  Stempelkort er LÅST — funktionen hører til LoyalSum Komplet.
+                  Heroen lover altså et stempelkort og sendte læseren et sted
+                  hen, hvor de ikke kan få et.
+
+                  Samme opbygning som /reviewstander, hvor heroen leder med
+                  varen og ikke med en tilmelding. /signup findes stadig i
+                  headeren og i den afsluttende opfordring, hvor der også står
+                  hvad det koster. */}
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <ButtonLink variant="secondary" href="/signup" size="lg">
-                  Kom i gang
+                <ButtonLink
+                  variant="secondary"
+                  href={komplet ? `/produkter/${komplet.slug}` : "/produkter"}
+                  size="lg"
+                >
+                  {komplet ? `Se ${komplet.name}` : "Se priser"}
                 </ButtonLink>
                 <ButtonLink href="#saadan" variant="outline-invert" size="lg">
                   Se hvordan det virker
@@ -630,9 +643,14 @@ export default function StempelkortPage() {
               ))}
             </ol>
 
+            {/* Den, der lige har læst de fem trin, vil vide hvad det koster
+                — ikke oprette en konto uden stempelkort i. */}
             <div className="mt-10">
-              <ButtonLink href="/signup" size="lg">
-                Kom i gang
+              <ButtonLink
+                href={komplet ? `/produkter/${komplet.slug}` : "/produkter"}
+                size="lg"
+              >
+                {komplet ? `Se ${komplet.name}` : "Se priser"}
               </ButtonLink>
             </div>
           </div>
