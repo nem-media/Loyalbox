@@ -17,13 +17,16 @@ import { STANDARD_ACCENT, STANDER_FARVER } from "@/lib/stander-tilvalg";
  * ruten henter det og bager det ind, så SVG'en er selvbærende og kan åbnes i
  * et trykprogram uden at afhænge af, at vores lager svarer.
  */
-function skiltAdresse(d: {
-  stander_farve: string;
-  front_type: string;
-  front_hex: string | null;
-  accent_hex: string | null;
-  logo_url: string | null;
-}): string {
+function skiltAdresse(
+  d: {
+    stander_farve: string;
+    front_type: string;
+    front_hex: string | null;
+    accent_hex: string | null;
+    logo_url: string | null;
+  },
+  standSlug?: string | null,
+): string {
   const q = new URLSearchParams({
     farve: STANDER_FARVER.some((f) => f.vaerdi === d.stander_farve)
       ? d.stander_farve
@@ -32,6 +35,14 @@ function skiltAdresse(d: {
   });
   if (d.front_type === "egen" && d.front_hex) q.set("bg", d.front_hex);
   if (d.logo_url) q.set("logo", d.logo_url);
+  /*
+   * KUN NÅR ORDREN VED HVILKEN STANDER DET ER. Uden slug bliver
+   * pladsholderen stående, og admin skal spørge kunden — præcis som med
+   * destinationen på ældre ordrer. Et skilt med en FORKERT QR er værre end
+   * et med en tom: den forkerte bliver trykt og opdaget af en kunde, der
+   * står og scanner.
+   */
+  if (standSlug) q.set("stand", standSlug);
   return `/api/skilt?${q.toString()}`;
 }
 import { standerFarveNavn } from "@/lib/stander-tilvalg";
@@ -194,7 +205,7 @@ export default async function AdminOrderPage({
                     QR-koden i feltet, før den sendes i produktion.
                   </p>
                   <a
-                    href={skiltAdresse(design)}
+                    href={skiltAdresse(design, o.stand?.slug)}
                     target="_blank"
                     rel="noreferrer"
                     className="mt-2 inline-block font-medium text-accent hover:underline"
