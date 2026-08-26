@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
+import { harAbonnement } from "@/lib/abonnement";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolvePublicReviewLinks, resolveExtraLink } from "@/lib/stands";
 import { deviceTypeFromUA } from "@/lib/utils";
@@ -38,7 +39,7 @@ export default async function ReviewPage({
 
   const { data: stand } = await supabase
     .from("stands")
-    .select("*, company:companies(id, name, logo_url)")
+    .select("*, company:companies(id, name, logo_url, product_slug)")
     .eq("slug", slug)
     .maybeSingle();
 
@@ -49,6 +50,8 @@ export default async function ReviewPage({
     id: string;
     name: string;
     logo_url: string | null;
+    /** Til harAbonnement(): afgør om siden vises eller viderestiller. */
+    product_slug: string | null;
   };
 
   // Register the scan (public, service-role).
@@ -79,7 +82,24 @@ export default async function ReviewPage({
    * Scanningen er allerede talt ovenfor. Den indeholder kun tidspunkt og
    * enhedstype — ingen personoplysninger — og er butikkens eneste tal.
    */
-  if (stand.kun_viderestilling) {
+  /*
+   * UDEN ABONNEMENT VIDERESTILLES DER OGSÅ.
+   *
+   * `kun_viderestilling` dækkede kun skilte bestilt UDEN konto. En gratis
+   * konto kunne oprette en QR-adresse i dashboardet, og dén viste hele
+   * anmeldelsesflowet: navn, mail og kommentar blev gemt i `feedback` — som
+   * `feedbackInbox` er slået fra for. Set i produktionen: en konto uden
+   * noget produkt havde samlet tre stykker feedback, den aldrig kunne læse.
+   *
+   * Det er ikke bare en manglende funktion. Det er indsamling af
+   * personoplysninger uden et formål, og det var netop dén fejl, der blev
+   * lukket for bestilling uden konto.
+   *
+   * Afgøres på PRODUKTET og ikke på flaget i basen: køber butikken et
+   * abonnement, kommer siden tilbage af sig selv, uden at nogen skal huske
+   * at rette en kolonne.
+   */
+  if (stand.kun_viderestilling || !harAbonnement(company)) {
     const maal = publicLinks[0]?.url ?? extra?.url;
     // Uden en destination er der intet at sende videre til. En 404 er ærligere
     // end en tom side: skiltet er ikke sat op endnu.

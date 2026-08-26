@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { generateSlug } from "@/lib/utils";
 import { tierCan, TIER_ORDER, type Tier } from "@/lib/constants";
 import { erGyldigtCvr, normaliserCvr, CVR_FEJL } from "@/lib/cvr";
+import { harAbonnement } from "@/lib/abonnement";
 import type { CompanyPlan, DestinationType } from "@/lib/types/database";
 
 export interface FormResult {
@@ -133,6 +134,24 @@ export async function createStand(
 ): Promise<FormResult> {
   const user = await getCurrentUser();
   if (!user?.company) return { error: "Ingen virksomhed fundet." };
+
+  /*
+   * EN QR-ADRESSE FØLGER MED ET ABONNEMENT.
+   *
+   * Uden denne kunne en gratis konto oprette ubegrænset mange standere og
+   * bruge anmeldelsesflowet i det uendelige uden at betale. Det var ikke et
+   * hul i en betalingsmur, men i selve forretningsmodellen: design og
+   * bestilling er en del af KØBET, og adressen er det, man får bagefter.
+   *
+   * Kontrollen ligger i handlingen og ikke kun i knappen: en skjult knap er
+   * ikke adgangskontrol, når handlingen kan kaldes direkte.
+   */
+  if (!harAbonnement(user.company)) {
+    return {
+      error:
+        "En QR-adresse følger med Reviewstander Pro eller LoyalSum Komplet. Se dit abonnement for at komme i gang.",
+    };
+  }
 
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return { error: "Giv standeren et navn." };

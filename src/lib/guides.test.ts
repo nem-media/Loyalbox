@@ -23,10 +23,58 @@ describe("GUIDES", () => {
     }
   });
 
-  it("peger kun på interne dashboard-sider", () => {
+  /**
+   * Vejledninger peger på sider i APPEN — aldrig ud på en marketingside eller
+   * et eksternt sted. Reglen var før "kun /dashboard", og den holdt, så længe
+   * alt kunne gøres derindefra.
+   *
+   * `/bestil` er tilføjet, fordi den første vejledning netop handler om det
+   * ene, en konto UDEN abonnement kan: designe og bestille. Den ligger uden
+   * for dashboardet, men er lige så meget en del af appen — og en vejledning,
+   * der ikke må linke til den, ville sende folk til en side, de skulle finde
+   * selv.
+   */
+  const TILLADTE_ROEDDER = [/^\/dashboard(\/|$)/, /^\/bestil(\/|$)/];
+
+  it("peger kun på sider i appen", () => {
     for (const g of GUIDES) {
-      if (g.href) expect(g.href, g.id).toMatch(/^\/dashboard(\/|$)/);
+      if (!g.href) continue;
+      expect(
+        TILLADTE_ROEDDER.some((r) => r.test(g.href!)),
+        `${g.id}: ${g.href}`,
+      ).toBe(true);
     }
+  });
+
+  /**
+   * En vejledning, der beskriver noget spærret, skal SIGE det. Hjælpesiden
+   * viste alle ni til alle, og den første bad om at oprette en stander —
+   * spærret uden abonnement. Fanges her, så en ny vejledning ikke kan glide
+   * ind uden at tage stilling.
+   */
+  it("markerer hvad en vejledning forudsætter", () => {
+    const spaerrede: Record<string, "abonnement" | "komplet"> = {
+      "/dashboard/standere": "abonnement",
+      "/dashboard/personale": "abonnement",
+      "/dashboard/feedback": "abonnement",
+      "/dashboard/opslag": "komplet",
+      "/dashboard/loyalitet": "komplet",
+    };
+    for (const g of GUIDES) {
+      const traeffer = Object.keys(spaerrede).find((r) =>
+        g.href?.startsWith(r),
+      );
+      if (traeffer) {
+        expect(g.kraever, `${g.id} peger på ${g.href}`).toBe(
+          spaerrede[traeffer],
+        );
+      }
+    }
+  });
+
+  it("har mindst én vejledning, alle kan følge", () => {
+    // Ellers er hjælpesiden tom for en konto, der endnu ikke har købt noget.
+    expect(GUIDES.filter((g) => !g.kraever).length).toBeGreaterThan(0);
   });
 
   it("lister alle optjeningsmodeller i stempelkort-vejledningen", () => {
@@ -51,7 +99,9 @@ describe("hjælp brugt ude på siderne", () => {
         fundet.push(...brugteIder(sti));
       } else if (e.name.endsWith(".tsx")) {
         const kode = readFileSync(sti, "utf8");
-        for (const m of kode.matchAll(/(?:GuideHint id|getGuide\()="?([\w-]+)"/g)) {
+        for (const m of kode.matchAll(
+          /(?:GuideHint id|getGuide\()="?([\w-]+)"/g,
+        )) {
           fundet.push(m[1]);
         }
       }

@@ -157,6 +157,19 @@ export const TIER_LABELS: Record<Tier, string> = {
 
 export const TIER_ORDER: Tier[] = ["basic", "premium", "pro"];
 
+/**
+ * Niveauerne, en administrator må vælge i hånden.
+ *
+ * `premium` er IKKE med. Ingen vare giver det, og det stod alligevel i
+ * vælgeren mellem basic og pro, hvor det ligner det naturlige mellemtrin —
+ * så en rigtig kunde, der blev solgt LoyalSum Komplet manuelt, endte dér og
+ * mistede feedback-indbakke, statistik og dynamiske links.
+ *
+ * Niveauet bliver i `TIER_ORDER` og i typen, fordi `company_plan` er en
+ * Postgres-enum med de tre værdier, og rækker kan stå med det.
+ */
+export const VALGBARE_NIVEAUER: Tier[] = ["basic", "pro"];
+
 /** True if the given tier unlocks the capability. Unknown tier → basic. */
 export function tierCan(
   tier: Tier | null | undefined,

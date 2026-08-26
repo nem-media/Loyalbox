@@ -41,6 +41,16 @@ export interface Guide {
   steps: GuideStep[];
   /** Ting der er gode at vide, men ikke er et trin. */
   notes?: string[];
+  /**
+   * Hvad vejledningen forudsætter, man har købt. Udeladt = alle kan følge den.
+   *
+   * HVORFOR DET SKAL STÅ HER: hjælpesiden viste alle ni vejledninger til
+   * alle. En konto uden abonnement mødte altså en liste over ni ting, den
+   * ikke kunne gøre — og den første bad den om at "oprette din første
+   * stander under Standere", hvilket er spærret. En hjælp, der beskriver
+   * det umulige, er ikke hjælp.
+   */
+  kraever?: "abonnement" | "komplet";
 }
 
 // Listen udledes af labels-objektet, så en ny optjeningsmodel automatisk
@@ -50,11 +60,38 @@ const optjening = (Object.keys(EARN_MODEL_LABELS) as EarnModel[]).map(
 );
 
 export const GUIDES: Guide[] = [
+  /*
+   * DEN FØRSTE VEJLEDNING ER DEN ENESTE UDEN ET KRAV, og den manglede.
+   * Hjælpesiden begyndte med "Opret din første stander under Standere" —
+   * spærret uden abonnement. Det, en ny konto FAKTISK skal gøre, stod der
+   * ikke et ord om.
+   */
+  {
+    id: "bestil",
+    title: "Design og bestil dit skilt",
+    summary:
+      "Det første skridt: vælg farve, læg dit logo på, og få skiltet sendt.",
+    hint: "Du ser skiltet, mens du sætter det sammen — og prisen følger med undervejs.",
+    href: "/bestil",
+    hrefLabel: "Design og bestil",
+    steps: [
+      "Vælg løsningen og hvor mange skilte, du skal bruge. Køber du flere, falder prisen pr. stk.",
+      "Vælg standerens farve, og læg dit logo op. Logoet trykkes på skiltet, som du ser det — vi retter ikke i det, så tjek at det står rent på baggrunden.",
+      "Vil du have din egen farve på fronten, kan du vælge den. Det er et fast tillæg, der lægges til én gang — også selv om du bestiller flere skilte.",
+      "Køber du uden abonnement, skal du oplyse, hvor QR-koden skal føre hen. Det trykkes fast på skiltet og kan ikke ændres bagefter.",
+      "Accepter betingelserne og betal. Så går skiltet i produktion.",
+    ],
+    notes: [
+      "Logoet ændres aldrig automatisk. Har det en hvid baggrund, bliver den trykt med — vælg en fil med gennemsigtig baggrund, hvis den skal væk.",
+      "JPEG kan ikke bruges: formatet har ingen gennemsigtighed og laver kanter omkring skarpe streger. Brug PNG eller SVG.",
+    ],
+  },
   {
     id: "kom-i-gang",
+    kraever: "abonnement" as const,
     title: "Kom godt i gang",
     summary:
-      "Fra tom konto til en stander på disken, der samler anmeldelser.",
+      "Når skiltet er kommet: sæt QR-adressen op, og få den første anmeldelse ind.",
     href: "/dashboard/standere",
     hrefLabel: "Gå til Standere",
     steps: [
@@ -69,6 +106,7 @@ export const GUIDES: Guide[] = [
   },
   {
     id: "standere",
+    kraever: "abonnement" as const,
     title: "Standere og QR-koder",
     summary:
       "Hver stander har sit eget link og sin egen QR-kode — og du kan ændre, hvor den fører hen, uden at trykke en ny.",
@@ -88,6 +126,7 @@ export const GUIDES: Guide[] = [
   },
   {
     id: "stempelkort",
+    kraever: "komplet" as const,
     title: "Opret et stempelkort",
     summary:
       "Guiden fører dig gennem seks trin: navn, hvordan der optjenes, belønningen, udseende, regler og et gennemsyn.",
@@ -110,6 +149,7 @@ export const GUIDES: Guide[] = [
   },
   {
     id: "kunder",
+    kraever: "komplet" as const,
     title: "Få kunder på kortet",
     summary:
       "Kunden tilmelder sig selv ved at scanne — eller du opretter kortet ved disken.",
@@ -129,6 +169,7 @@ export const GUIDES: Guide[] = [
   },
   {
     id: "stempling",
+    kraever: "komplet" as const,
     title: "Giv stempler og indløs belønninger",
     summary: "Det foregår på kundens eget kort, mens de står ved disken.",
     steps: [
@@ -143,6 +184,7 @@ export const GUIDES: Guide[] = [
   },
   {
     id: "personale",
+    kraever: "abonnement" as const,
     title: "Giv personalet adgang",
     summary:
       "Dine ansatte får deres eget login, så de kan stemple uden at kende din adgangskode.",
@@ -164,6 +206,7 @@ export const GUIDES: Guide[] = [
   },
   {
     id: "rabatter",
+    kraever: "komplet" as const,
     title: "Rabatter",
     summary:
       "Tilbud du kan give en enkelt kunde — også som en undskyldning, når noget er gået skævt.",
@@ -181,6 +224,7 @@ export const GUIDES: Guide[] = [
   },
   {
     id: "opslag",
+    kraever: "komplet" as const,
     title: "Opslag til sociale medier",
     summary:
       "Lav et delbart billede ud af jeres bedste anmeldelser på under et minut.",
@@ -198,6 +242,7 @@ export const GUIDES: Guide[] = [
   },
   {
     id: "feedback",
+    kraever: "abonnement" as const,
     title: "Privat feedback",
     summary:
       "Kunder, der ikke gik videre til en offentlig anmeldelse, kan skrive til jer i stedet.",
