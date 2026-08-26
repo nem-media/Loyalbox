@@ -13,8 +13,17 @@
  * De er dekorative: teksten ved siden af bærer betydningen, så de er markeret
  * aria-hidden og har ingen alt-tekst. Bruges et ikon nogensinde ALENE som
  * betydningsbærer, skal det have en <title> i stedet.
+ *
+ * STØRRELSEN SÆTTES AF KALDESTEDET, og der er ingen standard. Der var før
+ * `cn("h-10 w-10", className)` — og fordi `cn()` er en simpel sammenføjer og
+ * IKKE tailwind-merge, endte "h-10 w-10 h-4 w-4" begge i output, hvor
+ * Tailwinds egen rækkefølge lod h-10 vinde. Alle ti kaldesteder bad om en
+ * størrelse, og alle ti fik 40 px: h-8 i trinrækkerne, h-6 i
+ * belønningskortene, h-4 i emblemerne. Målt i browseren, ikke gættet.
+ *
+ * Standarden er fjernet frem for at blive gjort betinget: hvert kaldested
+ * sætter allerede sin egen, så den beskyttede ingen — den overdøvede dem.
  */
-import { cn } from "@/lib/utils";
 
 const ACCENT = "#26616e";
 const GOLD = "#b4a189";
@@ -34,7 +43,7 @@ function Svg({
       strokeWidth={1.5}
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={cn("h-10 w-10", className)}
+      className={className}
       aria-hidden="true"
     >
       {children}
@@ -314,6 +323,128 @@ export function QrIcon({ className }: IconProps) {
       <rect x="16.5" y="5.5" width="2" height="2" fill={ACCENT} stroke="none" />
       <rect x="5.5" y="16.5" width="2" height="2" fill={ACCENT} stroke="none" />
       <path d="M14 14h3M20 14h1M14 17.5h1.5M17.5 17.5h1M14 21h7M19.5 17.5h1.5" />
+    </Svg>
+  );
+}
+
+/* ------------------------------------------------------------ belønninger */
+/* Ét ikon pr. type i `RewardType` (src/lib/loyalty/constants.ts) — navnene
+   følger enummet, så et nyt felt dér er nemt at spore hertil. Der findes
+   bevidst intet ikon for `none`: "ingen belønning" er ikke noget at vise
+   frem på en salgsside. */
+
+/**
+ * Gratis produkt: varen, kunden får med.
+ *
+ * SET I 24 PX FØRST, og den første udgave duede ikke: en rundet krop, en bue
+ * over og en prik i midten er en HÆNGELÅS. To ting fjerner den læsning —
+ * hanken fortsætter NED i posen (en låsebøjle går aldrig ind i kroppen), og
+ * prikken i midten er væk til fordel for et beige bånd langs kanten.
+ *
+ * Og bevidst ikke en æske: `GiftIcon` i samme række er allerede en æske, og
+ * to kasser ved siden af hinanden betyder ingenting hver for sig.
+ */
+export function FreeProductIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M4.6 7.6h14.8l-1.1 11.7a1.6 1.6 0 0 1-1.6 1.45H7.3a1.6 1.6 0 0 1-1.6-1.45Z" />
+      <rect
+        x="4.6"
+        y="7.6"
+        width="14.8"
+        height="2.6"
+        fill={GOLD}
+        stroke="none"
+      />
+      <path d="M9 10.4V6.4a3 3 0 0 1 6 0v4" />
+    </Svg>
+  );
+}
+
+/**
+ * Beløb i rabat: en seddel.
+ *
+ * VAR EN STAK MØNTER, og det var en fejl, man først ser i 24 px: tre
+ * ellipser stablet er ikke penge, det er databaseikonet. Formen er så
+ * indarbejdet, at den slår enhver hensigt.
+ */
+export function AmountOffIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <rect x="2.5" y="6" width="19" height="12" rx="1.5" />
+      <circle cx="12" cy="12" r="3" fill={GOLD} stroke="none" />
+      <path d="M5.8 9.4v5.2M18.2 9.4v5.2" />
+    </Svg>
+  );
+}
+
+/**
+ * Procent i rabat.
+ *
+ * Cirklerne ligger 5,66 enheder fra skråstregen og rører den derfor ikke.
+ * Rykkes de tættere på, smelter de sammen med stregen til én klat.
+ */
+export function PercentOffIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M5.5 18.5 18.5 5.5" />
+      <circle cx="8" cy="8" r="2.7" />
+      <circle cx="16" cy="16" r="2.7" fill={ACCENT} stroke="none" />
+    </Svg>
+  );
+}
+
+/** En ydelse: behandlingen, der er noget særligt. */
+export function ServiceIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M11 3.5 12.6 9.4 18.5 11 12.6 12.6 11 18.5 9.4 12.6 3.5 11 9.4 9.4Z" />
+      {/* Den lille gnist starter på x=15 — uden for den store stjernes krop,
+          hvis inderste punkt ligger på (12,6; 12,6). */}
+      <path
+        d="M18.5 15 19.3 17.7 22 18.5 19.3 19.3 18.5 22 17.7 19.3 15 18.5 17.7 17.7Z"
+        fill={ACCENT}
+        stroke="none"
+      />
+    </Svg>
+  );
+}
+
+/**
+ * En gave.
+ *
+ * Sløjfens cirkler slutter på y=6,6 og låget begynder på y=6,3 — de
+ * OVERLAPPER med vilje. Med luft imellem svæver sløjfen over æsken, præcis
+ * som stemplet gjorde, før halsen blev forlænget ned til foden.
+ */
+export function GiftIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <rect x="4" y="10" width="16" height="10.5" rx="1.5" />
+      <rect x="2.5" y="6.3" width="19" height="3.7" rx="1" />
+      <circle cx="9" cy="4.3" r="2.3" />
+      <circle cx="15" cy="4.3" r="2.3" />
+      <rect
+        x="10.85"
+        y="6.3"
+        width="2.3"
+        height="14.2"
+        fill={GOLD}
+        stroke="none"
+      />
+    </Svg>
+  );
+}
+
+/** Noget, du selv beskriver: din egen formulering. */
+export function CustomRewardIcon({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M15.6 3.9a2.05 2.05 0 0 1 2.9 2.9L9.2 16.1 5.3 17.2l1.1-3.9Z" />
+      {/* Spidsen er den samme trekant, omridset allerede tegner — fyldt, så
+          blyanten har en ende, der skriver. */}
+      <path d="M6.4 13.3 5.3 17.2l3.9-1.1Z" fill={ACCENT} stroke="none" />
+      <path d="M3.5 20.5h17" />
     </Svg>
   );
 }

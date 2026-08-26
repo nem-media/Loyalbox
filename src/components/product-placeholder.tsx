@@ -31,7 +31,14 @@ function Svg({
       strokeWidth={1.5}
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={cn("h-10 w-10", className)}
+      // `cn()` er en simpel sammenføjer, IKKE tailwind-merge: stod der
+      // `cn("h-10 w-10", className)`, endte begge størrelser i output, og
+      // Tailwinds rækkefølge afgjorde resultatet. Det gik godt her, fordi
+      // alle fire kaldesteder beder om noget STØRRE (h-20/h-24/h-32) — en
+      // mindre størrelse ville være blevet tavst ignoreret. Standarden
+      // gælder derfor kun, når kaldet ikke selv siger noget: UPCOMING_ICONS
+      // sætter ingen klasse og har brug for den.
+      className={className ?? "h-10 w-10"}
       aria-hidden="true"
     >
       {children}
