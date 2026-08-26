@@ -9,6 +9,7 @@ import { getProduct } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 import { getSiteUrl } from "@/lib/site";
 import { IndustryBadge, type Branche } from "@/components/industry-icons";
+import { AnmeldelseVisual } from "@/components/home/hero-visual";
 import {
   TapIcon,
   ShareExperienceIcon,
@@ -116,6 +117,42 @@ const PLACES: { name: string; branche: Branche; where: string }[] = [
   { name: "Værksted", branche: "vaerksted", where: "Ved udlevering af bilen." },
 ];
 
+/**
+ * Hvad hver løsning kan på platformssiden.
+ *
+ * SKREVET AF FRA DEN TABEL, DER STOD HER, og indholdet er uændret. Chipsene
+ * er kun ANMELDELSESPLATFORME: det egne link (menukort, booking) er ikke en
+ * anmeldelse, og en chip ved siden af de tre andre ville få det til at ligne
+ * en fjerde platform. Det står i noten i stedet.
+ */
+const PLATFORM_VALG: {
+  navn: string;
+  platforme: string[];
+  maerke: string;
+  note: string;
+  fremhaev?: boolean;
+}[] = [
+  {
+    navn: "Skilt uden konto",
+    platforme: ["Google", "Trustpilot", "Facebook"],
+    maerke: "Du vælger én",
+    note: "Eller dit eget link. QR'en går direkte videre uden at vise en side, så der indsamles ingen feedback.",
+  },
+  {
+    navn: "Reviewstander",
+    platforme: ["Google"],
+    maerke: "Fast destination",
+    note: "Kunden lander på din anmeldelsesside og går derfra videre til Google.",
+  },
+  {
+    navn: "Reviewstander Pro",
+    platforme: ["Google", "Trustpilot", "Facebook"],
+    maerke: "Kunden vælger selv",
+    note: "Alle valg vises med samme vægt. Du kan lægge dit eget link ved siden af — fx menukortet — og skifte destination bagefter uden at trykke standeren om.",
+    fremhaev: true,
+  },
+];
+
 const FAQ = [
   {
     q: "Hvad er en reviewstander?",
@@ -217,18 +254,24 @@ export default function ReviewstanderPage() {
             aria-hidden="true"
             className="absolute inset-0 -z-10 h-full w-full object-cover object-right"
           />
+          {/* Gradienten slutter på /80 og ikke /40. Fotoet viser en fysisk
+              stander i højre side — præcis dér hvor kortet nu ligger — og to
+              produkter oven i hinanden kæmper om at være motivet. Dæmpet
+              bliver fotoet stemning, og kortet bliver det, man ser. Det
+              gjorde samtidig billedteksten læselig; hvid på 50 % over det
+              lyse foto kunne ikke læses. */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 -z-10 bg-gradient-to-r from-dark from-25% via-dark/90 to-dark/40"
+            className="absolute inset-0 -z-10 bg-gradient-to-r from-dark from-25% via-dark/95 to-dark/80"
           />
-          <div className="mx-auto max-w-6xl px-4 py-20 sm:py-28">
-            <div className="max-w-2xl">
+          <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:py-24 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+            <div>
               <p className="text-sm font-semibold text-secondary">
                 LoyalSum Reviewstander
               </p>
               <h1 className="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">
-                Få flere anmeldelser —{" "}
-                <span className="text-secondary">direkte fra disken</span>
+                Få flere anmeldelser med en{" "}
+                <span className="text-secondary">reviewstander</span>
               </h1>
               <p className="mt-5 max-w-xl text-lg text-white/70">
                 Gør det nemt for dine kunder at dele deres oplevelse. De holder
@@ -254,6 +297,47 @@ export default function ReviewstanderPage() {
                 Google, Trustpilot eller Facebook · QR og NFC i samme stander ·
                 ingen app for dine kunder
               </p>
+            </div>
+
+            {/* Skærmen kunden lander på — samme greb som stempelkortsiden.
+                Fotoet bag den bliver stående; kortet har sin egen skygge og
+                lægger sig oven på det i stedet for at erstatte det. */}
+            <div className="lg:justify-self-end lg:pl-8">
+              <div className="relative mx-auto w-full max-w-[23rem]">
+                <div className="relative">
+                  <AnmeldelseVisual />
+
+                  {/* To emblemer, ét pr. ende af flowet: hvordan kunden
+                      kommer ind foroven, og hvad de kan vælge forneden. De
+                      peger på hver sin del af kortet.
+
+                      Det øverste er BEIGE og ikke hvidt: et hvidt emblem på
+                      et hvidt kort har ingen kant, hvor de overlapper, og
+                      læses som en linje inde i kortet. Beige giver 6,79 mod
+                      den mørke sektion, petroleum kun 2,44. */}
+                  <div className="absolute -top-6 -right-2 sm:-right-7">
+                    <div className="btn-shape flex items-center gap-2 bg-secondary px-3 py-2 text-secondary-fg shadow-[0_16px_32px_-16px_rgba(0,0,0,0.6)]">
+                      <TapIcon className="h-4 w-4 shrink-0" />
+                      <span className="text-xs font-semibold tracking-tight">
+                        Ét tap ved disken
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="absolute -bottom-6 -left-2 sm:-left-8">
+                    <div className="btn-shape flex items-center gap-2 bg-dark px-3 py-2 text-white shadow-[0_16px_32px_-16px_rgba(0,0,0,0.6)] ring-1 ring-white/15">
+                      <ShareExperienceIcon className="h-4 w-4 shrink-0 text-secondary" />
+                      <span className="text-xs font-medium">
+                        Du vælger platformene
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="mt-10 text-center text-xs text-white/50">
+                  Sådan ser kundens skærm ud efter et tap
+                </p>
+              </div>
             </div>
           </div>
         </section>
@@ -371,55 +455,56 @@ export default function ReviewstanderPage() {
               vælge selv.
             </p>
 
-            <div className="mt-8 overflow-x-auto">
-              <table className="w-full min-w-[34rem] border-collapse text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-background text-left">
-                    <th className="etiket px-4 py-3">Løsning</th>
-                    <th className="etiket px-4 py-3">Platforme</th>
-                    <th className="etiket px-4 py-3">Kunden vælger selv</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b border-border/60">
-                    <td className="px-4 py-3 align-top font-medium">
-                      Skilt uden konto
-                    </td>
-                    <td className="px-4 py-3 align-top">
-                      Én valgfri — Google, Trustpilot, Facebook eller eget link
-                    </td>
-                    <td className="px-4 py-3 align-top text-muted">
-                      Nej — QR&apos;en går direkte videre
-                    </td>
-                  </tr>
-                  <tr className="border-b border-border/60">
-                    <td className="px-4 py-3 align-top font-medium">
-                      Reviewstander
-                    </td>
-                    <td className="px-4 py-3 align-top">Google</td>
-                    <td className="px-4 py-3 align-top text-muted">Nej</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-3 align-top font-medium">
-                      Reviewstander Pro
-                    </td>
-                    <td className="px-4 py-3 align-top">
-                      Google, Trustpilot og Facebook — plus et eget link, fx
-                      menukort
-                    </td>
-                    <td className="px-4 py-3 align-top">
-                      Ja, alle valg vises med samme vægt
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            {/* AFLØSTE EN TABEL. Indholdet er det samme, men tre løsninger
+                med hver tre oplysninger er ikke kolonner af tal — det er tre
+                ting, man læser én ad gangen. Tabellen bar `min-w-[34rem]` og
+                sin egen vandrette scroll, så på en telefon skulle man skubbe
+                den sidelæns for at nå kolonnen om, hvem der vælger. */}
+            <ul className="mt-10 grid gap-4 md:grid-cols-3">
+              {PLATFORM_VALG.map((v) => (
+                <li
+                  key={v.navn}
+                  // Pro fremhæves med en KRAFTIGERE kant og mere højde — ikke
+                  // med en tonet flade. Sektionen står på råhvidt, og accent
+                  // på 5 % oven på den blev en grumset grå, så det kort, der
+                  // skulle stikke frem, læste som deaktiveret.
+                  className={`box-shape flex flex-col border bg-card p-5 ${
+                    v.fremhaev
+                      ? "border-accent shadow-[var(--hoejde-2)]"
+                      : "border-border shadow-[var(--hoejde-1)]"
+                  }`}
+                >
+                  <h3 className="font-bold tracking-tight">{v.navn}</h3>
 
-            <p className="mt-6 max-w-2xl leading-relaxed text-foreground/90">
-              Med Pro kan du desuden{" "}
-              <strong>skifte destination bagefter</strong> uden at trykke
-              standeren om. Beslutter du dig for at satse på Trustpilot i stedet
-              for Google, tager det et klik i dashboardet.
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {v.platforme.map((platform) => (
+                      <span
+                        key={platform}
+                        className="rounded-full bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent"
+                      >
+                        {platform}
+                      </span>
+                    ))}
+                  </div>
+
+                  <p className="mt-4 flex items-center gap-2 border-t border-border pt-3.5 text-sm font-medium">
+                    <span
+                      className="h-1.5 w-1.5 shrink-0 rounded-full bg-secondary"
+                      aria-hidden="true"
+                    />
+                    {v.maerke}
+                  </p>
+                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">
+                    {v.note}
+                  </p>
+                </li>
+              ))}
+            </ul>
+
+            <p className="mt-8 max-w-2xl leading-relaxed text-foreground/90">
+              Beslutter du dig undervejs for at satse på Trustpilot i stedet for
+              Google, tager det et klik i dashboardet — standeren på disken
+              bliver stående.
             </p>
 
             <p className="mt-4 max-w-2xl text-sm text-muted">

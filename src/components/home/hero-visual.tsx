@@ -101,3 +101,65 @@ export function HeroVisual() {
     </div>
   );
 }
+
+/**
+ * Kundens anmeldelsesside, tegnet.
+ *
+ * SIDESTYKKE TIL `StempelkortVisual` og ligger i samme fil, fordi de to er
+ * det samme greb: en tegning af den skærm, slutkunden faktisk får. Skilles
+ * de ad, driver de fra hinanden i form og skygge, og de to heroer holder op
+ * med at ligne det samme produkt.
+ *
+ * DEN VISER "actions"-TRINNET, og det er ikke et valg for at få mest muligt
+ * med: `review-flow.tsx` viser netop stjerner OG valg samtidig, når kunden
+ * har sat sin bedømmelse. En tegning, der satte dem på hver sin skærm, ville
+ * love et flow, produktet ikke har.
+ *
+ * DE TRE VALG HAR SAMME VÆGT, og det er hele pointen — se `reviewChoices()`
+ * i review-flow.ts. Gør du ét af dem større her, tegner forsiden review
+ * gating, som produktet er bygget for ikke at gøre.
+ */
+export function AnmeldelseVisual({ className }: { className?: string }) {
+  return (
+    <div
+      aria-hidden="true"
+      className={cn(
+        "box-shape select-none border border-white/10 bg-white p-6 text-foreground shadow-[0_40px_80px_-30px_rgba(0,0,0,0.65)]",
+        className,
+      )}
+    >
+      <div className="flex items-center gap-3">
+        <span className="grid h-11 w-11 place-items-center rounded-xl bg-dark text-sm font-bold text-white">
+          CA
+        </span>
+        <div>
+          <p className="text-sm font-bold tracking-tight">Café Aurora</p>
+          <p className="text-xs text-muted">Del din oplevelse</p>
+        </div>
+      </div>
+
+      <p className="mt-5 text-center text-sm font-medium">
+        Hvordan var din oplevelse?
+      </p>
+      <div className="mt-2 flex justify-center">
+        <Stars value={5} size={30} />
+      </div>
+
+      <p className="mt-5 text-center text-sm font-medium">
+        Hvad vil du gøre nu?
+      </p>
+      <div className="mt-2 space-y-2">
+        {["Anmeld os på Google", "Anmeld os på Trustpilot", "Skriv til os"].map(
+          (valg) => (
+            <div
+              key={valg}
+              className="btn-shape grid h-11 place-items-center bg-accent text-sm font-medium text-accent-fg"
+            >
+              {valg}
+            </div>
+          ),
+        )}
+      </div>
+    </div>
+  );
+}
