@@ -16,7 +16,19 @@ import {
   ReturnVisitIcon,
   ProgressIcon,
   ReturningIcon,
+  FreeProductIcon,
+  AmountOffIcon,
+  PercentOffIcon,
+  ServiceIcon,
+  GiftIcon,
+  CustomRewardIcon,
 } from "@/components/illustrations";
+import { StempelkortVisual } from "@/components/home/hero-visual";
+import {
+  EARN_MODEL_LABELS,
+  EARN_MODEL_HELP,
+  type EarnModel,
+} from "@/lib/loyalty/constants";
 
 /**
  * SEO-landingsside for "stempelkort" / "digitalt stempelkort".
@@ -92,22 +104,112 @@ const STEPS = [
   },
 ];
 
-/** Belønningstyper — matcher `RewardType` i src/lib/loyalty/constants.ts. */
+/**
+ * Belønningstyper — matcher `RewardType` i src/lib/loyalty/constants.ts.
+ *
+ * `chip` er, hvordan belønningen står på KUNDENS kort, og den er tegnet med
+ * præcis samme pille som i `StempelkortVisual`. Det er dét, der gør listen
+ * til en visning af produktet frem for seks felter med tekst i: læseren har
+ * lige set pillen i heroen og genkender den her.
+ */
 const REWARDS = [
   {
+    Icon: FreeProductIcon,
     label: "Gratis produkt",
     body: "Den tiende kaffe, en dessert, et stykke brød.",
+    chip: "Gratis kaffe",
   },
-  { label: "Beløb i rabat", body: "Et fast beløb trukket fra næste køb." },
-  { label: "Procent i rabat", body: "Fx 20 % på næste besøg." },
   {
+    Icon: AmountOffIcon,
+    label: "Beløb i rabat",
+    body: "Et fast beløb trukket fra næste køb.",
+    chip: "50 kr. rabat",
+  },
+  {
+    Icon: PercentOffIcon,
+    label: "Procent i rabat",
+    body: "Fx 20 % på næste besøg.",
+    chip: "20 % rabat",
+  },
+  {
+    Icon: ServiceIcon,
     label: "En ydelse",
     body: "En behandling, en service, en ekstra ting oveni.",
+    chip: "Gratis behandling",
   },
-  { label: "En gave", body: "Noget håndgribeligt, kunden får med." },
   {
+    Icon: GiftIcon,
+    label: "En gave",
+    body: "Noget håndgribeligt, kunden får med.",
+    chip: "En gave til dig",
+  },
+  {
+    Icon: CustomRewardIcon,
     label: "Noget du selv beskriver",
     body: "Din egen formulering, hvis intet af ovenstående passer.",
+    chip: "Din egen tekst",
+  },
+];
+
+/** Optjeningsmodellerne i den rækkefølge, wizarden viser dem. */
+const EARN_MODELS: EarnModel[] = [
+  "per_purchase",
+  "per_visit",
+  "per_amount",
+  "manual",
+  "campaign",
+];
+
+/**
+ * Spærrerne mod misbrug. Alle fem er faktiske felter på et program — se
+ * `program-wizard.tsx` og FAQ'en længere nede, som beskriver de samme fem.
+ */
+const REGLER = [
+  "Højst et bestemt antal stempler pr. køb",
+  "Højst et bestemt antal stempler pr. kunde pr. dag",
+  "En mindste tid mellem to stempler",
+  "Stempler kan udløbe efter et antal dage",
+  "Kortet nulstilles — eller overskydende stempler følger med videre",
+];
+
+/**
+ * Tre opsætninger, vist med den mekanik de beskriver.
+ *
+ * `samlet` er med vilje ikke lig `stempler`: et fuldt kort viser ingenting
+ * om, hvad kortet GØR. Det interessante er mellemrummet mellem det, kunden
+ * har, og det, de mangler — og det er dét, prikkerne tegner.
+ */
+const EKSEMPLER: {
+  branche: Branche;
+  hvem: string;
+  optjen: string;
+  faa: string;
+  stempler: number;
+  samlet: number;
+}[] = [
+  {
+    branche: "cafe",
+    hvem: "Café",
+    optjen: "Køb 9 kaffe",
+    faa: "Den 10. er gratis",
+    stempler: 10,
+    samlet: 7,
+  },
+  {
+    branche: "skoenhed",
+    hvem: "Klinik",
+    optjen: "5 behandlinger",
+    faa: "En fordel på den næste",
+    stempler: 5,
+    samlet: 3,
+  },
+  {
+    branche: "frisoer",
+    hvem: "Frisør",
+    optjen: "6 besøg",
+    faa: "Lås op for en belønning",
+    stempler: 6,
+    samlet: 4,
   },
 ];
 
@@ -248,7 +350,11 @@ export default function StempelkortPage() {
 
       <main>
         {/* ---------------------------------------------------------- hero */}
-        <section className="border-b border-border bg-dark text-dark-fg">
+        {/* `overflow-hidden` er IKKE pynt: skæret bag kortet er et absolut
+            felt, der stikker 4 rem ud til hver side. På en telefon ligger
+            spalten allerede ude ved kanten, og uden klipningen ville siden
+            kunne scrolles til højre — samme fejl som cookielinket i footeren. */}
+        <section className="overflow-hidden border-b border-border bg-dark text-dark-fg">
           <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:py-24 lg:grid-cols-[1.1fr_1fr] lg:items-center">
             <div>
               <span className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white ring-1 ring-white/15">
@@ -259,14 +365,14 @@ export default function StempelkortPage() {
                 Digitalt stempelkort · uden app
               </span>
               <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-                Digitalt stempelkort, der får kunderne til at{" "}
-                <span className="text-secondary">komme igen</span>
+                Få nye kunder til at blive til{" "}
+                <span className="text-secondary">faste kunder</span>
               </h1>
               <p className="mt-5 max-w-xl text-lg text-white/70">
-                Beløn dine faste kunder med et digitalt stempelkort fra
-                LoyalSum. Kunden samler stempler på mobilen, optjener den
-                belønning du selv vælger — og får en grund til at vælge dig
-                næste gang.
+                Et digitalt stempelkort giver det tilfældige besøg en
+                fortsættelse. Kunden samler stempler på mobilen — ingen app,
+                ingen konto — optjener den belønning, du selv vælger, og går ud
+                ad døren med noget, de kun kan hente hos dig.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <ButtonLink variant="secondary" href="/signup" size="lg">
@@ -281,23 +387,30 @@ export default function StempelkortPage() {
               </p>
             </div>
 
-            {/* Skærmbillede fra det rigtige produkt — ikke en illustration.
-                Faste dimensioner mod layoutskift; høj prioritet, da det er
-                heroens LCP-element. */}
+            {/* Samme kort som forsidens hero, uden de to notifikationer —
+                de handler om anmeldelser og hører ikke til på denne side.
+
+                AFLØSTE et skærmbillede (`/stempelkort-app.webp`). Tegningen er
+                skarp i alle størrelser, og den fjerner samtidig heroens
+                LCP-billede: det, der skal males først, er nu tekst. */}
             <div className="lg:justify-self-end lg:pl-8">
-              <div className="mx-auto w-full max-w-[330px]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/stempelkort-app.webp"
-                  alt="Kundens stempelkort på telefonen: Kaffekort hos Testcafe med 7 af 10 stempler samlet og belønningen gratis kaffe"
-                  width={660}
-                  height={720}
-                  fetchPriority="high"
-                  className="box-shape w-full border border-white/10 bg-white shadow-[0_30px_60px_-25px_rgba(0,0,0,0.6)]"
+              <div className="relative mx-auto w-full max-w-[23rem]">
+                {/* Skæret bag kortet. Skærmbilledet var højt og fyldte
+                    spalten; kortet er lavere og stod alene i en stor sort
+                    flade. Et blødt petroleumsskær giver den flade noget at
+                    være — og `relative` på indholdet holder det foran, uden
+                    et negativt z-index, som ville lægge det bag sektionens
+                    egen baggrund. */}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -inset-16 rounded-full bg-accent/30 blur-3xl"
                 />
-                <p className="mt-3 text-center text-xs text-white/50">
-                  Sådan ser kundens kort ud på telefonen
-                </p>
+                <div className="relative">
+                  <StempelkortVisual />
+                  <p className="mt-5 text-center text-xs text-white/50">
+                    Sådan ser kundens kort ud undervejs
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -323,17 +436,51 @@ export default function StempelkortPage() {
               belønning.
             </p>
 
-            <ul className="mt-8 grid gap-3 sm:grid-cols-3">
-              {[
-                "Køb 9 kaffe — få den 10. gratis",
-                "5 behandlinger — få en fordel på den næste",
-                "6 besøg — lås op for en belønning",
-              ].map((ex) => (
+            <ul className="mt-10 grid gap-4 sm:grid-cols-3">
+              {EKSEMPLER.map((e) => (
                 <li
-                  key={ex}
-                  className="box-shape border border-border bg-card p-4 text-sm font-medium"
+                  key={e.hvem}
+                  className="box-shape flex flex-col overflow-hidden border border-border bg-card shadow-[var(--hoejde-1)]"
                 >
-                  {ex}
+                  <div className="flex items-center gap-2.5 border-b border-border bg-muted-bg px-4 py-3">
+                    <IndustryBadge branche={e.branche} />
+                    <span className="text-sm font-medium">{e.hvem}</span>
+                  </div>
+
+                  <div className="flex flex-1 flex-col p-4">
+                    <p className="font-bold tracking-tight">{e.optjen}</p>
+                    <p className="mt-1 flex-1 text-sm text-muted">{e.faa}</p>
+
+                    {/* Prikkerne bærer ingen betydning, teksten ovenfor siger
+                        det samme — derfor aria-hidden, samme regel som
+                        brancheikonerne. */}
+                    <div
+                      className="mt-5 flex flex-wrap items-center gap-1.5"
+                      aria-hidden="true"
+                    >
+                      {Array.from({ length: e.stempler }).map((_, i) => {
+                        // Den SIDSTE prik er belønningen og står i beige.
+                        // Uden den ender rækken bare med et tomt felt, og så
+                        // er der ikke noget at samle op mod.
+                        const klasse =
+                          i === e.stempler - 1
+                            ? "bg-secondary"
+                            : i < e.samlet
+                              ? "bg-accent"
+                              : "border border-border";
+                        return (
+                          <span
+                            key={i}
+                            className={`h-3 w-3 rounded-full ${klasse}`}
+                          />
+                        );
+                      })}
+                    </div>
+
+                    <p className="mt-3 text-xs text-muted">
+                      {e.samlet} af {e.stempler} stempler
+                    </p>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -470,7 +617,7 @@ export default function StempelkortPage() {
 
         {/* -------------------------------------------------------- belønninger */}
         <section className="border-t border-border bg-background">
-          <div className="mx-auto max-w-4xl px-4 py-16">
+          <div className="mx-auto max-w-5xl px-4 py-16 sm:py-20">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Du bestemmer, hvad dine kunder skal optjene
             </h2>
@@ -480,41 +627,122 @@ export default function StempelkortPage() {
               stempler, hvad der udløser dem, og hvad kunden får til sidst.
             </p>
 
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {REWARDS.map((r) => (
-                <div
+                <li
                   key={r.label}
-                  className="box-shape border border-border bg-card p-5"
+                  className="box-shape flex flex-col border border-border bg-card p-5 shadow-[var(--hoejde-1)] transition-shadow hover:shadow-[var(--hoejde-2)]"
                 >
-                  <h3 className="font-bold tracking-tight">{r.label}</h3>
-                  <p className="mt-1 text-sm text-muted">{r.body}</p>
-                </div>
+                  <span
+                    className="btn-shape grid h-11 w-11 place-items-center bg-accent/8 text-accent"
+                    aria-hidden="true"
+                  >
+                    <r.Icon className="h-6 w-6" />
+                  </span>
+                  <h3 className="mt-4 font-bold tracking-tight">{r.label}</h3>
+                  <p className="mt-1.5 flex-1 text-sm leading-relaxed text-muted">
+                    {r.body}
+                  </p>
+                  <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border pt-3.5">
+                    <span className="text-[11px] text-muted">
+                      På kundens kort:
+                    </span>
+                    <span className="rounded-full bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent">
+                      {r.chip}
+                    </span>
+                  </div>
+                </li>
               ))}
+            </ul>
+
+            <div className="mt-14">
+              <h3 className="text-lg font-bold tracking-tight">
+                Hvornår tæller et stempel?
+              </h3>
+              <p className="mt-2 max-w-2xl leading-relaxed text-muted">
+                Du vælger modellen, når du opretter kortet — og du kan lave
+                flere programmer med hver sin.
+              </p>
+
+              {/* Labels og forklaringer hentes fra loyalitetsmodulet og
+                  skrives ikke af her. Siden må kun love funktioner, der
+                  findes, og en afskrift ville kunne blive stående, dagen en
+                  model bliver ændret eller fjernet. */}
+              <ul className="mt-6 grid gap-x-10 gap-y-3.5 sm:grid-cols-2">
+                {EARN_MODELS.map((m) => (
+                  <li key={m} className="flex gap-3">
+                    <span
+                      className="mt-[0.45rem] h-1.5 w-1.5 shrink-0 rounded-full bg-secondary"
+                      aria-hidden="true"
+                    />
+                    <p className="text-sm leading-relaxed">
+                      <strong className="font-semibold">
+                        {EARN_MODEL_LABELS[m]}
+                      </strong>
+                      <span className="text-muted">
+                        {" — "}
+                        {EARN_MODEL_HELP[m]}
+                      </span>
+                    </p>
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            <h3 className="mt-12 text-lg font-bold tracking-tight">
-              Hvornår tæller et stempel?
-            </h3>
-            <p className="mt-3 max-w-2xl leading-relaxed text-muted">
-              Du vælger, om et stempel følger et køb, et besøg, et beløb kunden
-              handler for, eller om personalet giver det manuelt. Til kampagner
-              kan du lave et program, der kun kører i en periode.
-            </p>
+            {/* Spærrerne står i et MØRKT felt, og det er ikke pynt: afsnittet
+                skifter fra "hvad kunden får" til "hvad der forhindrer
+                misbrug". Et farveskift gør springet synligt uden en ekstra
+                overskrift, og sektionen får samtidig den tyngde, en side af
+                lyse kort mangler. */}
+            <div className="mt-14 box-shape overflow-hidden bg-dark text-dark-fg">
+              <div className="grid gap-8 p-6 sm:p-9 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+                <div>
+                  <span className="etiket text-secondary">
+                    Spærrer mod misbrug
+                  </span>
+                  <h3 className="mt-2 text-xl font-bold tracking-tight text-white sm:text-2xl">
+                    Du sætter reglerne — systemet holder dem
+                  </h3>
+                  <p className="mt-3 leading-relaxed text-white/70">
+                    Reglerne håndhæves af systemet og ikke af hukommelsen hos
+                    den, der står ved kassen en travl fredag. Du sætter dem én
+                    gang, når du opretter kortet.
+                  </p>
+                </div>
 
-            <h3 className="mt-10 text-lg font-bold tracking-tight">
-              Du sætter reglerne — systemet holder dem
-            </h3>
-            <p className="mt-3 max-w-2xl leading-relaxed text-muted">
-              Sæt hvor mange stempler der højst må gives pr. køb, hvor mange en
-              kunde kan få på én dag, og hvor lang tid der mindst skal gå mellem
-              to stempler. Du kan lade stempler udløbe efter et antal dage, og
-              du bestemmer, om kortet nulstilles efter en belønning, eller om
-              overskydende stempler følger med videre. Reglerne håndhæves af
-              systemet — ikke af hukommelsen hos den, der står ved kassen en
-              travl fredag.
-            </p>
+                <ul className="grid gap-2.5">
+                  {REGLER.map((r) => (
+                    <li
+                      key={r}
+                      className="btn-shape flex items-start gap-3 bg-white/5 px-4 py-3 text-sm leading-relaxed ring-1 ring-white/10"
+                    >
+                      {/* Beige på koks giver 6,79 i kontrast; accentfarven
+                          ville kun give 2,44 og forsvinde. Paletten vender
+                          efter baggrunden, også her. */}
+                      <span
+                        className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-secondary/20 text-secondary"
+                        aria-hidden="true"
+                      >
+                        <svg
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={2.2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="h-3 w-3"
+                        >
+                          <path d="m3.5 8.5 3 3 6-7" />
+                        </svg>
+                      </span>
+                      <span className="text-white/85">{r}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
 
-            <div className="mt-8 box-shape border border-secondary/30 bg-secondary/10 p-5">
+            <div className="mt-12 box-shape border border-secondary/30 bg-secondary/10 p-5">
               <h3 className="font-bold tracking-tight">
                 Belønninger kobles aldrig til anmeldelser
               </h3>
