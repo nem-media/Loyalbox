@@ -9,6 +9,7 @@ import { getProduct } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 import { getSiteUrl } from "@/lib/site";
 import { IndustryBadge, type Branche } from "@/components/industry-icons";
+import { PLATFORM_VALG, prisTekst } from "@/lib/reviewstander-valg";
 import { AnmeldelseVisual } from "@/components/home/hero-visual";
 import {
   TapIcon,
@@ -117,42 +118,6 @@ const PLACES: { name: string; branche: Branche; where: string }[] = [
   { name: "Værksted", branche: "vaerksted", where: "Ved udlevering af bilen." },
 ];
 
-/**
- * Hvad hver løsning kan på platformssiden.
- *
- * SKREVET AF FRA DEN TABEL, DER STOD HER, og indholdet er uændret. Chipsene
- * er kun ANMELDELSESPLATFORME: det egne link (menukort, booking) er ikke en
- * anmeldelse, og en chip ved siden af de tre andre ville få det til at ligne
- * en fjerde platform. Det står i noten i stedet.
- */
-const PLATFORM_VALG: {
-  navn: string;
-  platforme: string[];
-  maerke: string;
-  note: string;
-  fremhaev?: boolean;
-}[] = [
-  {
-    navn: "Skilt uden konto",
-    platforme: ["Google", "Trustpilot", "Facebook"],
-    maerke: "Du vælger én",
-    note: "Eller dit eget link. QR'en går direkte videre uden at vise en side, så der indsamles ingen feedback.",
-  },
-  {
-    navn: "Reviewstander",
-    platforme: ["Google"],
-    maerke: "Fast destination",
-    note: "Kunden lander på din anmeldelsesside og går derfra videre til Google.",
-  },
-  {
-    navn: "Reviewstander Pro",
-    platforme: ["Google", "Trustpilot", "Facebook"],
-    maerke: "Kunden vælger selv",
-    note: "Alle valg vises med samme vægt. Du kan lægge dit eget link ved siden af — fx menukortet — og skifte destination bagefter uden at trykke standeren om.",
-    fremhaev: true,
-  },
-];
-
 const FAQ = [
   {
     q: "Hvad er en reviewstander?",
@@ -184,7 +149,7 @@ const FAQ = [
   },
   {
     q: "Kan standeren få mit logo?",
-    a: "Ja. Du lægger dit logo op i dit dashboard, og det vises på den side, kunden lander på. Standeren leveres med QR-kode og NFC klar til brug.",
+    a: "Ja. Dit logo trykkes på selve standeren — du lægger det op, når du bestiller, og du vælger samtidig farve og front. Med Reviewstander Pro eller LoyalSum Komplet vises logoet også på den anmeldelsesside, kunden lander på. Køber du den enkle Reviewstander uden konto, er der ingen side: QR'en sender kunden direkte videre.",
   },
   {
     q: "Kan jeg ændre linket senere?",
@@ -192,7 +157,7 @@ const FAQ = [
   },
   {
     q: "Kræver reviewstanderen et abonnement?",
-    a: "Nej. Den enkle Reviewstander er en engangspris uden abonnement. Vil du have din egen anmeldelsesside, flere platforme, dynamiske links, privat feedback og statistik, er det Reviewstander Pro, der har et månedligt abonnement.",
+    a: "Nej. Den enkle Reviewstander er en engangspris uden abonnement. Vil du have din egen anmeldelsesside, flere platforme, dynamiske links, privat feedback og statistik, er det Reviewstander Pro, der har et månedligt abonnement. Skal du også have digitalt stempelkort, er det LoyalSum Komplet.",
   },
   {
     q: "Hvor bør jeg placere standeren?",
@@ -451,55 +416,154 @@ export default function ReviewstanderPage() {
             </h2>
             <p className="mt-4 max-w-2xl leading-relaxed text-foreground/90">
               Standeren er ikke bundet til én platform. Du sætter selv, hvor
-              kunden skal hen — og med Pro kan du tilbyde flere og lade kunden
-              vælge selv.
+              kunden skal hen. Den enkle Reviewstander sender direkte videre til
+              ét link, mens Reviewstander Pro og LoyalSum Komplet giver kunden
+              valget mellem de platforme, du har slået til — og lader dig skifte
+              dem bagefter uden at trykke standeren om.
             </p>
 
-            {/* AFLØSTE EN TABEL. Indholdet er det samme, men tre løsninger
-                med hver tre oplysninger er ikke kolonner af tal — det er tre
-                ting, man læser én ad gangen. Tabellen bar `min-w-[34rem]` og
-                sin egen vandrette scroll, så på en telefon skulle man skubbe
-                den sidelæns for at nå kolonnen om, hvem der vælger. */}
+            {/* KORTENE ER PRIMÆRE, TABELLEN SUPPLERER. Tabellen alene bar
+                `min-w-[34rem]` og sin egen vandrette scroll, så man på en
+                telefon skulle skubbe den sidelæns for at nå kolonnen om, hvem
+                der vælger. Kortene er den udgave, alle kan læse; tabellen er
+                den udgave, der kan skimmes — og som Google kan trække ud som
+                uddrag på en sammenligningssøgning. */}
             <ul className="mt-10 grid gap-4 md:grid-cols-3">
-              {PLATFORM_VALG.map((v) => (
-                <li
-                  key={v.navn}
-                  // Pro fremhæves med en KRAFTIGERE kant og mere højde — ikke
-                  // med en tonet flade. Sektionen står på råhvidt, og accent
-                  // på 5 % oven på den blev en grumset grå, så det kort, der
-                  // skulle stikke frem, læste som deaktiveret.
-                  className={`box-shape flex flex-col border bg-card p-5 ${
-                    v.fremhaev
-                      ? "border-accent shadow-[var(--hoejde-2)]"
-                      : "border-border shadow-[var(--hoejde-1)]"
-                  }`}
-                >
-                  <h3 className="font-bold tracking-tight">{v.navn}</h3>
+              {PLATFORM_VALG.map((v) => {
+                const vare = getProduct(v.slug);
+                if (!vare) return null;
+                return (
+                  <li
+                    key={v.slug}
+                    // Fremhævningen følger `featured` i kataloget og er ikke
+                    // sat i hånden — flyttes mærkatet "Mest populær" til en
+                    // anden vare, flytter kanten med.
+                    //
+                    // Kraftigere kant og mere højde, ikke en tonet flade:
+                    // sektionen står på råhvidt, og accent på 5 % oven på den
+                    // blev en grumset grå, så det kort, der skulle stikke
+                    // frem, læste som deaktiveret.
+                    className={`box-shape flex flex-col border bg-card p-5 ${
+                      vare.featured
+                        ? "border-accent shadow-[var(--hoejde-2)]"
+                        : "border-border shadow-[var(--hoejde-1)]"
+                    }`}
+                  >
+                    {/* Mærkatet står OVER navnet og har fast højde i alle
+                        tre kort. Ved siden af navnet skubbede det "LoyalSum
+                        Komplet" ned i to linjer, så det kort, der skal stikke
+                        frem, fik sine chips og sin mærkat lavere end
+                        naboernes. Tom linje frem for skjult tekst: der er
+                        ikke noget at læse op for en skærmlæser. */}
+                    <p className="etiket h-4 text-accent">
+                      {vare.featured ? "Mest populær" : ""}
+                    </p>
+                    <h3 className="mt-1 font-bold tracking-tight">
+                      {vare.name}
+                    </h3>
+                    <p className="mt-1 text-sm text-muted">
+                      {prisTekst(v.slug)}
+                    </p>
 
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {v.platforme.map((platform) => (
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {v.platforme.map((platform) => (
+                        <span
+                          key={platform}
+                          className="rounded-full bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent"
+                        >
+                          {platform}
+                        </span>
+                      ))}
+                    </div>
+
+                    <p className="mt-4 flex items-center gap-2 border-t border-border pt-3.5 text-sm font-medium">
                       <span
-                        key={platform}
-                        className="rounded-full bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent"
-                      >
-                        {platform}
-                      </span>
-                    ))}
-                  </div>
+                        className="h-1.5 w-1.5 shrink-0 rounded-full bg-secondary"
+                        aria-hidden="true"
+                      />
+                      {v.maerke}
+                    </p>
+                    <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">
+                      {v.note}
+                    </p>
 
-                  <p className="mt-4 flex items-center gap-2 border-t border-border pt-3.5 text-sm font-medium">
-                    <span
-                      className="h-1.5 w-1.5 shrink-0 rounded-full bg-secondary"
-                      aria-hidden="true"
-                    />
-                    {v.maerke}
-                  </p>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">
-                    {v.note}
-                  </p>
-                </li>
-              ))}
+                    <Link
+                      href={`/produkter/${v.slug}`}
+                      className="mt-4 text-sm font-medium text-accent hover:underline"
+                    >
+                      Se {vare.name} →
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
+
+            {/* Kun fra md og op: på en telefon siger kortene ovenfor præcis
+                det samme, og fem kolonner dér ville betyde vandret scroll —
+                netop dét, kortene løste. Indholdet er altså ikke skjult for
+                nogen, det er vist i den form, skærmen har plads til. */}
+            <div className="mt-10 hidden overflow-x-auto md:block">
+              <table className="w-full border-collapse text-sm">
+                <caption className="sr-only">
+                  Sammenligning af Reviewstander, Reviewstander Pro og LoyalSum
+                  Komplet: platforme, om destinationen kan skiftes bagefter,
+                  stempelkort og pris.
+                </caption>
+                <thead>
+                  <tr className="border-b border-border bg-background text-left">
+                    <th scope="col" className="etiket px-4 py-3">
+                      Løsning
+                    </th>
+                    <th scope="col" className="etiket px-4 py-3">
+                      Platforme
+                    </th>
+                    <th scope="col" className="etiket px-4 py-3">
+                      Kundens vej
+                    </th>
+                    <th scope="col" className="etiket px-4 py-3">
+                      Skift bagefter
+                    </th>
+                    <th scope="col" className="etiket px-4 py-3">
+                      Stempelkort
+                    </th>
+                    <th scope="col" className="etiket px-4 py-3">
+                      Pris
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {PLATFORM_VALG.map((v) => {
+                    const vare = getProduct(v.slug);
+                    if (!vare) return null;
+                    return (
+                      <tr key={v.slug} className="border-b border-border/60">
+                        <th
+                          scope="row"
+                          className="px-4 py-3 text-left align-top font-medium"
+                        >
+                          {vare.name}
+                        </th>
+                        <td className="px-4 py-3 align-top">
+                          {v.platformCelle}
+                        </td>
+                        <td className="px-4 py-3 align-top text-muted">
+                          {v.kundenSer}
+                        </td>
+                        <td className="px-4 py-3 align-top text-muted">
+                          {v.skifte}
+                        </td>
+                        <td className="px-4 py-3 align-top text-muted">
+                          {v.stempelkort}
+                        </td>
+                        <td className="px-4 py-3 align-top whitespace-nowrap">
+                          {prisTekst(v.slug)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
 
             <p className="mt-8 max-w-2xl leading-relaxed text-foreground/90">
               Beslutter du dig undervejs for at satse på Trustpilot i stedet for
@@ -609,7 +673,8 @@ export default function ReviewstanderPage() {
             </ol>
 
             <p className="mt-8 max-w-2xl leading-relaxed text-foreground/90">
-              Med LoyalSum kan den samme stander også være indgangen til dit{" "}
+              Med <strong>LoyalSum Komplet</strong> kan den samme stander også
+              være indgangen til dit{" "}
               <Link href="/stempelkort" className="font-medium text-accent">
                 digitale stempelkort
               </Link>

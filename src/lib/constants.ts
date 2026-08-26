@@ -133,6 +133,19 @@ export const CAPABILITY_ORDER: Capability[] = [
   "statistics",
 ];
 
+/**
+ * PREMIUM TILDELES ALDRIG AF ET KØB. `planForProduct()` svarer kun `pro`
+ * (abonnement) eller `basic` (alt andet), så ingen virksomhed kan ende der
+ * ad den vej.
+ *
+ * Niveauet bliver alligevel stående: `company_plan` er en Postgres-enum
+ * (migration 0003) med præcis de tre værdier, og fjernes det her, kan typen
+ * ikke længere beskrive, hvad kolonnen må indeholde. Det kan også sættes i
+ * hånden i admin.
+ *
+ * Det er altså IKKE et produkt og må aldrig vises som et. Skal en vare give
+ * mellemniveauet, er stedet `planForProduct()` — ikke en liste et sted i UI.
+ */
 export const TIER_LABELS: Record<Tier, string> = {
   basic: "Basic",
   premium: "Premium",
@@ -142,16 +155,15 @@ export const TIER_LABELS: Record<Tier, string> = {
 export const TIER_ORDER: Tier[] = ["basic", "premium", "pro"];
 
 /** True if the given tier unlocks the capability. Unknown tier → basic. */
-export function tierCan(tier: Tier | null | undefined, cap: Capability): boolean {
+export function tierCan(
+  tier: Tier | null | undefined,
+  cap: Capability,
+): boolean {
   return TIER_CAPABILITIES[tier ?? "basic"]?.[cap] ?? false;
 }
 
 export type Platform =
-  | "google"
-  | "trustpilot"
-  | "tripadvisor"
-  | "facebook"
-  | "multi";
+  "google" | "trustpilot" | "tripadvisor" | "facebook" | "multi";
 
 export type StripeMode = "test" | "live";
 
@@ -250,7 +262,8 @@ export const COMMERCE = {
    * Google Merchant produktkategori. Kvalificeret bud for en bord-/displaystander
    * — verificér/justér i Merchant Center, når feedet oprettes.
    */
-  googleProductCategory: "Business & Industrial > Retail > Retail Display Props",
+  googleProductCategory:
+    "Business & Industrial > Retail > Retail Display Props",
 } as const;
 
 // ===========================================================================
@@ -457,7 +470,9 @@ export const KATALOG: Product[] = PRODUCTS.filter((p) => !p.addon);
  * niveau `pro`, fordi de har samme review-funktioner. Forskellen er netop
  * stempelkortet, og den kendes kun via det købte produkt.
  */
-export function hasLoyaltyAccess(productSlug: string | null | undefined): boolean {
+export function hasLoyaltyAccess(
+  productSlug: string | null | undefined,
+): boolean {
   if (!productSlug) return false;
   return Boolean(getProduct(productSlug)?.includesLoyalSum);
 }
@@ -598,7 +613,9 @@ export function priceFor(
   // Tilvalget lægges til ÉN gang og får ingen rabat: rabatten hører til
   // enheden, og der er kun én opsætning i trykket.
   const frontfarve =
-    tilvalg.egenFrontfarve && harFysiskSkilt(product) ? EGEN_FRONTFARVE_PRIS : 0;
+    tilvalg.egenFrontfarve && harFysiskSkilt(product)
+      ? EGEN_FRONTFARVE_PRIS
+      : 0;
 
   return {
     qty: q,
@@ -625,54 +642,20 @@ export function harFysiskSkilt(product: Pick<Product, "kunDigital">): boolean {
   return !product.kunDigital;
 }
 
-/**
- * LoyalSum-abonnementet (tilkøb til standeren). Adskilt fra de fysiske produkter:
- * standeren virker standalone, men LoyalSum låser dashboard, statistik og
- * dynamiske links op. Driver plan-vælgeren og prissektionen.
+/*
+ * HER LÅ EN PARALLEL PRISSTIGE — `Plan`, `LOYALSUM_PLANS` og `getPlan()` —
+ * med Basic 0 kr., Premium 79 kr./md. og Pro 149 kr./md.
+ *
+ * INGEN AF DE PRISER FANDTES. Abonnementet købes som en del af et produkt
+ * (Reviewstander Pro 99 kr./md., LoyalSum Komplet 399 kr./md.), og
+ * basic/premium/pro er ADGANGSNIVEAUER, der følger med købet — ikke varer.
+ * Dashboardets abonnementsside blev rettet, dengang det blev opdaget, men
+ * stigen blev stående og kunne rendres af den næste, der ledte efter en
+ * prisliste i constants.
+ *
+ * Der er derfor ét sted at sælge fra: PRODUCTS, og KATALOG som den
+ * offentlige delmængde.
  */
-export interface Plan {
-  tier: Tier;
-  name: string;
-  price: number; // DKK pr. måned; 0 = gratis
-  tagline: string;
-  features: string[];
-  featured?: boolean;
-}
-
-export const LOYALSUM_PLANS: Plan[] = [
-  {
-    tier: "basic",
-    name: "Basic",
-    price: 0,
-    tagline: "Standeren virker standalone",
-    features: ["Link til din anmeldelsesside", "QR + NFC", "Intet abonnement"],
-  },
-  {
-    tier: "premium",
-    name: "Premium",
-    price: 79,
-    tagline: "Din egen branding",
-    features: ["Alt i Basic", "Eget logo & design", "Prioriteret support"],
-    featured: true,
-  },
-  {
-    tier: "pro",
-    name: "Pro",
-    price: 149,
-    tagline: "Fuld indsigt & fleksibilitet",
-    features: [
-      "Alt i Premium",
-      "Fuldt dashboard",
-      "Realtidsstatistik",
-      "Dynamiske links",
-      "Privat feedback-indbakke",
-    ],
-  },
-];
-
-export function getPlan(tier: Tier): Plan {
-  return LOYALSUM_PLANS.find((p) => p.tier === tier) ?? LOYALSUM_PLANS[0];
-}
 
 export const DESTINATION_LABELS: Record<string, string> = {
   google: "Google Anmeldelse",
