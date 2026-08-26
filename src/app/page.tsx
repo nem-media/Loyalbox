@@ -392,9 +392,10 @@ export default function LandingPage() {
                 "venstre halvdel" ville altså tage fejl begge veje — og på en
                 telefon står kortene alligevel over hinanden.
 
-                Opslag er BEVIDST ikke nævnt: produktlisten sætter dem under
-                LoyalSum Komplet, men `/dashboard/opslag` er ikke spærret for
-                nogen. Det skal afklares ét sted, ikke gættes på her.
+                Opslag står nu under Komplet, og det er også dér, koden
+                sætter dem: `/dashboard/opslag` var slet ikke spærret, så en
+                Pro-kunde havde funktionen uden at have købt den. Spærringen
+                ligger i dashboardets opslag-layout.
 
                 Bevidst en SÆTNING og ikke en prissektion: prissektionen blev
                 taget af forsiden, dengang den blev positioneret som platform
@@ -410,8 +411,8 @@ export default function LandingPage() {
               .{" "}
               <Link href="/stempelkort" className="font-medium text-accent">
                 Stempelkort
-              </Link>{" "}
-              og belønninger er en del af{" "}
+              </Link>
+              , belønninger og opslag er en del af{" "}
               <Link
                 href="/produkter/loyalsum-komplet"
                 className="font-medium text-accent"
