@@ -13,7 +13,7 @@ export default async function ProfilePage() {
     <>
       <PageHeader
         title="Virksomhedsprofil"
-        description="Dine oplysninger og logo bruges på den offentlige anmeldelsesside."
+        description="Navn og logo møder dine kunder. Resten bruger vi til ordrer og faktura."
       />
       {company ? (
         <ProfileForm company={company} />
