@@ -437,8 +437,20 @@ export default function StempelkortPage() {
                       Teksten findes ikke andre steder i heroen — den linje,
                       der stod under knapperne, sagde det samme og er væk. */}
                     <div className="absolute -top-6 -right-2 sm:-right-7">
-                      <div className="btn-shape flex items-center gap-2 bg-white px-3 py-2 text-foreground shadow-[0_16px_32px_-16px_rgba(0,0,0,0.6)]">
-                        <StampIcon className="h-4 w-4 shrink-0 text-accent" />
+                      {/* BEIGE OG IKKE HVID. Emblemet var hvidt som kortet, og
+                          dér hvor de to overlapper, fandtes der ingen kant —
+                          det læste som en linje INDE i stempelkortet frem for
+                          en note oven på det.
+
+                          Beige og ikke petroleum: emblemet ligger for det
+                          meste på den mørke sektion, hvor beige giver 6,79 i
+                          kontrast og petroleum kun 2,44. Det er samme regel,
+                          som knapperne følger — paletten vender efter
+                          baggrunden. Det nederste emblem er koksgråt og
+                          skiller sig ud fra kortet af samme grund, bare den
+                          anden vej. */}
+                      <div className="btn-shape flex items-center gap-2 bg-secondary px-3 py-2 text-secondary-fg shadow-[0_16px_32px_-16px_rgba(0,0,0,0.6)]">
+                        <StampIcon className="h-4 w-4 shrink-0" />
                         <span className="text-xs font-semibold tracking-tight">
                           Du bestemmer antal stempler
                         </span>
