@@ -5,7 +5,10 @@ import { SiteFooter } from "@/components/site-footer";
 import { LegalSection, CompanyDetails } from "@/components/legal";
 import { COMPANY, SITE_NAME } from "@/lib/constants";
 import { FRISTER, OPRYDNING_KADENCE } from "@/lib/opbevaring";
-import { SUSPENSION_MAANEDER, SLETNING_ANGREFRIST_DAGE } from "@/lib/abonnement";
+import {
+  SUSPENSION_MAANEDER,
+  SLETNING_ANGREFRIST_DAGE,
+} from "@/lib/abonnement";
 
 /**
  * Version og dato på politikken.
@@ -14,8 +17,11 @@ import { SUSPENSION_MAANEDER, SLETNING_ANGREFRIST_DAGE } from "@/lib/abonnement"
  * læste. Hæves versionen, skal datoen følge med; det er den eneste måde at
  * kunne svare på "hvad stod der dengang".
  */
-const POLITIK_VERSION = "1.1";
-const POLITIK_DATO = "21. august 2026";
+// 1.2 (27. august 2026): nyt afsnit 4 om ventelisten til åbningen — vi
+// indsamler navn, mail og evt. telefon, og det skal fremgå, også selv om
+// oplysningerne kun ligger i mailboksen og ikke i systemet.
+const POLITIK_VERSION = "1.2";
+const POLITIK_DATO = "27. august 2026";
 
 /**
  * Google Ads er ikke i drift, før id'et er sat. Afsnittet om marketing skal
@@ -115,11 +121,37 @@ export default function PrivacyPage() {
           </p>
         </LegalSection>
 
-        <LegalSection id="slutkunder" title="4. Oplysninger om butikkernes kunder">
+        <LegalSection
+          id="venteliste"
+          title="4. Hvis du skriver dig op til åbningen"
+        >
+          <p>
+            Salget er ikke åbnet endnu, og du kan i stedet bede om at blive
+            kontaktet, når det sker. Vi beder om dit navn, din e-mail og — hvis
+            du vil — dit telefonnummer, samt hvilken løsning du er interesseret
+            i.
+          </p>
+          <p>
+            <strong>Oplysningerne gemmes ikke i vores system.</strong> De sendes
+            som en almindelig mail til {COMPANY.email} og ligger i vores
+            mailboks, indtil vi har kontaktet dig, og senest til salget har
+            været åbent i tre måneder. Så sletter vi dem.
+          </p>
+          <p>
+            Grundlaget er din egen anmodning, altså samtykke. Du kan når som
+            helst skrive til {COMPANY.email} og bede os slette din tilmelding —
+            og vi bruger den ikke til andet end det, du bad om.
+          </p>
+        </LegalSection>
+
+        <LegalSection
+          id="slutkunder"
+          title="5. Oplysninger om butikkernes kunder"
+        >
           <p>
             Tilmelder en kunde sig en butiks stempelkort, behandler vi det, som
-            butikken beder om: typisk navn og en kontaktoplysning, samt
-            optjente stempler og indløste belønninger.
+            butikken beder om: typisk navn og en kontaktoplysning, samt optjente
+            stempler og indløste belønninger.
           </p>
           <p>
             Et stempelkort kan tilgås via en hemmelig adresse uden at oprette
@@ -134,7 +166,7 @@ export default function PrivacyPage() {
           </p>
         </LegalSection>
 
-        <LegalSection id="opbevaring" title="5. Hvor længe vi gemmer">
+        <LegalSection id="opbevaring" title="6. Hvor længe vi gemmer">
           <p>
             Oplysninger, der peger på en person, slettes, når formålet med dem
             er udtømt. Tal, der ikke peger på nogen, bliver liggende, så
@@ -185,7 +217,10 @@ export default function PrivacyPage() {
           </p>
         </LegalSection>
 
-        <LegalSection id="underdatabehandlere" title="6. Hvem vi deler data med">
+        <LegalSection
+          id="underdatabehandlere"
+          title="7. Hvem vi deler data med"
+        >
           <p>
             Vi sælger aldrig personoplysninger. Vi bruger disse leverandører til
             at drive tjenesten:
@@ -212,17 +247,17 @@ export default function PrivacyPage() {
           </p>
         </LegalSection>
 
-        <LegalSection id="cookies" title="7. Cookies og statistik">
+        <LegalSection id="cookies" title="8. Cookies og statistik">
           <p>
             <strong>Nødvendige:</strong> vi bruger en enkelt cookie, der holder
             dig logget ind. Den kan ikke fravælges, for uden den virker login
             ikke.
           </p>
           <p>
-            <strong>Besøgsstatistik uden cookies:</strong> vi tæller sidevisninger
-            gennem Vercel Analytics. Det sætter ingenting på din enhed og kan
-            ikke bruges til at genkende dig — derfor kræver det ikke dit
-            samtykke efter cookiereglerne. Grundlaget er vores legitime
+            <strong>Besøgsstatistik uden cookies:</strong> vi tæller
+            sidevisninger gennem Vercel Analytics. Det sætter ingenting på din
+            enhed og kan ikke bruges til at genkende dig — derfor kræver det
+            ikke dit samtykke efter cookiereglerne. Grundlaget er vores legitime
             interesse i at vide, hvilke sider der bliver læst, så vi kan gøre
             dem bedre. Målingen kan ikke henføres til dig.
           </p>
@@ -317,7 +352,7 @@ export default function PrivacyPage() {
           </p>
         </LegalSection>
 
-        <LegalSection id="rettigheder" title="8. Dine rettigheder">
+        <LegalSection id="rettigheder" title="9. Dine rettigheder">
           <p>
             Du har ret til indsigt i dine oplysninger, til at få rettet forkerte
             oplysninger, til at få slettet data, til at begrænse behandlingen,
@@ -340,7 +375,10 @@ export default function PrivacyPage() {
           </p>
           <p>
             Skriv til{" "}
-            <a href={`mailto:${COMPANY.email}`} className="font-medium text-accent">
+            <a
+              href={`mailto:${COMPANY.email}`}
+              className="font-medium text-accent"
+            >
               {COMPANY.email}
             </a>
             , så svarer vi inden for en måned. Er du kunde i en butik, skal du
@@ -348,7 +386,7 @@ export default function PrivacyPage() {
           </p>
         </LegalSection>
 
-        <LegalSection id="sikkerhed" title="9. Sikkerhed">
+        <LegalSection id="sikkerhed" title="10. Sikkerhed">
           <p>
             Data sendes krypteret, adgangskoder gemmes aldrig i klartekst, og
             adgangen til den enkelte butiks data er teknisk afgrænset, så én
