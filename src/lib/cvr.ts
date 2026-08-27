@@ -1,5 +1,5 @@
 /**
- * CVR-nummeret — og hvorfor det er obligatorisk.
+ * CVR-nummeret — som er FRIVILLIGT, men skal være rigtigt, hvis det skrives.
  *
  * BAGGRUND: handelsbetingelserne forudsætter et erhvervskøb. Priserne vises
  * uden moms, og der er ingen fortrydelsesret. Men indtil nu blev der kun
@@ -8,8 +8,10 @@
  * betingelserne siger: 14 dages fortrydelsesret, oplysningspligt før købet og
  * priser inklusive moms. Vi ville altså have solgt på vilkår, der ikke gjaldt.
  *
- * CVR-nummeret er den spærre. Det er ikke en formalitet: det er dét, der gør
- * "vi sælger kun til virksomheder" til andet end en sætning på en side.
+ * KRAVET ER FJERNET IGEN (2026-08-26). Nummeret spærrer ikke længere for et
+ * køb — se `koebSpaerre()` i commerce.ts. Kontrollen her er derfor ikke en
+ * dør, men en tastefejlsfanger: skriver nogen et nummer, skal det være det
+ * rigtige, for ellers tror de, det står på fakturaen.
  *
  * Nummeret står også på fakturaen, hvor køberens CVR hører hjemme i et dansk
  * B2B-salg.
@@ -70,6 +72,13 @@ export function visCvr(raw: string): string {
   return `DK ${normaliserCvr(raw)}`;
 }
 
-/** Beskeden, der vises, når nummeret ikke går igennem. Samme ordlyd overalt. */
+/**
+ * Beskeden, der vises, når nummeret ikke går igennem. Samme ordlyd overalt.
+ *
+ * SAGDE FØR "vi sælger kun til virksomheder", og det var forkert på to måder.
+ * Feltet er valgfrit — beskeden skal sige, at man kan gå videre uden — og
+ * sætningen gentog et krav, der ikke findes mere. En fejlbesked, der beder om
+ * noget, man ikke behøver, får folk til at opgive.
+ */
 export const CVR_FEJL =
-  "Det ser ikke ud til at være et gyldigt CVR-nummer. Tjek de otte cifre — vi sælger kun til virksomheder.";
+  "Det ser ikke ud til at være et gyldigt CVR-nummer. Tjek de otte cifre — eller lad feltet stå tomt.";
