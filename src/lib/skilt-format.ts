@@ -18,17 +18,14 @@ export type Variant = "sort" | "hvid";
  *
  * Skabelonernes viewBox skæres af generatoren ind til netop denne firkant, så
  * (0, 0) er skiltets øverste venstre hjørne. Canva lægger et par enheders tomt
- * lærred under designet, og de ville ellers blive til en gennemsigtig stribe
- * under previewets nederste kant.
- *
- * De to filer er 0,004 enheder fra hinanden i højden — under en tusindedel
- * millimeter. Her står ét tal.
+ * lærred uden om designet, og det ville ellers blive til en gennemsigtig
+ * stribe langs previewets kant, hvor silhuetten så ikke fulgte skiltet.
  */
-export const SKILT_BREDDE = 339.238281;
-export const SKILT_HOEJDE = 538.015625;
+export const SKILT_BREDDE = 339.8125;
+export const SKILT_HOEJDE = 544.234374;
 
-/** Standerens afrundede hjørner. Ens i begge filer. */
-export const HJOERNE_R = 15.707031;
+/** Standerens afrundede hjørner. */
+export const HJOERNE_R = 15.734375;
 
 export interface Felt {
   x: number;
@@ -38,48 +35,51 @@ export interface Felt {
 }
 
 /**
- * MÅLENE ER PR. SKABELON, FORDI DE TO FILER IKKE ER ENS.
+ * FELTERNE I SKABELONEN. Ét sæt tal til begge filer — de er ens ud over
+ * farverne.
  *
- * Det ville være pænere med ét sæt tal, og indtil eksporten den 27. august
- * var det næsten rigtigt — de lå under en enhed fra hinanden. Efter at den
- * nederste blok blev rykket op for at gå fri af foden, ligger den hvide fils
- * blok 5 enheder (1,8 mm) lavere end den sortes, og dens logofelt er 5
- * enheder højere. Ét fælles sæt ville derfor tegne QR-koden ved siden af
- * pladsholderen i den ene af de to.
+ * DE HAR VÆRET UENIGE ÉN GANG. I eksporten tidligere samme dag lå den hvide
+ * fils nederste blok 5 enheder lavere end den sortes, og logofeltet var 5
+ * enheder højere; en kunde, der skiftede standerfarve, ville have set sit logo
+ * skifte størrelse. Derfor prøves BEGGE skabeloner mod netop dette ene sæt i
+ * `skilt-skabelon.test.ts` — driver de fra hinanden igen, fejler den ene af de
+ * to, i stedet for at forskellen bliver skrevet ind i koden og glemt.
  *
  * Tallene er MÅLT i filerne, ikke skønnet, og `lav-print-skabelon.mjs`
- * kontrollerer ved hver kørsel, at de `d`-strenge, de er målt på, stadig
- * står der. Flytter designet sig igen, fejler generatoren frem for at lave
- * en skabelon, koden peger forkert i.
- *
- * Bliver de to filer en dag ens igen, bliver de to blokke her identiske —
- * og så er der ingen kode at rette.
+ * kontrollerer ved hver kørsel, at de `d`-strenge, de er målt på, stadig står
+ * der. Flytter designet sig, fejler generatoren frem for at lave en skabelon,
+ * koden peger forkert i. Alle y-tal er regnet fra udsnittets øverste kant.
  */
-export const MAAL: Record<
-  Variant,
-  {
-    /** Hele den firkant, "Dit logo" står i. */
-    logo: Felt;
-    /** QR-pladsholderens felt. */
-    qr: Felt;
-    /** NFC-cirklen. Bruges til at holde dækflader klar af den. */
-    nfc: { cx: number; cy: number; r: number };
-    /** Nederste kant af alt, der er tegnet. Bruges til at prøve mod foden. */
-    indholdBund: number;
-  }
-> = {
-  sort: {
-    logo: { x: 28.703125, y: 15.15625, bredde: 281.84375, hoejde: 102.199218 },
-    qr: { x: 190.6289, y: 249.5508, bredde: 114.6641, hoejde: 114.6602 },
-    nfc: { cx: 95.492188, cy: 307.839844, r: 61.902343 },
-    indholdBund: 388.42,
-  },
-  hvid: {
-    logo: { x: 27.847656, y: 16.132813, bredde: 283.515625, hoejde: 107.210937 },
-    qr: { x: 190.7109, y: 254.5078, bredde: 115.1055, hoejde: 115.1055 },
-    nfc: { cx: 95.039062, cy: 313.019531, r: 62.136719 },
-    indholdBund: 393.85,
-  },
+export const MAAL = {
+  /** Hele den firkant, "Dit logo" står i. */
+  logo: {
+    x: 28.753906,
+    y: 17.578124,
+    bredde: 282.511719,
+    hoejde: 113.535157,
+  } as Felt,
+
+  /** QR-pladsholderens felt. */
+  qr: { x: 195.3203, y: 252.875, bredde: 115.7344, hoejde: 115.7344 } as Felt,
+
+  /**
+   * NFC-feltet. Var en cirkel indtil 27. august og er nu en afrundet firkant
+   * ved siden af QR-koden — derfor et felt og ikke et centrum med en radius.
+   * Bruges til at holde QR-kodens dækflade klar af den.
+   */
+  nfc: {
+    x: 29.03125,
+    y: 253.574218,
+    bredde: 119.082031,
+    hoejde: 115.039063,
+  } as Felt,
+
+  /**
+   * Nederste kant af alt, der er tegnet. Bruges til at prøve mod foden — se
+   * `FOD_START_Y`. Bomærket lå 4 mm nede i fodzonen i den første eksport af
+   * det nye design; nu er der 2,5 mm luft.
+   */
+  indholdBund: 395.4156,
 };
 
 /**

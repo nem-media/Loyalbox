@@ -93,10 +93,7 @@ export async function byggSkilt(valg: SkiltValg): Promise<string> {
   }
 
   if (valg.logoDataUri) {
-    svg = svg.replace(
-      "</svg>",
-      `${logoLag(valg.logoDataUri, variant, baggrund)}</svg>`,
-    );
+    svg = svg.replace("</svg>", `${logoLag(valg.logoDataUri, baggrund)}</svg>`);
   }
 
   return svg;
@@ -121,9 +118,8 @@ export async function byggSkilt(valg: SkiltValg): Promise<string> {
  * bliver trykt. Skjulte vi den, ville kunden først opdage det på skiltet, og
  * et skilt kan ikke kaldes tilbage.
  */
-function logoLag(dataUri: string, variant: Variant, baggrund: string): string {
-  // MÅLENE ER PR. SKABELON — de to Canva-filer har ikke feltet samme sted.
-  const felt = MAAL[variant].logo;
+function logoLag(dataUri: string, baggrund: string): string {
+  const felt = MAAL.logo;
   const d = daek(felt);
   return (
     `<rect x="${d.x}" y="${d.y}" width="${d.bredde}" ` +
@@ -173,7 +169,7 @@ async function qrLag(
   if (!kode) return "";
   const { d, net } = kode;
 
-  const felt = MAAL[variant].qr;
+  const felt = MAAL.qr;
   const flade = daek(felt);
   const skala = Math.min(felt.bredde, felt.hoejde) / net;
 

@@ -62,7 +62,40 @@ if (!kilde) {
  * egen bredde. Aldrig omvendt: i den hvide fil er BÅDE lærredet og standeren
  * `#ffffff`, så en erstatning på farve alene ville ramme forkert.
  */
-const BAGPLADE_D = "M 0 0.300781 L 339.582031";
+const BAGPLADE_D = "M 0 0.148438 L 340.15625";
+const LAERRED_D = "M 0 0.148438 L 340 0.148438";
+const STANDER_D = "M 0 0.148438 L 339.8125";
+
+/**
+ * Udsnittet: standerens egen firkant, målt i eksporten fra 27. august (2).
+ * Samme tal i begge filer — de er nu ens ud over farverne.
+ */
+const UDSNIT = "0 0.148438 339.8125 544.234374";
+const LAERRED_VIEWBOX = /viewBox="0 0 340\.5 544\.499983"/g;
+
+/** Højden rettes med, så billedets iboende sideforhold passer til udsnittet. */
+const HOEJDE_FRA = /height="726"/g;
+const HOEJDE_TIL = 'height="727"';
+
+/**
+ * Geometriankrene — de præcise strenge, `MAAL` i skilt-format.ts er målt på.
+ * Kun skivefarven skiller de to filer ad; alt andet står ens i dem begge.
+ */
+function ankre(skive) {
+  return [
+    ['transform="matrix(1, 0, 0, 1, 28, 17)"', "logofeltets gruppe"],
+    [
+      `<path fill="${skive}" d="M 0.753906 0.726562 L 283.265625 0.726562 L 283.265625 114.261719`,
+      "logofeltets flade",
+    ],
+    ['transform="matrix(1, 0, 0, 1, 29, 253)"', "NFC-feltets gruppe"],
+    [
+      `<path fill="${skive}" d="M 0.03125 0.722656 L 119.113281 0.722656 L 119.113281 115.761719`,
+      "NFC-feltets flade",
+    ],
+    ['transform="matrix(1, 0, 0, 1, 195, 253)"', "QR-pladsholderen"],
+  ];
+}
 
 const FILER = [
   {
@@ -70,36 +103,23 @@ const FILER = [
     til: "skabelon-sort.ts",
     navn: "SKABELON_SORT",
     bg: "#000000",
-    standerD: "M 0 0.277344 L 339.238281",
     skive: "#171717",
     ring: "#545454",
-    /** Udsnittet: standerens egen firkant. Se `MAAL.sort` i skilt-format.ts. */
-    udsnit: "0 1.277344 339.238281 538.011718",
-    ankre: [
-      // Logofeltet — gruppen og fladen inden i.
-      ['transform="matrix(1, 0, 0, 1, 28, 16)"', "logofeltets gruppe"],
-      ['d="M 0.703125 0.433594 L 282.546875 0.433594 L 282.546875 102.632812', "logofeltets flade"],
-      // NFC-cirklen.
-      ['d="M 95.492188 247.21875 C', "NFC-cirklen"],
-      // QR-pladsholderens gruppe.
-      ['transform="matrix(1, 0, 0, 1, 190, 250)"', "QR-pladsholderen"],
-    ],
   },
   {
     navnetPaaVarianten: "hvid",
     til: "skabelon-hvid.ts",
     navn: "SKABELON_HVID",
     bg: "#ffffff",
-    standerD: "M 0 0.300781 L 339.238281",
     skive: "#f6f6f6",
-    ring: "#d9d9d9",
-    udsnit: "0 0.300781 339.238281 538.015625",
-    ankre: [
-      ['transform="matrix(1, 0, 0, 1, 27, 16)"', "logofeltets gruppe"],
-      ['d="M 0.847656 0.433594 L 284.363281 0.433594 L 284.363281 107.644531', "logofeltets flade"],
-      ['d="M 95.039062 251.183594 C', "NFC-cirklen"],
-      ['transform="matrix(1, 0, 0, 1, 190, 254)"', "QR-pladsholderen"],
-    ],
+    /*
+     * SAMME MØRKEGRÅ SOM I DEN SORTE FIL. Den hvide eksport havde tidligere
+     * #d9d9d9 her; fra 27. august står begge med #545454. Det har ingen
+     * betydning for, hvad der trykkes — stregen afledes af baggrunden i
+     * `ringFarve()`, og en hvid stander får stadig sin lyse tone. Literalen
+     * skal bare kunne findes.
+     */
+    ring: "#545454",
   },
 ];
 
@@ -115,7 +135,7 @@ function findKilde(mappe, f) {
     .filter((n) => n.toLowerCase().endsWith(".svg"))
     .filter((n) => {
       const s = readFileSync(join(mappe, n), "utf8");
-      return s.includes(f.skive) && s.includes(`<path fill="${f.bg}" d="${f.standerD}`);
+      return s.includes(f.skive) && s.includes(`<path fill="${f.bg}" d="${STANDER_D}`);
     });
 
   if (kandidater.length !== 1) {
@@ -149,7 +169,7 @@ for (const f of FILER) {
    * GEOMETRIEN FØRST. Passer den ikke, er der ingen grund til at skrive en
    * skabelon ud: den ville se rigtig ud og tegne QR-koden det forkerte sted.
    */
-  for (const [anker, hvad] of f.ankre) {
+  for (const [anker, hvad] of ankre(f.skive)) {
     if (!s.includes(anker)) {
       throw new Error(
         `${fra}: ${hvad} står ikke, hvor MAAL i src/lib/skilt-format.ts er målt op.\n` +
@@ -164,8 +184,8 @@ for (const f of FILER) {
   //    lærredet og standeren samme #ffffff.
   s = erstat(
     s,
-    new RegExp(`<path fill="${f.bg}" d="${f.standerD}`, "g"),
-    `<path fill="{{BG}}" d="${f.standerD}`,
+    new RegExp(`<path fill="${f.bg}" d="${STANDER_D}`, "g"),
+    `<path fill="{{BG}}" d="${STANDER_D}`,
     1,
     "standerens flade",
     fra,
@@ -173,13 +193,16 @@ for (const f of FILER) {
 
   // 2) Bagpladen og lærredet slås fra. `fill="none"` frem for at slette
   //    stien: mindre indgreb i et dokument, vi ikke selv har tegnet.
-  for (const farve of ["#b4b4b4", "#ffffff"]) {
+  for (const [farve, d, hvad] of [
+    ["#b4b4b4", BAGPLADE_D, "Canvas grå bagplade"],
+    ["#ffffff", LAERRED_D, "lærredet"],
+  ]) {
     s = erstat(
       s,
-      new RegExp(`<path fill="${farve}" d="${BAGPLADE_D}`, "g"),
-      `<path fill="none" d="${BAGPLADE_D}`,
+      new RegExp(`<path fill="${farve}" d="${d}`, "g"),
+      `<path fill="none" d="${d}`,
       1,
-      farve === "#b4b4b4" ? "Canvas grå bagplade" : "lærredet",
+      hvad,
       fra,
     );
   }
@@ -198,15 +221,8 @@ for (const f of FILER) {
 
   // 6) Udsnittet skæres ind til standeren, og de opgivne pixelmål rettes med,
   //    så billedets iboende sideforhold passer til det nye udsnit.
-  s = erstat(
-    s,
-    /viewBox="0 0 340\.08 549\.12"/g,
-    `viewBox="${f.udsnit}"`,
-    1,
-    "viewBox",
-    fra,
-  );
-  s = erstat(s, /height="722"/g, 'height="720"', 1, "højden", fra);
+  s = erstat(s, LAERRED_VIEWBOX, `viewBox="${UDSNIT}"`, 1, "viewBox", fra);
+  s = erstat(s, HOEJDE_FRA, HOEJDE_TIL, 1, "højden", fra);
 
   const ud = `/* GENERERET af scripts/lav-print-skabelon.mjs — ret ikke i hånden.
  * Kilde: "${fra}". {{BG}}, {{ACCENT}}, {{SKIVE}} og {{RING}} udfyldes af

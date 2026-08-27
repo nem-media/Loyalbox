@@ -36,31 +36,32 @@ function udsnit(s: string) {
   return { x: +m[1], y: +m[2], bredde: +m[3], hoejde: +m[4] };
 }
 
-/** Logofeltets flade: en gruppe med et rent rektangel i skivefarven. */
-function logofelt(s: string) {
-  const m = s.match(
-    /matrix\(1, 0, 0, 1, (\d+), (\d+)\)">(?:<g[^>]*>)*<path fill="\{\{SKIVE\}\}" d="M ([\d.]+) ([\d.]+) L ([\d.]+) \4 L \5 ([\d.]+)/,
-  );
-  if (!m) throw new Error("logofeltet findes ikke i skabelonen");
-  const [tx, ty, x0, y0, x1, y1] = m.slice(1).map(Number);
-  return { x: tx + x0, y: ty + y0, bredde: x1 - x0, hoejde: y1 - y0 };
-}
-
-/** NFC-cirklen: en kurve, der begynder i toppen og går gennem højre yderpunkt. */
-function nfcCirkel(s: string) {
-  const m = s.match(
-    /<path fill="\{\{SKIVE\}\}" d="M ([\d.]+) ([\d.]+) C [\d.]+ [\d.]+ ([\d.]+) [\d.]+ ([\d.]+) ([\d.]+)/,
-  );
-  if (!m) throw new Error("NFC-cirklen findes ikke i skabelonen");
-  const [cx, , , hoejre, cy] = m.slice(1).map(Number);
-  return { cx, cy, r: hoejre - cx };
+/**
+ * De to felter i skivefarven: logofeltet øverst og NFC-feltet nede ved
+ * QR-koden. Begge er rene rektangler under en afrundet klippemaske, så
+ * tallene kan læses direkte.
+ */
+function skiveFelter(s: string) {
+  const fundne = [
+    ...s.matchAll(
+      /matrix\(1, 0, 0, 1, (\d+), (\d+)\)">(?:<g[^>]*>)*<path fill="\{\{SKIVE\}\}" d="M ([\d.]+) ([\d.]+) L ([\d.]+) [\d.]+ L [\d.]+ ([\d.]+)/g,
+    ),
+  ].map((m) => {
+    const [tx, ty, x0, y0, x1, y1] = m.slice(1).map(Number);
+    return { x: tx + x0, y: ty + y0, bredde: x1 - x0, hoejde: y1 - y0 };
+  });
+  if (fundne.length !== 2) {
+    throw new Error(`fandt ${fundne.length} felter i skivefarven, forventede 2`);
+  }
+  fundne.sort((a, b) => a.y - b.y);
+  return { logo: fundne[0], nfc: fundne[1] };
 }
 
 /** QR-pladsholderens gruppe. Selve tegningen er kurver, men gruppen har et hjørne. */
 function qrGruppe(s: string) {
-  const m = s.match(/transform="matrix\(1, 0, 0, 1, 190, (\d+)\)"/);
+  const m = s.match(/transform="matrix\(1, 0, 0, 1, (195), (\d+)\)"/);
   if (!m) throw new Error("QR-gruppen findes ikke i skabelonen");
-  return { x: 190, y: +m[1] };
+  return { x: +m[1], y: +m[2] };
 }
 
 describe("skabelonens udsnit", () => {
@@ -79,44 +80,46 @@ describe("skabelonens udsnit", () => {
 
 describe("MAAL mod skabelonen", () => {
   /**
-   * DEN VIGTIGSTE PRØVE I FILEN. Logofeltets tal regnes ud af skabelonens
-   * egen sti og sammenlignes med `MAAL`. Flytter feltet sig i Canva, uden at
-   * tallene følger med, fejler den her — ikke hos en kunde.
+   * DEN VIGTIGSTE PRØVE I FILEN — og den prøver BEGGE skabeloner mod det
+   * SAMME ene sæt tal. To ting fanges derfor på én gang: at designet er
+   * flyttet i Canva uden at målene fulgte med, og at de to filer er drevet fra
+   * hinanden. Begge dele er sket.
    */
   it.each(VARIANTER)("finder logofeltet, hvor MAAL siger (%s)", (v) => {
     const s = SKABELONER[v];
-    const felt = logofelt(s);
+    const felt = skiveFelter(s).logo;
     const y0 = udsnit(s).y;
-    expect(felt.x).toBeCloseTo(MAAL[v].logo.x, 4);
+    expect(felt.x).toBeCloseTo(MAAL.logo.x, 4);
     // MAAL regnes fra udsnittets øverste kant, skabelonen fra sit eget nul.
-    expect(felt.y - y0).toBeCloseTo(MAAL[v].logo.y, 4);
-    expect(felt.bredde).toBeCloseTo(MAAL[v].logo.bredde, 4);
-    expect(felt.hoejde).toBeCloseTo(MAAL[v].logo.hoejde, 4);
+    expect(felt.y - y0).toBeCloseTo(MAAL.logo.y, 4);
+    expect(felt.bredde).toBeCloseTo(MAAL.logo.bredde, 4);
+    expect(felt.hoejde).toBeCloseTo(MAAL.logo.hoejde, 4);
   });
 
-  it.each(VARIANTER)("finder NFC-cirklen, hvor MAAL siger (%s)", (v) => {
+  it.each(VARIANTER)("finder NFC-feltet, hvor MAAL siger (%s)", (v) => {
     const s = SKABELONER[v];
-    const c = nfcCirkel(s);
+    const felt = skiveFelter(s).nfc;
     const y0 = udsnit(s).y;
-    expect(c.cx).toBeCloseTo(MAAL[v].nfc.cx, 4);
-    expect(c.cy - y0).toBeCloseTo(MAAL[v].nfc.cy, 4);
-    expect(c.r).toBeCloseTo(MAAL[v].nfc.r, 4);
+    expect(felt.x).toBeCloseTo(MAAL.nfc.x, 4);
+    expect(felt.y - y0).toBeCloseTo(MAAL.nfc.y, 4);
+    expect(felt.bredde).toBeCloseTo(MAAL.nfc.bredde, 4);
+    expect(felt.hoejde).toBeCloseTo(MAAL.nfc.hoejde, 4);
   });
 
   /**
    * QR-pladsholderen er kurver og har ingen ramme at læse af. Gruppens hjørne
-   * kan læses, og feltet skal ligge lige inden for det — halvanden enhed er
-   * den luft, Canva lægger mellem gruppen og tegningen. Går de fra hinanden,
-   * er pladsholderen flyttet.
+   * kan læses, og feltet skal ligge lige inden for det — under en enhed er den
+   * luft, Canva lægger mellem gruppen og tegningen. Går de fra hinanden, er
+   * pladsholderen flyttet.
    */
   it.each(VARIANTER)("finder QR-feltet ved sin gruppe (%s)", (v) => {
     const s = SKABELONER[v];
     const g = qrGruppe(s);
     const y0 = udsnit(s).y;
-    expect(MAAL[v].qr.x - g.x).toBeGreaterThanOrEqual(0);
-    expect(MAAL[v].qr.x - g.x).toBeLessThan(1.5);
-    expect(MAAL[v].qr.y - (g.y - y0)).toBeGreaterThanOrEqual(0);
-    expect(MAAL[v].qr.y - (g.y - y0)).toBeLessThan(1.5);
+    for (const afstand of [MAAL.qr.x - g.x, MAAL.qr.y - (g.y - y0)]) {
+      expect(afstand).toBeGreaterThanOrEqual(0);
+      expect(afstand).toBeLessThan(1.5);
+    }
   });
 });
 

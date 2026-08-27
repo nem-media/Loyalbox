@@ -15,7 +15,6 @@ import {
   SKILT_BREDDE,
   SKILT_HOEJDE,
   laesQrSvg,
-  type Variant,
 } from "./skilt-format";
 import { STANDARD_ACCENT } from "./stander-tilvalg";
 
@@ -89,21 +88,19 @@ describe("lyshed", () => {
   });
 });
 
-const VARIANTER: Variant[] = ["sort", "hvid"];
-
-describe("logofeltet", () => {
+describe("felterne i skabelonen", () => {
   /**
-   * MÅLENE ER PR. SKABELON, fordi de to Canva-filer ikke er ens. Det er ikke
-   * en skønhedsfejl at holde øje med: ét fælles sæt tal ville tegne logoet
-   * og QR-koden ved siden af pladsholderen i den ene af de to.
+   * ÉT SÆT TAL TIL BEGGE SKABELONER. At de faktisk passer til dem begge
+   * prøves i `skilt-skabelon.test.ts`, som regner dem ud af selve
+   * skabelonstrengen. Her prøves kun, at tallene giver mening som geometri.
    */
-  it.each(VARIANTER)("holder feltet inde på skiltet (%s)", (v) => {
-    const f = MAAL[v].logo;
+  it("holder logofeltet inde på skiltet", () => {
+    const f = MAAL.logo;
     expect(f.x).toBeGreaterThan(0);
     expect(f.y).toBeGreaterThan(0);
     expect(f.x + f.bredde).toBeLessThan(SKILT_BREDDE);
-    // Overskriften "Din oplevelse betyder meget for os" begynder ved y 134.
-    expect(f.y + f.hoejde).toBeLessThan(134);
+    // Overskriften "Din oplevelse betyder meget for os" står lige under.
+    expect(f.y + f.hoejde).toBeLessThan(150);
   });
 
   /**
@@ -111,8 +108,8 @@ describe("logofeltet", () => {
    * og en streg sidder midt på sin egen sti: dækkes kun feltet, bliver den
    * yderste halvdel stående som en turkis kontur rundt om kundens logo.
    */
-  it.each(VARIANTER)("dækker mere end feltet, så rammen ryger med (%s)", (v) => {
-    const f = MAAL[v].logo;
+  it("dækker mere end feltet, så rammen ryger med", () => {
+    const f = MAAL.logo;
     const d = daek(f);
     expect(d.x).toBeLessThan(f.x);
     expect(d.y).toBeLessThan(f.y);
@@ -121,10 +118,9 @@ describe("logofeltet", () => {
   });
 
   /** Feltet er bredt. Et logo skal kunne fylde noget, ellers er der ingen gevinst. */
-  it.each(VARIANTER)("giver logoet et felt værd at trykke i (%s)", (v) => {
-    const f = MAAL[v].logo;
-    expect(f.bredde).toBeGreaterThan(250);
-    expect(f.hoejde).toBeGreaterThan(90);
+  it("giver logoet et felt værd at trykke i", () => {
+    expect(MAAL.logo.bredde).toBeGreaterThan(250);
+    expect(MAAL.logo.hoejde).toBeGreaterThan(90);
   });
 
   /**
@@ -132,25 +128,23 @@ describe("logofeltet", () => {
    * Er de forkerte, sidder logoet ikke i feltet — og previewet holder op med
    * at vise det, der bliver trykt.
    */
-  it.each(VARIANTER)("regner feltets plads i procent ud fra samme tal (%s)", (v) => {
-    const f = MAAL[v].logo;
-    const p = iProcent(f);
-    expect(p.venstre).toBeCloseTo((f.x / SKILT_BREDDE) * 100, 6);
-    expect(p.hoejde).toBeCloseTo((f.hoejde / SKILT_HOEJDE) * 100, 6);
+  it("regner feltets plads i procent ud fra samme tal", () => {
+    const p = iProcent(MAAL.logo);
+    expect(p.venstre).toBeCloseTo((MAAL.logo.x / SKILT_BREDDE) * 100, 6);
+    expect(p.hoejde).toBeCloseTo((MAAL.logo.hoejde / SKILT_HOEJDE) * 100, 6);
   });
-});
 
-describe("QR-feltet", () => {
   /** Koden skal være kvadratisk; et aflangt felt ville strække modulerne. */
-  it.each(VARIANTER)("er kvadratisk (%s)", (v) => {
-    const f = MAAL[v].qr;
-    expect(Math.abs(f.bredde - f.hoejde)).toBeLessThan(1);
+  it("har et kvadratisk QR-felt", () => {
+    expect(Math.abs(MAAL.qr.bredde - MAAL.qr.hoejde)).toBeLessThan(1);
   });
 
-  /** Dækfladen må ikke æde NFC-cirklen ved siden af. */
-  it.each(VARIANTER)("går klar af NFC-cirklen (%s)", (v) => {
-    const { qr, nfc } = MAAL[v];
-    expect(daek(qr).x).toBeGreaterThan(nfc.cx + nfc.r);
+  /**
+   * NFC-feltet ligger til venstre for QR-koden. Dækfladen under koden må ikke
+   * æde en flig af det — så ville der stå et hak i kanten på det trykte skilt.
+   */
+  it("holder QR-kodens dækflade klar af NFC-feltet", () => {
+    expect(daek(MAAL.qr).x).toBeGreaterThan(MAAL.nfc.x + MAAL.nfc.bredde);
   });
 });
 
@@ -236,23 +230,23 @@ describe("foden", () => {
   });
 
   /**
-   * DEN PRØVE, DER FANGEDE FEJLEN. I eksporten før den 27. august rakte
+   * DEN PRØVE, DER FANGEDE FEJLEN. I den første eksport af det nye design rakte
    * bomærket 11,4 enheder ned i det, foden dækker — den nederste tredjedel af
-   * bogstaverne ville være væk på et trykt skilt. Nu går alt fri, og prøven
-   * står tilbage, så en ny eksport ikke stille kan skubbe noget derned igen.
+   * bogstaverne ville være væk på et trykt skilt. Nu er der 2,5 mm luft, og
+   * prøven står tilbage, så en ny eksport ikke stille kan skubbe noget derned.
    */
-  it.each(VARIANTER)("holder alt tegnet indhold fri af foden (%s)", (v) => {
-    expect(MAAL[v].indholdBund).toBeLessThan(FOD_START_Y);
+  it("holder alt tegnet indhold fri af foden", () => {
+    expect(MAAL.indholdBund).toBeLessThan(FOD_START_Y);
   });
 
   /**
-   * QR-koden og NFC-cirklen er dét, skiltet er til for. Ryger de ned i foden,
+   * QR-koden og NFC-feltet er dét, skiltet er til for. Ryger de ned i foden,
    * er skiltet ubrugeligt, uanset hvor pænt det er.
    */
-  it.each(VARIANTER)("holder QR-koden og NFC-cirklen fri af foden (%s)", (v) => {
-    const { qr, nfc } = MAAL[v];
-    expect(daek(qr).y + daek(qr).hoejde).toBeLessThan(FOD_START_Y);
-    expect(nfc.cy + nfc.r).toBeLessThan(FOD_START_Y);
+  it("holder QR-koden og NFC-feltet fri af foden", () => {
+    for (const f of [daek(MAAL.qr), MAAL.nfc]) {
+      expect(f.y + f.hoejde).toBeLessThan(FOD_START_Y);
+    }
   });
 });
 
@@ -304,9 +298,6 @@ describe("laesQrSvg", () => {
       margin: 2,
     });
     const { net } = laesQrSvg(raa)!;
-    for (const v of VARIANTER) {
-      const skala = MAAL[v].qr.bredde / net;
-      expect(skala, v).toBeGreaterThan(2);
-    }
+    expect(MAAL.qr.bredde / net).toBeGreaterThan(2);
   });
 });
