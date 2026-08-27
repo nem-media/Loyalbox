@@ -1,3 +1,6 @@
+import { VentelisteForm } from "@/components/venteliste-form";
+import { COMPANY } from "@/lib/constants";
+
 /**
  * "Køb er ikke åbnet endnu"-besked.
  *
@@ -9,7 +12,13 @@
  * opretter en virksomhed — ikke en bestilling. Derfor må teksten ikke love, at
  * "din bestilling står klar", som den tidligere gjorde på /bestil.
  *
- * NÅR STRIPE ÅBNER: slet denne fil og de steder, den importeres.
+ * VENTELISTEN ER DEN VIGTIGE DEL. Beskeden bad før folk skrive en mail, og
+ * det gør de færreste — så en besøgende, der kom for at købe, gik bare igen.
+ * Nu kan de skrive sig op på stedet, og vi har dem den dag, salget åbner.
+ * Formularen er foldet sammen, fordi beskeden står SYV steder.
+ *
+ * NÅR STRIPE ÅBNER: slet denne fil og de steder, den importeres. Husk også
+ * ventelisten — de mennesker har bedt om at høre fra os.
  */
 export function PurchaseNotice({ className }: { className?: string }) {
   return (
@@ -21,16 +30,17 @@ export function PurchaseNotice({ className }: { className?: string }) {
     >
       <p className="font-bold tracking-tight">Du kan ikke købe online endnu</p>
       <p className="mt-1 text-muted">
-        Vi er ved at sætte betaling op. Vil du bestille allerede nu, så skriv
-        til{" "}
+        Vi er ved at sætte betaling op. Skriv dig op, så siger vi til, så snart
+        du kan købe — eller skriv til{" "}
         <a
-          href="mailto:kontakt@loyalsum.dk?subject=Bestilling"
+          href={`mailto:${COMPANY.email}?subject=Bestilling`}
           className="font-medium text-accent"
         >
-          kontakt@loyalsum.dk
-        </a>{" "}
-        — så vender vi tilbage med det samme.
+          {COMPANY.email}
+        </a>
+        , hvis du vil bestille allerede nu.
       </p>
+      <VentelisteForm />
     </div>
   );
 }
