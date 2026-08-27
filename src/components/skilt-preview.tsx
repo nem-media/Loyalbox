@@ -4,6 +4,7 @@ import {
   SKILT_BREDDE,
   SKILT_HOEJDE,
   SKILT_CM,
+  FOD_CM,
   cmTekst,
   MAAL,
   daek,
@@ -135,8 +136,8 @@ export function SkiltPreview({
       {/*
         FODEN.
 
-        Skiltet er 19,2 cm højt, men de nederste 5 cm sidder i standerens fod
-        og kan ikke ses. Zonen MARKERES frem for at blive skåret væk, og det
+        Det trykte ark er 12 × 19,2 cm, men kun de øverste 15 cm kan ses —
+        resten sidder i standerens fod. Zonen MARKERES frem for at blive skåret væk, og det
         er et bevidst valg: klippede previewet bunden af, ville det holde op
         med at vise trykfilen, og en kunde, hvis design rækker ned i foden,
         ville aldrig få det at vide. Skraveringen siger begge dele på én gang
@@ -150,8 +151,10 @@ export function SkiltPreview({
       */}
       {visFod ? (
         <span className="sr-only">
-          Skiltet er {cmTekst(SKILT_CM.hoejde)} cm højt. De nederste{" "}
-          {cmTekst(SKILT_CM.fod)} cm sidder i foden og kan ikke ses.
+          Fronten er {cmTekst(SKILT_CM.bredde)} cm bred og{" "}
+          {cmTekst(SKILT_CM.front)} cm høj. Arket trykkes{" "}
+          {cmTekst(SKILT_CM.hoejde)} cm højt; de nederste {cmTekst(FOD_CM)} cm
+          sidder i foden og kan ikke ses.
         </span>
       ) : null}
       {visFod ? (

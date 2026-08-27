@@ -12,6 +12,8 @@ import {
   FOD_HOEJDE,
   FOD_START_Y,
   SKILT_CM,
+  FOD_CM,
+  cmTekst,
   SKILT_BREDDE,
   SKILT_HOEJDE,
   laesQrSvg,
@@ -211,21 +213,38 @@ describe("nuancerne til skiven og ringen", () => {
 
 describe("foden", () => {
   /**
-   * Skiltet er 19,2 cm højt, og de nederste 5 cm sidder i standerens fod.
-   * TALLENE BRUGES KUN TIL MARKERINGEN I PREVIEWET — trykfilen er altid hele
-   * skiltet, ellers står der en hvid stribe frem under foden.
+   * Arket er 12 × 19,2 cm, og kun de øverste 15 cm kan ses. TALLENE BRUGES
+   * KUN TIL MARKERINGEN I PREVIEWET — trykfilen er altid hele arket, ellers
+   * står der en hvid stribe frem under foden.
    */
-  it("regner fodens højde af skiltets egen højde", () => {
+  it("udleder foden af arket og fronten", () => {
+    expect(FOD_CM).toBeCloseTo(SKILT_CM.hoejde - SKILT_CM.front, 6);
+    // Skrives til kunden, så det må ikke være 4,199999999999999.
+    expect(cmTekst(FOD_CM)).toBe("4,2");
     expect(FOD_HOEJDE).toBeCloseTo(
-      (SKILT_CM.fod / SKILT_CM.hoejde) * SKILT_HOEJDE,
+      (FOD_CM / SKILT_CM.hoejde) * SKILT_HOEJDE,
       6,
     );
     expect(FOD_START_Y + FOD_HOEJDE).toBeCloseTo(SKILT_HOEJDE, 6);
   });
 
-  /** Foden er en fjerdedel af skiltet. Er tallet vildt forkert, er en enhed gået tabt. */
-  it("dækker omtrent en fjerdedel", () => {
-    expect(FOD_HOEJDE / SKILT_HOEJDE).toBeGreaterThan(0.2);
+  /**
+   * DE OPGIVNE CENTIMETER SKAL PASSE TIL TEGNINGEN. Vi skriver "12 cm bred og
+   * 15 cm høj" til kunden, og det er kun sandt, hvis arkets sideforhold er
+   * 12 : 19,2. Skifter en Canva-eksport format, bliver de tal forkerte uden at
+   * noget andet fejler — og en kunde bestiller et skilt i en anden størrelse,
+   * end der står.
+   */
+  it("har det sideforhold, centimetrene lover", () => {
+    expect(SKILT_BREDDE / SKILT_HOEJDE).toBeCloseTo(
+      SKILT_CM.bredde / SKILT_CM.hoejde,
+      2,
+    );
+  });
+
+  /** Foden dækker en femtedel til en fjerdedel. Er tallet vildt forkert, er en enhed gået tabt. */
+  it("dækker omtrent en femtedel", () => {
+    expect(FOD_HOEJDE / SKILT_HOEJDE).toBeGreaterThan(0.15);
     expect(FOD_HOEJDE / SKILT_HOEJDE).toBeLessThan(0.3);
   });
 
