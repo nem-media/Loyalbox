@@ -106,17 +106,35 @@ export function daek(f: Felt): Felt {
 }
 
 /**
- * Standerens fod.
+ * Skiltets fysiske mål.
  *
- * Skiltet er tegnet til 19,2 cm, men de nederste 5 cm sidder i foden og kan
- * ikke ses, når standeren står på et bord. TRYKFILEN ER ALTID HELE SKILTET —
- * fladen skal være der, også selvom den ikke kan ses, ellers står der en
- * hvid stribe frem under foden.
+ * DET TRYKTE ARK ER 12 × 19,2 cm, men kun de øverste 15 cm kan ses: resten
+ * sidder i standerens fod, når den står på et bord. FODEN UDLEDES af de to
+ * tal frem for at stå som sit eget — så kan de ikke komme til at sige noget
+ * forskelligt, og en rettet frontmåling flytter markeringen med af sig selv.
  *
- * Tallene bruges KUN til at markere zonen i previewet. Markeringen ligger i
- * `SkiltPreview` og ikke i SVG'en, netop fordi den ikke må trykkes med.
+ * TRYKFILEN ER ALTID HELE ARKET. Fladen skal være der, også selvom den ikke
+ * kan ses, ellers står der en hvid stribe frem under foden.
+ *
+ * Målene bruges KUN til at markere zonen og til at fortælle kunden, hvor
+ * stort skiltet er. Markeringen ligger i `SkiltPreview` og ikke i SVG'en,
+ * netop fordi den ikke må trykkes med.
  */
-export const SKILT_CM = { hoejde: 19.2, fod: 5 } as const;
+export const SKILT_CM = {
+  /** Hele det trykte ark. */
+  hoejde: 19.2,
+  bredde: 12,
+  /** Den del, der kan ses, når standeren står i sin fod. */
+  front: 15,
+} as const;
+
+/**
+ * Det, foden dækker. Udledt, aldrig skrevet af.
+ *
+ * AFRUNDET, fordi 19,2 − 15 giver 4,199999999999999 i flydende tal, og tallet
+ * skal kunne skrives til en kunde.
+ */
+export const FOD_CM = Math.round((SKILT_CM.hoejde - SKILT_CM.front) * 10) / 10;
 
 /**
  * Tal med dansk komma.
@@ -135,12 +153,14 @@ export function cmTekst(n: number): string {
  * Begge bestillingsformularer viser den samme markering, og to håndskrevne
  * udgaver bliver til to forskellige forklaringer på det samme felt.
  */
-export const FOD_FORKLARING = `Det skraverede felt nederst sidder i standerens fod og kan ikke ses. Skiltet trykkes i fuld højde (${cmTekst(
-  SKILT_CM.hoejde,
-)} cm).`;
+export const FOD_FORKLARING = `Fronten er ${cmTekst(
+  SKILT_CM.bredde,
+)} cm bred og ${cmTekst(
+  SKILT_CM.front,
+)} cm høj. Det skraverede felt nederst sidder i standerens fod og kan ikke ses.`;
 
 /** Fodens højde i skiltets egne enheder. */
-export const FOD_HOEJDE = (SKILT_CM.fod / SKILT_CM.hoejde) * SKILT_HOEJDE;
+export const FOD_HOEJDE = (FOD_CM / SKILT_CM.hoejde) * SKILT_HOEJDE;
 
 /** Hvor foden begynder — den linje, designet ikke bør krydse. */
 export const FOD_START_Y = SKILT_HOEJDE - FOD_HOEJDE;
