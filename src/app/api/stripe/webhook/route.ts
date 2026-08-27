@@ -7,6 +7,8 @@ import { sendIntern } from "@/lib/mail";
 import { ordrevarsel, type Koebstype } from "@/lib/ordrevarsel";
 import { erBetalende } from "@/lib/abonnement";
 import { noterFejl } from "@/lib/drift";
+import { generateSlug } from "@/lib/utils";
+import { skalOpretteFoersteStander } from "@/lib/commerce";
 
 /**
  * Betalingens id, så en ordre kan spores tilbage til pengene i Stripe.
@@ -265,6 +267,77 @@ export async function POST(request: NextRequest) {
           : getProduct(productSlug)?.addon
             ? "tilkoeb"
             : "engangskoeb";
+
+        /**
+         * FØRSTE STANDER OPRETTES VED KØBET.
+         *
+         * Uden dette skal en ny kunde selv finde ud af at oprette en
+         * QR-adresse, før skiltet kan trykkes — og indtil de gør, står
+         * trykfilen med skabelonens pladsholder i stedet for deres egen kode.
+         * Vi ville altså sende et skilt, der ikke virker, til en kunde der
+         * lige har betalt.
+         *
+         * KUN VED ABONNEMENT. Et engangskøb af Reviewstander har ingen
+         * QR-adresse i dashboardet (se harAbonnement), og et tilkøb af et
+         * ekstra skilt hører til en stander, kunden allerede har valgt.
+         *
+         * KUN NÅR VIRKSOMHEDEN SLET INGEN STANDERE HAR. Det er dét, der gør
+         * skridtet idempotent: Stripe kan gentage en webhook, og uden spærren
+         * ville kunden få en ny stander for hvert forsøg. Prøven ligger i
+         * basen og ikke i en variabel — funktionen kører i mange eksemplarer.
+         *
+         * FEJLER DET, LOGGES DET OG KØBET GÅR IGENNEM. Pengene er hjemme;
+         * at svare Stripe med en fejl ville få dem til at prøve igen, uden at
+         * standeren blev mere oprettet af det. Kunden kan altid oprette den
+         * selv bagefter.
+         */
+        {
+          const { count } = await admin
+            .from("stands")
+            .select("id", { count: "exact", head: true })
+            .eq("company_id", companyId);
+
+          if (
+            skalOpretteFoersteStander({
+              erAbonnement,
+              ordreHarStander: Boolean(ordreDest?.stand_id),
+              antalStandere: count ?? 0,
+            })
+          ) {
+            const { data: nyStander, error: standFejl } = await admin
+              .from("stands")
+              .insert({
+                company_id: companyId,
+                // Et navn, der beder om at blive rettet. Kunden skal kunne
+                // kende sine standere fra hinanden — se vejledningen, som
+                // foreslår "Disken" eller "Indgangen".
+                name: "Stander 1",
+                slug: generateSlug(),
+              })
+              .select("id")
+              .single();
+
+            if (standFejl || !nyStander) {
+              await noterFejl(
+                "stripe-webhook",
+                `Kunne ikke oprette første stander for ${companyId}: ${standFejl?.message ?? "intet svar"}`,
+              );
+            } else {
+              // Ordren skal PEGE på den, ellers ved trykfilen stadig ikke,
+              // hvilken QR-kode skiltet skal have.
+              const { error } = await admin
+                .from("orders")
+                .update({ stand_id: nyStander.id })
+                .eq("stripe_session_id", session.id);
+              if (error) {
+                await noterFejl(
+                  "stripe-webhook",
+                  `Stander ${nyStander.id} oprettet, men ordren blev ikke knyttet: ${error.message}`,
+                );
+              }
+            }
+          }
+        }
 
         /**
          * Varslet sendes UANSET hvad der sker nedenfor, og fejler det, ryger

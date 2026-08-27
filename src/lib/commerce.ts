@@ -252,3 +252,34 @@ export function kraeverDestination(
   if (product.monthlyPrice) return false;
   return !tierCan((company?.plan ?? "basic") as Tier, "dynamicLinks");
 }
+
+/**
+ * Skal købet oprette virksomhedens FØRSTE stander?
+ *
+ * HVORFOR OVERHOVEDET: uden den skal en ny kunde selv finde ud af at oprette
+ * en QR-adresse, før skiltet kan trykkes — og indtil de gør, står trykfilen
+ * med skabelonens pladsholder i stedet for deres egen kode. Vi ville altså
+ * sende et skilt, der ikke virker, til en kunde der lige har betalt.
+ *
+ * DE TRE BETINGELSER, alle nødvendige:
+ *
+ *  1. Det skal være et ABONNEMENTSKØB. Et engangskøb af Reviewstander har
+ *     ingen QR-adresse i dashboardet, og et tilkøb af et ekstra skilt hører
+ *     til en stander, kunden allerede har valgt.
+ *  2. Ordren må ikke allerede pege på en stander. Gør den det, har kunden
+ *     selv valgt hvilken, og den skal ikke overtrumfes.
+ *  3. Virksomheden må slet ingen standere have. Det er dét, der gør
+ *     skridtet IDEMPOTENT: Stripe kan gentage en webhook, og uden den ville
+ *     kunden få en ny stander for hvert forsøg.
+ *
+ * Egen funktion frem for en betingelse inde i webhooken, fordi reglen kan
+ * prøves — og fordi et af de tre led er nemt at komme til at fjerne som
+ * "overflødigt".
+ */
+export function skalOpretteFoersteStander(v: {
+  erAbonnement: boolean;
+  ordreHarStander: boolean;
+  antalStandere: number;
+}): boolean {
+  return v.erAbonnement && !v.ordreHarStander && v.antalStandere === 0;
+}

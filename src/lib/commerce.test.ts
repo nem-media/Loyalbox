@@ -5,6 +5,7 @@ import {
   koebSpaerre,
   isTestBuyer,
   stripeMode,
+  skalOpretteFoersteStander,
 } from "./commerce";
 import { getProduct, STRIPE_TAX_RATES, type Product } from "./constants";
 
@@ -211,5 +212,54 @@ describe("isTestBuyer", () => {
     expect(isTestBuyer("Komplet@LoyalBox.test")).toBe(true);
     expect(isTestBuyer("cafe@eksempel.dk")).toBe(false);
     expect(isTestBuyer(null)).toBe(false);
+  });
+});
+
+/**
+ * Den første stander oprettes af købet, ikke af kunden.
+ *
+ * FEJLEN, DER LURER HER, ER DOBBELTOPRETTELSE. Stripe gentager en webhook,
+ * hvis den ikke svarer hurtigt nok — og en kunde, der får en ny stander for
+ * hvert forsøg, opdager det først som en liste med fire ens.
+ *
+ * Den anden fejl er den modsatte: fjerner nogen `erAbonnement`, får en
+ * Reviewstander-kunde uden abonnement en QR-adresse, de ikke har betalt for,
+ * og som deres side alligevel viderestiller fra.
+ */
+describe("skalOpretteFoersteStander", () => {
+  const grund = {
+    erAbonnement: true,
+    ordreHarStander: false,
+    antalStandere: 0,
+  };
+
+  it("opretter ved et abonnementskøb uden valgt stander", () => {
+    expect(skalOpretteFoersteStander(grund)).toBe(true);
+  });
+
+  /** IDEMPOTENSEN. Anden gang Stripe kalder, findes standeren allerede. */
+  it("opretter IKKE, når virksomheden allerede har en", () => {
+    expect(
+      skalOpretteFoersteStander({ ...grund, antalStandere: 1 }),
+    ).toBe(false);
+    expect(
+      skalOpretteFoersteStander({ ...grund, antalStandere: 7 }),
+    ).toBe(false);
+  });
+
+  it("overtrumfer ikke en stander, kunden selv har valgt", () => {
+    expect(
+      skalOpretteFoersteStander({ ...grund, ordreHarStander: true }),
+    ).toBe(false);
+  });
+
+  /**
+   * Et engangskøb af Reviewstander og et tilkøb af et ekstra skilt kommer
+   * begge hertil uden abonnement. Ingen af dem giver en QR-adresse.
+   */
+  it("opretter ikke uden abonnement", () => {
+    expect(
+      skalOpretteFoersteStander({ ...grund, erAbonnement: false }),
+    ).toBe(false);
   });
 });
