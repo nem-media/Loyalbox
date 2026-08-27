@@ -11,60 +11,99 @@ import { normaliserHex } from "./stander-tilvalg";
  * forkert, ses ikke i en editor — det ses på et trykt skilt.
  */
 
-export const SKILT_BREDDE = 340.5;
-export const SKILT_HOEJDE = 541.5;
+export type Variant = "sort" | "hvid";
 
 /**
- * Selve standeren: den afrundede firkant.
+ * Skiltets mål — standerens egen firkant, ikke Canvas lærred.
  *
- * DEN GRÅ FLADE UDEN OM ER IKKE EN DEL AF SKILTET — den er Canvas bagplade,
- * så en hvid stander kan ses på en hvid skærm, og den slås fra i skabelonen.
- * Skiltet ER denne firkant, og uden for den skæres der. Derfor står målene
- * her og ikke i viewBox'en: de to er ikke det samme.
+ * Skabelonernes viewBox skæres af generatoren ind til netop denne firkant, så
+ * (0, 0) er skiltets øverste venstre hjørne. Canva lægger et par enheders tomt
+ * lærred under designet, og de ville ellers blive til en gennemsigtig stribe
+ * under previewets nederste kant.
+ *
+ * De to filer er 0,004 enheder fra hinanden i højden — under en tusindedel
+ * millimeter. Her står ét tal.
  */
-export const STANDER = {
-  x: 0,
-  y: 0.148438,
-  bredde: 339.710938,
-  hoejde: 538.757812,
-  radius: 15.730469,
-} as const;
+export const SKILT_BREDDE = 339.238281;
+export const SKILT_HOEJDE = 538.015625;
+
+/** Standerens afrundede hjørner. Ens i begge filer. */
+export const HJOERNE_R = 15.707031;
+
+export interface Felt {
+  x: number;
+  y: number;
+  bredde: number;
+  hoejde: number;
+}
 
 /**
- * Logofeltet — hele den firkant, "Dit logo" står i.
+ * MÅLENE ER PR. SKABELON, FORDI DE TO FILER IKKE ER ENS.
  *
- * Målt på skabelonens egen flade: gruppen ligger på (28, 16), og stien inden
- * i løber fra (0.746, 0.305) til (282.852, 107.137).
+ * Det ville være pænere med ét sæt tal, og indtil eksporten den 27. august
+ * var det næsten rigtigt — de lå under en enhed fra hinanden. Efter at den
+ * nederste blok blev rykket op for at gå fri af foden, ligger den hvide fils
+ * blok 5 enheder (1,8 mm) lavere end den sortes, og dens logofelt er 5
+ * enheder højere. Ét fælles sæt ville derfor tegne QR-koden ved siden af
+ * pladsholderen i den ene af de to.
  *
- * FELTET FORSVINDER HELT, når kunden lægger et logo op: bunden, teksten og
- * den turkise ramme dækkes af én flade i baggrundsfarven, og logoet lægges
- * ovenpå. Der er derfor ingen ramme at holde sig inden for — logoet må bruge
- * hele feltet.
+ * Tallene er MÅLT i filerne, ikke skønnet, og `lav-print-skabelon.mjs`
+ * kontrollerer ved hver kørsel, at de `d`-strenge, de er målt på, stadig
+ * står der. Flytter designet sig igen, fejler generatoren frem for at lave
+ * en skabelon, koden peger forkert i.
+ *
+ * Bliver de to filer en dag ens igen, bliver de to blokke her identiske —
+ * og så er der ingen kode at rette.
  */
-export const LOGO_FELT = {
-  x: 28.746094,
-  y: 16.304688,
-  bredde: 282.105468,
-  hoejde: 106.832031,
-} as const;
+export const MAAL: Record<
+  Variant,
+  {
+    /** Hele den firkant, "Dit logo" står i. */
+    logo: Felt;
+    /** QR-pladsholderens felt. */
+    qr: Felt;
+    /** NFC-cirklen. Bruges til at holde dækflader klar af den. */
+    nfc: { cx: number; cy: number; r: number };
+    /** Nederste kant af alt, der er tegnet. Bruges til at prøve mod foden. */
+    indholdBund: number;
+  }
+> = {
+  sort: {
+    logo: { x: 28.703125, y: 15.15625, bredde: 281.84375, hoejde: 102.199218 },
+    qr: { x: 190.6289, y: 249.5508, bredde: 114.6641, hoejde: 114.6602 },
+    nfc: { cx: 95.492188, cy: 307.839844, r: 61.902343 },
+    indholdBund: 388.42,
+  },
+  hvid: {
+    logo: { x: 27.847656, y: 16.132813, bredde: 283.515625, hoejde: 107.210937 },
+    qr: { x: 190.7109, y: 254.5078, bredde: 115.1055, hoejde: 115.1055 },
+    nfc: { cx: 95.039062, cy: 313.019531, r: 62.136719 },
+    indholdBund: 393.85,
+  },
+};
 
 /**
- * Hvor meget dækfladen er større end feltet.
+ * Hvor meget en dækflade er større end feltet, den skjuler.
  *
- * RAMMEN TEGNES OVEN PÅ FELTETS KANT med en stregbredde på halvanden enhed,
- * og en streg sidder midt på sin egen sti. Dækkes kun feltet, bliver den
- * yderste halvdel af rammen stående som en tynd turkis kontur rundt om
- * kundens logo. To enheder er rigeligt og stadig langt fra alt andet.
+ * RAMMEN OM LOGOFELTET TEGNES OVEN PÅ FELTETS KANT med en stregbredde på
+ * halvanden enhed, og en streg sidder midt på sin egen sti. Dækkes kun
+ * feltet, bliver den yderste halvdel stående som en tynd turkis kontur rundt
+ * om kundens logo.
+ *
+ * To enheder er nok og går klar af alt: det nærmeste, der ligger op ad et af
+ * felterne, er 5,4 enheder væk (pilen over QR-koden i den sorte fil).
  */
-export const LOGO_DAEK_MARGEN = 2;
+export const DAEK_MARGEN = 2;
 
-/** Feltet plus margenen — den flade, der lægges i baggrundsfarven. */
-export const LOGO_DAEK = {
-  x: LOGO_FELT.x - LOGO_DAEK_MARGEN,
-  y: LOGO_FELT.y - LOGO_DAEK_MARGEN,
-  bredde: LOGO_FELT.bredde + LOGO_DAEK_MARGEN * 2,
-  hoejde: LOGO_FELT.hoejde + LOGO_DAEK_MARGEN * 2,
-} as const;
+/** Et felt lagt ud til alle sider — den flade, der lægges i baggrundsfarven. */
+export function daek(f: Felt): Felt {
+  return {
+    x: f.x - DAEK_MARGEN,
+    y: f.y - DAEK_MARGEN,
+    bredde: f.bredde + DAEK_MARGEN * 2,
+    hoejde: f.hoejde + DAEK_MARGEN * 2,
+  };
+}
 
 /**
  * Standerens fod.
@@ -100,28 +139,11 @@ export const FOD_FORKLARING = `Det skraverede felt nederst sidder i standerens f
   SKILT_CM.hoejde,
 )} cm).`;
 
-/** Fodens højde i skiltets egne enheder. Regnet af standerens flade, ikke af viewBox'en. */
-export const FOD_HOEJDE = (SKILT_CM.fod / SKILT_CM.hoejde) * STANDER.hoejde;
+/** Fodens højde i skiltets egne enheder. */
+export const FOD_HOEJDE = (SKILT_CM.fod / SKILT_CM.hoejde) * SKILT_HOEJDE;
 
 /** Hvor foden begynder — den linje, designet ikke bør krydse. */
-export const FOD_START_Y = STANDER.y + STANDER.hoejde - FOD_HOEJDE;
-
-/**
- * QR-kodens felt.
- *
- * De to skabeloner har pladsholderen et enkelt punkt fra hinanden (den sorte
- * begynder ved y 268,1, den hvide ved 269,2). Koden lægges derfor midt i
- * feltet efter ét sæt tal, og DÆKFLADEN er gjort rundhåndet, så der ikke kan
- * blive en stump pladsholder stående langs en kant på den ene af de to.
- */
-export const QR_FELT = { x: 191, y: 269, side: 115 } as const;
-
-/**
- * Fladen, der dækker pladsholderen. Målt så den går klar af alt omkring sig:
- * NFC-cirklen slutter ved x 158, pilen ved y 261, og bomærket begynder ved
- * y 396.
- */
-export const QR_DAEK = { x: 189, y: 266.5, bredde: 119, hoejde: 120 } as const;
+export const FOD_START_Y = SKILT_HOEJDE - FOD_HOEJDE;
 
 /**
  * Relativ lyshed efter WCAG. Bruges til tre ting: at vælge skabelon, at
@@ -233,7 +255,7 @@ export function ringFarve(baggrund: string): string {
 /* ------------------------------------------- mål i procent, til browseren */
 
 /** Et felt i skiltets enheder omregnet til procent af hele billedet. */
-function iProcent(f: { x: number; y: number; bredde: number; hoejde: number }) {
+export function iProcent(f: Felt) {
   return {
     venstre: (f.x / SKILT_BREDDE) * 100,
     top: (f.y / SKILT_HOEJDE) * 100,
@@ -241,12 +263,6 @@ function iProcent(f: { x: number; y: number; bredde: number; hoejde: number }) {
     hoejde: (f.hoejde / SKILT_HOEJDE) * 100,
   };
 }
-
-/** Logofeltet, til at lægge et logo ovenpå previewet i browseren. */
-export const LOGO_PROCENT = iProcent(LOGO_FELT);
-
-/** Dækfladen samme sted — den, der skjuler feltet og rammen. */
-export const LOGO_DAEK_PROCENT = iProcent(LOGO_DAEK);
 
 /** Fodzonen, til markeringen i previewet. */
 export const FOD_PROCENT = {
@@ -262,8 +278,8 @@ export const FOD_PROCENT = {
  * hjørnet cirkulært — så længe elementet har skiltets eget sideforhold,
  * hvilket `SkiltPreview` sørger for.
  */
-export const HJOERNE_RADIUS = `${(STANDER.radius / SKILT_BREDDE) * 100}% / ${
-  (STANDER.radius / SKILT_HOEJDE) * 100
+export const HJOERNE_RADIUS = `${(HJOERNE_R / SKILT_BREDDE) * 100}% / ${
+  (HJOERNE_R / SKILT_HOEJDE) * 100
 }%`;
 
 /**

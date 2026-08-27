@@ -5,10 +5,12 @@ import {
   SKILT_HOEJDE,
   SKILT_CM,
   cmTekst,
-  LOGO_PROCENT,
-  LOGO_DAEK_PROCENT,
+  MAAL,
+  daek,
+  iProcent,
   FOD_PROCENT,
   HJOERNE_RADIUS,
+  skabelonTil,
 } from "@/lib/skilt-format";
 import {
   STANDARD_ACCENT,
@@ -67,6 +69,15 @@ export function SkiltPreview({
   const fladeFarve =
     baggrund ?? STANDER_FARVER.find((f) => f.vaerdi === standerFarve)!.hex;
 
+  /*
+   * MÅLENE ER PR. SKABELON — de to Canva-filer har ikke logofeltet samme
+   * sted. Samme valg som i `byggSkilt()`, og af samme grund: previewet skal
+   * lægge logoet dér, hvor trykfilen gør.
+   */
+  const variant = skabelonTil(fladeFarve);
+  const felt = iProcent(MAAL[variant].logo);
+  const flade = iProcent(daek(MAAL[variant].logo));
+
   return (
     <div
       className={className}
@@ -89,10 +100,10 @@ export function SkiltPreview({
           aria-hidden="true"
           style={{
             position: "absolute",
-            left: `${LOGO_DAEK_PROCENT.venstre}%`,
-            top: `${LOGO_DAEK_PROCENT.top}%`,
-            width: `${LOGO_DAEK_PROCENT.bredde}%`,
-            height: `${LOGO_DAEK_PROCENT.hoejde}%`,
+            left: `${flade.venstre}%`,
+            top: `${flade.top}%`,
+            width: `${flade.bredde}%`,
+            height: `${flade.hoejde}%`,
             background: fladeFarve,
           }}
         />
@@ -103,10 +114,10 @@ export function SkiltPreview({
           aria-hidden="true"
           style={{
             position: "absolute",
-            left: `${LOGO_PROCENT.venstre}%`,
-            top: `${LOGO_PROCENT.top}%`,
-            width: `${LOGO_PROCENT.bredde}%`,
-            height: `${LOGO_PROCENT.hoejde}%`,
+            left: `${felt.venstre}%`,
+            top: `${felt.top}%`,
+            width: `${felt.bredde}%`,
+            height: `${felt.hoejde}%`,
           }}
         >
           {/* BEVIDST uden maskering: har logoet en hvid baggrund, eller er det

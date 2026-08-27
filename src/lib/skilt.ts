@@ -5,15 +5,14 @@ import { normaliserHex } from "./stander-tilvalg";
 import QRCode from "qrcode";
 import {
   laesQrSvg,
-  LOGO_FELT,
-  LOGO_DAEK,
-  QR_FELT,
-  QR_DAEK,
+  MAAL,
+  daek,
   QR_MODUL,
   skabelonTil,
   skiveFarve,
   ringFarve,
   kontrast,
+  type Variant,
 } from "./skilt-format";
 
 /**
@@ -94,7 +93,10 @@ export async function byggSkilt(valg: SkiltValg): Promise<string> {
   }
 
   if (valg.logoDataUri) {
-    svg = svg.replace("</svg>", `${logoLag(valg.logoDataUri, baggrund)}</svg>`);
+    svg = svg.replace(
+      "</svg>",
+      `${logoLag(valg.logoDataUri, variant, baggrund)}</svg>`,
+    );
   }
 
   return svg;
@@ -119,12 +121,15 @@ export async function byggSkilt(valg: SkiltValg): Promise<string> {
  * bliver trykt. Skjulte vi den, ville kunden først opdage det på skiltet, og
  * et skilt kan ikke kaldes tilbage.
  */
-function logoLag(dataUri: string, baggrund: string): string {
+function logoLag(dataUri: string, variant: Variant, baggrund: string): string {
+  // MÅLENE ER PR. SKABELON — de to Canva-filer har ikke feltet samme sted.
+  const felt = MAAL[variant].logo;
+  const d = daek(felt);
   return (
-    `<rect x="${LOGO_DAEK.x}" y="${LOGO_DAEK.y}" width="${LOGO_DAEK.bredde}" ` +
-    `height="${LOGO_DAEK.hoejde}" fill="${baggrund}"/>` +
-    `<image href="${escapeXml(dataUri)}" x="${LOGO_FELT.x}" y="${LOGO_FELT.y}" ` +
-    `width="${LOGO_FELT.bredde}" height="${LOGO_FELT.hoejde}" ` +
+    `<rect x="${d.x}" y="${d.y}" width="${d.bredde}" ` +
+    `height="${d.hoejde}" fill="${baggrund}"/>` +
+    `<image href="${escapeXml(dataUri)}" x="${felt.x}" y="${felt.y}" ` +
+    `width="${felt.bredde}" height="${felt.hoejde}" ` +
     `preserveAspectRatio="xMidYMid meet"/>`
     // Sidst i dokumentet, så laget ligger ØVERST. En <image> tidligere i
     // filen ville forsvinde under skabelonens egne flader.
@@ -148,7 +153,7 @@ function logoLag(dataUri: string, baggrund: string): string {
  */
 async function qrLag(
   adresse: string,
-  variant: "sort" | "hvid",
+  variant: Variant,
   baggrund: string,
 ): Promise<string> {
   const raa = await QRCode.toString(adresse, {
@@ -168,15 +173,14 @@ async function qrLag(
   if (!kode) return "";
   const { d, net } = kode;
 
-  const skala = QR_FELT.side / net;
+  const felt = MAAL[variant].qr;
+  const flade = daek(felt);
+  const skala = Math.min(felt.bredde, felt.hoejde) / net;
 
   return (
-    // DÆKFLADEN ER STØRRE END KODEN: de to skabeloner har pladsholderen et
-    // punkt fra hinanden, og en for nøjagtig flade ville lade en stump af
-    // den stå tilbage langs en kant på den ene af dem.
-    `<rect x="${QR_DAEK.x}" y="${QR_DAEK.y}" width="${QR_DAEK.bredde}" ` +
-    `height="${QR_DAEK.hoejde}" fill="${baggrund}"/>` +
-    `<g transform="translate(${QR_FELT.x} ${QR_FELT.y}) scale(${skala})">` +
+    `<rect x="${flade.x}" y="${flade.y}" width="${flade.bredde}" ` +
+    `height="${flade.hoejde}" fill="${baggrund}"/>` +
+    `<g transform="translate(${felt.x} ${felt.y}) scale(${skala})">` +
     // STROKE OG IKKE FILL. `qrcode` tegner modulerne som åbne, vandrette
     // linjer på halve koordinater (`M0 0.5h7m3 0h1…`) med en stregbredde på
     // 1. En fyldning på dem tegner næsten ingenting — set i previewet, hvor
