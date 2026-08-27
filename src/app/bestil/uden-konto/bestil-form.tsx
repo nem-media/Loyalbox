@@ -6,6 +6,7 @@ import { bestilUdenKonto, type BestillingResultat } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input, Field } from "@/components/ui/input";
 import { SkiltPreview } from "@/components/skilt-preview";
+import { FOD_FORKLARING } from "@/lib/skilt-format";
 import {
   MAX_QTY,
   TERMS_VERSION,
@@ -361,7 +362,7 @@ export function BestilUdenKontoForm({ product }: { product: Product }) {
             <span className="font-medium">Egen farve på stjerner og tekst</span>{" "}
             <span className="text-muted">— uden beregning</span>
             <span className="mt-0.5 block text-xs text-muted">
-              Stjernerne, ringen om logoet og “Scan eller tap”. Det er den samme
+              Stjernerne, rammen om logofeltet og “Scan eller tap”. Det er den samme
               trykfil med en anden farvekode, så den koster ikke ekstra.
             </span>
           </label>
@@ -399,15 +400,16 @@ export function BestilUdenKontoForm({ product }: { product: Product }) {
             baggrund={front.egen ? front.hex : null}
             accent={visAccent}
             logoUrl={logoUrl}
-            className="box-shape w-full max-w-[15rem] overflow-hidden border border-border"
+            className="w-full max-w-[15rem]"
           />
         </div>
         <p className="mt-3 text-center text-xs text-muted">
           Front: {front.beskrivelse}
         </p>
+        <p className="mt-1 text-center text-xs text-muted">{FOD_FORKLARING}</p>
         {!logoUrl ? (
           <p className="mt-2 text-center text-xs text-muted">
-            Læg dit logo op, så kommer det i cirklen.
+            Læg dit logo op, så fylder det hele feltet øverst.
           </p>
         ) : null}
       </div>
