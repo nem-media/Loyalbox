@@ -5,13 +5,14 @@ import { normaliserHex } from "./stander-tilvalg";
 import QRCode from "qrcode";
 import {
   laesQrSvg,
-  RING,
-  SKIVE_R,
-  SKIVE_FARVE,
-  LOGO_SIDE,
+  LOGO_FELT,
+  LOGO_DAEK,
   QR_FELT,
+  QR_DAEK,
   QR_MODUL,
   skabelonTil,
+  skiveFarve,
+  ringFarve,
   kontrast,
 } from "./skilt-format";
 
@@ -65,10 +66,9 @@ export interface SkiltValg {
 /**
  * Bygger skiltet som en SVG-streng.
  *
- * LOGOET LÆGGES IND SOM <image> MED preserveAspectRatio="xMidYMid meet", så
- * det aldrig strækkes. Der maskeres ikke: har logoet en hvid baggrund, ses
- * den — præcis som den bliver trykt. Skjulte vi den, ville kunden først
- * opdage det på skiltet, og et skilt kan ikke kaldes tilbage.
+ * TRYKFILEN ER ALTID HELE SKILTET, også de nederste 5 cm, der sidder i foden
+ * og aldrig kan ses. Fladen skal trykkes: skæres den fra, står der en hvid
+ * stribe frem under foden. Zonen markeres kun i previewet — se `SkiltPreview`.
  */
 export async function byggSkilt(valg: SkiltValg): Promise<string> {
   const baggrund = normaliserHex(valg.baggrund) ?? "#111111";
@@ -79,7 +79,12 @@ export async function byggSkilt(valg: SkiltValg): Promise<string> {
 
   let svg = skabelon
     .replaceAll("{{BG}}", baggrund)
-    .replaceAll("{{ACCENT}}", accent);
+    .replaceAll("{{ACCENT}}", accent)
+    // Skiven og ringen AFLEDES af baggrunden frem for at stå fast. Se
+    // skiveFarve() — en fast sort cirkel på en bordeaux bund så ud til at
+    // høre til et andet skilt.
+    .replaceAll("{{SKIVE}}", skiveFarve(baggrund))
+    .replaceAll("{{RING}}", ringFarve(baggrund));
 
   if (valg.qrAdresse) {
     svg = svg.replace(
@@ -89,18 +94,41 @@ export async function byggSkilt(valg: SkiltValg): Promise<string> {
   }
 
   if (valg.logoDataUri) {
-    const x = RING.cx - LOGO_SIDE / 2;
-    const y = RING.cy - LOGO_SIDE / 2;
-    const lag =
-      `<circle cx="${RING.cx}" cy="${RING.cy}" r="${SKIVE_R}" fill="${SKIVE_FARVE[variant]}"/>` +
-      `<image href="${escapeXml(valg.logoDataUri)}" x="${x}" y="${y}" ` +
-      `width="${LOGO_SIDE}" height="${LOGO_SIDE}" preserveAspectRatio="xMidYMid meet"/>`;
-    // Sidst i dokumentet, så laget ligger ØVERST. En <image> tidligere i
-    // filen ville forsvinde under skabelonens egne flader.
-    svg = svg.replace("</svg>", `${lag}</svg>`);
+    svg = svg.replace("</svg>", `${logoLag(valg.logoDataUri, baggrund)}</svg>`);
   }
 
   return svg;
+}
+
+/**
+ * Kundens logo — og hele logofeltet, der forsvinder med det.
+ *
+ * FELTET SKAL VÆRE HELT VÆK. Bunden, ordet "Dit logo" og den turkise ramme
+ * er en pladsholder, ikke en indramning: bliver rammen stående om et logo,
+ * ser skiltet ud til at have to mærker. Derfor lægges der først en flade i
+ * baggrundsfarven over det hele — lidt større end feltet, så den yderste
+ * halvdel af rammens streg også ryger med.
+ *
+ * LOGOET FÅR HELE FELTET og skaleres med preserveAspectRatio="xMidYMid meet".
+ * `meet` er præcis det, der skal til: billedet holder sit sideforhold, fyldes
+ * ud til det rører feltets korteste led, og er altid helt med. `slice` ville
+ * fylde feltet men skære kanterne af logoet, og det er dét, ingen opdager
+ * før skiltet er trykt.
+ *
+ * Der maskeres ikke: har logoet en hvid baggrund, ses den — præcis som den
+ * bliver trykt. Skjulte vi den, ville kunden først opdage det på skiltet, og
+ * et skilt kan ikke kaldes tilbage.
+ */
+function logoLag(dataUri: string, baggrund: string): string {
+  return (
+    `<rect x="${LOGO_DAEK.x}" y="${LOGO_DAEK.y}" width="${LOGO_DAEK.bredde}" ` +
+    `height="${LOGO_DAEK.hoejde}" fill="${baggrund}"/>` +
+    `<image href="${escapeXml(dataUri)}" x="${LOGO_FELT.x}" y="${LOGO_FELT.y}" ` +
+    `width="${LOGO_FELT.bredde}" height="${LOGO_FELT.hoejde}" ` +
+    `preserveAspectRatio="xMidYMid meet"/>`
+    // Sidst i dokumentet, så laget ligger ØVERST. En <image> tidligere i
+    // filen ville forsvinde under skabelonens egne flader.
+  );
 }
 
 /**
@@ -143,8 +171,11 @@ async function qrLag(
   const skala = QR_FELT.side / net;
 
   return (
-    `<rect x="${QR_FELT.x}" y="${QR_FELT.y}" width="${QR_FELT.side}" ` +
-    `height="${QR_FELT.side}" fill="${baggrund}"/>` +
+    // DÆKFLADEN ER STØRRE END KODEN: de to skabeloner har pladsholderen et
+    // punkt fra hinanden, og en for nøjagtig flade ville lade en stump af
+    // den stå tilbage langs en kant på den ene af dem.
+    `<rect x="${QR_DAEK.x}" y="${QR_DAEK.y}" width="${QR_DAEK.bredde}" ` +
+    `height="${QR_DAEK.hoejde}" fill="${baggrund}"/>` +
     `<g transform="translate(${QR_FELT.x} ${QR_FELT.y}) scale(${skala})">` +
     // STROKE OG IKKE FILL. `qrcode` tegner modulerne som åbne, vandrette
     // linjer på halve koordinater (`M0 0.5h7m3 0h1…`) med en stregbredde på

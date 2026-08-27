@@ -31,8 +31,11 @@ export const STANDARD_STANDERFARVE: StanderFarve = "sort";
 export const EGEN_FRONTFARVE_PRIS = 139;
 
 /**
- * LoyalSums egen farve på skiltet: stjernerne, ringen om logoet og
+ * LoyalSums egen farve på skiltet: stjernerne, rammen om logofeltet og
  * "Scan eller tap". Det er den, designet er tegnet med.
+ *
+ * RAMMEN SES KUN, SÅ LÆNGE FELTET ER TOMT. Lægger kunden et logo op,
+ * forsvinder hele feltet og rammen med det — se `logoLag()` i skilt.ts.
  *
  * ACCENTEN ER GRATIS AT SKIFTE, i modsætning til frontfarven. Det er ikke en
  * venlighed, men en konsekvens: accenten er den samme trykfil med en anden

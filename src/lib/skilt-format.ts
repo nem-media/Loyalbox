@@ -4,39 +4,129 @@ import { normaliserHex } from "./stander-tilvalg";
  * Skiltets mål og geometri — det, både serveren og browseren skal kende.
  *
  * EGEN FIL, fordi `skilt.ts` er `server-only`: den importerer to skabeloner på
- * 167 KB hver, og previewet i bestillingen ville trække dem med ind i
+ * 155 KB hver, og previewet i bestillingen ville trække dem med ind i
  * browserens bundt bare for at kende en radius.
+ *
+ * ALLE TAL ER MÅLT I SKABELONEN og ikke skønnet. Et tal, der er en enhed
+ * forkert, ses ikke i en editor — det ses på et trykt skilt.
  */
 
 export const SKILT_BREDDE = 340.5;
 export const SKILT_HOEJDE = 541.5;
 
 /**
- * Logocirklen, målt i skabelonen: ringen (#4ea4ad) løber fra x 111→231 og
- * y 6→126. Altså centrum (171, 66) og ydre radius 60.
- */
-export const RING = { cx: 171, cy: 66, r: 60 } as const;
-
-/** Skiven inden i ringen. 3 enheder mindre, så stregen ikke bliver ædt. */
-export const SKIVE_R = RING.r - 3;
-
-/** Logoets felt inden i skiven. Kvadrat i cirklen. */
-export const LOGO_SIDE = Math.round(SKIVE_R * 1.35);
-
-/**
- * Skivens farve — og den følger IKKE baggrunden.
+ * Selve standeren: den afrundede firkant.
  *
- * Cirklens indre er et selvstændigt element i skabelonen med sin egen fyld:
- * næsten sort i den sorte fil, hvid i den hvide. Den bliver altså stående,
- * også når kunden vælger sin egen baggrund — set i previewet, hvor en
- * bordeaux bund stadig havde en sort cirkel. Brugte skiven baggrundsfarven,
- * ville der komme en bordeaux plet midt i en sort cirkel.
+ * DEN GRÅ FLADE UDEN OM ER IKKE EN DEL AF SKILTET — den er Canvas bagplade,
+ * så en hvid stander kan ses på en hvid skærm, og den slås fra i skabelonen.
+ * Skiltet ER denne firkant, og uden for den skæres der. Derfor står målene
+ * her og ikke i viewBox'en: de to er ikke det samme.
  */
-export const SKIVE_FARVE = { sort: "#070707", hvid: "#ffffff" } as const;
+export const STANDER = {
+  x: 0,
+  y: 0.148438,
+  bredde: 339.710938,
+  hoejde: 538.757812,
+  radius: 15.730469,
+} as const;
 
 /**
- * Relativ lyshed efter WCAG. Bruges til to ting: at vælge skabelon, og at
- * advare når en valgt farve forsvinder i baggrunden.
+ * Logofeltet — hele den firkant, "Dit logo" står i.
+ *
+ * Målt på skabelonens egen flade: gruppen ligger på (28, 16), og stien inden
+ * i løber fra (0.746, 0.305) til (282.852, 107.137).
+ *
+ * FELTET FORSVINDER HELT, når kunden lægger et logo op: bunden, teksten og
+ * den turkise ramme dækkes af én flade i baggrundsfarven, og logoet lægges
+ * ovenpå. Der er derfor ingen ramme at holde sig inden for — logoet må bruge
+ * hele feltet.
+ */
+export const LOGO_FELT = {
+  x: 28.746094,
+  y: 16.304688,
+  bredde: 282.105468,
+  hoejde: 106.832031,
+} as const;
+
+/**
+ * Hvor meget dækfladen er større end feltet.
+ *
+ * RAMMEN TEGNES OVEN PÅ FELTETS KANT med en stregbredde på halvanden enhed,
+ * og en streg sidder midt på sin egen sti. Dækkes kun feltet, bliver den
+ * yderste halvdel af rammen stående som en tynd turkis kontur rundt om
+ * kundens logo. To enheder er rigeligt og stadig langt fra alt andet.
+ */
+export const LOGO_DAEK_MARGEN = 2;
+
+/** Feltet plus margenen — den flade, der lægges i baggrundsfarven. */
+export const LOGO_DAEK = {
+  x: LOGO_FELT.x - LOGO_DAEK_MARGEN,
+  y: LOGO_FELT.y - LOGO_DAEK_MARGEN,
+  bredde: LOGO_FELT.bredde + LOGO_DAEK_MARGEN * 2,
+  hoejde: LOGO_FELT.hoejde + LOGO_DAEK_MARGEN * 2,
+} as const;
+
+/**
+ * Standerens fod.
+ *
+ * Skiltet er tegnet til 19,2 cm, men de nederste 5 cm sidder i foden og kan
+ * ikke ses, når standeren står på et bord. TRYKFILEN ER ALTID HELE SKILTET —
+ * fladen skal være der, også selvom den ikke kan ses, ellers står der en
+ * hvid stribe frem under foden.
+ *
+ * Tallene bruges KUN til at markere zonen i previewet. Markeringen ligger i
+ * `SkiltPreview` og ikke i SVG'en, netop fordi den ikke må trykkes med.
+ */
+export const SKILT_CM = { hoejde: 19.2, fod: 5 } as const;
+
+/**
+ * Tal med dansk komma.
+ *
+ * HÅNDLAVET FREM FOR toLocaleString: konstanten regnes ud på både serveren og
+ * i browseren, og et Node uden fuld ICU ville skrive "19.2", hvor browseren
+ * skriver "19,2". Så er der en hydreringsfejl på en tekst, ingen kigger på.
+ */
+export function cmTekst(n: number): string {
+  return String(n).replace(".", ",");
+}
+
+/**
+ * Forklaringen på skraveringen, ét sted.
+ *
+ * Begge bestillingsformularer viser den samme markering, og to håndskrevne
+ * udgaver bliver til to forskellige forklaringer på det samme felt.
+ */
+export const FOD_FORKLARING = `Det skraverede felt nederst sidder i standerens fod og kan ikke ses. Skiltet trykkes i fuld højde (${cmTekst(
+  SKILT_CM.hoejde,
+)} cm).`;
+
+/** Fodens højde i skiltets egne enheder. Regnet af standerens flade, ikke af viewBox'en. */
+export const FOD_HOEJDE = (SKILT_CM.fod / SKILT_CM.hoejde) * STANDER.hoejde;
+
+/** Hvor foden begynder — den linje, designet ikke bør krydse. */
+export const FOD_START_Y = STANDER.y + STANDER.hoejde - FOD_HOEJDE;
+
+/**
+ * QR-kodens felt.
+ *
+ * De to skabeloner har pladsholderen et enkelt punkt fra hinanden (den sorte
+ * begynder ved y 268,1, den hvide ved 269,2). Koden lægges derfor midt i
+ * feltet efter ét sæt tal, og DÆKFLADEN er gjort rundhåndet, så der ikke kan
+ * blive en stump pladsholder stående langs en kant på den ene af de to.
+ */
+export const QR_FELT = { x: 191, y: 269, side: 115 } as const;
+
+/**
+ * Fladen, der dækker pladsholderen. Målt så den går klar af alt omkring sig:
+ * NFC-cirklen slutter ved x 158, pilen ved y 261, og bomærket begynder ved
+ * y 396.
+ */
+export const QR_DAEK = { x: 189, y: 266.5, bredde: 119, hoejde: 120 } as const;
+
+/**
+ * Relativ lyshed efter WCAG. Bruges til tre ting: at vælge skabelon, at
+ * afgøre hvilken vej en nuance skal gå, og at advare når en valgt farve
+ * forsvinder i baggrunden.
  */
 export function lyshed(hex: string): number {
   const h = normaliserHex(hex) ?? "#000000";
@@ -70,34 +160,111 @@ export function skabelonTil(baggrund: string): "sort" | "hvid" {
   return lyshed(baggrund) < 0.18 ? "sort" : "hvid";
 }
 
-/** Ringens plads i procent af skiltet — til at lægge et logo ovenpå i browseren. */
-export const RING_PROCENT = {
-  venstre: ((RING.cx - SKIVE_R) / SKILT_BREDDE) * 100,
-  top: ((RING.cy - SKIVE_R) / SKILT_HOEJDE) * 100,
-  bredde: ((SKIVE_R * 2) / SKILT_BREDDE) * 100,
-  hoejde: ((SKIVE_R * 2) / SKILT_HOEJDE) * 100,
-  /** Logoets andel af skivens bredde. */
-  logoAndel: (LOGO_SIDE / (SKIVE_R * 2)) * 100,
+/* --------------------------------------------------------------- nuancer */
+
+/**
+ * Blander en farve mod hvid eller sort.
+ *
+ * `styrke` er andelen, der blandes i: 0 giver farven selv, 1 giver rent hvidt
+ * eller sort. Blandingen sker i rå RGB og ikke i et perceptuelt rum — det er
+ * netop dét, skabelonens egne værdier er lavet med, og de skal kunne rammes
+ * præcist (se `skiveFarve`).
+ */
+export function nuance(hex: string, styrke: number, mod: "hvid" | "sort"): string {
+  const h = normaliserHex(hex) ?? "#000000";
+  const maal = mod === "hvid" ? 255 : 0;
+  const kanal = (i: number) => {
+    const v = parseInt(h.slice(1 + i * 2, 3 + i * 2), 16);
+    return Math.round(v + (maal - v) * styrke)
+      .toString(16)
+      .padStart(2, "0");
+  };
+  return `#${kanal(0)}${kanal(1)}${kanal(2)}`;
+}
+
+/**
+ * Hvor meget en nuance flytter sig — og hvorfor de to retninger ikke er ens.
+ *
+ * TALLENE ER IKKE VALGT AF MIG. De er regnet baglæns ud af designerens egne
+ * to filer, så en afledt farve rammer skabelonens præcist: sort bund gav
+ * #171717 og #545454, hvid bund gav #f6f6f6 og #d9d9d9. Testen holder dem
+ * fast, så en ændring her ikke stille kan komme til at tegne noget andet,
+ * end der er tegnet i Canva.
+ *
+ * At de to retninger ikke er lige store, er ikke en fejl: mørke toner ligger
+ * tættere sammen for øjet, så et skridt væk fra sort skal være større end
+ * det tilsvarende skridt væk fra hvid for at ses lige tydeligt.
+ */
+const NUANCE_STYRKE = {
+  hvid: { skive: 0.09, ring: 0.33 },
+  sort: { skive: 0.035, ring: 0.15 },
 } as const;
 
 /**
- * QR-kodens felt i skabelonen.
+ * Hvilken vej skal en nuance gå?
  *
- * Målt på klippemasken `fd856c2e98`, som er 116×115 og placeret med
- * `transform="matrix(1, 0, 0, 1, 190, 268)"`. Pladsholderen tegnes inden i
- * netop dette felt, så en rigtig kode i samme felt lander præcis oven på den.
+ * Væk fra yderpunktet: en mørk bund lysnes, en lys bund mørknes. Samme
+ * grænse som `skabelonTil`, så skabelonvalget og nuanceretningen ALDRIG kan
+ * være uenige — en lys nuance på den sorte skabelon ville se ud som en fejl.
  */
-export const QR_FELT = { x: 190, y: 268, side: 115 } as const;
+function retning(baggrund: string): "hvid" | "sort" {
+  return skabelonTil(baggrund) === "sort" ? "hvid" : "sort";
+}
 
 /**
- * Modulernes farve pr. skabelon.
+ * Logofeltets bund og NFC-cirklen.
  *
- * BEMÆRK AT DEN SORTE ER INVERTERET: lyse moduler på mørk bund. Det er
- * designets eget valg — pladsholderen ser sådan ud — og telefonkameraer
- * læser inverterede koder. Skal det laves om, er det HER, og så skal
- * baggrunden bag koden også skifte, ellers forsvinder den.
+ * DEN FØLGER BAGGRUNDEN, men ikke helt: den er kundens egen farve, en anelse
+ * lysere på en mørk bund og en anelse mørkere på en lys. Før stod cirklen
+ * med skabelonens faste sort, så en bordeaux stander fik en sort plet midt
+ * på — cirklen så ud til at høre til et andet skilt.
  */
-export const QR_MODUL = { sort: "#ffffff", hvid: "#000000" } as const;
+export function skiveFarve(baggrund: string): string {
+  const vej = retning(baggrund);
+  return nuance(baggrund, NUANCE_STYRKE[vej].skive, vej);
+}
+
+/** Stregen om NFC-cirklen. Samme vej som skiven, men et skridt længere ud. */
+export function ringFarve(baggrund: string): string {
+  const vej = retning(baggrund);
+  return nuance(baggrund, NUANCE_STYRKE[vej].ring, vej);
+}
+
+/* ------------------------------------------- mål i procent, til browseren */
+
+/** Et felt i skiltets enheder omregnet til procent af hele billedet. */
+function iProcent(f: { x: number; y: number; bredde: number; hoejde: number }) {
+  return {
+    venstre: (f.x / SKILT_BREDDE) * 100,
+    top: (f.y / SKILT_HOEJDE) * 100,
+    bredde: (f.bredde / SKILT_BREDDE) * 100,
+    hoejde: (f.hoejde / SKILT_HOEJDE) * 100,
+  };
+}
+
+/** Logofeltet, til at lægge et logo ovenpå previewet i browseren. */
+export const LOGO_PROCENT = iProcent(LOGO_FELT);
+
+/** Dækfladen samme sted — den, der skjuler feltet og rammen. */
+export const LOGO_DAEK_PROCENT = iProcent(LOGO_DAEK);
+
+/** Fodzonen, til markeringen i previewet. */
+export const FOD_PROCENT = {
+  top: (FOD_START_Y / SKILT_HOEJDE) * 100,
+  hoejde: (FOD_HOEJDE / SKILT_HOEJDE) * 100,
+};
+
+/**
+ * Standerens afrundede hjørner som en CSS-radius.
+ *
+ * TO PROCENTTAL OG IKKE ÉT: en procentradius regnes af hver sin akse, så
+ * `4,6 %` alene ville give en oval på et højformat. Med begge tal bliver
+ * hjørnet cirkulært — så længe elementet har skiltets eget sideforhold,
+ * hvilket `SkiltPreview` sørger for.
+ */
+export const HJOERNE_RADIUS = `${(STANDER.radius / SKILT_BREDDE) * 100}% / ${
+  (STANDER.radius / SKILT_HOEJDE) * 100
+}%`;
 
 /**
  * Trækker modulerne ud af `qrcode`s SVG-svar.
@@ -120,3 +287,13 @@ export function laesQrSvg(raa: string): { d: string; net: number } | null {
   if (!d || !net || !sti?.includes("stroke=")) return null;
   return { d, net };
 }
+
+/**
+ * Modulernes farve pr. skabelon.
+ *
+ * BEMÆRK AT DEN SORTE ER INVERTERET: lyse moduler på mørk bund. Det er
+ * designets eget valg — pladsholderen ser sådan ud — og telefonkameraer
+ * læser inverterede koder. Skal det laves om, er det HER, og så skal
+ * baggrunden bag koden også skifte, ellers forsvinder den.
+ */
+export const QR_MODUL = { sort: "#ffffff", hvid: "#000000" } as const;
