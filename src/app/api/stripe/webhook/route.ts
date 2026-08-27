@@ -3,8 +3,9 @@ import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { planForProduct, getProduct } from "@/lib/constants";
-import { sendIntern } from "@/lib/mail";
+import { sendIntern, sendKundeMail } from "@/lib/mail";
 import { ordrevarsel, type Koebstype } from "@/lib/ordrevarsel";
+import { ordrebekraeftelse } from "@/lib/ordrebekraeftelse";
 import { erBetalende } from "@/lib/abonnement";
 import { noterFejl } from "@/lib/drift";
 import { generateSlug } from "@/lib/utils";
@@ -94,6 +95,15 @@ async function varslOmKoeb(
   productSlug: string,
   type: Koebstype,
   firma: { name?: string | null; cvr?: string | null } | null,
+  /**
+   * Skal KUNDEN også have en bekræftelse?
+   *
+   * Afgøres af kalderen, fordi kun den ved, om ordren stadig stod som `new` —
+   * altså om det er første gang, denne betaling behandles. Stripe gentager en
+   * webhook, der ikke svarer hurtigt nok, og to ordrebekræftelser for det
+   * samme køb får en kunde til at tro, de er blevet trukket to gange.
+   */
+  bekraeftTilKunde: boolean,
 ): Promise<void> {
   try {
     const vare = getProduct(productSlug);
@@ -112,7 +122,13 @@ async function varslOmKoeb(
 
     const antal = Number(session.metadata?.quantity ?? 1) || 1;
 
-    const { emne, tekst } = ordrevarsel({
+    /*
+     * ÉT DATASÆT, TO MAILS. Varslet til os og bekræftelsen til kunden bygges
+     * på de samme `Ordredetaljer`. Byggede de hver sit, ville de før eller
+     * siden komme til at sige forskellige ting om det samme køb — og det er
+     * kundens udgave, der ville blive troet på.
+     */
+    const detaljer = {
       type,
       vare: vare?.name ?? productSlug,
       antal,
@@ -124,10 +140,31 @@ async function varslOmKoeb(
       email: session.customer_details?.email ?? null,
       leveringslinjer,
       sessionId: session.id,
-    });
+    };
 
+    const { emne, tekst } = ordrevarsel(detaljer);
     if (!(await sendIntern(emne, tekst))) {
       await noterFejl("ordrevarsel", `Kunne ikke sendes for ${session.id}`);
+    }
+
+    /*
+     * BEKRÆFTELSEN TIL KUNDEN.
+     *
+     * Sendes EFTER varslet til os, og det er bevidst: går mailen til kunden
+     * galt, skal vi stadig vide, at der er noget at pakke. Rækkefølgen er den
+     * eneste, hvor den vigtigste besked altid kommer af sted.
+     *
+     * Stripes egen kvittering er slået fra i dashboardet, så uden denne mail
+     * hører kunden intet efter købet.
+     */
+    if (bekraeftTilKunde && detaljer.email) {
+      const kunde = ordrebekraeftelse(detaljer);
+      if (!(await sendKundeMail(detaljer.email, kunde.emne, kunde.tekst))) {
+        await noterFejl(
+          "ordrebekraeftelse",
+          `Kunne ikke sendes til kunden for ${session.id}`,
+        );
+      }
     }
   } catch (err) {
     await noterFejl(
@@ -229,7 +266,7 @@ export async function POST(request: NextRequest) {
          */
         const { data: ordreDest } = await admin
           .from("orders")
-          .select("stand_id, destination_type, destination_url")
+          .select("stand_id, destination_type, destination_url, status")
           .eq("stripe_session_id", session.id)
           .maybeSingle();
 
@@ -353,8 +390,34 @@ export async function POST(request: NextRequest) {
          * `after()` er lavet til netop dette: Stripe får sit svar med det
          * samme, og platformen holder funktionen i live, til varslet er sendt.
          */
+        /*
+         * FØRSTE GANG? Ordren står som `new`, indtil denne webhook flytter
+         * den til `needs_onboarding` længere nede. Er den allerede flyttet,
+         * er det Stripe, der prøver igen — og så må kunden ikke få endnu en
+         * bekræftelse. Statussen ER altså kvitteringen for, at beskeden er
+         * sendt; det kræver ingen ekstra kolonne.
+         *
+         * Findes ordren slet ikke, er der ikke noget at bekræfte. Det er en
+         * anomali, så den noteres frem for at gå stille forbi.
+         */
+        const foersteGang = ordreDest?.status === "new";
+        if (!ordreDest) {
+          after(() =>
+            noterFejl(
+              "stripe-webhook",
+              `Betaling uden ordrerække: ${session.id}`,
+            ),
+          );
+        }
+
         after(() =>
-          varslOmKoeb(session, productSlug, type, bestaaende ?? null),
+          varslOmKoeb(
+            session,
+            productSlug,
+            type,
+            bestaaende ?? null,
+            foersteGang,
+          ),
         );
 
         if (erAbonnement && typeof session.subscription === "string") {
