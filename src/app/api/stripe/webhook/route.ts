@@ -10,6 +10,7 @@ import { erBetalende } from "@/lib/abonnement";
 import { noterFejl } from "@/lib/drift";
 import { generateSlug } from "@/lib/utils";
 import { skalOpretteFoersteStander } from "@/lib/commerce";
+import { qrAdresseFor } from "@/lib/qr-adresse";
 
 /**
  * Betalingens id, så en ordre kan spores tilbage til pengene i Stripe.
@@ -90,6 +91,35 @@ function leveringsadresse(
   );
 }
 
+/**
+ * Hvad kommer der til at stå i QR-koden på det skilt, vi lige har solgt?
+ *
+ * LÆSES TIL SIDST OG IKKE UNDERVEJS. Standeren kan være oprettet af dette
+ * kald, og destinationen kan være skrevet et par linjer inde — at samle
+ * svaret op fra de variabler ville betyde, at rækkefølgen i funktionen
+ * afgjorde, hvad kunden fik at vide. Her spørges basen om den færdige
+ * tilstand, præcis som trykfilen gør det bagefter.
+ *
+ * Reglen selv står i `qrAdresseFor()`: gennem os med abonnement, direkte på
+ * butikkens eget link uden.
+ */
+async function hentQrAdresse(
+  admin: ReturnType<typeof createAdminClient>,
+  sessionId: string,
+): Promise<{ adresse: string | null; fast: boolean }> {
+  const { data } = await admin
+    .from("orders")
+    .select(
+      "stand:stands(slug, kun_viderestilling, destination_type, google_review_url, trustpilot_url, facebook_url, custom_url)",
+    )
+    .eq("stripe_session_id", sessionId)
+    .maybeSingle();
+
+  const stand = data?.stand;
+  if (!stand) return { adresse: null, fast: false };
+  return { adresse: qrAdresseFor(stand), fast: stand.kun_viderestilling };
+}
+
 async function varslOmKoeb(
   session: Stripe.Checkout.Session,
   productSlug: string,
@@ -104,6 +134,7 @@ async function varslOmKoeb(
    * samme køb får en kunde til at tro, de er blevet trukket to gange.
    */
   bekraeftTilKunde: boolean,
+  qr: { adresse: string | null; fast: boolean },
 ): Promise<void> {
   try {
     const vare = getProduct(productSlug);
@@ -140,6 +171,8 @@ async function varslOmKoeb(
       email: session.customer_details?.email ?? null,
       leveringslinjer,
       sessionId: session.id,
+      qrAdresse: qr.adresse,
+      qrFast: qr.fast,
     };
 
     const { emne, tekst } = ordrevarsel(detaljer);
@@ -410,13 +443,14 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        after(() =>
+        after(async () =>
           varslOmKoeb(
             session,
             productSlug,
             type,
             bestaaende ?? null,
             foersteGang,
+            await hentQrAdresse(admin, session.id),
           ),
         );
 
