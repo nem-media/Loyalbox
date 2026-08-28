@@ -11,6 +11,7 @@ import {
   iProcent,
   FOD_PROCENT,
   HJOERNE_RADIUS,
+  HJOERNE_RADIUS_FRONT,
 } from "@/lib/skilt-format";
 import {
   STANDARD_ACCENT,
@@ -44,6 +45,8 @@ export function SkiltPreview({
   accent,
   logoUrl,
   visFod = true,
+  udsnit = "hele",
+  loading,
   className,
 }: {
   standerFarve: StanderFarve;
@@ -54,6 +57,23 @@ export function SkiltPreview({
   logoUrl?: string | null;
   /** Markér den del, foden dækker. Fra ved rent pynt, hvor skiltet ikke bestilles. */
   visFod?: boolean;
+  /**
+   * Hvor meget af skiltet skal vises?
+   *
+   * `hele` er trykfilen — det, en bestilling skal godkende. `front` klipper
+   * de nederste centimeter væk og viser skiltet, som det ser ud STÅENDE i
+   * foden. Det er den rigtige gengivelse på en salgsside, hvor ingen skal
+   * godkende en trykfil: en fjerdedel tom bund ville ligne et designfejl.
+   *
+   * Brug ALDRIG `front` i en bestilling. Dér skal previewet vise trykfilen —
+   * ellers kan kunden godkende ét skilt og få et andet.
+   */
+  udsnit?: "hele" | "front";
+  /**
+   * `lazy` på en salgsside: skabelonen er 160 KB, og tre skilte langt nede på
+   * siden må ikke koste noget, før nogen ruller ned til dem.
+   */
+  loading?: "lazy" | "eager";
   className?: string;
 }) {
   const brugtAccent = accent ?? STANDARD_ACCENT;
@@ -74,21 +94,39 @@ export function SkiltPreview({
   const felt = iProcent(MAAL.logo);
   const flade = iProcent(daek(MAAL.logo));
 
+  /*
+   * KLIPPET SKER I BEHOLDEREN, ikke i billedet: SVG'en er den samme fil som
+   * trykken, og en beskåret udgave ville være en anden kilde. Beholderen får
+   * frontens sideforhold, billedet beholder sit eget og hænger fra toppen —
+   * så er det nederste, foden dækker, uden for kanten.
+   */
+  const kunFront = udsnit === "front";
+  const hoejdeProcent = (SKILT_CM.hoejde / SKILT_CM.front) * 100;
+
   return (
     <div
       className={className}
       style={{
         position: "relative",
-        aspectRatio: `${SKILT_BREDDE} / ${SKILT_HOEJDE}`,
+        aspectRatio: kunFront
+          ? `${SKILT_CM.bredde} / ${SKILT_CM.front}`
+          : `${SKILT_BREDDE} / ${SKILT_HOEJDE}`,
+        overflow: kunFront ? "hidden" : undefined,
       }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={`/api/skilt?${q.toString()}`}
-        alt="Dit skilt som det bliver trykt"
+        alt={
+          kunFront
+            ? "Reviewstanderen, som den ser ud på disken"
+            : "Dit skilt som det bliver trykt"
+        }
         width={SKILT_BREDDE}
         height={SKILT_HOEJDE}
-        className="h-full w-full"
+        loading={loading}
+        className="w-full"
+        style={kunFront ? { height: `${hoejdeProcent}%` } : { height: "100%" }}
       />
 
       {logoUrl ? (
@@ -184,7 +222,12 @@ export function SkiltPreview({
         style={{
           position: "absolute",
           inset: 0,
-          borderRadius: HJOERNE_RADIUS,
+          ...(kunFront
+            ? {
+                borderTopLeftRadius: HJOERNE_RADIUS_FRONT,
+                borderTopRightRadius: HJOERNE_RADIUS_FRONT,
+              }
+            : { borderRadius: HJOERNE_RADIUS }),
           boxShadow: "inset 0 0 0 1px rgba(128,128,128,0.4)",
           pointerEvents: "none",
         }}
