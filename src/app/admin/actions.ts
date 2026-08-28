@@ -5,17 +5,8 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { generateSlug } from "@/lib/utils";
-import {
-  TIER_ORDER,
-  KATALOG,
-  planForProduct,
-  type Tier,
-} from "@/lib/constants";
-import type {
-  CompanyPlan,
-  DestinationType,
-  OrderStatus,
-} from "@/lib/types/database";
+import { KATALOG, planForProduct } from "@/lib/constants";
+import type { DestinationType, OrderStatus } from "@/lib/types/database";
 
 async function requireAdmin() {
   const user = await getCurrentUser();
@@ -129,18 +120,15 @@ export async function updateStandLinks(
   return { ok: true };
 }
 
-/** Admin op- eller nedgraderer en virksomheds plan. */
-export async function setCompanyPlan(formData: FormData): Promise<void> {
-  await requireAdmin();
-  const id = String(formData.get("company_id") ?? "");
-  const plan = String(formData.get("plan") ?? "") as CompanyPlan;
-  if (!id || !TIER_ORDER.includes(plan as Tier)) return;
-
-  const supabase = await createClient();
-  await supabase.from("companies").update({ plan }).eq("id", id);
-  revalidatePath(`/admin/virksomheder/${id}`);
-  revalidatePath("/admin/virksomheder");
-}
+/*
+ * `setCompanyPlan` ER FJERNET MED VILJE.
+ *
+ * Planen sættes ikke længere i hånden: den følger varen gennem
+ * `planForProduct()` i `setCompanyProduct()` nedenfor — den samme funktion,
+ * webhooken bruger, så et manuelt salg giver nøjagtig samme adgang som et
+ * betalt. To felter, der kunne sige hver sit om samme kunde, er ét felt for
+ * lidt; se kommentaren i `setCompanyProduct`.
+ */
 
 /**
  * Admin sætter hvilket produkt virksomheden har købt.

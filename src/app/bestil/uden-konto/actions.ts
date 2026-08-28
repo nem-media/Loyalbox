@@ -334,6 +334,15 @@ export async function bestilUdenKonto(
     quantity: v.antal,
     total_amount: pricing.oneTimeTotal,
     design_id: design.id,
+    /*
+     * ORDREN SKAL PEGE PÅ STANDEREN, ellers ved produktionen ikke, hvilken
+     * QR-kode der skal trykkes. Den manglede her, og virkningen var stille:
+     * admin skrev "Ikke oplyst — spørg kunden", og trykfilen kom ud med
+     * skabelonens PLADSHOLDER i QR-feltet. Standeren var oprettet få linjer
+     * ovenfor, med både slug og destination; der var bare ingen, der vidste
+     * hvilken. `/api/checkout` har sat feltet siden migration 0022.
+     */
+    stand_id: stand.id,
     frontfarve_beloeb: pricing.frontfarve,
     kontakt_email: v.email,
     uden_konto: true,

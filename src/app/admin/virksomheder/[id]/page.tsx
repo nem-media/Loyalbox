@@ -7,8 +7,10 @@ import { FeedbackList } from "@/components/feedback-list";
 import { CompanyInfo } from "./company-info";
 import { AdminStandLinks } from "./admin-stand-links";
 import { AddStand } from "./add-stand";
-import { PlanSelect } from "./plan-select";
 import { ProductSelect } from "./product-select";
+import { TIER_LABELS } from "@/lib/constants";
+import { Leveringsadresse } from "@/components/leveringsadresse";
+import { formatDate } from "@/lib/utils";
 
 export const metadata = { title: "Admin — Virksomhed" };
 
@@ -28,7 +30,7 @@ export default async function AdminCompanyDetail({
 
   if (!company) notFound();
 
-  const [{ data: stands }, { data: feedback }, { count: scans }] =
+  const [{ data: stands }, { data: feedback }, { count: scans }, { data: ordrer }] =
     await Promise.all([
       supabase
         .from("stands")
@@ -45,7 +47,27 @@ export default async function AdminCompanyDetail({
         .from("scans")
         .select("*", { count: "exact", head: true })
         .eq("company_id", id),
+      /*
+       * ORDRERNE HØRER HJEMME HER. Siden viste standere, feedback og
+       * scanninger, men ikke en eneste ordre — og dermed heller ikke
+       * LEVERINGSADRESSEN, som er dét, man skal bruge for at sende noget.
+       * Den lå kun på den enkelte ordre, og der var ingen vej dertil fra
+       * virksomheden.
+       */
+      supabase
+        .from("orders")
+        .select("id, product_name, quantity, status, created_at, leveringsadresse")
+        .eq("company_id", id)
+        .order("created_at", { ascending: false })
+        .limit(5),
     ]);
+
+  /*
+   * Adressen tages fra den NYESTE ordre, der har en. En ubetalt ordre har
+   * ingen — Stripe indsamler den først i betalingsvinduet — og den skal ikke
+   * skygge for adressen på det køb, der faktisk blev gennemført.
+   */
+  const senesteAdresse = (ordrer ?? []).find((o) => o.leveringsadresse) ?? null;
 
   return (
     <>
@@ -59,28 +81,39 @@ export default async function AdminCompanyDetail({
         description={`${scans ?? 0} scanninger · ${stands?.length ?? 0} standere`}
       />
 
+{/*
+        ÉN VÆLGER, IKKE TO. Planen kan ikke sættes i hånden mere — den FØLGER
+        varen via `planForProduct()`, den samme funktion webhooken bruger.
+
+        De to felter stod før side om side og kunne komme i utakt: Frisør
+        Nielsine blev solgt LoyalSum Komplet manuelt og endte på `premium`,
+        fordi planvælgeren tilbød niveauet lige ved siden af. Resultatet var
+        en betalende kunde uden feedback-indbakke, statistik og dynamiske
+        links. Intet gik i stykker, så det blev ikke opdaget.
+
+        Vælgeren var desuden misvisende: planen er altid den bestilte, og det
+        eneste, der reelt skal kunne skiftes, er MELLEM de to abonnementsvarer
+        — begge veje. Det gør produktvælgeren.
+      */}
       <Card className="mb-6">
-        <CardBody className="grid gap-6 md:grid-cols-2">
-          <div>
-            <CardTitle>Plan / abonnement</CardTitle>
-            <p className="mt-1 mb-3 text-sm text-muted">
-              Styrer review-funktionerne: eget logo, dynamiske links, feedback
-              og statistik. Slår igennem med det samme i kundens panel.
-            </p>
-            <PlanSelect companyId={company.id} plan={company.plan} />
-          </div>
-          <div>
-            <CardTitle>Købt produkt</CardTitle>
-            <p className="mt-1 mb-3 text-sm text-muted">
-              Afgør om <strong>stempelkortet</strong> er låst op. Begge
-              abonnementsvarer er niveau Pro — det er produktet, der skiller
-              dem. Sælger du LoyalSum Komplet manuelt, sættes adgangen her.
-            </p>
+        <CardBody>
+          <CardTitle>Købt produkt</CardTitle>
+          <p className="mt-1 mb-3 max-w-2xl text-sm text-muted">
+            Afgør hvad kunden har adgang til — både review-funktionerne og om{" "}
+            <strong>stempelkortet</strong> er låst op. Skift mellem
+            Reviewstander Pro og LoyalSum Komplet begge veje; niveauet følger
+            med af sig selv og slår igennem med det samme i kundens panel.
+          </p>
+          <div className="max-w-md">
             <ProductSelect
               companyId={company.id}
               productSlug={company.product_slug ?? null}
             />
           </div>
+          <p className="mt-2 text-xs text-muted">
+            Niveau lige nu:{" "}
+            <strong>{TIER_LABELS[company.plan] ?? company.plan}</strong>
+          </p>
         </CardBody>
       </Card>
 
@@ -89,8 +122,40 @@ export default async function AdminCompanyDetail({
           <CardHeader>
             <CardTitle>Virksomhedsinfo</CardTitle>
           </CardHeader>
-          <CardBody>
+          <CardBody className="space-y-4">
             <CompanyInfo company={company} />
+
+            <div className="border-t border-border pt-4">
+              <p className="etiket">Leveringsadresse</p>
+              {senesteAdresse ? (
+                <>
+                  <Leveringsadresse
+                    navn={company.name}
+                    adresse={
+                      senesteAdresse.leveringsadresse as Record<
+                        string,
+                        string | null
+                      >
+                    }
+                  />
+                  <p className="mt-1 text-xs text-muted">
+                    Fra betalingen{" "}
+                    {formatDate(senesteAdresse.created_at)} —{" "}
+                    <Link
+                      href={`/admin/ordrer/${senesteAdresse.id}`}
+                      className="text-accent"
+                    >
+                      se ordren
+                    </Link>
+                  </p>
+                </>
+              ) : (
+                <p className="mt-1 text-sm text-muted">
+                  Ingen endnu. Adressen kommer fra Stripe, når en ordre er
+                  betalt — vi spørger ikke om den i bestillingen.
+                </p>
+              )}
+            </div>
           </CardBody>
         </Card>
 
@@ -103,6 +168,37 @@ export default async function AdminCompanyDetail({
           </CardBody>
         </Card>
       </div>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Seneste ordrer</CardTitle>
+        </CardHeader>
+        <CardBody className="pt-0">
+          {ordrer && ordrer.length ? (
+            <ul className="divide-y divide-border text-sm">
+              {ordrer.map((o) => (
+                <li
+                  key={o.id}
+                  className="flex flex-wrap items-center justify-between gap-2 py-2"
+                >
+                  <Link
+                    href={`/admin/ordrer/${o.id}`}
+                    className="font-medium text-accent"
+                  >
+                    {o.product_name} × {o.quantity}
+                  </Link>
+                  <span className="text-muted">
+                    {formatDate(o.created_at)}
+                    {o.status === "new" ? " · ikke betalt" : ""}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted">Ingen ordrer endnu.</p>
+          )}
+        </CardBody>
+      </Card>
 
       <Card className="mt-6">
         <CardHeader className="flex items-center justify-between">
