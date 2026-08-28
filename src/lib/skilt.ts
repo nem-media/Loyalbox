@@ -6,7 +6,6 @@ import QRCode from "qrcode";
 import {
   laesQrSvg,
   MAAL,
-  daek,
   QR_MODUL,
   skabelonTil,
   skiveFarve,
@@ -69,6 +68,36 @@ export interface SkiltValg {
  * og aldrig kan ses. Fladen skal trykkes: skæres den fra, står der en hvid
  * stribe frem under foden. Zonen markeres kun i previewet — se `SkiltPreview`.
  */
+/**
+ * Skærer en attrap ud af skabelonen.
+ *
+ * ATTRAPPERNE FJERNES, DE MALES IKKE OVER. Før lagde vi en flade i
+ * baggrundsfarven hen over logofeltet og QR-feltet. På skærmen forsvandt de
+ * — fladen havde nøjagtig samme farve som arket — men et dækrektangel er
+ * stadig et OBJEKT i filen, og et RIP kan lægge blæk på det, hvor baggrunden
+ * ikke får blæk. Trykket viste derfor en sort firkant bag logoet, i præcis
+ * den farve baggrunden skulle have. Konstateret på et rigtigt print.
+ *
+ * Mærkerne sættes af `scripts/lav-print-skabelon.mjs`, som fejler højlydt,
+ * hvis en ny Canva-eksport har flyttet dem. Logofeltet har TRE mærkede
+ * stykker — bunden, rammen og ordene "Dit logo" — fordi de ligger spredt i
+ * dokumentet; derfor løkken.
+ */
+function fjernAttrap(svg: string, navn: "LOGOFELT" | "QRFELT"): string {
+  const start = `<!--${navn}-->`;
+  const slut = `<!--/${navn}-->`;
+  let ud = svg;
+  for (;;) {
+    const a = ud.indexOf(start);
+    if (a < 0) return ud;
+    const b = ud.indexOf(slut, a);
+    // Et mærke uden sin afslutning ville betyde en ødelagt skabelon. Så er
+    // det bedre at lade attrappen stå end at skære resten af filen væk.
+    if (b < 0) return ud;
+    ud = ud.slice(0, a) + ud.slice(b + slut.length);
+  }
+}
+
 export async function byggSkilt(valg: SkiltValg): Promise<string> {
   const baggrund = normaliserHex(valg.baggrund) ?? "#111111";
   const accent = normaliserHex(valg.accent) ?? "#4ea4ad";
@@ -86,14 +115,17 @@ export async function byggSkilt(valg: SkiltValg): Promise<string> {
     .replaceAll("{{RING}}", ringFarve(baggrund));
 
   if (valg.qrAdresse) {
-    svg = svg.replace(
-      "</svg>",
-      `${await qrLag(valg.qrAdresse, variant, baggrund)}</svg>`,
-    );
+    const kode = await qrLag(valg.qrAdresse, variant);
+    // Attrappen ryger KUN, hvis der rent faktisk kom en kode ud. Ellers ville
+    // feltet stå tomt, og et skilt uden nogen kode ser færdigt ud.
+    if (kode) svg = fjernAttrap(svg, "QRFELT").replace("</svg>", `${kode}</svg>`);
   }
 
   if (valg.logoDataUri) {
-    svg = svg.replace("</svg>", `${logoLag(valg.logoDataUri, baggrund)}</svg>`);
+    svg = fjernAttrap(svg, "LOGOFELT").replace(
+      "</svg>",
+      `${logoLag(valg.logoDataUri)}</svg>`,
+    );
   }
 
   return svg;
@@ -118,12 +150,9 @@ export async function byggSkilt(valg: SkiltValg): Promise<string> {
  * bliver trykt. Skjulte vi den, ville kunden først opdage det på skiltet, og
  * et skilt kan ikke kaldes tilbage.
  */
-function logoLag(dataUri: string, baggrund: string): string {
+function logoLag(dataUri: string): string {
   const felt = MAAL.logo;
-  const d = daek(felt);
   return (
-    `<rect x="${d.x}" y="${d.y}" width="${d.bredde}" ` +
-    `height="${d.hoejde}" fill="${baggrund}"/>` +
     `<image href="${escapeXml(dataUri)}" x="${felt.x}" y="${felt.y}" ` +
     `width="${felt.bredde}" height="${felt.hoejde}" ` +
     `preserveAspectRatio="xMidYMid meet"/>`
@@ -147,11 +176,7 @@ function logoLag(dataUri: string, baggrund: string): string {
  * Fejlkorrektion "M": QR-koden sidder på et trykt skilt, der kan blive ridset
  * eller få kaffe på sig, og et niveau over det laveste koster kun lidt plads.
  */
-async function qrLag(
-  adresse: string,
-  variant: Variant,
-  baggrund: string,
-): Promise<string> {
+async function qrLag(adresse: string, variant: Variant): Promise<string> {
   const raa = await QRCode.toString(adresse, {
     type: "svg",
     errorCorrectionLevel: "M",
@@ -159,8 +184,8 @@ async function qrLag(
      * HVILEZONE PÅ 2 MODULER. Standarden foreskriver 4, men koden ligger på
      * en ren flade, der fortsætter langt ud over feltet, så baggrunden selv
      * er zonen. De 2 sikrer, at der ALTID er luft, også hvis feltet en dag
-     * rykker tættere på noget andet. Marginen tegnes ikke — den falder
-     * sammen med dækfeltet nedenfor, som har baggrundens farve.
+     * rykker tættere på noget andet. Marginen tegnes ikke — modulerne står
+     * direkte på arket, nu hvor attrappen er skåret væk.
      */
     margin: 2,
   });
@@ -170,12 +195,9 @@ async function qrLag(
   const { d, net } = kode;
 
   const felt = MAAL.qr;
-  const flade = daek(felt);
   const skala = Math.min(felt.bredde, felt.hoejde) / net;
 
   return (
-    `<rect x="${flade.x}" y="${flade.y}" width="${flade.bredde}" ` +
-    `height="${flade.hoejde}" fill="${baggrund}"/>` +
     `<g transform="translate(${felt.x} ${felt.y}) scale(${skala})">` +
     // STROKE OG IKKE FILL. `qrcode` tegner modulerne som åbne, vandrette
     // linjer på halve koordinater (`M0 0.5h7m3 0h1…`) med en stregbredde på
