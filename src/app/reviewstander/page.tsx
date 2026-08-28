@@ -793,16 +793,16 @@ export default function ReviewstanderPage() {
             <dl className="mt-8 grid gap-6 sm:grid-cols-2">
               {[
                 {
-                  t: "Bordstander i sort akryl",
-                  d: "Står selv på disken, bordet eller i receptionen.",
+                  t: "Bordstander i sort eller hvid akryl",
+                  d: "Du vælger farven ved bestillingen. Står selv på disken, bordet eller i receptionen.",
                 },
                 {
                   t: "QR-kode og NFC",
                   d: "Begge dele på samme stander, så alle telefoner kan komme videre.",
                 },
                 {
-                  t: "Dit logo",
-                  d: "Vises på den side, kunden lander på, når du har lagt det op i dashboardet.",
+                  t: "Dit logo trykt på skiltet",
+                  d: "Du lægger det op, når du bestiller. Med Pro og Komplet vises det også på anmeldelsessiden.",
                 },
                 {
                   t: "Klar til brug",
