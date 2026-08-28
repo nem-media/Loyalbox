@@ -365,6 +365,11 @@ export function StanderDesigner({
                   {a}
                 </p>
               ))}
+              {!logoUrl ? (
+                <p className="mt-2 text-xs text-muted">
+                  Uden logo trykkes feltet med pladsholderen “Dit logo”.
+                </p>
+              ) : null}
             </div>
 
             {/* ----------------------------------------------- egen front */}
@@ -450,6 +455,15 @@ export function StanderDesigner({
             />
           </FormSektion>
         ) : null}
+
+        {/* Det med småt stod før under knappen i den klæbende spalte, hvor
+            det skubbede "Gå til betaling" ud over skærmkanten. Her kan det
+            læses uden at koste plads dér, hvor der skal trykkes. */}
+        <p className="text-xs leading-relaxed text-muted">
+          Tillægget på {EGEN_FRONTFARVE_PRIS} kr. betales kun første gang et
+          design med egen farve bestilles. Genbestiller du samme design, koster
+          farven ikke noget.
+        </p>
       </div>
 
       {/* =============================================== højre: resultatet */}
@@ -471,21 +485,24 @@ export function StanderDesigner({
             på en sort stander, ses det her. Det er hele pointen — kunden
             finder sin egen fejl, mens den stadig kan rettes.
           */}
-          <div className="bg-muted-bg px-5 py-6">
+          <div className="bg-muted-bg px-5 py-5">
             <p className="etiket text-center text-muted">
               Sådan bliver den trykt
             </p>
-            <div className="mt-4 flex justify-center">
+            <div className="mt-3 flex justify-center">
               <SkiltPreview
                 standerFarve={standerFarve}
                 baggrund={front.egen ? front.hex : null}
                 accent={visAccent}
                 logoUrl={logoUrl}
-                className="w-full max-w-[13rem]"
+                className="w-full max-w-[9.5rem]"
               />
             </div>
-            <p className="mt-4 text-center text-xs text-muted">
-              Front: {front.beskrivelse} · Stander:{" "}
+            {/* "Farve:" og ikke "Front:" — sætningen efter begynder med
+                "Fronten er 12 cm bred", og to gange front i træk læste som
+                en gentagelse. */}
+            <p className="mt-3 text-center text-xs text-muted">
+              Farve: {front.beskrivelse} · Stander:{" "}
               {STANDER_FARVER.find(
                 (f) => f.vaerdi === standerFarve,
               )!.navn.toLowerCase()}
@@ -493,15 +510,10 @@ export function StanderDesigner({
             <p className="mt-1 text-center text-xs leading-relaxed text-muted">
               {FOD_FORKLARING}
             </p>
-            {!logoUrl ? (
-              <p className="mt-2 text-center text-xs text-muted">
-                Læg dit logo op, så fylder det hele feltet øverst.
-              </p>
-            ) : null}
           </div>
 
           {/* ----------------------------------------------------- antal */}
-          <div className="border-t border-border px-5 py-4">
+          <div className="border-t border-border px-5 py-3">
             <div className="flex items-center justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-sm font-medium">Antal standere</p>
@@ -544,7 +556,7 @@ export function StanderDesigner({
           {/* ------------------------------------------------------ pris */}
           {/* Den ENE tonede flade — farven bruges dér, hvor beslutningen
               tages, og ikke som dekoration. */}
-          <div className="border-t border-border bg-accent/8 px-5 py-4">
+          <div className="border-t border-border bg-accent/8 px-5 py-3">
             <dl className="space-y-1.5 text-sm">
               <div className="flex justify-between gap-4">
                 <dt>
@@ -570,7 +582,10 @@ export function StanderDesigner({
               <div className="flex items-baseline justify-between gap-4 border-t border-border pt-2">
                 <dt className="font-medium">I alt nu</dt>
                 <dd className="text-xl font-bold tracking-tight tabular-nums">
-                  {formatCurrency(pris.oneTimeTotal)}
+                  {formatCurrency(pris.oneTimeTotal)}{" "}
+                  <span className="text-xs font-normal text-muted">
+                    ex. moms
+                  </span>
                 </dd>
               </div>
 
@@ -583,7 +598,6 @@ export function StanderDesigner({
                 </div>
               ) : null}
             </dl>
-            <p className="mt-2 text-xs text-muted">Alle priser er uden moms.</p>
           </div>
         </div>
 
@@ -639,12 +653,6 @@ export function StanderDesigner({
           </Button>
 
           {fejl ? <p className="mt-2 text-sm text-danger">{fejl}</p> : null}
-
-          <p className="mt-3 text-xs leading-relaxed text-muted">
-            Tillægget på {EGEN_FRONTFARVE_PRIS} kr. betales kun første gang et
-            design med egen farve bestilles. Genbestiller du samme design,
-            koster farven ikke noget.
-          </p>
         </div>
       </div>
     </div>
