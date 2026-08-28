@@ -323,7 +323,7 @@ export default async function AdminOrderPage({
                 </dd>
               </div>
               <div>
-                <dt className="text-muted">I alt ex. moms</dt>
+                <dt className="text-muted">I alt ex moms</dt>
                 <dd className="font-medium">
                   {formatCurrency(Number(o.total_amount))}
                 </dd>

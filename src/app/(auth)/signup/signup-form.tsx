@@ -52,7 +52,7 @@ export function SignupForm() {
           </Field>
           <Field
             label="CVR-nummer (valgfrit)"
-            hint="Otte cifre, og priserne er uden moms. Har du ikke et nummer endnu, kan du tilføje det senere under Virksomhedsprofil."
+            hint="Otte cifre, og priserne er ex moms. Har du ikke et nummer endnu, kan du tilføje det senere under Virksomhedsprofil."
           >
             <Input
               name="cvr"

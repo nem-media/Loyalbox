@@ -21,9 +21,9 @@ export interface Ordredetaljer {
   /** Varens navn, som det står på fakturaen. */
   vare: string;
   antal: number;
-  /** Beløb ex. moms i kroner. */
+  /** Beløb ex moms i kroner. */
   beloeb: number;
-  /** Månedsbeløb ex. moms, hvis der er et abonnement med. */
+  /** Månedsbeløb ex moms, hvis der er et abonnement med. */
   maanedligt?: number | null;
   firmanavn: string | null;
   cvr: string | null;
@@ -79,7 +79,7 @@ function naesteSkridt(d: Ordredetaljer): string {
 }
 
 function kroner(n: number): string {
-  return `${n.toLocaleString("da-DK")} kr. ex. moms`;
+  return `${n.toLocaleString("da-DK")} kr. ex moms`;
 }
 
 export function ordrevarsel(d: Ordredetaljer): { emne: string; tekst: string } {

@@ -79,9 +79,10 @@ export default function TermsPage() {
         <LegalSection id="saelger" title="1. Sælger og hvem vi sælger til">
           <CompanyDetails />
           <p>
-            <strong>Vi sælger kun til virksomheder.</strong> Priserne vises uden
-            moms, og der er ikke fortrydelsesret — se afsnit 2 og 5. Er du
-            privatperson, kan du ikke handle her.
+            <strong>Køb her er erhvervskøb.</strong> Priserne vises ex moms, og
+            der er ikke fortrydelsesret — se afsnit 2 og 5. Du behøver ikke have
+            et CVR-nummer klar for at bestille: er du på vej til at starte, kan
+            du tilføje nummeret bagefter.
           </p>
           <p>
             Aftalen indgås på dansk. Du bestiller ved at vælge produkt og antal,
@@ -94,7 +95,7 @@ export default function TermsPage() {
 
         <LegalSection id="priser" title="2. Priser og moms">
           <p>
-            Alle priser på sitet er angivet <strong>uden moms</strong>, fordi vi
+            Alle priser på sitet er angivet <strong>ex moms</strong>, fordi vi
             sælger til virksomheder. Dansk moms på 25 % lægges oveni ved
             betaling og fremgår af fakturaen.
           </p>

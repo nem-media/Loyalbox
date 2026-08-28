@@ -40,8 +40,13 @@ export const COMPANY = {
 // 1.3 (2026-08-26): CVR er ikke længere et krav for at bestille. Vi sælger
 // stadig kun til virksomheder, men §1 lovede en spærre, der ikke findes mere,
 // og §2 lovede et nummer på fakturaen, vi ikke altid har.
-export const TERMS_VERSION = "1.3";
-export const TERMS_DATE = "2026-08-26";
+// 1.4 (2026-08-28): §1 lukkede døren for en privatperson, men handlen er
+// erhvervskøb uanset hvem der trykker — og en, der er ved at starte op, har
+// endnu intet CVR-nummer at vise. Vilkåret siger nu, hvad KØBET er, i stedet
+// for hvem køberen ikke må være. Hvem der kan indgå aftalen er materielt,
+// derfor en ny version og ikke bare en rettet formulering.
+export const TERMS_VERSION = "1.4";
+export const TERMS_DATE = "2026-08-28";
 
 /**
  * Hvor vi sælger og leverer.

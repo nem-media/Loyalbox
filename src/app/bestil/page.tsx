@@ -276,7 +276,7 @@ export default async function OrderPage({
                   </p>
                 ) : null}
                 <p className="mt-2 text-xs leading-relaxed text-muted">
-                  Vi leverer i {LEVERINGSLAND_NAVN}. Priserne er uden moms,
+                  Vi leverer i {LEVERINGSLAND_NAVN}. Priserne er ex moms,
                   og der er ikke fortrydelsesret ved erhvervskøb.
                 </p>
               </div>

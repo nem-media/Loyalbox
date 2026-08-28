@@ -59,22 +59,22 @@ export function ordrebekraeftelse(d: Ordredetaljer): {
     "Tak for din bestilling. Her er, hvad vi har registreret.",
     "",
     `Vare:      ${d.vare}${d.antal > 1 ? ` × ${d.antal}` : ""}`,
-    `Betalt nu: ${kroner(d.beloeb)} ex. moms`,
+    `Betalt nu: ${kroner(d.beloeb)} ex moms`,
   ];
 
   if (d.maanedligt) {
-    linjer.push(`Herefter:  ${kroner(d.maanedligt)} ex. moms pr. måned`);
+    linjer.push(`Herefter:  ${kroner(d.maanedligt)} ex moms pr. måned`);
   }
 
   /*
-   * MOMSEN NÆVNES EKSPLICIT. Priserne på sitet er uden moms, fordi vi sælger
+   * MOMSEN NÆVNES EKSPLICIT. Priserne på sitet er ex moms, fordi vi sælger
    * til virksomheder — men beløbet, der er trukket på kortet, ER med moms.
    * Uden denne linje ser bekræftelsen ud til at være et andet beløb end det,
    * kunden kan se i banken.
    */
   linjer.push(
     "",
-    "Beløbene er uden moms. Der er lagt 25 % dansk moms oveni ved betalingen, og det fremgår af fakturaen fra Stripe.",
+    "Beløbene er ex moms. Der er lagt 25 % dansk moms oveni ved betalingen, og det fremgår af fakturaen fra Stripe.",
   );
 
   /*

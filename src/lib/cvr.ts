@@ -2,7 +2,7 @@
  * CVR-nummeret — som er FRIVILLIGT, men skal være rigtigt, hvis det skrives.
  *
  * BAGGRUND: handelsbetingelserne forudsætter et erhvervskøb. Priserne vises
- * uden moms, og der er ingen fortrydelsesret. Men indtil nu blev der kun
+ * ex moms, og der er ingen fortrydelsesret. Men indtil nu blev der kun
  * spurgt om et firmanavn som fri tekst, og en privatperson kunne skrive hvad
  * som helst og købe. Sker det, gælder forbrugerreglerne uanset hvad
  * betingelserne siger: 14 dages fortrydelsesret, oplysningspligt før købet og

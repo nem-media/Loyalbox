@@ -577,7 +577,7 @@ export function StanderDesigner({
                 <dd className="text-xl font-bold tracking-tight tabular-nums">
                   {formatCurrency(pris.oneTimeTotal)}{" "}
                   <span className="text-xs font-normal text-muted">
-                    ex. moms
+                    ex moms
                   </span>
                 </dd>
               </div>

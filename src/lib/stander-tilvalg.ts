@@ -113,7 +113,7 @@ export function frontFarve(
  */
 export const FRONT_TEKSTER = {
   tilvalg: "Egen farve på fronten",
-  pris: `+${EGEN_FRONTFARVE_PRIS} kr. ex. moms`,
+  pris: `+${EGEN_FRONTFARVE_PRIS} kr. ex moms`,
   forklaring:
     "Kun den printede front ændrer farve. Sider, bagside og fod beholder standerens valgte farve.",
   prisNote: "Prisen er pr. ordre — ikke pr. stander.",

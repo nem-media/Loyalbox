@@ -46,13 +46,13 @@ describe("ordrebekraeftelse", () => {
   });
 
   /**
-   * MOMSEN ER DEN FARLIGE. Priserne på sitet er uden moms, men beløbet på
+   * MOMSEN ER DEN FARLIGE. Priserne på sitet er ex moms, men beløbet på
    * kortet er MED. Står der kun ét tal uden forklaring, ser bekræftelsen ud
    * til at handle om et andet køb end det, kunden kan se i banken.
    */
-  it("forklarer, at beløbet er uden moms", () => {
+  it("forklarer, at beløbet er ex moms", () => {
     const { tekst } = ordrebekraeftelse(engangs);
-    expect(tekst).toContain("uden moms");
+    expect(tekst).toContain("ex moms");
     expect(tekst).toContain("25 %");
   });
 
