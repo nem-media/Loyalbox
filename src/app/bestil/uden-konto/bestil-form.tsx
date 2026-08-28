@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useId, useState } from "react";
+import { useActionState, useId, useRef, useState } from "react";
 import { bestilUdenKonto, type BestillingResultat } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input, Field } from "@/components/ui/input";
@@ -25,7 +25,8 @@ import {
   type StanderFarve,
   STANDARD_ACCENT,
 } from "@/lib/stander-tilvalg";
-import { LOGO_KRAV, LOGO_TEKSTER, laesPngHoved, validerLogo } from "@/lib/logo";
+import { LOGO_TEKSTER, laesPngHoved, validerLogo } from "@/lib/logo";
+import { LogoFelt } from "@/components/logo-felt";
 import { DESTINATIONER } from "@/lib/bestilling-uden-konto";
 import { DESTINATION_INTRO } from "@/components/destination-felt";
 import { formatCurrency } from "@/lib/utils";
@@ -84,6 +85,16 @@ export function BestilUdenKontoForm({
   const [advarsler, setAdvarsler] = useState<string[]>([]);
   const [destination, setDestination] = useState(DESTINATIONER[0].vaerdi);
 
+  /*
+   * REFERENCEN ER DET ENESTE, DER KAN TØMME ET FILFELT.
+   *
+   * Et <input type="file"> kan ikke sættes til "ingen fil" gennem React —
+   * værdien er skrivebeskyttet af sikkerhedsgrunde og kan kun nulstilles på
+   * elementet selv. Uden den sad kunden fast med det første logo, de kom til
+   * at vælge, og serveren ville få filen med i formulardataene alligevel.
+   */
+  const logoInput = useRef<HTMLInputElement>(null);
+
   const frontId = useId();
   const accentId = useId();
   const vilkaarId = useId();
@@ -125,6 +136,15 @@ export function BestilUdenKontoForm({
 
     setAdvarsler(kontrol.advarsler);
     setLogoUrl(URL.createObjectURL(valgt));
+  }
+
+  /** Fortryd et valgt logo. Feltet tømmes, så filen heller ikke sendes med. */
+  function fjernLogo() {
+    if (logoUrl) URL.revokeObjectURL(logoUrl);
+    setLogoUrl(null);
+    setLogoFejl(null);
+    setAdvarsler([]);
+    if (logoInput.current) logoInput.current.value = "";
   }
 
   const valgtDestination = DESTINATIONER.find((d) => d.vaerdi === destination)!;
@@ -252,39 +272,15 @@ export function BestilUdenKontoForm({
             </fieldset>
 
             {/* ----------------------------------------------------- logo */}
-            <div className="py-4">
-              <p className="text-sm font-medium">{LOGO_TEKSTER.overskrift}</p>
-              <p className="mt-0.5 text-xs text-muted">{LOGO_TEKSTER.hjaelp}</p>
-
-              <input
-                type="file"
-                name="logo"
-                accept={LOGO_KRAV.typer.join(",")}
-                onChange={vaelgFil}
-                className="mt-3 block w-full text-sm file:btn-shape file:mr-3 file:border file:border-border file:bg-transparent file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-muted-bg"
-              />
-
-              {logoFejl ? (
-                <p className="mt-2 text-sm text-danger">{logoFejl}</p>
-              ) : null}
-              {advarsler.map((a) => (
-                <p
-                  key={a}
-                  className={`mt-2 text-sm ${
-                    a === LOGO_TEKSTER.transparentFundet
-                      ? "text-accent"
-                      : "text-muted"
-                  }`}
-                >
-                  {a}
-                </p>
-              ))}
-              {!logoUrl ? (
-                <p className="mt-2 text-xs text-muted">
-                  Uden logo trykkes feltet med pladsholderen “Dit logo”.
-                </p>
-              ) : null}
-            </div>
+            <LogoFelt
+              name="logo"
+              inputRef={logoInput}
+              onChange={vaelgFil}
+              onFjern={fjernLogo}
+              valgt={Boolean(logoUrl)}
+              fejl={logoFejl}
+              advarsler={advarsler}
+            />
 
             {/* ----------------------------------------------- egen front */}
             <TilvalgRaekke
