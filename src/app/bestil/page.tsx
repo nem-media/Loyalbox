@@ -196,13 +196,33 @@ export default async function OrderPage({
     selected && spaerre === null && harFysiskSkilt(selected) && user?.company,
   );
 
+  /**
+   * Er det den brede designer, der kommer på skærmen?
+   *
+   * `viserDesigner` er også sand ved en GENBESTILLING, hvor `GenbestilDesign`
+   * vises i stedet — og den er en smal blok. Brugt til bredden ville siden
+   * blive fem gange bredere end sit indhold.
+   */
+  const brugBredSide = viserDesigner && !gemt;
+
   return (
     <>
       <SiteHeader />
       <main className="mx-auto max-w-6xl px-4 py-16">
         {selected ? (
-          <div className="mx-auto max-w-lg space-y-5">
-            <div>
+          /*
+           * BREDDEN FØLGER INDHOLDET. Designeren er to spalter fra `lg`, og
+           * `max-w-lg` ville presse den ned i én bane igen. De øvrige grene —
+           * "Klar til betaling", ventelisten, prisvisningen — er smalle
+           * tekstblokke, der ser forkerte ud i fuld bredde, så de beholder
+           * deres mål.
+           */
+          <div
+            className={`mx-auto space-y-5 ${
+              brugBredSide ? "max-w-5xl" : "max-w-lg"
+            }`}
+          >
+            <div className="max-w-xl">
               <Badge tone="accent">Valgt produkt</Badge>
               <h1 className="mt-3 text-2xl font-bold tracking-tight">
                 {selected.name}
@@ -210,7 +230,7 @@ export default async function OrderPage({
               <p className="mt-1 text-muted">{selected.tagline}</p>
             </div>
 
-            <ul className="space-y-1 text-sm text-muted">
+            <ul className="max-w-xl space-y-1 text-sm text-muted">
               {selected.features.map((f) => (
                 <li key={f}>• {f}</li>
               ))}

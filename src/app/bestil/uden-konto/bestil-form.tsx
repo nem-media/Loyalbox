@@ -166,18 +166,15 @@ export function BestilUdenKontoForm({
              e-mailfeltet ned; den hører til hele sektionen, ikke til ét felt. */
           fodnote="Vi sælger kun til virksomheder — men du kan bestille uden CVR-nummer og give os det senere."
         >
-          <div className="space-y-4">
+          <div className="space-y-3">
             {/* To korte felter side om side frem for to fulde bredder under
                 hinanden — hverken et firmanavn eller otte cifre fylder en
                 linje. */}
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2">
               <Field label="Firmanavn" hint={fejl.firmanavn}>
                 <Input name="firmanavn" required autoComplete="organization" />
               </Field>
-              <Field
-                label="CVR-nummer (valgfrit)"
-                hint={fejl.cvr ?? "Otte cifre."}
-              >
+              <Field label="CVR-nummer (valgfrit)" hint={fejl.cvr}>
                 <Input name="cvr" inputMode="numeric" placeholder="12345678" />
               </Field>
             </div>
@@ -281,6 +278,11 @@ export function BestilUdenKontoForm({
                   {a}
                 </p>
               ))}
+              {!logoUrl ? (
+                <p className="mt-2 text-xs text-muted">
+                  Uden logo trykkes feltet med pladsholderen “Dit logo”.
+                </p>
+              ) : null}
             </div>
 
             {/* ----------------------------------------------- egen front */}
@@ -388,6 +390,15 @@ export function BestilUdenKontoForm({
             </Field>
           </div>
         </FormSektion>
+
+        {/* Det med småt stod før under knappen i den klæbende spalte, hvor
+            det skubbede "Gå til betaling" ud over skærmkanten. Her kan det
+            læses uden at koste plads dér, hvor der skal trykkes. */}
+        <p className="text-xs leading-relaxed text-muted">
+          Levering i Danmark. Du får ingen konto og intet login — skiltet
+          sendes til dig, og det er det. Vil du senere have statistik,
+          feedback og stempelkort, kan du altid oprette en konto og opgradere.
+        </p>
       </div>
 
       {/* =============================================== højre: resultatet */}
@@ -410,34 +421,32 @@ export function BestilUdenKontoForm({
         <div className="box-shape overflow-hidden border border-border bg-card">
           {/* Skiltet står på råhvid og ikke på kortets hvide: en flade at
               hvile på gør det til et produktbillede frem for endnu et felt. */}
-          <div className="bg-muted-bg px-5 py-6">
+          <div className="bg-muted-bg px-5 py-5">
             <p className="etiket text-center text-muted">
               Sådan bliver den trykt
             </p>
-            <div className="mt-4 flex justify-center">
+            <div className="mt-3 flex justify-center">
               <SkiltPreview
                 standerFarve={standerFarve}
                 baggrund={front.egen ? front.hex : null}
                 accent={visAccent}
                 logoUrl={logoUrl}
-                className="w-full max-w-[13rem]"
+                className="w-full max-w-[9.5rem]"
               />
             </div>
-            <p className="mt-4 text-center text-xs text-muted">
-              Front: {front.beskrivelse}
+            {/* "Farve:" og ikke "Front:" — sætningen efter begynder med
+                "Fronten er 12 cm bred", og to gange front i træk læste som
+                en gentagelse. */}
+            <p className="mt-3 text-center text-xs text-muted">
+              Farve: {front.beskrivelse}
             </p>
             <p className="mt-1 text-center text-xs leading-relaxed text-muted">
               {FOD_FORKLARING}
             </p>
-            {!logoUrl ? (
-              <p className="mt-2 text-center text-xs text-muted">
-                Læg dit logo op, så fylder det hele feltet øverst.
-              </p>
-            ) : null}
           </div>
 
           {/* ----------------------------------------------------- antal */}
-          <div className="border-t border-border px-5 py-4">
+          <div className="border-t border-border px-5 py-3">
             <div className="flex items-center justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-sm font-medium">Antal standere</p>
@@ -483,7 +492,7 @@ export function BestilUdenKontoForm({
           {/* ------------------------------------------------------ pris */}
           {/* Den ENE tonede flade på siden. Farven bruges dér, hvor
               beslutningen tages, og ikke som dekoration. */}
-          <div className="border-t border-border bg-accent/8 px-5 py-4">
+          <div className="border-t border-border bg-accent/8 px-5 py-3">
             <dl className="space-y-1.5 text-sm">
               <div className="flex justify-between gap-4">
                 <dt>
@@ -507,13 +516,13 @@ export function BestilUdenKontoForm({
               <div className="flex items-baseline justify-between gap-4 border-t border-border pt-2">
                 <dt className="font-medium">I alt</dt>
                 <dd className="text-xl font-bold tracking-tight tabular-nums">
-                  {formatCurrency(pris.oneTimeTotal)}
+                  {formatCurrency(pris.oneTimeTotal)}{" "}
+                  <span className="text-xs font-normal text-muted">
+                    ex. moms
+                  </span>
                 </dd>
               </div>
             </dl>
-            <p className="mt-2 text-xs text-muted">
-              Alle priser er uden moms. Levering i Danmark.
-            </p>
           </div>
         </div>
 
@@ -554,12 +563,6 @@ export function BestilUdenKontoForm({
           {state.besked ? (
             <p className="mt-2 text-sm text-danger">{state.besked}</p>
           ) : null}
-
-          <p className="mt-3 text-xs leading-relaxed text-muted">
-            Du får ingen konto og intet login — skiltet sendes til dig, og det
-            er det. Vil du senere have statistik, feedback og stempelkort, kan
-            du altid oprette en konto og opgradere.
-          </p>
         </div>
       </div>
     </form>
