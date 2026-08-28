@@ -69,10 +69,10 @@ export function VentelisteForm() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field label="Navn" hint={state.fejl?.navn}>
+        <Field label="Navn" fejl={state.fejl?.navn}>
           <Input id={navnId} name="navn" required autoComplete="name" />
         </Field>
-        <Field label="E-mail" hint={state.fejl?.email}>
+        <Field label="E-mail" fejl={state.fejl?.email}>
           <Input
             id={mailId}
             name="email"
@@ -85,7 +85,8 @@ export function VentelisteForm() {
 
       <Field
         label="Telefon (valgfrit)"
-        hint={state.fejl?.telefon ?? "Kun hvis du hellere vil ringes op."}
+        fejl={state.fejl?.telefon}
+        hint="Kun hvis du hellere vil ringes op."
       >
         <Input id={tlfId} name="telefon" autoComplete="tel" />
       </Field>
