@@ -16,7 +16,7 @@ import type { DestinationType } from "@/lib/types/database";
 
 import { Input } from "@/components/ui/input";
 import { SkiltPreview } from "@/components/skilt-preview";
-import { FOD_FORKLARING } from "@/lib/skilt-format";
+import { FRONT_MAAL } from "@/lib/skilt-format";
 import {
   MAX_QTY,
   TERMS_VERSION,
@@ -488,7 +488,7 @@ export function StanderDesigner({
                 baggrund={front.egen ? front.hex : null}
                 accent={visAccent}
                 logoUrl={logoUrl}
-                className="w-full max-w-[9.5rem]"
+                className="w-full max-w-[12rem]"
               />
             </div>
             {/* "Farve:" og ikke "Front:" — sætningen efter begynder med
@@ -501,7 +501,7 @@ export function StanderDesigner({
               )!.navn.toLowerCase()}
             </p>
             <p className="mt-1 text-center text-xs leading-relaxed text-muted">
-              {FOD_FORKLARING}
+              {FRONT_MAAL}
             </p>
           </div>
 
