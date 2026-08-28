@@ -126,6 +126,22 @@ export function BillingIcon(p: P) {
   );
 }
 
+/**
+ * Destination — hvor QR-koden fører hen.
+ *
+ * Et kædeled og ikke en QR-kode: ved 16 px læses et net af firkanter som
+ * "oversigt" (se `OverviewIcon` lige ovenfor, som er præcis det), mens et led
+ * kun kan betyde én ting. Betydningen her er destinationen, ikke koden.
+ */
+export function LinkIcon(p: P) {
+  return (
+    <Icon {...p}>
+      <path d="M10.5 13.5a3.8 3.8 0 0 0 5.4 0l2.6-2.6a3.8 3.8 0 1 0-5.4-5.4l-1.2 1.2" />
+      <path d="M13.5 10.5a3.8 3.8 0 0 0-5.4 0l-2.6 2.6a3.8 3.8 0 1 0 5.4 5.4l1.2-1.2" />
+    </Icon>
+  );
+}
+
 /** Hjælp — spørgsmålet. */
 export function HelpIcon(p: P) {
   return (

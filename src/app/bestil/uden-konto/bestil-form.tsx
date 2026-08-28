@@ -6,6 +6,8 @@ import { bestilUdenKonto, type BestillingResultat } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input, Field } from "@/components/ui/input";
 import { SkiltPreview } from "@/components/skilt-preview";
+import { FormSektion, TilvalgRaekke } from "@/components/ui/form-sektion";
+import { StoreIcon, StandIcon, LinkIcon } from "@/components/nav-icons";
 import { FOD_FORKLARING } from "@/lib/skilt-format";
 import {
   MAX_QTY,
@@ -127,376 +129,440 @@ export function BestilUdenKontoForm({
   const valgtDestination = DESTINATIONER.find((d) => d.vaerdi === destination)!;
 
   return (
-    <form action={action} className="space-y-5">
+    <form
+      action={action}
+      /*
+       * TO SPALTER: VALGENE TIL VENSTRE, RESULTATET TIL HØJRE.
+       *
+       * Bestillingen lå før i én bane på en halv skærmbredde — otte ens
+       * kasser i en stak, hvor previewet først dukkede op, når man havde
+       * rullet forbi alle valgene. Man kunne altså ikke se, hvad man lavede,
+       * mens man lavede det.
+       *
+       * `items-start` er ikke pynt: uden den strækkes spalterne til samme
+       * højde, og så har den klæbende kolonne ingen plads at klæbe i.
+       *
+       * PÅ EN TELEFON falder de to spalter i én, og højre spalte lander
+       * NEDERST — altså preview → antal → pris i netop den rækkefølge,
+       * bestillingen skal læses i.
+       */
+      className="lg:grid lg:grid-cols-12 lg:items-start lg:gap-8"
+    >
       <input type="hidden" name="produkt" value={product.slug} />
       <input type="hidden" name="antal" value={qty} />
       <input type="hidden" name="standerFarve" value={standerFarve} />
       <input type="hidden" name="accentHex" value={brugtAccent ?? ""} />
       <input type="hidden" name="frontHex" value={egenFront ? hex : ""} />
 
-      {/* ------------------------------------------------------ virksomhed */}
-      <div className="box-shape space-y-4 border border-border bg-card p-5">
-        <p className="text-sm font-medium">Din virksomhed</p>
-
-        <Field label="Firmanavn" hint={fejl.firmanavn}>
-          <Input name="firmanavn" required autoComplete="organization" />
-        </Field>
-
-        <Field
-          label="CVR-nummer (valgfrit)"
-          hint={
-            fejl.cvr ??
-            "Otte cifre. Vi sælger kun til virksomheder — men du kan bestille uden og give os nummeret senere."
-          }
+      {/* ================================================ venstre: valgene */}
+      <div className="space-y-5 lg:col-span-7">
+        {/* --------------------------------------------------- virksomhed */}
+        <FormSektion
+          titel="Din virksomhed"
+          beskrivelse="Bruges til fakturaen og til at sende skiltet."
+          icon={StoreIcon}
+          /* Forklaringen på det valgfrie CVR stod før som hjælpetekst under
+             feltet. I en halv spaltebredde blev den tre linjer og skubbede
+             e-mailfeltet ned; den hører til hele sektionen, ikke til ét felt. */
+          fodnote="Vi sælger kun til virksomheder — men du kan bestille uden CVR-nummer og give os det senere."
         >
-          <Input name="cvr" inputMode="numeric" placeholder="12345678" />
-        </Field>
-
-        <Field
-          label="E-mail"
-          hint={
-            fejl.email ??
-            "Hertil sender vi kvittering og besked, når skiltet er afsendt."
-          }
-        >
-          <Input name="email" type="email" required autoComplete="email" />
-        </Field>
-      </div>
-
-      {/* ---------------------------------------------------- standerfarve */}
-      <fieldset className="box-shape border border-border bg-card p-5">
-        <legend className="px-1 text-sm font-medium">Vælg stander</legend>
-        <div className="mt-2 grid grid-cols-2 gap-3">
-          {STANDER_FARVER.map((f) => (
-            <label
-              key={f.vaerdi}
-              className={`box-shape flex cursor-pointer items-center gap-3 border p-3 transition-colors ${
-                standerFarve === f.vaerdi
-                  ? "border-accent bg-accent/5"
-                  : "border-border hover:bg-muted-bg"
-              }`}
+          <div className="space-y-4">
+            {/* To korte felter side om side frem for to fulde bredder under
+                hinanden — hverken et firmanavn eller otte cifre fylder en
+                linje. */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Firmanavn" hint={fejl.firmanavn}>
+                <Input name="firmanavn" required autoComplete="organization" />
+              </Field>
+              <Field
+                label="CVR-nummer (valgfrit)"
+                hint={fejl.cvr ?? "Otte cifre."}
+              >
+                <Input name="cvr" inputMode="numeric" placeholder="12345678" />
+              </Field>
+            </div>
+            <Field
+              label="E-mail"
+              hint={
+                fejl.email ??
+                "Hertil sender vi kvittering og besked, når skiltet er afsendt."
+              }
             >
+              <Input name="email" type="email" required autoComplete="email" />
+            </Field>
+          </div>
+        </FormSektion>
+
+        {/* ----------------------------------------------------- dit skilt */}
+        <FormSektion
+          titel="Dit skilt"
+          beskrivelse="Farve, logo og de to farvevalg. Alt, du ændrer, ses med det samme."
+          icon={StandIcon}
+          fodnote={
+            <>
+              {LOGO_TEKSTER.somUploadet} {LOGO_TEKSTER.baggrundsforbehold}{" "}
+              {LOGO_TEKSTER.vikontrollerer}
+            </>
+          }
+        >
+          <div className="divide-y divide-border">
+            {/* ---------------------------------------- standerens farve */}
+            <fieldset className="pb-4">
+              <legend className="mb-2 text-sm font-medium">Vælg stander</legend>
+              <div className="grid grid-cols-2 gap-3">
+                {STANDER_FARVER.map((f) => (
+                  <label
+                    key={f.vaerdi}
+                    className={`box-shape flex cursor-pointer items-center gap-3 border p-3 transition-colors ${
+                      standerFarve === f.vaerdi
+                        ? "border-accent bg-accent/5"
+                        : "border-border hover:bg-muted-bg"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      checked={standerFarve === f.vaerdi}
+                      onChange={() => setStanderFarve(f.vaerdi)}
+                      className="sr-only"
+                    />
+                    <span
+                      aria-hidden="true"
+                      className="h-8 w-8 shrink-0 rounded-full border border-border"
+                      style={{ background: f.hex }}
+                    />
+                    <span className="text-sm font-medium">{f.navn}</span>
+                    {/* Et flueben frem for kun en ramme: forskellen mellem
+                        valgt og fravalgt var en stregfarve, og den kan man
+                        ikke se uden at have de to ved siden af hinanden. */}
+                    {standerFarve === f.vaerdi ? (
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2.5}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="ml-auto h-4 w-4 shrink-0 text-accent"
+                      >
+                        <path d="m5 13 4 4L19 7" />
+                      </svg>
+                    ) : null}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            {/* ----------------------------------------------------- logo */}
+            <div className="py-4">
+              <p className="text-sm font-medium">{LOGO_TEKSTER.overskrift}</p>
+              <p className="mt-0.5 text-xs text-muted">{LOGO_TEKSTER.hjaelp}</p>
+
               <input
-                type="radio"
-                checked={standerFarve === f.vaerdi}
-                onChange={() => setStanderFarve(f.vaerdi)}
-                className="sr-only"
+                type="file"
+                name="logo"
+                accept={LOGO_KRAV.typer.join(",")}
+                onChange={vaelgFil}
+                className="mt-3 block w-full text-sm file:btn-shape file:mr-3 file:border file:border-border file:bg-transparent file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-muted-bg"
               />
-              <span
-                aria-hidden="true"
-                className="h-8 w-8 shrink-0 rounded-full border border-border"
-                style={{ background: f.hex }}
+
+              {logoFejl ? (
+                <p className="mt-2 text-sm text-danger">{logoFejl}</p>
+              ) : null}
+              {advarsler.map((a) => (
+                <p
+                  key={a}
+                  className={`mt-2 text-sm ${
+                    a === LOGO_TEKSTER.transparentFundet
+                      ? "text-accent"
+                      : "text-muted"
+                  }`}
+                >
+                  {a}
+                </p>
+              ))}
+            </div>
+
+            {/* ----------------------------------------------- egen front */}
+            <TilvalgRaekke
+              id={frontId}
+              name="egenFrontfarve"
+              checked={egenFront}
+              onChange={setEgenFront}
+              navn={FRONT_TEKSTER.tilvalg}
+              pris={FRONT_TEKSTER.pris}
+              forklaring={`${FRONT_TEKSTER.forklaring} ${FRONT_TEKSTER.prisNote}`}
+            >
+              <div className="mt-3 flex flex-wrap items-center gap-3 pl-7">
+                <input
+                  type="color"
+                  value={normaliserHex(hex) ?? "#26616e"}
+                  onChange={(e) => setHex(e.target.value)}
+                  aria-label="Vælg frontfarve"
+                  className="h-10 w-14 cursor-pointer border border-border bg-transparent p-1"
+                />
+                <Input
+                  value={hex}
+                  onChange={(e) => setHex(e.target.value)}
+                  aria-label="Frontfarve som hex"
+                  className="max-w-32 font-mono"
+                />
+                {!normaliserHex(hex) ? (
+                  <span className="text-xs text-danger">Ugyldig farvekode</span>
+                ) : null}
+              </div>
+              {fejl.frontHex ? (
+                <p className="mt-2 pl-7 text-sm text-danger">{fejl.frontHex}</p>
+              ) : null}
+            </TilvalgRaekke>
+
+            {/* ---------------------------------------------- egen accent */}
+            {/* Samme tilvalg som i designeren for en kunde med konto — de to
+                bestillingsveje skal give det samme skilt. */}
+            <TilvalgRaekke
+              id={accentId}
+              checked={egenAccent}
+              onChange={setEgenAccent}
+              navn="Egen farve på stjerner og tekst"
+              pris="uden beregning"
+              gratis
+              forklaring="Stjernerne, rammen om logofeltet og “Scan eller tap”. Det er den samme trykfil med en anden farvekode, så den koster ikke ekstra."
+              proeve={STANDARD_ACCENT}
+            >
+              <div className="mt-3 flex flex-wrap items-center gap-3 pl-7">
+                <input
+                  type="color"
+                  value={normaliserHex(accent) ?? STANDARD_ACCENT}
+                  onChange={(e) => setAccent(e.target.value)}
+                  aria-label="Vælg farve på stjerner og tekst"
+                  className="h-10 w-14 cursor-pointer border border-border bg-transparent p-1"
+                />
+                <Input
+                  value={accent}
+                  onChange={(e) => setAccent(e.target.value)}
+                  placeholder={STANDARD_ACCENT}
+                  aria-label="Farve på stjerner og tekst som hex"
+                  className="max-w-32 font-mono"
+                />
+                {!normaliserHex(accent) ? (
+                  <span className="text-xs text-danger">Ugyldig farvekode</span>
+                ) : null}
+              </div>
+            </TilvalgRaekke>
+          </div>
+        </FormSektion>
+
+        {/* --------------------------------------------------- destination */}
+        <FormSektion
+          titel="Hvor QR-koden fører hen"
+          icon={LinkIcon}
+          fodnote="QR-koden peger på en LoyalSum-adresse, der sender dine kunder videre til linket. Det betyder, at du kan skifte destination senere uden at skulle have nye skilte — skriv til os, så retter vi det."
+        >
+          <div className="space-y-3">
+            <select
+              name="destinationType"
+              aria-label="Hvor QR-koden fører hen"
+              value={destination}
+              onChange={(e) =>
+                setDestination(e.target.value as typeof destination)
+              }
+              className="box-shape h-11 w-full border border-border bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              {DESTINATIONER.map((d) => (
+                <option key={d.vaerdi} value={d.vaerdi}>
+                  {d.navn}
+                </option>
+              ))}
+            </select>
+
+            <Field
+              label="Link"
+              hint={fejl.destinationUrl ?? valgtDestination.hjaelp}
+            >
+              <Input
+                name="destinationUrl"
+                type="url"
+                placeholder="https://…"
+                required
               />
-              <span className="text-sm font-medium">{f.navn}</span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
-
-      {/* ------------------------------------------------------------ logo */}
-      <div className="box-shape border border-border bg-card p-5">
-        <p className="text-sm font-medium">{LOGO_TEKSTER.overskrift}</p>
-        <p className="mt-1 text-xs text-muted">{LOGO_TEKSTER.hjaelp}</p>
-
-        <input
-          type="file"
-          name="logo"
-          accept={LOGO_KRAV.typer.join(",")}
-          onChange={vaelgFil}
-          className="mt-3 block w-full text-sm file:btn-shape file:mr-3 file:border file:border-border file:bg-transparent file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-muted-bg"
-        />
-
-        {logoFejl ? (
-          <p className="mt-2 text-sm text-danger">{logoFejl}</p>
-        ) : null}
-        {advarsler.map((a) => (
-          <p
-            key={a}
-            className={`mt-2 text-sm ${
-              a === LOGO_TEKSTER.transparentFundet
-                ? "text-accent"
-                : "text-muted"
-            }`}
-          >
-            {a}
-          </p>
-        ))}
-
-        <p className="mt-3 text-xs leading-relaxed text-muted">
-          {LOGO_TEKSTER.somUploadet} {LOGO_TEKSTER.baggrundsforbehold}{" "}
-          {LOGO_TEKSTER.vikontrollerer}
-        </p>
+            </Field>
+          </div>
+        </FormSektion>
       </div>
 
-      {/* ------------------------------------------------------ destination */}
-      <div className="box-shape space-y-3 border border-border bg-card p-5">
-        <p className="text-sm font-medium">Hvor skal QR-koden føre hen?</p>
-        <select
-          name="destinationType"
-          value={destination}
-          onChange={(e) => setDestination(e.target.value as typeof destination)}
-          className="box-shape h-11 w-full border border-border bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-        >
-          {DESTINATIONER.map((d) => (
-            <option key={d.vaerdi} value={d.vaerdi}>
-              {d.navn}
-            </option>
-          ))}
-        </select>
+      {/* =============================================== højre: resultatet */}
+      {/*
+        SKILTET, ANTALLET OG PRISEN HØRER SAMMEN — ét kort, ikke tre.
+        Det er svaret på alt til venstre: sådan ser den ud, så mange får du,
+        så meget koster det. `sticky` holder det på skærmen, mens man vælger.
+      */}
+      {/*
+        HØJDEN ER LOFTET, OG DET ER IKKE PYNT. Kortet plus knappen er omkring
+        750 px; på en bærbar med 800 px synligt ville "Gå til betaling" ligge
+        under skærmkanten på en flade, der ikke kan rulles — `sticky` fastgør
+        toppen, og alt under kanten bliver uopnåeligt, indtil venstre spalte er
+        forbi. Med et loft og `overflow-y-auto` kan man altid nå knappen, og på
+        en høj skærm ses der ingen rullebjælke overhovedet.
 
-        <Field
-          label="Link"
-          hint={fejl.destinationUrl ?? valgtDestination.hjaelp}
-        >
-          <Input
-            name="destinationUrl"
-            type="url"
-            placeholder="https://…"
-            required
-          />
-        </Field>
-
-        <p className="text-xs leading-relaxed text-muted">
-          QR-koden peger på en LoyalSum-adresse, der sender dine kunder videre
-          til linket. Det betyder, at du kan skifte destination senere uden at
-          skulle have nye skilte — skriv til os, så retter vi det.
-        </p>
-      </div>
-
-      {/* ------------------------------------------------------ egen front */}
-      <div className="box-shape border border-border bg-card p-5">
-        <div className="flex items-start gap-2.5">
-          <input
-            id={frontId}
-            type="checkbox"
-            name="egenFrontfarve"
-            value="1"
-            checked={egenFront}
-            onChange={(e) => setEgenFront(e.target.checked)}
-            className="mt-1 h-4 w-4 shrink-0 accent-accent"
-          />
-          <label htmlFor={frontId} className="text-sm leading-relaxed">
-            <span className="font-medium">{FRONT_TEKSTER.tilvalg}</span>{" "}
-            <span className="text-muted">{FRONT_TEKSTER.pris}</span>
-            <span className="mt-0.5 block text-xs text-muted">
-              {FRONT_TEKSTER.forklaring} {FRONT_TEKSTER.prisNote}
-            </span>
-          </label>
-        </div>
-
-        {egenFront ? (
-          <div className="mt-4 flex items-center gap-3">
-            <input
-              type="color"
-              value={normaliserHex(hex) ?? "#26616e"}
-              onChange={(e) => setHex(e.target.value)}
-              aria-label="Vælg frontfarve"
-              className="h-10 w-14 cursor-pointer border border-border bg-transparent p-1"
-            />
-            <Input
-              value={hex}
-              onChange={(e) => setHex(e.target.value)}
-              aria-label="Frontfarve som hex"
-              className="max-w-32 font-mono"
-            />
-            {!normaliserHex(hex) ? (
-              <span className="text-xs text-danger">Ugyldig farvekode</span>
+        `top-20` går fri af den faste sidehoved.
+      */}
+      <div className="mt-5 lg:sticky lg:top-20 lg:col-span-5 lg:mt-0 lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:overscroll-contain">
+        <div className="box-shape overflow-hidden border border-border bg-card">
+          {/* Skiltet står på råhvid og ikke på kortets hvide: en flade at
+              hvile på gør det til et produktbillede frem for endnu et felt. */}
+          <div className="bg-muted-bg px-5 py-6">
+            <p className="etiket text-center text-muted">
+              Sådan bliver den trykt
+            </p>
+            <div className="mt-4 flex justify-center">
+              <SkiltPreview
+                standerFarve={standerFarve}
+                baggrund={front.egen ? front.hex : null}
+                accent={visAccent}
+                logoUrl={logoUrl}
+                className="w-full max-w-[13rem]"
+              />
+            </div>
+            <p className="mt-4 text-center text-xs text-muted">
+              Front: {front.beskrivelse}
+            </p>
+            <p className="mt-1 text-center text-xs leading-relaxed text-muted">
+              {FOD_FORKLARING}
+            </p>
+            {!logoUrl ? (
+              <p className="mt-2 text-center text-xs text-muted">
+                Læg dit logo op, så fylder det hele feltet øverst.
+              </p>
             ) : null}
           </div>
-        ) : null}
-        {fejl.frontHex ? (
-          <p className="mt-2 text-sm text-danger">{fejl.frontHex}</p>
-        ) : null}
-      </div>
 
-      {/* ----------------------------------------------------- egen accent */}
-      {/* Samme tilvalg som i designeren for en kunde med konto — de to
-          bestillingsveje skal give det samme skilt. */}
-      <div className="box-shape border border-border bg-card p-5">
-        <div className="flex items-start gap-2.5">
-          <input
-            id={accentId}
-            type="checkbox"
-            checked={egenAccent}
-            onChange={(e) => setEgenAccent(e.target.checked)}
-            className="mt-1 h-4 w-4 shrink-0 accent-accent"
-          />
-          <label htmlFor={accentId} className="text-sm leading-relaxed">
-            <span className="font-medium">Egen farve på stjerner og tekst</span>{" "}
-            <span className="text-muted">— uden beregning</span>
-            <span className="mt-0.5 block text-xs text-muted">
-              Stjernerne, rammen om logofeltet og “Scan eller tap”. Det er den samme
-              trykfil med en anden farvekode, så den koster ikke ekstra.
-            </span>
-          </label>
-        </div>
-
-        {egenAccent ? (
-          <div className="mt-4 flex items-center gap-3">
-            <input
-              type="color"
-              value={normaliserHex(accent) ?? STANDARD_ACCENT}
-              onChange={(e) => setAccent(e.target.value)}
-              aria-label="Vælg farve på stjerner og tekst"
-              className="h-10 w-14 cursor-pointer border border-border bg-transparent p-1"
-            />
-            <Input
-              value={accent}
-              onChange={(e) => setAccent(e.target.value)}
-              placeholder={STANDARD_ACCENT}
-              aria-label="Farve på stjerner og tekst som hex"
-              className="max-w-32 font-mono"
-            />
-            {!normaliserHex(accent) ? (
-              <span className="text-xs text-danger">Ugyldig farvekode</span>
+          {/* ----------------------------------------------------- antal */}
+          <div className="border-t border-border px-5 py-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-sm font-medium">Antal standere</p>
+                <p className="text-xs text-muted">
+                  Mængderabat fra {rabatter[0]?.minQty} stk.
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <button
+                  type="button"
+                  aria-label="Færre"
+                  onClick={() => setQty(clamp(qty - 1))}
+                  disabled={qty <= 1}
+                  className="btn-shape grid h-10 w-10 place-items-center border border-border text-lg font-bold transition-colors hover:bg-muted-bg disabled:opacity-40"
+                >
+                  −
+                </button>
+                <input
+                  type="number"
+                  min={1}
+                  max={MAX_QTY}
+                  value={qty}
+                  onChange={(e) => setQty(clamp(Number(e.target.value)))}
+                  aria-label="Antal standere"
+                  className="box-shape h-10 w-16 border border-border bg-background text-center text-base font-semibold [appearance:textfield] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent [&::-webkit-inner-spin-button]:appearance-none"
+                />
+                <button
+                  type="button"
+                  aria-label="Flere"
+                  onClick={() => setQty(clamp(qty + 1))}
+                  disabled={qty >= MAX_QTY}
+                  className="btn-shape grid h-10 w-10 place-items-center border border-border text-lg font-bold transition-colors hover:bg-muted-bg disabled:opacity-40"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            {fejl.antal ? (
+              <p className="mt-2 text-sm text-danger">{fejl.antal}</p>
             ) : null}
           </div>
-        ) : null}
-      </div>
 
-      {/* --------------------------------------------------------- preview */}
-      <div className="box-shape border border-border bg-card p-5">
-        <p className="text-sm font-medium">Sådan bliver den trykt</p>
-        <div className="mt-3 flex justify-center">
-          <SkiltPreview
-            standerFarve={standerFarve}
-            baggrund={front.egen ? front.hex : null}
-            accent={visAccent}
-            logoUrl={logoUrl}
-            className="w-full max-w-[15rem]"
-          />
-        </div>
-        <p className="mt-3 text-center text-xs text-muted">
-          Front: {front.beskrivelse}
-        </p>
-        <p className="mt-1 text-center text-xs text-muted">{FOD_FORKLARING}</p>
-        {!logoUrl ? (
-          <p className="mt-2 text-center text-xs text-muted">
-            Læg dit logo op, så fylder det hele feltet øverst.
-          </p>
-        ) : null}
-      </div>
-
-      {/* --------------------------------------------------------- antal */}
-      <div className="box-shape border border-border bg-card p-5">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-medium">Antal standere</p>
-            <p className="text-xs text-muted">
-              Mængderabat fra {rabatter[0]?.minQty} stk.
+          {/* ------------------------------------------------------ pris */}
+          {/* Den ENE tonede flade på siden. Farven bruges dér, hvor
+              beslutningen tages, og ikke som dekoration. */}
+          <div className="border-t border-border bg-accent/8 px-5 py-4">
+            <dl className="space-y-1.5 text-sm">
+              <div className="flex justify-between gap-4">
+                <dt>
+                  {qty} × stander
+                  {pris.discountPct > 0 ? (
+                    <span className="text-accent"> (−{pris.discountPct} %)</span>
+                  ) : null}
+                </dt>
+                <dd className="tabular-nums">
+                  {formatCurrency(pris.standTotal)}
+                </dd>
+              </div>
+              {pris.frontfarve > 0 ? (
+                <div className="flex justify-between gap-4">
+                  <dt>{FRONT_TEKSTER.tilvalg}</dt>
+                  <dd className="tabular-nums">
+                    {formatCurrency(pris.frontfarve)}
+                  </dd>
+                </div>
+              ) : null}
+              <div className="flex items-baseline justify-between gap-4 border-t border-border pt-2">
+                <dt className="font-medium">I alt</dt>
+                <dd className="text-xl font-bold tracking-tight tabular-nums">
+                  {formatCurrency(pris.oneTimeTotal)}
+                </dd>
+              </div>
+            </dl>
+            <p className="mt-2 text-xs text-muted">
+              Alle priser er uden moms. Levering i Danmark.
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-label="Færre"
-              onClick={() => setQty(clamp(qty - 1))}
-              disabled={qty <= 1}
-              className="btn-shape grid h-10 w-10 place-items-center border border-border text-lg font-bold transition-colors hover:bg-muted-bg disabled:opacity-40"
-            >
-              −
-            </button>
+        </div>
+
+        {/* ----------------------------------------------------- betaling */}
+        <div className="mt-4">
+          <div className="mb-3 flex items-start gap-2.5">
             <input
-              type="number"
-              min={1}
-              max={MAX_QTY}
-              value={qty}
-              onChange={(e) => setQty(clamp(Number(e.target.value)))}
-              aria-label="Antal standere"
-              className="box-shape h-10 w-16 border border-border bg-background text-center text-base font-semibold [appearance:textfield] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent [&::-webkit-inner-spin-button]:appearance-none"
+              id={vilkaarId}
+              type="checkbox"
+              name="accepterVilkaar"
+              value="1"
+              className="mt-1 h-4 w-4 shrink-0 accent-accent"
             />
-            <button
-              type="button"
-              aria-label="Flere"
-              onClick={() => setQty(clamp(qty + 1))}
-              disabled={qty >= MAX_QTY}
-              className="btn-shape grid h-10 w-10 place-items-center border border-border text-lg font-bold transition-colors hover:bg-muted-bg disabled:opacity-40"
-            >
-              +
-            </button>
+            <label htmlFor={vilkaarId} className="text-sm leading-relaxed">
+              Jeg accepterer{" "}
+              <Link
+                href="/handelsbetingelser"
+                className="font-medium text-accent hover:underline"
+              >
+                handelsbetingelserne
+              </Link>{" "}
+              (version {TERMS_VERSION}), og at jeg køber som virksomhed.
+            </label>
           </div>
-        </div>
-        {fejl.antal ? (
-          <p className="mt-2 text-sm text-danger">{fejl.antal}</p>
-        ) : null}
-      </div>
-
-      {/* ------------------------------------------------------------ pris */}
-      <div className="box-shape border border-accent/30 bg-accent/5 p-5">
-        <dl className="space-y-1.5 text-sm">
-          <div className="flex justify-between">
-            <dt>
-              {qty} × stander
-              {pris.discountPct > 0 ? (
-                <span className="text-accent"> (−{pris.discountPct} %)</span>
-              ) : null}
-            </dt>
-            <dd className="tabular-nums">{formatCurrency(pris.standTotal)}</dd>
-          </div>
-          {pris.frontfarve > 0 ? (
-            <div className="flex justify-between">
-              <dt>{FRONT_TEKSTER.tilvalg}</dt>
-              <dd className="tabular-nums">
-                {formatCurrency(pris.frontfarve)}
-              </dd>
-            </div>
+          {fejl.accepterVilkaar ? (
+            <p className="mb-2 text-sm text-danger">{fejl.accepterVilkaar}</p>
           ) : null}
-          <div className="flex justify-between border-t border-border pt-1.5 font-semibold">
-            <dt>I alt</dt>
-            <dd className="tabular-nums">
-              {formatCurrency(pris.oneTimeTotal)}
-            </dd>
-          </div>
-        </dl>
-        <p className="mt-2 text-xs text-muted">
-          Alle priser er uden moms. Levering i Danmark.
-        </p>
-      </div>
 
-      {/* -------------------------------------------------------- betaling */}
-      <div>
-        <div className="mb-3 flex items-start gap-2.5">
-          <input
-            id={vilkaarId}
-            type="checkbox"
-            name="accepterVilkaar"
-            value="1"
-            className="mt-1 h-4 w-4 shrink-0 accent-accent"
-          />
-          <label htmlFor={vilkaarId} className="text-sm leading-relaxed">
-            Jeg accepterer{" "}
-            <Link
-              href="/handelsbetingelser"
-              className="font-medium text-accent hover:underline"
-            >
-              handelsbetingelserne
-            </Link>{" "}
-            (version {TERMS_VERSION}), og at jeg køber som virksomhed.
-          </label>
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full"
+            disabled={pending || (egenFront && !normaliserHex(hex))}
+          >
+            {pending ? "Sender…" : "Gå til betaling"}
+          </Button>
+
+          {state.besked ? (
+            <p className="mt-2 text-sm text-danger">{state.besked}</p>
+          ) : null}
+
+          <p className="mt-3 text-xs leading-relaxed text-muted">
+            Du får ingen konto og intet login — skiltet sendes til dig, og det
+            er det. Vil du senere have statistik, feedback og stempelkort, kan
+            du altid oprette en konto og opgradere.
+          </p>
         </div>
-        {fejl.accepterVilkaar ? (
-          <p className="mb-2 text-sm text-danger">{fejl.accepterVilkaar}</p>
-        ) : null}
-
-        <Button
-          type="submit"
-          size="lg"
-          className="w-full"
-          disabled={pending || (egenFront && !normaliserHex(hex))}
-        >
-          {pending ? "Sender…" : "Gå til betaling"}
-        </Button>
-
-        {state.besked ? (
-          <p className="mt-2 text-sm text-danger">{state.besked}</p>
-        ) : null}
-
-        <p className="mt-3 text-xs leading-relaxed text-muted">
-          Du får ingen konto og intet login — skiltet sendes til dig, og det er
-          det. Vil du senere have statistik, feedback og stempelkort, kan du
-          altid oprette en konto og opgradere.
-        </p>
       </div>
     </form>
   );
 }
+

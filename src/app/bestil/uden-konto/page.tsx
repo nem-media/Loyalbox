@@ -42,11 +42,15 @@ export default async function UdenKontoPage({
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-lg px-4 py-12 sm:py-16">
+      {/* Bredden følger indholdet: bestillingen er to spalter fra `lg`, og
+          `max-w-lg` gjorde den til én bane på en halv skærm. Overskriften er
+          venstrestillet over gitteret frem for centreret — den hører til
+          venstre spalte, hvor man begynder. */}
+      <main className="mx-auto max-w-5xl px-4 py-12 sm:py-16">
         <h1 className="text-3xl font-bold tracking-tight">
           Bestil din {product.name.toLowerCase()}
         </h1>
-        <p className="mt-2 leading-relaxed text-muted">
+        <p className="mt-2 max-w-xl leading-relaxed text-muted">
           Ingen konto, intet abonnement. Vælg farve, upload dit logo, og sæt
           linket QR-koden skal føre til — så sender vi skiltet.
         </p>
@@ -62,7 +66,7 @@ export default async function UdenKontoPage({
           )}
         </div>
 
-        <p className="mt-8 text-sm text-muted">
+        <p className="mt-10 max-w-xl text-sm text-muted">
           Skal du bruge statistik, feedback-indbakke eller digitale
           stempelkort?{" "}
           <Link href="/produkter" className="font-medium text-accent hover:underline">
