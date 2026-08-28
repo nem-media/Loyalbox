@@ -48,7 +48,14 @@ function gaaTil(url: string): void {
  * læser dem direkte fra FormData. Logofilen sendes med som en del af den, og
  * uploades på serveren: en besøgende uden login kan ikke skrive i lageret.
  */
-export function BestilUdenKontoForm({ product }: { product: Product }) {
+export function BestilUdenKontoForm({
+  product,
+  initialQty = 1,
+}: {
+  product: Product;
+  /** Antallet, kunden valgte på produktsiden. Se `/bestil/uden-konto/page.tsx`. */
+  initialQty?: number;
+}) {
   const [state, action, pending] = useActionState<BestillingResultat, FormData>(
     async (prev, formData) => {
       const svar = await bestilUdenKonto(prev, formData);
@@ -60,7 +67,7 @@ export function BestilUdenKontoForm({ product }: { product: Product }) {
 
   const clamp = (n: number) =>
     Math.max(1, Math.min(MAX_QTY, Math.floor(n) || 1));
-  const [qty, setQty] = useState(1);
+  const [qty, setQty] = useState(clamp(initialQty));
   const [standerFarve, setStanderFarve] = useState<StanderFarve>(
     STANDARD_STANDERFARVE,
   );
