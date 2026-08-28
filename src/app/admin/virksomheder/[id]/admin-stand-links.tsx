@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { updateStandLinks, type FormResult } from "../../actions";
 import { Button } from "@/components/ui/button";
 import { Input, Field } from "@/components/ui/input";
-import { reviewUrl } from "@/lib/site";
+import { qrAdresseFor } from "@/lib/qr-adresse";
 import { DESTINATION_LABELS } from "@/lib/constants";
 import type { Database } from "@/lib/types/database";
 
@@ -17,6 +17,19 @@ export function AdminStandLinks({ stand }: { stand: Stand }) {
     {},
   );
 
+  /*
+   * ADRESSEN, DER STÅR I QR-KODEN — ikke `/r/<slug>` pr. automatik.
+   *
+   * Her stod før slug'en for hver eneste stander. Uden abonnement peger
+   * koden DIREKTE på butikkens eget link, og `/r/`-adressen findes reelt
+   * ikke for den kunde: åbnede man linket, viderestillede den bare. Admin
+   * læste altså en adresse, der aldrig blev trykt.
+   *
+   * `qrAdresseFor()` er den samme funktion, som tegner trykfilen, så de to
+   * ikke kan komme til at sige hver sit.
+   */
+  const qrAdresse = qrAdresseFor(stand);
+
   return (
     <form action={action} className="box-shape space-y-4 border border-border p-4">
       <input type="hidden" name="stand_id" value={stand.id} />
@@ -24,15 +37,28 @@ export function AdminStandLinks({ stand }: { stand: Stand }) {
 
       <div className="flex items-center justify-between">
         <p className="font-medium">{stand.name}</p>
-        <a
-          href={reviewUrl(stand.slug)}
-          target="_blank"
-          rel="noreferrer"
-          className="text-xs text-accent"
-        >
-          /r/{stand.slug}
-        </a>
+        {qrAdresse ? (
+          <a
+            href={qrAdresse}
+            target="_blank"
+            rel="noreferrer"
+            className="max-w-[60%] truncate text-xs text-accent"
+            title={qrAdresse}
+          >
+            {qrAdresse}
+          </a>
+        ) : (
+          <span className="text-xs text-muted">Ingen destination</span>
+        )}
       </div>
+
+      <p className="-mt-2 text-xs text-muted">
+        {stand.kun_viderestilling
+          ? "Uden abonnement: QR-koden peger direkte på linket herunder. Et trykt skilt kan derfor ikke flyttes — en ændring her gælder kun nye tryk."
+          : "Med abonnement: QR-koden peger på /r/" +
+            stand.slug +
+            ", så en ændring her slår igennem på skilte, der allerede står ude."}
+      </p>
 
       <Field label="Primær destination">
         <select

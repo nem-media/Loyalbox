@@ -57,6 +57,7 @@ export function SkiltPreview({
   baggrund,
   accent,
   logoUrl,
+  standSlug,
   loading,
   className,
 }: {
@@ -66,6 +67,14 @@ export function SkiltPreview({
   accent?: string | null;
   /** Lokal `blob:`-adresse eller en rigtig URL — begge virker her. */
   logoUrl?: string | null;
+  /**
+   * KUN ADMIN. Med en slug slår `/api/skilt` standeren op og tegner den
+   * rigtige QR-kode, så previewet er nøjagtig den fil, der bliver trykt.
+   * Ruten afviser andre end admin (se dens egen kommentar), og kundens
+   * bestilling sender det derfor ikke med — dér ville et frit slug være en
+   * måde at afprøve, hvilke der er i brug.
+   */
+  standSlug?: string | null;
   /**
    * `lazy` på en salgsside: skabelonen er 160 KB, og skilte langt nede på
    * siden må ikke koste noget, før nogen ruller ned til dem. I en bestilling
@@ -77,6 +86,7 @@ export function SkiltPreview({
   const brugtAccent = accent ?? STANDARD_ACCENT;
   const q = new URLSearchParams({ farve: standerFarve, accent: brugtAccent });
   if (baggrund) q.set("bg", baggrund);
+  if (standSlug) q.set("stand", standSlug);
 
   /*
    * Fladen, der skjuler logofeltet, skal have SAMME farve som skiltet omkring

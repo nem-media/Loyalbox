@@ -46,6 +46,9 @@ function skiltAdresse(
   return `/api/skilt?${q.toString()}`;
 }
 import { standerFarveNavn } from "@/lib/stander-tilvalg";
+import { SkiltPreview } from "@/components/skilt-preview";
+import { qrAdresseFor, type StandDestination } from "@/lib/qr-adresse";
+import { Leveringsadresse } from "@/components/leveringsadresse";
 import { visCvr } from "@/lib/cvr";
 import { formatDate, formatCurrency } from "@/lib/utils";
 import type { Database } from "@/lib/types/database";
@@ -75,7 +78,9 @@ export default async function AdminOrderPage({
   const { data: order } = await admin
     .from("orders")
     .select(
-      "*, company:companies(name, cvr, contact_email, phone), design:designs(*), stand:stands(id, name, slug)",
+      `*, company:companies(name, cvr, contact_email, phone), design:designs(*),
+         stand:stands(id, name, slug, kun_viderestilling, destination_type,
+                      google_review_url, trustpilot_url, facebook_url, custom_url)`,
     )
     .eq("id", id)
     .maybeSingle();
@@ -90,12 +95,27 @@ export default async function AdminOrderPage({
       phone: string | null;
     } | null;
     design: Database["public"]["Tables"]["designs"]["Row"] | null;
-    stand: { id: string; name: string; slug: string } | null;
+    stand:
+      | (StandDestination & {
+          id: string;
+          name: string;
+          slug: string;
+          kun_viderestilling: boolean;
+        })
+      | null;
   };
   const firma = o.company;
   const design = o.design;
   const stand = o.stand;
   const front = design ? designFrontfarve(design) : null;
+  /*
+   * HVAD DER FAKTISK KOMMER TIL AT STÅ I KODEN — ikke hvad man skulle tro.
+   * Siden skrev før `/r/<slug>` for hver eneste ordre. Uden abonnement peger
+   * koden DIREKTE på butikkens eget link (se `qrAdresseFor`), så admin læste
+   * en adresse, der ikke blev trykt, og som for et engangskøb slet ikke
+   * findes hos os. Nu spørges den samme funktion, som tegner filen.
+   */
+  const qrAdresse = stand ? qrAdresseFor(stand) : null;
   const adresse = o.leveringsadresse as Record<string, string | null> | null;
 
   return (
@@ -123,20 +143,26 @@ export default async function AdminOrderPage({
                 `stand_id` kom med migration 0022; ældre ordrer har den ikke. */}
             <div className="box-shape border border-border bg-muted-bg/50 p-3">
               <p className="etiket">QR-adresse der skal trykkes</p>
-              {stand ? (
+              {qrAdresse ? (
                 <>
-                  <p className="mt-1 font-mono text-sm font-medium">
-                    /r/{stand.slug}
+                  <p className="mt-1 break-all font-mono text-sm font-medium">
+                    {qrAdresse}
                   </p>
                   <p className="mt-0.5 text-xs text-muted">
-                    Standeren hedder “{stand.name}” hos kunden.
+                    Standeren hedder “{stand!.name}” hos kunden.{" "}
+                    {stand!.kun_viderestilling
+                      ? "Uden abonnement: koden peger direkte på butikkens eget link og kan ikke ændres efter tryk."
+                      : "Med abonnement: koden peger på vores side, så linket kan ændres uden nyt tryk."}
                   </p>
                 </>
               ) : (
                 <p className="mt-1 text-sm text-muted">
-                  Ikke oplyst — ordren er fra før QR-adressen fulgte med, eller
-                  bestilt uden konto. <strong>Spørg kunden</strong>, hvilken
-                  stander skiltet skal pege på, før den trykkes.
+                  {stand
+                    ? "Standeren har ingen destination udfyldt."
+                    : "Ordren peger ikke på en stander — den er fra før migration 0022."}{" "}
+                  <strong>Spørg kunden</strong>, hvor skiltet skal føre hen,
+                  før det trykkes. Indtil da bliver skabelonens pladsholder
+                  stående i QR-feltet.
                 </p>
               )}
             </div>
@@ -144,24 +170,26 @@ export default async function AdminOrderPage({
             {design && front ? (
               <>
                 <div className="flex items-start gap-4">
-                  <div
-                    className="box-shape grid h-32 w-24 shrink-0 place-items-center overflow-hidden border border-border p-3"
-                    style={{ background: front.hex }}
-                  >
-                    {design.logo_url ? (
-                      // Vises som det trykkes — også en hvid baggrund.
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={design.logo_url}
-                        alt=""
-                        className="max-h-full max-w-full object-contain"
-                      />
-                    ) : (
-                      <span className="text-center text-[10px] text-muted">
-                        Uden logo
-                      </span>
-                    )}
-                  </div>
+                  {/*
+                    SELVE SKILTET, tegnet af den samme rute som trykfilen.
+                    Her stod før en firkant i frontfarven med logoet lagt
+                    ovenpå — en hjemmelavet efterligning, der ikke fulgte med,
+                    da designet blev lavet om. Den viste altså en stander, vi
+                    ikke trykker mere.
+
+                    `standSlug` sendes med, så QR-koden er den RIGTIGE: admin
+                    skal kunne se, at koden er der, uden at åbne filen.
+                  */}
+                  <SkiltPreview
+                    standerFarve={
+                      design.stander_farve === "hvid" ? "hvid" : "sort"
+                    }
+                    baggrund={front.egen ? front.hex : null}
+                    accent={design.accent_hex}
+                    logoUrl={design.logo_url}
+                    standSlug={stand?.slug}
+                    className="w-24 shrink-0"
+                  />
 
                   <dl className="space-y-1.5 text-sm">
                     <div>
@@ -194,15 +222,18 @@ export default async function AdminOrderPage({
                   </dl>
                 </div>
 
-                {/* TRYKFILEN, med kundens valg og logo bagt ind.
+                {/* TRYKFILEN, med kundens valg, logo OG QR-kode bagt ind.
                     Samme funktion som previewet i bestillingen, så det, der
-                    hentes her, er dét kunden godkendte. QR-koden er stadig
-                    en pladsholder og sættes på manuelt — se skiltAdresse(). */}
+                    hentes her, er dét kunden godkendte. QR-koden tegnes med,
+                    når ordren ved hvilken stander det er — se skiltAdresse(). */}
                 <div className="border-t border-border pt-3 text-sm">
                   <p className="font-medium">Trykfil</p>
                   <p className="mt-1 text-muted">
-                    SVG i {SKILT_BREDDE}×{SKILT_HOEJDE} enheder. Åbn og sæt
-                    QR-koden i feltet, før den sendes i produktion.
+                    SVG i {SKILT_BREDDE}×{SKILT_HOEJDE} enheder — hele arket,
+                    også de nederste centimeter, der sidder i foden.{" "}
+                    {qrAdresse
+                      ? "QR-koden er tegnet i filen."
+                      : "QR-feltet står med pladsholderen, indtil adressen er kendt."}
                   </p>
                   <a
                     href={skiltAdresse(design, o.stand?.slug)}
@@ -267,25 +298,17 @@ export default async function AdminOrderPage({
             <h2 className="font-bold tracking-tight">Hvor den skal sendes</h2>
 
             {adresse ? (
-              <address className="text-sm not-italic leading-relaxed">
-                {firma?.name}
-                <br />
-                {adresse.line1}
-                {adresse.line2 ? (
-                  <>
-                    <br />
-                    {adresse.line2}
-                  </>
-                ) : null}
-                <br />
-                {[adresse.postal_code, adresse.city].filter(Boolean).join(" ")}
-                <br />
-                {adresse.country}
-              </address>
+              <Leveringsadresse navn={firma?.name} adresse={adresse} />
             ) : (
+              /* EN UBETALT ORDRE HAR INGEN. Stripe indsamler først adressen i
+                 betalingsvinduet, så en ordre, kunden gik fra, kan ikke have
+                 en — og det er ikke en fejl, der skal jages. Teksten sagde før
+                 kun noget om gamle ordrer og fik en tom ny til at ligne et
+                 hul i systemet. */
               <p className="text-sm text-muted">
-                Ingen leveringsadresse gemt. Ordrer betalt før 21. august har
-                den kun hos Stripe — slå den op på betalingen nedenfor.
+                {o.status === "new"
+                  ? "Ingen adresse endnu — ordren er ikke betalt, og Stripe spørger først om den i betalingsvinduet."
+                  : "Ingen leveringsadresse gemt. Ordrer betalt før 21. august har den kun hos Stripe — slå den op på betalingen nedenfor."}
               </p>
             )}
 
