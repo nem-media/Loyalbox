@@ -12,7 +12,7 @@ import {
 } from "@/lib/constants";
 import { FRONT_TEKSTER } from "@/lib/stander-tilvalg";
 import { PRINT_SKABELON_VERSION } from "@/lib/design";
-import { LOGO_KRAV, laesPngHoved, validerLogo } from "@/lib/logo";
+import { laesPngHoved, validerLogo } from "@/lib/logo";
 import {
   CVR_HAR_KONTO,
   laesBestilling,
@@ -342,6 +342,3 @@ export async function bestilUdenKonto(
 
   return { url: session.url ?? undefined };
 }
-
-/** Filtyperne, formularen må tage imod. Samme liste som kontrollen bruger. */
-export const LOGO_ACCEPT = LOGO_KRAV.typer.join(",");
