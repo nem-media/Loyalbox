@@ -92,6 +92,50 @@ describe("ordrebekraeftelse", () => {
   });
 });
 
+describe("linket på skiltet", () => {
+  const eget = "https://g.page/r/CQm9xk1Fs2wQEBM/review";
+
+  /**
+   * UDEN ABONNEMENT ER MAILEN SIDSTE UDKALD. Linket trykkes fast, og et
+   * skilt kan ikke kaldes tilbage — så adressen skal stå på skrift, mens en
+   * tastefejl stadig kan rettes.
+   */
+  it("skriver det trykte link og siger, at det er permanent", () => {
+    const { tekst } = ordrebekraeftelse({
+      ...engangs,
+      qrAdresse: eget,
+      qrFast: true,
+    });
+    expect(tekst).toContain(eget);
+    expect(tekst).toContain("kan ikke ændres bagefter");
+    // Må ikke love et dashboard, kunden ikke får.
+    expect(tekst).not.toContain("dit dashboard");
+  });
+
+  /**
+   * MED ABONNEMENT er beskeden den modsatte: adressen er vores, og butikken
+   * bestemmer selv, hvor den fører hen. Lovede vi "kan ikke ændres" her,
+   * ville vi skjule dét, abonnementet betales for.
+   */
+  it("kalder abonnentens adresse for deres egen og lover, den kan skiftes", () => {
+    const { tekst } = ordrebekraeftelse({
+      ...abonnement,
+      qrAdresse: "https://loyalsum.dk/r/abc12345",
+      qrFast: false,
+    });
+    expect(tekst).toContain("https://loyalsum.dk/r/abc12345");
+    expect(tekst).toContain("uden nye skilte");
+    expect(tekst).not.toContain("kan ikke ændres bagefter");
+  });
+
+  /** Ingen adresse betyder ingen linje — ikke en tom overskrift. */
+  it("tier, når standeren ikke har en destination endnu", () => {
+    const { tekst } = ordrebekraeftelse({ ...engangs, qrAdresse: null });
+    expect(tekst).not.toContain("QR-koden fører til");
+    expect(tekst).not.toContain("Din QR-adresse");
+  });
+});
+
 describe("de to mails om samme køb", () => {
   /**
    * Varslet til os og bekræftelsen til kunden bygges på SAMME Ordredetaljer.
@@ -106,6 +150,17 @@ describe("de to mails om samme køb", () => {
     expect(intern.tekst).toContain(engangs.vare);
     expect(kunde.tekst).toContain("798");
     expect(intern.tekst).toContain("798");
+  });
+
+  /**
+   * Adressen på skiltet skal stå i BEGGE. Til os er det dét, der skal trykkes
+   * og skrives på NFC-taggen; til kunden er det beviset for, hvad de bestilte.
+   * Stod den kun det ene sted, ville den anden mail beskrive et andet skilt.
+   */
+  it("nævner samme adresse på skiltet", () => {
+    const med = { ...engangs, qrAdresse: "https://butik.dk/anmeld", qrFast: true };
+    expect(ordrebekraeftelse(med).tekst).toContain("https://butik.dk/anmeld");
+    expect(ordrevarsel(med).tekst).toContain("https://butik.dk/anmeld");
   });
 
   /** Emnerne skal kunne kendes fra hinanden i en indbakke. */

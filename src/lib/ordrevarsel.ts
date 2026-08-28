@@ -32,6 +32,29 @@ export interface Ordredetaljer {
   leveringslinjer: string[];
   /** Til opslag i Stripe. */
   sessionId: string | null;
+
+  /**
+   * Adressen, QR-koden og NFC-taggen skal indeholde.
+   *
+   * DEN STÅR I BEGGE MAILS, og af hver sin grund. Til os er det dét, der
+   * skal trykkes og skrives på taggen. Til kunden er det den sidste chance
+   * for at opdage en tastefejl: uden abonnement trykkes linket fast, og et
+   * skilt kan ikke kaldes tilbage.
+   *
+   * `null` betyder, at standeren ikke har nogen destination endnu — så er
+   * der intet at love, og linjen udelades.
+   */
+  qrAdresse?: string | null;
+
+  /**
+   * Er linket trykt fast?
+   *
+   * Uden abonnement peger koden direkte på butikkens eget link og kan aldrig
+   * ændres. Med abonnement peger den på vores egen adresse, og butikken
+   * bestemmer selv i dashboardet, hvor den fører hen. To vidt forskellige
+   * beskeder — se `qrAdresseFor()` i qr-adresse.ts.
+   */
+  qrFast?: boolean;
 }
 
 const OVERSKRIFT: Record<Koebstype, string> = {
@@ -82,6 +105,18 @@ export function ordrevarsel(d: Ordredetaljer): { emne: string; tekst: string } {
     linjer.push("", "Leveringsadresse:", ...d.leveringslinjer.map((l) => `  ${l}`));
   } else {
     linjer.push("", "Leveringsadresse: ingen (der sendes ikke noget)");
+  }
+
+  if (d.qrAdresse) {
+    // Dét, der skal trykkes OG skrives på NFC-taggen. Står det ikke her,
+    // skal den, der pakker, slå det op i admin.
+    linjer.push(
+      "",
+      `QR og NFC: ${d.qrAdresse}`,
+      d.qrFast
+        ? "  (trykkes fast — butikken har intet abonnement)"
+        : "  (vores egen adresse — butikken styrer selv destinationen)",
+    );
   }
 
   if (d.sessionId) {
