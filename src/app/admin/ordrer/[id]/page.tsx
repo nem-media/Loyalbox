@@ -159,10 +159,10 @@ export default async function AdminOrderPage({
                 <p className="mt-1 text-sm text-muted">
                   {stand
                     ? "Standeren har ingen destination udfyldt."
-                    : "Ordren peger ikke på en stander — den er fra før migration 0022."}{" "}
-                  <strong>Spørg kunden</strong>, hvor skiltet skal føre hen,
-                  før det trykkes. Indtil da bliver skabelonens pladsholder
-                  stående i QR-feltet.
+                    : "Ordren peger ikke på en stander."}{" "}
+                  Find den under virksomheden, eller{" "}
+                  <strong>spørg kunden</strong>, hvor skiltet skal føre hen.
+                  Indtil da bliver skabelonens pladsholder stående i QR-feltet.
                 </p>
               )}
             </div>
@@ -308,7 +308,7 @@ export default async function AdminOrderPage({
               <p className="text-sm text-muted">
                 {o.status === "new"
                   ? "Ingen adresse endnu — ordren er ikke betalt, og Stripe spørger først om den i betalingsvinduet."
-                  : "Ingen leveringsadresse gemt. Ordrer betalt før 21. august har den kun hos Stripe — slå den op på betalingen nedenfor."}
+                  : "Ingen leveringsadresse gemt. Adressen skrives af webhooken, når betalingen går igennem — er status sat i hånden, eller er ordren fra før 21. august, findes den kun hos Stripe. Slå den op på betalingen nedenfor."}
               </p>
             )}
 
