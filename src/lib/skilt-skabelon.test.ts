@@ -123,6 +123,50 @@ describe("MAAL mod skabelonen", () => {
   });
 });
 
+/**
+ * ATTRAPPERNE SKAL KUNNE FINDES OG SKÆRES UD.
+ *
+ * `byggSkilt()` fjerner logofeltet og QR-feltet ved deres kommentarmærker,
+ * når kunden har et logo og en adresse. Falder et mærke ud af en ny
+ * Canva-eksport, sker der INGEN fejl: attrappen bliver bare stående, og
+ * kunden får et skilt med ordene "Dit logo" trykt bag sit eget logo.
+ *
+ * Logofeltet har TRE mærkede stykker, fordi bunden, rammen og teksten ligger
+ * spredt i dokumentet — tallet står her, så et tabt stykke bliver fanget.
+ */
+describe("attrapperne", () => {
+  const antal = (s: string, m: string) => s.split(m).length - 1;
+
+  it.each(VARIANTER)("%s: logofeltet er mærket i tre stykker", (v) => {
+    expect(antal(SKABELONER[v], "<!--LOGOFELT-->")).toBe(3);
+    expect(antal(SKABELONER[v], "<!--/LOGOFELT-->")).toBe(3);
+  });
+
+  it.each(VARIANTER)("%s: QR-feltet er mærket ét sted", (v) => {
+    expect(antal(SKABELONER[v], "<!--QRFELT-->")).toBe(1);
+    expect(antal(SKABELONER[v], "<!--/QRFELT-->")).toBe(1);
+  });
+
+  /*
+   * DET, DER FAKTISK BETYDER NOGET: bliver dokumentet ved med at være
+   * velformet, når stykkerne skæres ud? Et mærke sat rundt om en HALV gruppe
+   * ville lade et `</g>` stå tilbage, og filen ville åbne skævt i
+   * trykkeriets program — uden at noget her i huset opdagede det.
+   */
+  it.each(VARIANTER)("%s: %s taggene går op, når begge er skåret væk", (v) => {
+    const uden = SKABELONER[v]
+      .replace(/<!--LOGOFELT-->[\s\S]*?<!--\/LOGOFELT-->/g, "")
+      .replace(/<!--QRFELT-->[\s\S]*?<!--\/QRFELT-->/g, "");
+
+    expect(antal(uden, "<!--")).toBe(0);
+    expect((uden.match(/<g[ >]/g) ?? []).length).toBe(
+      (uden.match(/<\/g>/g) ?? []).length,
+    );
+    // Bunden i skivefarven forsvinder med logofeltet; NFC-feltets bliver.
+    expect(antal(uden, "{{SKIVE}}")).toBe(1);
+  });
+});
+
 describe("skabelonens farver", () => {
   /** Uden pladsholdere bliver skiltet tegnet i skabelonens egne farver. */
   it.each(VARIANTER)("har alle fire pladsholdere (%s)", (v) => {
