@@ -235,7 +235,7 @@ export function GenbestilDesign({
             </dd>
           </div>
         </dl>
-        <p className="mt-2 text-xs text-muted">Alle priser er uden moms.</p>
+        <p className="mt-2 text-xs text-muted">Alle priser er ex moms.</p>
       </div>
 
       {/* -------------------------------------------------------- betaling */}

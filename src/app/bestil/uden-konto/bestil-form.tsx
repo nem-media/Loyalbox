@@ -182,10 +182,6 @@ export function BestilUdenKontoForm({
           titel="Din virksomhed"
           beskrivelse="Bruges til fakturaen og til at sende skiltet."
           icon={StoreIcon}
-          /* Forklaringen på det valgfrie CVR stod før som hjælpetekst under
-             feltet. I en halv spaltebredde blev den tre linjer og skubbede
-             e-mailfeltet ned; den hører til hele sektionen, ikke til ét felt. */
-          fodnote="Vi sælger kun til virksomheder — men du kan bestille uden CVR-nummer og give os det senere."
         >
           <div className="space-y-3">
             {/* To korte felter side om side frem for to fulde bredder under
@@ -511,7 +507,7 @@ export function BestilUdenKontoForm({
                 <dd className="text-xl font-bold tracking-tight tabular-nums">
                   {formatCurrency(pris.oneTimeTotal)}{" "}
                   <span className="text-xs font-normal text-muted">
-                    ex. moms
+                    ex moms
                   </span>
                 </dd>
               </div>
