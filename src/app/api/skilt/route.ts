@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { byggSkilt } from "@/lib/skilt";
-import { reviewUrl } from "@/lib/site";
+import { qrAdresseFor } from "@/lib/qr-adresse";
+import { getCurrentUser } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { STANDER_FARVER, normaliserHex } from "@/lib/stander-tilvalg";
 
 /**
@@ -64,20 +66,43 @@ export async function GET(request: NextRequest) {
       : null;
 
   /*
-   * QR-KODEN BYGGES PÅ ET SLUG, IKKE PÅ EN FRI ADRESSE.
+   * QR-KODEN SLÅS OP, DEN KOMMER ALDRIG FRA ADRESSEN.
    *
-   * Kunne adressen indeholde en vilkårlig URL, kunne nogen bede om et skilt,
-   * der scanner videre til hvad som helst — og filen bliver serveret fra
-   * vores domæne. Her kan der kun peges på `/r/<slug>` hos os selv.
+   * Hvad koden skal indeholde, afhænger af standeren: med abonnement vores
+   * egen `/r/<slug>`, uden abonnement butikkens eget link. Reglen ligger i
+   * `qrAdresseFor()` — ét sted, så previewet, trykfilen og dokumentationen
+   * ikke kan komme til at sige hver sit.
    *
-   * Der slås IKKE op i basen, om standeren findes: ruten er åben, og et
-   * opslag ville gøre den til en måde at afprøve, hvilke slugs der er i brug.
-   * Et forkert slug giver et skilt, der fører til vores egen 404 — og
-   * trykfilen hentes af os i admin, hvor slug'en kommer fra ordren.
+   * DERFOR ER `stand` KUN FOR ADMIN. Ruten er ellers åben, og et opslag på et
+   * frit slug ville gøre den til en måde at afprøve, hvilke slugs der er i
+   * brug — og til at læse en butiks destination ud af et gæt. Trykfilen
+   * hentes i forvejen kun fra admin (se `skiltAdresse()` i
+   * /admin/ordrer/[id]); previewet i bestillingen sender ikke `stand` med og
+   * rører derfor ikke basen.
+   *
+   * Uden `stand` bliver skabelonens pladsholder stående. Et skilt med en
+   * FORKERT kode er værre end et med en pladsholder: den forkerte bliver
+   * trykt og opdaget af en kunde, der står og scanner.
    */
   const slug = p.get("stand");
-  const qrAdresse =
-    slug && /^[a-z0-9-]{4,40}$/i.test(slug) ? reviewUrl(slug) : null;
+  let qrAdresse: string | null = null;
+
+  if (slug) {
+    const user = await getCurrentUser();
+    if (user?.role !== "admin") {
+      return new NextResponse("Ikke adgang", { status: 403 });
+    }
+
+    const { data: stand } = await createAdminClient()
+      .from("stands")
+      .select(
+        "slug, kun_viderestilling, destination_type, google_review_url, trustpilot_url, facebook_url, custom_url",
+      )
+      .eq("slug", slug)
+      .maybeSingle();
+
+    qrAdresse = stand ? qrAdresseFor(stand) : null;
+  }
 
   const svg = await byggSkilt({
     baggrund,

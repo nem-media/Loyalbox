@@ -27,6 +27,7 @@ import {
 } from "@/lib/stander-tilvalg";
 import { LOGO_KRAV, LOGO_TEKSTER, laesPngHoved, validerLogo } from "@/lib/logo";
 import { DESTINATIONER } from "@/lib/bestilling-uden-konto";
+import { DESTINATION_INTRO } from "@/components/destination-felt";
 import { formatCurrency } from "@/lib/utils";
 
 /** Sender browseren til Stripe. Uden for komponenten — se stander-designer.tsx. */
@@ -358,7 +359,12 @@ export function BestilUdenKontoForm({
         <FormSektion
           titel="Hvor QR-koden fører hen"
           icon={LinkIcon}
-          fodnote="QR-koden peger på en LoyalSum-adresse, der sender dine kunder videre til linket. Det betyder, at du kan skifte destination senere uden at skulle have nye skilte — skriv til os, så retter vi det."
+          /* Her stod før, at koden peger på en LoyalSum-adresse, og at
+             destinationen derfor kunne skiftes senere. Det passede ikke med
+             resten af systemet: `kraeverDestination()` spørger netop, fordi
+             linket afgøres én gang for alle ved trykket. Nu står der det
+             samme som i designeren — se DESTINATION_INTRO. */
+          fodnote={`${DESTINATION_INTRO} QR-koden fører direkte til dit link, uden om LoyalSum — så skiltet virker, uanset hvad der sker med os.`}
         >
           <div className="space-y-3">
             <select
