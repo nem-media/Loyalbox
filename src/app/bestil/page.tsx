@@ -276,9 +276,8 @@ export default async function OrderPage({
                   </p>
                 ) : null}
                 <p className="mt-2 text-xs leading-relaxed text-muted">
-                  Vi sælger kun til virksomheder og leverer i{" "}
-                  {LEVERINGSLAND_NAVN}. Priserne er uden moms, og der er ikke
-                  fortrydelsesret ved erhvervskøb.
+                  Vi leverer i {LEVERINGSLAND_NAVN}. Priserne er uden moms,
+                  og der er ikke fortrydelsesret ved erhvervskøb.
                 </p>
               </div>
             ) : (

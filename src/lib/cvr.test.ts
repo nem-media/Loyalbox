@@ -3,9 +3,10 @@ import { erGyldigtCvr, normaliserCvr, visCvr } from "./cvr";
 import { COMPANY } from "./constants";
 
 /**
- * CVR-nummeret er spærren mod, at en privatperson køber på vilkår, der
- * forudsætter et erhvervskøb. Går kontrollen i stykker, forsvinder spærren
- * uden at noget fejler — derfor testen.
+ * Nummeret er FRIVILLIGT og spærrer ikke for et køb — se `koebSpaerre()`.
+ * Kontrollen her fanger tastefejl: skriver nogen et nummer, skal det være
+ * det rigtige, for ellers tror de, det står på fakturaen. Går regnestykket i
+ * stykker, godtages et forkert nummer uden at noget fejler — derfor testen.
  */
 describe("CVR-kontrol", () => {
   it("godtager vores eget nummer", () => {
