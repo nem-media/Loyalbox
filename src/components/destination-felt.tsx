@@ -23,12 +23,18 @@ import type { DestinationType } from "@/lib/types/database";
  * Reglen for HVORNÅR det vises, ligger i `kraeverDestination()` i
  * commerce.ts, som både formularen og `/api/checkout` spørger.
  */
+/** Hvorfor linket skal oplyses nu. Eksporteret, så designerens sektion kan
+ *  vise den samme sætning som genbestillingens indramning. */
+export const DESTINATION_INTRO =
+  "Uden abonnement trykkes linket fast på skiltet og kan ikke ændres bagefter. Derfor skal vi have det nu.";
+
 export function DestinationFelt({
   type,
   url,
   onType,
   onUrl,
   visFejl,
+  bar = false,
 }: {
   type: DestinationType;
   url: string;
@@ -36,6 +42,14 @@ export function DestinationFelt({
   onUrl: (v: string) => void;
   /** Sæt når brugeren har forsøgt at betale — så fejlen ikke råber ad en tom formular. */
   visFejl?: boolean;
+  /**
+   * Uden egen ramme og overskrift.
+   *
+   * Designeren lægger feltet i en `FormSektion`, som allerede har begge dele;
+   * stod de her også, ville overskriften stå to gange oven på hinanden.
+   * Genbestillingen har ingen sektioner og bruger den indrammede udgave.
+   */
+  bar?: boolean;
 }) {
   const typeId = useId();
   const urlId = useId();
@@ -43,15 +57,9 @@ export function DestinationFelt({
   const tom = url.trim() === "";
   const ugyldig = !tom && !erGyldigUrl(url);
 
-  return (
-    <div className="box-shape border border-border bg-muted-bg/40 p-4">
-      <p className="font-medium">Hvor skal QR-koden føre hen?</p>
-      <p className="mt-1 text-sm leading-relaxed text-muted">
-        Uden abonnement trykkes linket fast på skiltet og kan ikke ændres
-        bagefter. Derfor skal vi have det nu.
-      </p>
-
-      <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,11rem)_1fr]">
+  const felter = (
+    <>
+      <div className="grid gap-3 sm:grid-cols-[minmax(0,11rem)_1fr]">
         <div>
           <label htmlFor={typeId} className="etiket">
             Platform
@@ -98,6 +106,18 @@ export function DestinationFelt({
           Linket skal starte med http:// eller https://
         </p>
       ) : null}
+    </>
+  );
+
+  if (bar) return felter;
+
+  return (
+    <div className="box-shape border border-border bg-muted-bg/40 p-4">
+      <p className="font-medium">Hvor skal QR-koden føre hen?</p>
+      <p className="mt-1 mb-3 text-sm leading-relaxed text-muted">
+        {DESTINATION_INTRO}
+      </p>
+      {felter}
     </div>
   );
 }
