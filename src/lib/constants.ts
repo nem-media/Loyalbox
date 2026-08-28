@@ -330,7 +330,7 @@ export const PRODUCTS: Product[] = [
     includesLoyalSum: false,
     tagline: "Selvvalgt anmeldelseslink",
     description:
-      "Elegant bordstander i sort akryl med QR og NFC. Du sætter selv linket — til Google, Trustpilot, Tripadvisor, Facebook eller din egen side. Indsæt dit logo og link, sæt den på disken, og du er klar. Ingen abonnement.",
+      "Elegant bordstander i sort eller hvid akryl med QR og NFC. Du sætter selv linket — til Google, Trustpilot, Tripadvisor, Facebook eller din egen side. Dit logo trykkes på skiltet. Sæt den på disken, og du er klar. Ingen abonnement.",
     image: "/mockups/stander-reviewstander.svg",
     features: [
       "Selvvalgt link (Google, Trustpilot, Tripadvisor, Facebook…)",
@@ -445,7 +445,7 @@ export const PRODUCTS: Product[] = [
     addon: true,
     tagline: "Endnu et skilt til disken",
     description:
-      "En stander mere til din forretning — samme sorte akryl med QR og NFC, med dit logo. Den kan pege på en ny QR-adresse eller på den samme som dine andre. Købes uanset hvilket abonnement du har, og ændrer ikke noget ved det.",
+      "En stander mere til din forretning — samme akryl med QR og NFC, med dit logo. Den kan pege på en ny QR-adresse eller på den samme som dine andre. Købes uanset hvilket abonnement du har, og ændrer ikke noget ved det.",
     image: "/mockups/stander-reviewstander.svg",
     features: [
       "Samme stander som dine nuværende",
