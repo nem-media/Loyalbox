@@ -73,15 +73,14 @@ export default async function OrderThanksPage({
              en knap, der beder om en adgangskode, man aldrig har fået, ligner
              en fejl i købet. Til gengæld skal det siges HØJT, at der ikke
              mangler noget — ellers leder man efter en mail, der aldrig
-             kommer. */
+             kommer.
+
+             INTET SALG HER. Kunden har lige betalt; et tilbud om at opgradere
+             i samme åndedrag læser som om købet ikke var nok. Vejen til de
+             øvrige varer står på bestillingssiden, før man beslutter sig. */
           <p className="mt-8 leading-relaxed text-muted">
             Der følger ikke noget login med, og du skal ikke gøre mere —
-            skiltet virker af sig selv, når det kommer. Vil du senere have
-            statistik, feedback og stempelkort, kan du{" "}
-            <Link href="/produkter" className="font-medium text-accent">
-              oprette en konto og opgradere
-            </Link>
-            .
+            skiltet virker af sig selv, når det kommer.
           </p>
         )}
 
