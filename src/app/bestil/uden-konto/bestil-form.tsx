@@ -163,50 +163,6 @@ export function BestilUdenKontoForm({
         </Field>
       </div>
 
-      {/* --------------------------------------------------------- antal */}
-      <div className="box-shape border border-border bg-card p-5">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-medium">Antal standere</p>
-            <p className="text-xs text-muted">
-              Mængderabat fra {rabatter[0]?.minQty} stk.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-label="Færre"
-              onClick={() => setQty(clamp(qty - 1))}
-              disabled={qty <= 1}
-              className="btn-shape grid h-10 w-10 place-items-center border border-border text-lg font-bold transition-colors hover:bg-muted-bg disabled:opacity-40"
-            >
-              −
-            </button>
-            <input
-              type="number"
-              min={1}
-              max={MAX_QTY}
-              value={qty}
-              onChange={(e) => setQty(clamp(Number(e.target.value)))}
-              aria-label="Antal standere"
-              className="box-shape h-10 w-16 border border-border bg-background text-center text-base font-semibold [appearance:textfield] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent [&::-webkit-inner-spin-button]:appearance-none"
-            />
-            <button
-              type="button"
-              aria-label="Flere"
-              onClick={() => setQty(clamp(qty + 1))}
-              disabled={qty >= MAX_QTY}
-              className="btn-shape grid h-10 w-10 place-items-center border border-border text-lg font-bold transition-colors hover:bg-muted-bg disabled:opacity-40"
-            >
-              +
-            </button>
-          </div>
-        </div>
-        {fejl.antal ? (
-          <p className="mt-2 text-sm text-danger">{fejl.antal}</p>
-        ) : null}
-      </div>
-
       {/* ---------------------------------------------------- standerfarve */}
       <fieldset className="box-shape border border-border bg-card p-5">
         <legend className="px-1 text-sm font-medium">Vælg stander</legend>
@@ -418,6 +374,50 @@ export function BestilUdenKontoForm({
           <p className="mt-2 text-center text-xs text-muted">
             Læg dit logo op, så fylder det hele feltet øverst.
           </p>
+        ) : null}
+      </div>
+
+      {/* --------------------------------------------------------- antal */}
+      <div className="box-shape border border-border bg-card p-5">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium">Antal standere</p>
+            <p className="text-xs text-muted">
+              Mængderabat fra {rabatter[0]?.minQty} stk.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              aria-label="Færre"
+              onClick={() => setQty(clamp(qty - 1))}
+              disabled={qty <= 1}
+              className="btn-shape grid h-10 w-10 place-items-center border border-border text-lg font-bold transition-colors hover:bg-muted-bg disabled:opacity-40"
+            >
+              −
+            </button>
+            <input
+              type="number"
+              min={1}
+              max={MAX_QTY}
+              value={qty}
+              onChange={(e) => setQty(clamp(Number(e.target.value)))}
+              aria-label="Antal standere"
+              className="box-shape h-10 w-16 border border-border bg-background text-center text-base font-semibold [appearance:textfield] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent [&::-webkit-inner-spin-button]:appearance-none"
+            />
+            <button
+              type="button"
+              aria-label="Flere"
+              onClick={() => setQty(clamp(qty + 1))}
+              disabled={qty >= MAX_QTY}
+              className="btn-shape grid h-10 w-10 place-items-center border border-border text-lg font-bold transition-colors hover:bg-muted-bg disabled:opacity-40"
+            >
+              +
+            </button>
+          </div>
+        </div>
+        {fejl.antal ? (
+          <p className="mt-2 text-sm text-danger">{fejl.antal}</p>
         ) : null}
       </div>
 
