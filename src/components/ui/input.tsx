@@ -31,20 +31,44 @@ export function Label({
   );
 }
 
+/**
+ * Etiket, felt og en linje nedenunder.
+ *
+ * `fejl` OG `hint` ER IKKE DET SAMME, og det var de før.
+ *
+ * Serverens afvisninger blev sendt ind som `hint` og tegnet i `text-muted` —
+ * altså nøjagtig samme grå småtekst som hjælpelinjen, der i forvejen stod
+ * dér. På e-mailfeltet ERSTATTEDE fejlen endda hjælpeteksten i samme stil og
+ * på samme plads. Resultatet: en bestilling, serveren havde afvist, så ud
+ * som om der ikke var sket noget. Man trykker "Gå til betaling", siden bliver
+ * stående, og der er ingenting at få øje på.
+ *
+ * `fejl` vinder over `hint`, står i rødt og har `role="alert"`, så en
+ * skærmlæser siger den uden at man skal lede efter den.
+ */
 export function Field({
   label,
   hint,
+  fejl,
   children,
 }: {
   label: string;
   hint?: string;
+  /** Serverens afvisning. Vises i stedet for `hint` og i rødt. */
+  fejl?: string;
   children: React.ReactNode;
 }) {
   return (
     <div>
       <Label>{label}</Label>
       {children}
-      {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
+      {fejl ? (
+        <p role="alert" className="mt-1 text-xs font-medium text-danger">
+          {fejl}
+        </p>
+      ) : hint ? (
+        <p className="mt-1 text-xs text-muted">{hint}</p>
+      ) : null}
     </div>
   );
 }

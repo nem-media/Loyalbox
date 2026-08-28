@@ -37,6 +37,26 @@ function gaaTil(url: string): void {
 }
 
 /**
+ * Ruller hen til det første felt, serveren afviste.
+ *
+ * KNAPPEN OG FELTERNE ER IKKE SAMME STED. Bestillingen er to spalter: man
+ * trykker "Gå til betaling" i højre spalte, mens felterne står til venstre og
+ * for længst er rullet op forbi skærmkanten. Afvises noget, tegnes fejlen et
+ * sted, man ikke kigger — og siden ser ud til bare at stå stille.
+ *
+ * Browserens egen validering gør det samme af sig selv; det her er den
+ * tilsvarende hjælp for de kontroller, kun serveren kan lave (er CVR'et
+ * knyttet til en konto, holder linket).
+ */
+function visFoersteFejl(fejl: Record<string, string | undefined>): void {
+  const navn = Object.keys(fejl).find((k) => fejl[k]);
+  if (!navn) return;
+  const felt = document.querySelector<HTMLElement>(`[name="${navn}"]`);
+  felt?.scrollIntoView({ block: "center", behavior: "smooth" });
+  felt?.focus({ preventScroll: true });
+}
+
+/**
  * Bestilling af et skilt UDEN konto.
  *
  * Der oprettes hverken login eller dashboard. Kunden køber ét skilt, får det
@@ -64,6 +84,7 @@ export function BestilUdenKontoForm({
     async (prev, formData) => {
       const svar = await bestilUdenKonto(prev, formData);
       if (svar.url) gaaTil(svar.url);
+      else if (svar.fejl) visFoersteFejl(svar.fejl);
       return svar;
     },
     {},
@@ -188,19 +209,17 @@ export function BestilUdenKontoForm({
                 hinanden — hverken et firmanavn eller otte cifre fylder en
                 linje. */}
             <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="Firmanavn" hint={fejl.firmanavn}>
+              <Field label="Firmanavn" fejl={fejl.firmanavn}>
                 <Input name="firmanavn" required autoComplete="organization" />
               </Field>
-              <Field label="CVR-nummer (valgfrit)" hint={fejl.cvr}>
+              <Field label="CVR-nummer (valgfrit)" fejl={fejl.cvr}>
                 <Input name="cvr" inputMode="numeric" placeholder="12345678" />
               </Field>
             </div>
             <Field
               label="E-mail"
-              hint={
-                fejl.email ??
-                "Hertil sender vi kvittering og besked, når skiltet er afsendt."
-              }
+              fejl={fejl.email}
+              hint="Hertil sender vi kvittering og besked, når skiltet er afsendt."
             >
               <Input name="email" type="email" required autoComplete="email" />
             </Field>
@@ -376,7 +395,8 @@ export function BestilUdenKontoForm({
 
             <Field
               label="Link"
-              hint={fejl.destinationUrl ?? valgtDestination.hjaelp}
+              fejl={fejl.destinationUrl}
+              hint={valgtDestination.hjaelp}
             >
               <Input
                 name="destinationUrl"
@@ -536,8 +556,17 @@ export function BestilUdenKontoForm({
               (version {TERMS_VERSION}), og at jeg køber som virksomhed.
             </label>
           </div>
+          {/* EN AFVISNING MÅ ALDRIG VÆRE TAVS DÉR, MAN TRYKKER. Fejlene står
+              ved deres felter i venstre spalte, som man ikke kan se herfra —
+              så uden denne linje ser et klik ud til ikke at gøre noget. */}
           {fejl.accepterVilkaar ? (
-            <p className="mb-2 text-sm text-danger">{fejl.accepterVilkaar}</p>
+            <p role="alert" className="mb-2 text-sm text-danger">
+              {fejl.accepterVilkaar}
+            </p>
+          ) : Object.values(fejl).some(Boolean) ? (
+            <p role="alert" className="mb-2 text-sm text-danger">
+              Der er noget galt i felterne ovenfor — de er markeret med rødt.
+            </p>
           ) : null}
 
           <Button
