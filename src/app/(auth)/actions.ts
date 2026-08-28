@@ -8,6 +8,7 @@ import { resolveLandingPath } from "@/lib/auth";
 import { claimCardForUser } from "@/lib/loyalty/member-account";
 import { getSiteUrl } from "@/lib/site";
 import { erGyldigtCvr, normaliserCvr, CVR_FEJL } from "@/lib/cvr";
+import { bestillingsSti } from "@/lib/bestillings-sti";
 
 export interface AuthState {
   error?: string;
@@ -70,6 +71,13 @@ export async function signup(
   const companyName = String(formData.get("company_name") ?? "").trim();
   const cvrRaw = String(formData.get("cvr") ?? "");
 
+  // Bestillingen, kunden kom fra — se `bestillingsSti()` for hvorfor slug'en
+  // slås op og ikke skrives ind som den kom.
+  const naeste = bestillingsSti(
+    formData.get("produkt")?.toString(),
+    formData.get("antal")?.toString(),
+  );
+
   // CVR er IKKE med i den her: feltet er frivilligt, jf. nedenfor.
   if (!email || !password || !companyName) {
     return { error: "Udfyld navn, mail og adgangskode." };
@@ -97,7 +105,11 @@ export async function signup(
       // en session. Uden dette peger linket på Site URL'ens rod, der ikke
       // veksler noget: brugeren får bekræftet sin mail, men ender uden session
       // på forsiden. Det ses først, når "Confirm email" slås til i Supabase.
-      emailRedirectTo: `${getSiteUrl()}/auth/callback`,
+      // Bestillingen følger med gennem bekræftelsesmailen. `/auth/callback`
+      // kender `next` i forvejen og kører den gennem `safeNextPath()`.
+      emailRedirectTo:
+        `${getSiteUrl()}/auth/callback` +
+        (naeste ? `?next=${encodeURIComponent(naeste)}` : ""),
     },
   });
 
@@ -137,7 +149,7 @@ export async function signup(
   if (!data.session) return { needsConfirmation: true };
 
   revalidatePath("/", "layout");
-  redirect("/dashboard");
+  redirect(naeste ?? "/dashboard");
 }
 
 /**
