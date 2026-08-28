@@ -355,12 +355,11 @@ export function BestilUdenKontoForm({
         <FormSektion
           titel="Hvor QR-koden fører hen"
           icon={LinkIcon}
-          /* Her stod før, at koden peger på en LoyalSum-adresse, og at
-             destinationen derfor kunne skiftes senere. Det passede ikke med
-             resten af systemet: `kraeverDestination()` spørger netop, fordi
-             linket afgøres én gang for alle ved trykket. Nu står der det
-             samme som i designeren — se DESTINATION_INTRO. */
-          fodnote={`${DESTINATION_INTRO} QR-koden fører direkte til dit link, uden om LoyalSum — så skiltet virker, uanset hvad der sker med os.`}
+          /* Ordlyden ligger i DESTINATION_INTRO, så bestillingen uden konto,
+             designeren og genbestillingen siger det samme. Her stod før, at
+             koden peger på en LoyalSum-adresse, og at destinationen derfor
+             kunne skiftes senere — det passede ikke med resten af systemet. */
+          fodnote={DESTINATION_INTRO}
         >
           <div className="space-y-3">
             <select
@@ -393,14 +392,6 @@ export function BestilUdenKontoForm({
           </div>
         </FormSektion>
 
-        {/* Det med småt stod før under knappen i den klæbende spalte, hvor
-            det skubbede "Gå til betaling" ud over skærmkanten. Her kan det
-            læses uden at koste plads dér, hvor der skal trykkes. */}
-        <p className="text-xs leading-relaxed text-muted">
-          Levering i Danmark. Du får ingen konto og intet login — skiltet
-          sendes til dig, og det er det. Vil du senere have statistik,
-          feedback og stempelkort, kan du altid oprette en konto og opgradere.
-        </p>
       </div>
 
       {/* =============================================== højre: resultatet */}

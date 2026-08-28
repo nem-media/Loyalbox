@@ -26,7 +26,7 @@ import type { DestinationType } from "@/lib/types/database";
 /** Hvorfor linket skal oplyses nu. Eksporteret, så designerens sektion kan
  *  vise den samme sætning som genbestillingens indramning. */
 export const DESTINATION_INTRO =
-  "Uden abonnement trykkes linket fast på skiltet og kan ikke ændres bagefter. Derfor skal vi have det nu.";
+  "Linket kan ikke ændres efter tryk. QR-kode og NFC vil pege over på det valgte link.";
 
 export function DestinationFelt({
   type,
