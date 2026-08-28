@@ -742,11 +742,6 @@ export default function ReviewstanderPage() {
           til at vise en stander, der ser anderledes ud end den, kunden får.
           Et mockup ville før eller siden komme bagud, som "sort akryl" gjorde.
 
-          `udsnit="front"` klipper de nederste centimeter væk, fordi de sidder
-          i foden og aldrig ses. På en bestilling ville det være forkert — dér
-          skal previewet vise hele trykfilen — men her står skiltet på en
-          disk, ikke i en godkendelse.
-
           `loading="lazy"`: hver skabelon er 160 KB, og tre af dem må ikke
           koste noget, før nogen ruller herned.
         */}
@@ -768,8 +763,6 @@ export default function ReviewstanderPage() {
                     standerFarve={v.standerFarve}
                     baggrund={v.baggrund}
                     accent={v.accent}
-                    visFod={false}
-                    udsnit="front"
                     loading="lazy"
                     className="mx-auto w-full max-w-[13rem]"
                   />

@@ -148,16 +148,18 @@ export function cmTekst(n: number): string {
 }
 
 /**
- * Forklaringen på skraveringen, ét sted.
+ * Skiltets mål, som kunden ser dem.
  *
- * Begge bestillingsformularer viser den samme markering, og to håndskrevne
- * udgaver bliver til to forskellige forklaringer på det samme felt.
+ * KUN FRONTEN. Arket er 19,2 cm, men de nederste sidder i foden — det er en
+ * trykteknisk detalje, kunden ikke får noget ud af. Det tal, de skal bruge,
+ * er hvor stort skiltet står på bordet.
+ *
+ * Begge bestillingsformularer viser den samme linje; to håndskrevne udgaver
+ * bliver til to forskellige mål på det samme skilt.
  */
-export const FOD_FORKLARING = `Fronten er ${cmTekst(
+export const FRONT_MAAL = `Fronten er ${cmTekst(
   SKILT_CM.bredde,
-)} cm bred og ${cmTekst(
-  SKILT_CM.front,
-)} cm høj. Det skraverede felt nederst sidder i standerens fod og kan ikke ses.`;
+)} cm bred og ${cmTekst(SKILT_CM.front)} cm høj.`;
 
 /** Fodens højde i skiltets egne enheder. */
 export const FOD_HOEJDE = (FOD_CM / SKILT_CM.hoejde) * SKILT_HOEJDE;
@@ -284,31 +286,17 @@ export function iProcent(f: Felt) {
   };
 }
 
-/** Fodzonen, til markeringen i previewet. */
-export const FOD_PROCENT = {
-  top: (FOD_START_Y / SKILT_HOEJDE) * 100,
-  hoejde: (FOD_HOEJDE / SKILT_HOEJDE) * 100,
-};
+
 
 /**
  * Standerens afrundede hjørner som en CSS-radius.
  *
- * TO PROCENTTAL OG IKKE ÉT: en procentradius regnes af hver sin akse, så
- * `4,6 %` alene ville give en oval på et højformat. Med begge tal bliver
- * hjørnet cirkulært — så længe elementet har skiltets eget sideforhold,
- * hvilket `SkiltPreview` sørger for.
- */
-export const HJOERNE_RADIUS = `${(HJOERNE_R / SKILT_BREDDE) * 100}% / ${
-  (HJOERNE_R / SKILT_HOEJDE) * 100
-}%`;
-
-/**
- * Samme hjørne, men i et udsnit der kun viser fronten.
+ * TO PROCENTTAL OG IKKE ÉT: en procentradius regnes af hver sin akse, så ét
+ * tal alene ville give en oval på et højformat.
  *
- * Procenten regnes af BEHOLDERENS højde, og den er kortere, når de nederste
- * centimeter er klippet væk. Brugtes tallet ovenfor, ville hjørnet blive
- * fladtrykt. Kun de to øverste hjørner: nederst er skiltet skåret, ikke
- * afrundet.
+ * Den lodrette procent regnes af BEHOLDERENS højde, og previewet viser kun
+ * fronten — brugtes hele arkets højde, ville hjørnet blive fladtrykt. Kun de
+ * to øverste hjørner sættes: nederst er skiltet skåret, ikke afrundet.
  */
 export const HJOERNE_RADIUS_FRONT = `${(HJOERNE_R / SKILT_BREDDE) * 100}% ${
   (HJOERNE_R / (SKILT_HOEJDE * (SKILT_CM.front / SKILT_CM.hoejde))) * 100
