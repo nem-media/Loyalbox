@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { laesBetalingssvar } from "@/lib/betalingssvar";
@@ -35,12 +35,12 @@ import {
   STANDARD_ACCENT,
 } from "@/lib/stander-tilvalg";
 import {
-  LOGO_KRAV,
   LOGO_TEKSTER,
   laesPngHoved,
   validerLogo,
   type PngHoved,
 } from "@/lib/logo";
+import { LogoFelt } from "@/components/logo-felt";
 import { formatCurrency } from "@/lib/utils";
 
 /**
@@ -176,6 +176,24 @@ export function StanderDesigner({
 
   const pris = priceFor(product, qty, { egenFrontfarve: front.egen });
   const rabatter = VOLUME_DISCOUNTS.filter((v) => v.discountPct > 0);
+
+  /*
+   * REFERENCEN ER DET ENESTE, DER KAN TØMME ET FILFELT. Værdien er
+   * skrivebeskyttet af sikkerhedsgrunde og kan kun nulstilles på elementet
+   * selv — uden den sad kunden fast med det første logo, de valgte.
+   */
+  const logoInput = useRef<HTMLInputElement>(null);
+
+  /** Fortryd et valgt logo. Filen skal også væk, ellers uploades den ved betalingen. */
+  function fjernLogo() {
+    if (logoUrl) URL.revokeObjectURL(logoUrl);
+    setFil(null);
+    setHoved(null);
+    setLogoUrl(null);
+    setLogoFejl(null);
+    setAdvarsler([]);
+    if (logoInput.current) logoInput.current.value = "";
+  }
 
   async function vaelgFil(e: React.ChangeEvent<HTMLInputElement>) {
     const valgt = e.target.files?.[0] ?? null;
@@ -338,39 +356,14 @@ export function StanderDesigner({
             </fieldset>
 
             {/* ----------------------------------------------------- logo */}
-            <div className="py-4">
-              <p className="text-sm font-medium">{LOGO_TEKSTER.overskrift}</p>
-              <p className="mt-0.5 text-xs text-muted">{LOGO_TEKSTER.hjaelp}</p>
-
-              <input
-                type="file"
-                accept={LOGO_KRAV.typer.join(",")}
-                onChange={vaelgFil}
-                className="mt-3 block w-full text-sm file:btn-shape file:mr-3 file:border file:border-border file:bg-transparent file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-muted-bg"
-              />
-
-              {logoFejl ? (
-                <p className="mt-2 text-sm text-danger">{logoFejl}</p>
-              ) : null}
-
-              {advarsler.map((a) => (
-                <p
-                  key={a}
-                  className={`mt-2 text-sm ${
-                    a === LOGO_TEKSTER.transparentFundet
-                      ? "text-accent"
-                      : "text-muted"
-                  }`}
-                >
-                  {a}
-                </p>
-              ))}
-              {!logoUrl ? (
-                <p className="mt-2 text-xs text-muted">
-                  Uden logo trykkes feltet med pladsholderen “Dit logo”.
-                </p>
-              ) : null}
-            </div>
+            <LogoFelt
+              inputRef={logoInput}
+              onChange={vaelgFil}
+              onFjern={fjernLogo}
+              valgt={Boolean(logoUrl)}
+              fejl={logoFejl}
+              advarsler={advarsler}
+            />
 
             {/* ----------------------------------------------- egen front */}
             <TilvalgRaekke
