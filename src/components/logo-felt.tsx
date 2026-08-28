@@ -65,7 +65,11 @@ export function LogoFelt({
           <button
             type="button"
             onClick={onFjern}
-            className="btn-shape inline-flex shrink-0 items-center gap-1.5 border border-border px-3 py-2 text-sm font-medium transition-colors hover:border-danger hover:text-danger"
+            /* h-10 og ikke bare lodret luft: knappen skal rammes med en tommel,
+                og de andre knapper i bestillingen — plus og minus ved antallet
+                — er præcis 40 px. En knap, der er to px lavere end naboen,
+                ligner en fejl, længe før nogen kalder den for lille. */
+            className="btn-shape inline-flex h-10 shrink-0 items-center gap-1.5 border border-border px-3 text-sm font-medium transition-colors hover:border-danger hover:text-danger"
           >
             <svg
               aria-hidden="true"
