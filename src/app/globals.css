@@ -149,6 +149,24 @@ body {
   .panel :is(h1, h2, h3) {
     color: var(--dark);
   }
+
+  /* ET FELT, BROWSEREN SCROLLER TIL, SKAL VÆRE FRI AF DEN KLÆBENDE HEADER.
+     Sidehovedet er `sticky` og 91 px højt. Når en formular afvises af
+     browserens egen validering, scroller den det første ugyldige felt ind i
+     billedet — og landede det bag headeren, blev boblen ("Udfyld dette
+     felt.") tegnet uden for skærmen.
+     For brugeren så det ud, som om KNAPPEN IKKE VIRKEDE: et klik på "Gå til
+     betaling", et lille hop på siden, og ingen besked. Det er værre end en
+     fejl, for der er intet at rette efter. Reproduceret på
+     /bestil/uden-konto, hvor bestillingen er to spalter: felterne står til
+     venstre, mens knappen klæber til højre, så man trykker på et tidspunkt,
+     hvor felterne for længst er rullet op forbi headeren.
+     8rem dækker headeren plus feltets egen etiket ovenover. */
+  input,
+  select,
+  textarea {
+    scroll-margin-top: 8rem;
+  }
 }
 
 @layer components {
