@@ -6,8 +6,14 @@ import {
   isTestBuyer,
   stripeMode,
   skalOpretteFoersteStander,
+  kanBestillesUdenKonto,
 } from "./commerce";
-import { getProduct, STRIPE_TAX_RATES, type Product } from "./constants";
+import {
+  getProduct,
+  PRODUCTS,
+  STRIPE_TAX_RATES,
+  type Product,
+} from "./constants";
 
 /**
  * Spærren mod et halvfærdigt tilstandsskifte.
@@ -261,5 +267,44 @@ describe("skalOpretteFoersteStander", () => {
     expect(
       skalOpretteFoersteStander({ ...grund, erAbonnement: false }),
     ).toBe(false);
+  });
+});
+
+describe("kanBestillesUdenKonto", () => {
+  /**
+   * REGLEN LIGGER ÉT STED, fordi to sider spørger om den: `/bestil` sender
+   * kunden direkte videre til bestillingen uden konto, og `/bestil/uden-konto`
+   * afviser alt andet. Stod den to steder, kunne den ene side vise en
+   * formular, den anden aldrig ville sende nogen hen til.
+   */
+  it("lukker Reviewstander ind — den er hele grunden til, at flowet findes", () => {
+    expect(kanBestillesUdenKonto(getProduct("reviewstander"))).toBe(true);
+  });
+
+  /** Et abonnement kræver en konto at give adgang til. */
+  it("holder abonnementsvarerne ude", () => {
+    for (const p of PRODUCTS.filter((p) => p.monthlyPrice)) {
+      expect(kanBestillesUdenKonto(p), p.slug).toBe(false);
+    }
+  });
+
+  /**
+   * DEN, DER FAKTISK VAR ÅBEN. "Ekstra stander" har ingen månedspris og et
+   * fysisk skilt, så den slap gennem den gamle betingelse — en fremmed med
+   * adressen `?produkt=ekstra-stander` kunne bestille et tilkøb, der hører
+   * til et bestående kundeforhold, og som med vilje hverken har en
+   * produktside eller står i kataloget.
+   */
+  it("holder tilkøb ude, selv om de ligner en almindelig stander", () => {
+    // Slug'et står i `bestil-stander.tsx`; her skrives det ud, så prøven ikke
+    // trækker en klientkomponent ind for én streng.
+    const ekstra = getProduct("ekstra-stander");
+    expect(ekstra?.monthlyPrice).toBeFalsy();
+    expect(kanBestillesUdenKonto(ekstra)).toBe(false);
+  });
+
+  it("siger nej til et slug, der ikke findes", () => {
+    expect(kanBestillesUdenKonto(getProduct("findes-ikke"))).toBe(false);
+    expect(kanBestillesUdenKonto(undefined)).toBe(false);
   });
 });

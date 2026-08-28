@@ -44,9 +44,13 @@ export function QuantityOrder({
       ? `/bestil?produkt=${product.slug}&antal=${qty}`
       : "/signup";
   const label =
+    // "Se pris og bestil" lovede noget, prisen lige ovenfor allerede havde
+    // givet — knappen sidder under hele beregningen. Det næste skridt er at
+    // vælge farve, logo og link, så det er dét, den siger.
+    //
     // "Opret konto & bestil" lovede en bestilling, der ikke findes: signup
     // opretter en virksomhed, ikke en ordre. Rettes tilbage når betaling åbner.
-    ctaLabel ?? (mode === "order" ? "Se pris og bestil" : "Opret konto");
+    ctaLabel ?? (mode === "order" ? "Tilpas og bestil" : "Opret konto");
   const tiers = VOLUME_DISCOUNTS.filter((v) => v.discountPct > 0);
 
   return (

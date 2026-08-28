@@ -222,6 +222,37 @@ export function toGoogleShoppingItem(product: Product) {
 }
 
 /**
+ * Må varen bestilles UDEN en konto?
+ *
+ * ÉN REGEL, TO STEDER. `/bestil` sender kunden direkte videre hertil, og
+ * `/bestil/uden-konto` afviser alt andet. Stod reglen kun ét af stederne,
+ * kunne siden vise en formular, en videresendelse aldrig ville nå frem til —
+ * eller omvendt.
+ *
+ * TRE LED, alle nødvendige:
+ *
+ *   Et ABONNEMENT kræver en konto at give adgang til. Det er hele grunden
+ *   til, at flowet uden konto findes: Basic er et trykt skilt, ikke et system.
+ *
+ *   Et TILKØB (`addon: true`) hører til et bestående kundeforhold. Det har
+ *   ingen offentlig produktside, står ikke i kataloget og skal derfor heller
+ *   ikke kunne bestilles af en, vi ikke kender. Uden dette led kunne en
+ *   fremmed med adressen `?produkt=ekstra-stander` gå hele vejen igennem.
+ *
+ *   Uden et FYSISK SKILT er der ingenting at sende, og siden ville bede om en
+ *   leveringsadresse til ingenting.
+ */
+export function kanBestillesUdenKonto(
+  product: Product | undefined,
+): product is Product {
+  // Svaret er et TYPEPRÆDIKAT, så et ukendt slug er håndteret af den samme
+  // sætning som resten: siden kan ikke komme til at bruge en vare, den lige
+  // har afvist.
+  if (!product) return false;
+  return !product.monthlyPrice && !product.addon && harFysiskSkilt(product);
+}
+
+/**
  * Skal bestillingen oplyse, hvad skiltet peger på?
  *
  * REGLEN: et fysisk skilt uden abonnement kan IKKE omdirigeres bagefter.

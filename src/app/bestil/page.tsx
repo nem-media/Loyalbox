@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Pricing } from "@/components/pricing";
@@ -10,7 +11,7 @@ import {
   type GemtDesign,
 } from "@/components/genbestil-design";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { kraeverDestination } from "@/lib/commerce";
+import { kraeverDestination, kanBestillesUdenKonto } from "@/lib/commerce";
 import type { DestinationType } from "@/lib/types/database";
 import { designFrontfarve } from "@/lib/design";
 import { Badge } from "@/components/ui/badge";
@@ -151,6 +152,32 @@ export default async function OrderPage({
 
   const spaerre = koebSpaerre(user, selected);
 
+  /*
+   * EN VARE UDEN ABONNEMENT HAR INTET AT HENTE PÅ DENNE SIDE.
+   *
+   * Her stod før et kort med overskriften "Du behøver ikke en konto" og et
+   * link videre. Det var et klik, der ikke oplyste noget: kunden havde lige
+   * set prisen og trykket "Tilpas og bestil", og næste side siger det samme
+   * med sin egen overskrift. Nu sendes de direkte derhen.
+   *
+   * BETINGELSEN ER PRÆCIS DEN GAMLE GREN, så ingen andre flyttes: kun en
+   * besøgende UDEN virksomhed, og kun for en vare uden abonnement. En
+   * indlogget butik falder aldrig herned — de skal have designeren, og
+   * bestillingen uden konto ville oprette en virksomhed ved siden af deres
+   * egen og blive afvist på CVR'et.
+   */
+  if (
+    selected &&
+    spaerre === "ingen-virksomhed" &&
+    kanBestillesUdenKonto(selected)
+  ) {
+    // Antallet følger med. Uden det ville kunden vælge 3 på produktsiden og
+    // møde en formular, der stod på 1.
+    redirect(
+      `/bestil/uden-konto?produkt=${selected.slug}&antal=${initialQty}`,
+    );
+  }
+
   /**
    * Genbestilling af et gemt design.
    *
@@ -233,23 +260,6 @@ export default async function OrderPage({
                   {LEVERINGSLAND_NAVN}. Priserne er uden moms, og der er ikke
                   fortrydelsesret ved erhvervskøb.
                 </p>
-              </div>
-            ) : spaerre === "ingen-virksomhed" && !selected.monthlyPrice ? (
-              <div className="box-shape border border-accent/30 bg-accent/5 p-5">
-                <p className="font-semibold tracking-tight">
-                  Du behøver ikke en konto
-                </p>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted">
-                  Denne stander kører uden abonnement. Vælg farve, upload dit
-                  logo og sæt linket — så sender vi skiltet. Der oprettes
-                  hverken login eller dashboard.
-                </p>
-                <Link
-                  href={`/bestil/uden-konto?produkt=${selected.slug}`}
-                  className="mt-3 inline-block font-medium text-accent hover:underline"
-                >
-                  Bestil uden konto →
-                </Link>
               </div>
             ) : (
               <PurchaseNotice />

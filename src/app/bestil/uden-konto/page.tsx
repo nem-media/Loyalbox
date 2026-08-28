@@ -4,8 +4,8 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { BestilUdenKontoForm } from "./bestil-form";
 import { PurchaseNotice } from "@/components/purchase-notice";
-import { getProduct, harFysiskSkilt } from "@/lib/constants";
-import { canSell } from "@/lib/commerce";
+import { getProduct } from "@/lib/constants";
+import { canSell, kanBestillesUdenKonto } from "@/lib/commerce";
 
 export const metadata = {
   title: "Bestil uden konto",
@@ -29,14 +29,15 @@ export const metadata = {
 export default async function UdenKontoPage({
   searchParams,
 }: {
-  searchParams: Promise<{ produkt?: string }>;
+  searchParams: Promise<{ produkt?: string; antal?: string }>;
 }) {
-  const { produkt } = await searchParams;
+  const { produkt, antal } = await searchParams;
 
-  // Kun varer uden abonnement giver mening her: et abonnement kræver en konto
-  // at give adgang til. Falder ingen slug med, er det Reviewstander.
+  // Reglen for, hvad der overhovedet må bestilles uden konto, ligger ÉT sted
+  // — samme funktion, som `/bestil` sender kunden herhen efter. Falder ingen
+  // slug med, er det Reviewstander.
   const product = getProduct(produkt ?? "reviewstander");
-  if (!product || product.monthlyPrice || !harFysiskSkilt(product)) notFound();
+  if (!kanBestillesUdenKonto(product)) notFound();
 
   return (
     <>
@@ -52,7 +53,10 @@ export default async function UdenKontoPage({
 
         <div className="mt-8">
           {canSell(product) ? (
-            <BestilUdenKontoForm product={product} />
+            <BestilUdenKontoForm
+              product={product}
+              initialQty={Number(antal) || 1}
+            />
           ) : (
             <PurchaseNotice />
           )}
