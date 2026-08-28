@@ -303,6 +303,18 @@ export const HJOERNE_RADIUS = `${(HJOERNE_R / SKILT_BREDDE) * 100}% / ${
 }%`;
 
 /**
+ * Samme hjørne, men i et udsnit der kun viser fronten.
+ *
+ * Procenten regnes af BEHOLDERENS højde, og den er kortere, når de nederste
+ * centimeter er klippet væk. Brugtes tallet ovenfor, ville hjørnet blive
+ * fladtrykt. Kun de to øverste hjørner: nederst er skiltet skåret, ikke
+ * afrundet.
+ */
+export const HJOERNE_RADIUS_FRONT = `${(HJOERNE_R / SKILT_BREDDE) * 100}% ${
+  (HJOERNE_R / (SKILT_HOEJDE * (SKILT_CM.front / SKILT_CM.hoejde))) * 100
+}%`;
+
+/**
  * Trækker modulerne ud af `qrcode`s SVG-svar.
  *
  * EGEN FUNKTION, FORDI DET ER HER, DET GIK GALT. Svaret indeholder TO stier:

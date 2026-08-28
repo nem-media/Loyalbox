@@ -11,6 +11,12 @@ import { getSiteUrl } from "@/lib/site";
 import { IndustryBadge, type Branche } from "@/components/industry-icons";
 import { PLATFORM_VALG, prisTekst } from "@/lib/reviewstander-valg";
 import { AnmeldelseVisual } from "@/components/home/hero-visual";
+import { SkiltPreview } from "@/components/skilt-preview";
+import {
+  EGEN_FRONTFARVE_PRIS,
+  FRONT_TEKSTER,
+  STANDER_FARVER,
+} from "@/lib/stander-tilvalg";
 import {
   TapIcon,
   ShareExperienceIcon,
@@ -90,6 +96,44 @@ const STEPS = [
     Icon: GrowthIcon,
     title: "Styrk din forretning",
     body: "Flere kunder får mulighed for at fortælle om deres oplevelse — og du kan se aktiviteten i dit dashboard.",
+  },
+];
+
+/**
+ * De tre skilte i farvesektionen.
+ *
+ * Standerens to farver hentes af `STANDER_FARVER`, så listen ikke kan komme
+ * til at vise en farve, bestillingen ikke tilbyder. Den tredje er et EKSEMPEL
+ * på en egen frontfarve — den er ikke et produktvalg, men en illustration af,
+ * at feltet kan få hvad som helst.
+ */
+const FARVEVALG: {
+  navn: string;
+  standerFarve: "sort" | "hvid";
+  baggrund: string | null;
+  accent: string | null;
+  pris: string;
+}[] = [
+  {
+    navn: STANDER_FARVER[0].navn,
+    standerFarve: "sort",
+    baggrund: null,
+    accent: null,
+    pris: "Uden tillæg",
+  },
+  {
+    navn: STANDER_FARVER[1].navn,
+    standerFarve: "hvid",
+    baggrund: null,
+    accent: null,
+    pris: "Uden tillæg",
+  },
+  {
+    navn: "Din egen farve",
+    standerFarve: "sort",
+    baggrund: "#6b1f2e",
+    accent: "#e8c37a",
+    pris: `+${EGEN_FRONTFARVE_PRIS} kr. pr. ordre`,
   },
 ];
 
@@ -687,6 +731,64 @@ export default function ReviewstanderPage() {
               <Link href="/" className="font-medium text-accent">
                 Se hele LoyalSum →
               </Link>
+            </p>
+          </div>
+        </section>
+
+        {/* ------------------------------------------------------- farvevalg */}
+        {/*
+          SKILTENE HER ER DE RIGTIGE. De tegnes af `/api/skilt`, altså den
+          samme funktion, der laver trykfilen — så salgssiden ikke kan komme
+          til at vise en stander, der ser anderledes ud end den, kunden får.
+          Et mockup ville før eller siden komme bagud, som "sort akryl" gjorde.
+
+          `udsnit="front"` klipper de nederste centimeter væk, fordi de sidder
+          i foden og aldrig ses. På en bestilling ville det være forkert — dér
+          skal previewet vise hele trykfilen — men her står skiltet på en
+          disk, ikke i en godkendelse.
+
+          `loading="lazy"`: hver skabelon er 160 KB, og tre af dem må ikke
+          koste noget, før nogen ruller herned.
+        */}
+        <section className="border-t border-border bg-background">
+          <div className="mx-auto max-w-5xl px-4 py-16">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Sort eller hvid — og din egen farve, hvis du vil
+            </h2>
+            <p className="mt-3 max-w-2xl leading-relaxed text-muted">
+              Standeren fås i to farver til samme pris, og du vælger ved
+              bestillingen. Vil du have den i forretningens egne farver, kan
+              både fronten og stjernerne skiftes.
+            </p>
+
+            <div className="mt-10 grid gap-8 sm:grid-cols-3">
+              {FARVEVALG.map((v) => (
+                <figure key={v.navn}>
+                  <SkiltPreview
+                    standerFarve={v.standerFarve}
+                    baggrund={v.baggrund}
+                    accent={v.accent}
+                    visFod={false}
+                    udsnit="front"
+                    loading="lazy"
+                    className="mx-auto w-full max-w-[13rem]"
+                  />
+                  <figcaption className="mt-4 text-center">
+                    <span className="block font-bold tracking-tight">
+                      {v.navn}
+                    </span>
+                    <span className="mt-0.5 block text-sm text-muted">
+                      {v.pris}
+                    </span>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+
+            <p className="mx-auto mt-10 max-w-2xl text-center text-sm leading-relaxed text-muted">
+              {FRONT_TEKSTER.forklaring} {FRONT_TEKSTER.prisNote} Farven på
+              stjernerne og teksten er derimod uden beregning — det er den samme
+              trykfil med en anden farvekode.
             </p>
           </div>
         </section>
