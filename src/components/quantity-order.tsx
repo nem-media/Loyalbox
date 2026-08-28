@@ -39,10 +39,21 @@ export function QuantityOrder({
   const [qty, setQty] = useState(clamp(initialQty));
   const p = priceFor(product, qty);
 
+  /*
+   * VALGET FØLGER MED VIDERE — begge veje.
+   *
+   * "Opret konto" pegede før på et bart `/signup`, mens knappen samtidig
+   * stod med "· 3 stk.". Man valgte altså Pro og tre standere, oprettede sin
+   * virksomhed og landede i dashboardet med ingenting: hverken vare eller
+   * antal var fulgt med, og knappen havde lovet det modsatte.
+   *
+   * `signup()` sender tilbage hertil bagefter, også efter et
+   * bekræftelseslink i mailen.
+   */
   const href =
     mode === "order"
       ? `/bestil?produkt=${product.slug}&antal=${qty}`
-      : "/signup";
+      : `/signup?produkt=${product.slug}&antal=${qty}`;
   const label =
     // "Se pris og bestil" lovede noget, prisen lige ovenfor allerede havde
     // givet — knappen sidder under hele beregningen. Det næste skridt er at

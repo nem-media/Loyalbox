@@ -7,7 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Input, Field } from "@/components/ui/input";
 import { Card, CardBody } from "@/components/ui/card";
 
-export function SignupForm() {
+export function SignupForm({
+  produkt,
+  antal,
+}: {
+  /** Varen, kunden stod på, da de trykkede "Opret konto". */
+  produkt?: string;
+  /** Antallet, de havde valgt. */
+  antal?: string;
+}) {
   const [state, action, pending] = useActionState<AuthState, FormData>(
     signup,
     {},
@@ -24,6 +32,7 @@ export function SignupForm() {
           <p className="text-sm text-muted">
             Vi har sendt dig et bekræftelseslink. Åbn det, og log derefter ind —
             så ligger din virksomhed klar i dashboardet.
+            {produkt ? " Din bestilling venter, hvor du slap." : ""}
           </p>
           <Link
             href="/login"
@@ -47,6 +56,13 @@ export function SignupForm() {
         </div>
 
         <form action={action} className="space-y-4">
+          {/* Valget fra bestillingen. `signup()` sender kunden tilbage hertil
+              bagefter — også via bekræftelseslinket i mailen. */}
+          {produkt ? (
+            <input type="hidden" name="produkt" value={produkt} />
+          ) : null}
+          {antal ? <input type="hidden" name="antal" value={antal} /> : null}
+
           <Field label="Firmanavn">
             <Input name="company_name" required />
           </Field>
