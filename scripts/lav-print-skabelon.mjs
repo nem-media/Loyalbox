@@ -62,20 +62,25 @@ if (!kilde) {
  * egen bredde. Aldrig omvendt: i den hvide fil er BÅDE lærredet og standeren
  * `#ffffff`, så en erstatning på farve alene ville ramme forkert.
  */
-const BAGPLADE_D = "M 0 0.148438 L 340.15625";
-const LAERRED_D = "M 0 0.148438 L 340 0.148438";
-const STANDER_D = "M 0 0.148438 L 339.8125";
+const BAGPLADE_D = "M 0 0.0703125 L 351.496094";
+const LAERRED_D = "M 0 0.0703125 L 351.5 0.0703125";
+const STANDER_D = "M 0 0.0703125 L 351.242188";
 
 /**
- * Udsnittet: standerens egen firkant, målt i eksporten fra 27. august (2).
- * Samme tal i begge filer — de er nu ens ud over farverne.
+ * Udsnittet: standerens egen firkant, målt i eksporten fra 31. august
+ * (`_design-selv_online (1)`). Samme tal i begge filer.
+ *
+ * ARKET ER NU STØRRE END STANDEREN, med vilje. Brugeren klipper det til i
+ * hånden: 0,4 cm af bredden og 2 mm i bunden. Derfor er `SKILT_CM` det
+ * TRYKTE ark (12,4 × 19,5) og ikke det færdige skilt (12 × 19,3) — filen
+ * skal trykkes i de mål, ikke i standerens.
  */
-const UDSNIT = "0 0.148438 339.8125 544.234374";
-const LAERRED_VIEWBOX = /viewBox="0 0 340\.5 544\.499983"/g;
+const UDSNIT = "0 0.0703125 351.242188 552.933594";
+const LAERRED_VIEWBOX = /viewBox="0 0 351\.75 552\.749989"/g;
 
 /** Højden rettes med, så billedets iboende sideforhold passer til udsnittet. */
-const HOEJDE_FRA = /height="726"/g;
-const HOEJDE_TIL = 'height="727"';
+const HOEJDE_FRA = /height="737"/g;
+const HOEJDE_TIL = 'height="738"';
 
 /**
  * Geometriankrene — de præcise strenge, `MAAL` i skilt-format.ts er målt på.
@@ -83,17 +88,17 @@ const HOEJDE_TIL = 'height="727"';
  */
 function ankre(skive) {
   return [
-    ['transform="matrix(1, 0, 0, 1, 28, 17)"', "logofeltets gruppe"],
+    ['transform="matrix(1, 0, 0, 1, 35, 17)"', "logofeltets gruppe"],
     [
-      `<path fill="${skive}" d="M 0.753906 0.726562 L 283.265625 0.726562 L 283.265625 114.261719`,
+      `<path fill="${skive}" d="M 0.664062 0.5 L 280.785156 0.5 L 280.785156 113.074219`,
       "logofeltets flade",
     ],
-    ['transform="matrix(1, 0, 0, 1, 29, 253)"', "NFC-feltets gruppe"],
+    ['transform="matrix(1, 0, 0, 1, 35, 251)"', "NFC-feltets gruppe"],
     [
-      `<path fill="${skive}" d="M 0.03125 0.722656 L 119.113281 0.722656 L 119.113281 115.761719`,
+      `<path fill="${skive}" d="M 0.9375 0.5 L 119.015625 0.5 L 119.015625 114.566406`,
       "NFC-feltets flade",
     ],
-    ['transform="matrix(1, 0, 0, 1, 195, 253)"', "QR-pladsholderen"],
+    ['transform="matrix(1, 0, 0, 1, 200, 250)"', "QR-pladsholderen"],
   ];
 }
 
@@ -117,15 +122,15 @@ function ankre(skive) {
  * ændrer sig med farverne.
  */
 const PLADSHOLDERE = [
-  { navn: "LOGOFELT", anker: 'transform="matrix(1, 0, 0, 1, 28, 17)"', slags: "g", hvad: "logofeltets bund" },
+  { navn: "LOGOFELT", anker: 'transform="matrix(1, 0, 0, 1, 35, 17)"', slags: "g", hvad: "logofeltets bund" },
   {
     navn: "LOGOFELT",
-    anker: 'transform="matrix(0.749242, 0, 0, 0.749242, 28.753556, 17.726135)"',
+    anker: 'transform="matrix(0.749459, 0, 0, 0.749459, 35.662571, 17.499224)"',
     slags: "path",
     hvad: "rammen om logofeltet",
   },
-  { navn: "LOGOFELT", anker: 'transform="matrix(1, 0, 0, 1, 96, 38)"', slags: "g", hvad: 'ordene "Dit logo"' },
-  { navn: "QRFELT", anker: 'transform="matrix(1, 0, 0, 1, 195, 253)"', slags: "g", hvad: "QR-attrappen" },
+  { navn: "LOGOFELT", anker: 'transform="matrix(1, 0, 0, 1, 102, 38)"', slags: "g", hvad: 'ordene "Dit logo"' },
+  { navn: "QRFELT", anker: 'transform="matrix(1, 0, 0, 1, 200, 250)"', slags: "g", hvad: "QR-attrappen" },
 ];
 
 /**

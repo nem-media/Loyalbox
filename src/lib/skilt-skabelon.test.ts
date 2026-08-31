@@ -59,7 +59,7 @@ function skiveFelter(s: string) {
 
 /** QR-pladsholderens gruppe. Selve tegningen er kurver, men gruppen har et hjørne. */
 function qrGruppe(s: string) {
-  const m = s.match(/transform="matrix\(1, 0, 0, 1, (195), (\d+)\)"/);
+  const m = s.match(/transform="matrix\(1, 0, 0, 1, (200), (\d+)\)"/);
   if (!m) throw new Error("QR-gruppen findes ikke i skabelonen");
   return { x: +m[1], y: +m[2] };
 }

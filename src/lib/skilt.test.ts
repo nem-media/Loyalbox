@@ -14,6 +14,9 @@ import {
   SKILT_CM,
   FOD_CM,
   cmTekst,
+  FAERDIG_CM,
+  KLIP_CM,
+  FRONT_MAAL,
   SKILT_BREDDE,
   SKILT_HOEJDE,
   laesQrSvg,
@@ -213,14 +216,18 @@ describe("nuancerne til skiven og ringen", () => {
 
 describe("foden", () => {
   /**
-   * Arket er 12 × 19,2 cm, og kun de øverste 15 cm kan ses. TALLENE BRUGES
-   * KUN TIL MARKERINGEN I PREVIEWET — trykfilen er altid hele arket, ellers
-   * står der en hvid stribe frem under foden.
+   * Arket trykkes 12,4 × 19,5 cm, klippes ned til 12 × 19,3, og kun de
+   * øverste 15 cm kan ses. TALLENE BRUGES KUN TIL MARKERINGEN I PREVIEWET —
+   * trykfilen er altid hele arket, ellers står der en hvid stribe frem under
+   * foden.
    */
   it("udleder foden af arket og fronten", () => {
     expect(FOD_CM).toBeCloseTo(SKILT_CM.hoejde - SKILT_CM.front, 6);
-    // Skrives til kunden, så det må ikke være 4,199999999999999.
-    expect(cmTekst(FOD_CM)).toBe("4,2");
+    // Skrives til kunden, så det må ikke være 4,499999999999999. Prøven
+    // hænger på FORMEN og ikke på tallet: arkets højde ændrer sig, når
+    // designet gør, og et hårdkodet "4,2" ville så fejle uden at noget var
+    // galt — mens en hale på seksten decimaler stadig ville slippe igennem.
+    expect(cmTekst(FOD_CM)).toMatch(/^\d+(,\d)?$/);
     expect(FOD_HOEJDE).toBeCloseTo(
       (FOD_CM / SKILT_CM.hoejde) * SKILT_HOEJDE,
       6,
@@ -318,5 +325,43 @@ describe("laesQrSvg", () => {
     });
     const { net } = laesQrSvg(raa)!;
     expect(MAAL.qr.bredde / net).toBeGreaterThan(2);
+  });
+});
+
+/**
+ * ARKET ER IKKE SKILTET, og forskellen opstod 31. august.
+ *
+ * Trykket lægges 12,4 cm bredt og klippes ned til 12, fordi et tryk aldrig
+ * rammer en kant præcist. `SKILT_CM` er derfor ARKET — det er dét,
+ * sideforholdet i tegningen skal passe til — mens `FAERDIG_CM` er det, kunden
+ * står med. De to var ens indtil arket voksede, og netop dér er fælden: en
+ * linje, der havde blandet dem sammen, virkede i månedsvis og begyndte så
+ * stille at love 4 mm for meget.
+ */
+describe("arket mod det færdige skilt", () => {
+  it("trykker større, end der klippes", () => {
+    expect(SKILT_CM.bredde).toBeGreaterThan(FAERDIG_CM.bredde);
+    expect(SKILT_CM.hoejde).toBeGreaterThan(FAERDIG_CM.hoejde);
+    expect(FAERDIG_CM.bredde).toBeCloseTo(SKILT_CM.bredde - KLIP_CM.bredde, 6);
+    expect(FAERDIG_CM.hoejde).toBeCloseTo(SKILT_CM.hoejde - KLIP_CM.bund, 6);
+  });
+
+  it("har noget at klippe i på begge led", () => {
+    // Uden overkant skal trykket ramme kanten præcist, og det gør det ikke.
+    expect(KLIP_CM.bredde).toBeGreaterThan(0);
+    expect(KLIP_CM.bund).toBeGreaterThan(0);
+  });
+
+  it("fortæller kunden det FÆRDIGE mål og ikke arkets", () => {
+    // Dét, linjen findes for. Står arkets bredde her, bestiller kunden et
+    // skilt, der er bredere end det, de får.
+    expect(FRONT_MAAL).toContain(cmTekst(FAERDIG_CM.bredde));
+    expect(FRONT_MAAL).not.toContain(cmTekst(SKILT_CM.bredde));
+    expect(FRONT_MAAL).toContain(cmTekst(SKILT_CM.front));
+  });
+
+  it("holder fronten inde på det færdige skilt", () => {
+    // Den synlige del kan ikke være højere end skiltet selv.
+    expect(SKILT_CM.front).toBeLessThan(FAERDIG_CM.hoejde);
   });
 });
