@@ -26,6 +26,8 @@ import {
 } from "@/lib/constants";
 import {
   EGEN_FRONTFARVE_PRIS,
+  farveTillaegTekst,
+  farveTillaegNote,
   FRONT_TEKSTER,
   STANDARD_STANDERFARVE,
   STANDER_FARVER,
@@ -174,7 +176,10 @@ export function StanderDesigner({
     egenAccent && normaliserHex(accent) ? normaliserHex(accent) : null;
   const visAccent = brugtAccent ?? STANDARD_ACCENT;
 
-  const pris = priceFor(product, qty, { egenFrontfarve: front.egen });
+  const pris = priceFor(product, qty, {
+    egenFrontfarve: front.egen,
+    standerFarve,
+  });
   const rabatter = VOLUME_DISCOUNTS.filter((v) => v.discountPct > 0);
 
   /*
@@ -332,7 +337,18 @@ export function StanderDesigner({
                       className="h-8 w-8 shrink-0 rounded-full border border-border"
                       style={{ background: f.hex }}
                     />
-                    <span className="text-sm font-medium">{f.navn}</span>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-medium">
+                        {f.navn}
+                      </span>
+                      {/* Prisen står ved selve valget og ikke kun i
+                          opsummeringen: et tillæg, man først opdager i
+                          totalen, føles som noget, der blev lagt oveni
+                          bagefter. */}
+                      <span className="block text-xs text-muted">
+                        {farveTillaegTekst(f.vaerdi)}
+                      </span>
+                    </span>
                     {/* Et flueben frem for kun en ramme: forskellen mellem
                         valgt og fravalgt var en stregfarve, og den kan man
                         ikke se uden at have de to ved siden af hinanden. */}
@@ -556,6 +572,11 @@ export function StanderDesigner({
                   {qty} × stander
                   {pris.discountPct > 0 ? (
                     <span className="text-accent"> (−{pris.discountPct} %)</span>
+                  ) : null}
+                  {pris.farveTillaeg > 0 ? (
+                    <span className="block text-xs text-muted">
+                      {farveTillaegNote(formatCurrency(pris.farveTillaeg))}
+                    </span>
                   ) : null}
                 </dt>
                 <dd className="tabular-nums">

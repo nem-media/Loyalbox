@@ -16,7 +16,7 @@ import {
   priceFor,
   type Product,
 } from "@/lib/constants";
-import { FRONT_TEKSTER } from "@/lib/stander-tilvalg";
+import { FRONT_TEKSTER, farveTillaegNote } from "@/lib/stander-tilvalg";
 import { formatCurrency } from "@/lib/utils";
 
 /** Sender browseren til Stripe. Uden for komponenten — se stander-designer.tsx. */
@@ -45,7 +45,7 @@ export interface GemtDesign {
  * Eneste input er antallet.
  *
  * PRISEN VISES UDEN TILLÆGGET, når det er betalt — og det siges højt frem for
- * bare at lade tallet være lavt. En kunde, der husker at have betalt 139 for
+ * bare at lade tallet være lavt. En kunde, der husker at have betalt for
  * farven, skal kunne se, at de ikke gør det igen.
  *
  * Serveren regner prisen selv ud fra designets `frontfarve_betalt`; det her er
@@ -89,7 +89,10 @@ export function GenbestilDesign({
   const vilkaarId = useId();
 
   const betalerFarve = design.egen_frontfarve && !design.frontfarve_betalt;
-  const pris = priceFor(product, qty, { egenFrontfarve: betalerFarve });
+  const pris = priceFor(product, qty, {
+    egenFrontfarve: betalerFarve,
+    standerFarve: design.stander_farve,
+  });
   const rabatter = VOLUME_DISCOUNTS.filter((v) => v.discountPct > 0);
 
   async function betal() {
@@ -204,6 +207,11 @@ export function GenbestilDesign({
               {qty} × stander
               {pris.discountPct > 0 ? (
                 <span className="text-accent"> (−{pris.discountPct} %)</span>
+              ) : null}
+              {pris.farveTillaeg > 0 ? (
+                <span className="block text-xs text-muted">
+                  {farveTillaegNote(formatCurrency(pris.farveTillaeg))}
+                </span>
               ) : null}
             </dt>
             <dd className="tabular-nums">{formatCurrency(pris.standTotal)}</dd>

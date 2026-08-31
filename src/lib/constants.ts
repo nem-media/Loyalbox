@@ -1,4 +1,9 @@
-import { EGEN_FRONTFARVE_PRIS } from "@/lib/stander-tilvalg";
+import {
+  EGEN_FRONTFARVE_PRIS,
+  STANDARD_STANDERFARVE,
+  standerTillaeg,
+  type StanderFarve,
+} from "@/lib/stander-tilvalg";
 
 export const SITE_NAME = "LoyalSum.dk";
 export const SITE_TAGLINE =
@@ -330,7 +335,7 @@ export const PRODUCTS: Product[] = [
     name: "Reviewstander",
     keyword: "reviewstander",
     metaTitle: "Reviewstander med selvvalgt link (QR + NFC)",
-    price: 399,
+    price: 499,
     interval: "one_time",
     includesLoyalSum: false,
     tagline: "Selvvalgt anmeldelseslink",
@@ -363,7 +368,7 @@ export const PRODUCTS: Product[] = [
     name: "Reviewstander Pro",
     keyword: "reviewstander abonnement",
     metaTitle: "Reviewstander Pro — din egen anmeldelsesside & dynamiske links",
-    price: 399,
+    price: 499,
     interval: "one_time",
     monthlyPrice: 99,
     includesLoyalSum: false,
@@ -400,7 +405,7 @@ export const PRODUCTS: Product[] = [
     name: "LoyalSum Komplet",
     keyword: "digitalt stempelkort og anmeldelser",
     metaTitle: "LoyalSum Komplet — stempelkort, anmeldelser & opslag",
-    price: 399,
+    price: 499,
     interval: "one_time",
     monthlyPrice: 399,
     includesLoyalSum: true,
@@ -445,7 +450,7 @@ export const PRODUCTS: Product[] = [
     platform: "multi",
     name: "Ekstra stander",
     keyword: "ekstra reviewstander",
-    price: 399,
+    price: 499,
     interval: "one_time",
     addon: true,
     tagline: "Endnu et skilt til disken",
@@ -591,8 +596,22 @@ export interface PriceBreakdown {
   discountPct: number;
   /** Pris pr. stander efter mængderabat (engangs, afrundet). */
   standUnit: number;
-  /** Listepris pr. stander før rabat. */
+  /**
+   * Listepris pr. stander før rabat — INKLUSIVE farvetillægget.
+   *
+   * Sort er en variant af standeren og ikke en ekstra vare, så tillægget
+   * ligger i enhedsprisen. Det er også dét, der gør, at rabatten rammer det
+   * af sig selv: der er kun ét tal at give rabat på.
+   */
   standUnitBase: number;
+  /**
+   * Farvetillægget pr. stander FØR rabat (0 for hvid, 49 for sort).
+   *
+   * Står med som sit eget tal, så en prisopsummering kan skrive "heraf 49 kr.
+   * for sort" uden at regne baglæns — men det er allerede talt med i
+   * `standUnitBase` og må aldrig lægges til igen.
+   */
+  farveTillaeg: number;
   /** standUnit × antal — samlet engangs standerpris. */
   standTotal: number;
   /** Fast månedligt abonnement (0 hvis ingen) — UAFHÆNGIGT af antal. */
@@ -614,10 +633,18 @@ export interface PriceBreakdown {
  * Beregner prisen for et antal standere. Kun standerprisen ganges med antal
  * (og får mængderabat); abonnement og opsætning er faste — uafhængigt af antal.
  */
-/** Tilvalg der lægges på ORDREN og ikke på varen. */
+/** Tilvalg, der ændrer prisen på en standerbestilling. */
 export interface Tilvalg {
-  /** Egen farve på den printede front. Fast pris pr. ordre. */
+  /** Egen farve på den printede front. Fast pris pr. ORDRE, uden rabat. */
   egenFrontfarve?: boolean;
+  /**
+   * Standerens farve. Sort akryl koster et tillæg PR. STANDER og får
+   * mængderabat — modsat frontfarven, der er én opsætning i trykket.
+   *
+   * Udelades den, regnes der med standardfarven, så et kald uden viden om
+   * farven aldrig kan komme til at opkræve et tillæg, kunden ikke har valgt.
+   */
+  standerFarve?: StanderFarve;
 }
 
 export function priceFor(
@@ -627,7 +654,16 @@ export function priceFor(
 ): PriceBreakdown {
   const q = Math.max(1, Math.min(MAX_QTY, Math.floor(qty) || 1));
   const pct = volumeDiscountPct(q);
-  const standUnit = Math.round(product.price * (1 - pct / 100));
+
+  // Farvetillægget lægges til FØR rabatten og indgår i enhedsprisen: sort er
+  // en variant af emnet, ikke en ekstra vare. En digital vare har intet emne
+  // at farve, så den slipper — samme betingelse som frontfarven.
+  const farveTillaeg = harFysiskSkilt(product)
+    ? standerTillaeg(tilvalg.standerFarve ?? STANDARD_STANDERFARVE)
+    : 0;
+  const standUnitBase = product.price + farveTillaeg;
+
+  const standUnit = Math.round(standUnitBase * (1 - pct / 100));
   const standTotal = standUnit * q;
   const setup = product.setupPrice ?? 0;
 
@@ -642,7 +678,8 @@ export function priceFor(
     qty: q,
     discountPct: pct,
     standUnit,
-    standUnitBase: product.price,
+    standUnitBase,
+    farveTillaeg,
     standTotal,
     monthly: product.monthlyPrice ?? 0,
     setup,

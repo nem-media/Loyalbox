@@ -63,7 +63,7 @@ export const PLATFORM_VALG: {
   },
 ];
 
-/** "399 kr." eller "399 kr. + 99 kr./md." — samme tal som i checkout. */
+/** "499 kr." eller "499 kr. + 99 kr./md." — samme tal som i checkout. */
 export function prisTekst(slug: string): string {
   const p = getProduct(slug);
   if (!p) return "";

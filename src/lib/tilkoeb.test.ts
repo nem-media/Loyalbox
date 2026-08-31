@@ -43,15 +43,21 @@ describe("tilkøb", () => {
     }
   });
 
-  it("koster 399 med mængderabat som de øvrige standere", () => {
-    expect(ekstra.price).toBe(399);
-    expect(priceFor(ekstra, 1).standUnit).toBe(399);
+  it("koster det samme som de øvrige standere, med samme mængderabat", () => {
+    // Prisen prøves mod KATALOGETS stander og ikke mod et tal skrevet her.
+    // Testen skal fange, at tilkøbet kommer bagud, når prisen ændres — ikke
+    // fejle hver gang den ændres.
+    const stander = PRODUCTS.find((p) => p.slug === "reviewstander")!;
+    expect(ekstra.price).toBe(stander.price);
+    expect(priceFor(ekstra, 1).standUnit).toBe(stander.price);
 
     // Rabatten er den fælles VOLUME_DISCOUNTS og ikke en særregel.
     for (const trin of VOLUME_DISCOUNTS.filter((d) => d.discountPct > 0)) {
       const pris = priceFor(ekstra, trin.minQty);
       expect(pris.discountPct, `${trin.minQty} stk.`).toBe(trin.discountPct);
-      expect(pris.standUnit).toBe(Math.round(399 * (1 - trin.discountPct / 100)));
+      expect(pris.standUnit).toBe(
+        Math.round(stander.price * (1 - trin.discountPct / 100)),
+      );
     }
   });
 

@@ -10,6 +10,11 @@
  * en egen farve, kommer der en vælger frem. Det er derfor `frontFarve()`
  * findes: den ene funktion afgør resultatet, så brugerfladen ikke kan komme
  * til at vise én farve og fakturere en anden.
+ *
+ * DE TO FARVER KOSTER IKKE DET SAMME. Hvid er standeren i sin grundudgave;
+ * sort akryl er et tillæg pr. stander. Det er en EMNEpris og ikke en
+ * opsætning, og derfor opfører den sig modsat frontfarven: den ganges med
+ * antallet og får mængderabat, præcis som standeren selv.
  */
 
 export const STANDER_FARVER = [
@@ -19,7 +24,29 @@ export const STANDER_FARVER = [
 
 export type StanderFarve = (typeof STANDER_FARVER)[number]["vaerdi"];
 
-export const STANDARD_STANDERFARVE: StanderFarve = "sort";
+/**
+ * Farven kunden møder, hvis de ikke rører vælgeren.
+ *
+ * HVID ER STANDARD, fordi den er grundudgaven uden tillæg. En standardfarve,
+ * der koster ekstra, ville stille lægge 49 kr. pr. stander på hver eneste
+ * ordre fra en kunde, der bare klikkede videre.
+ */
+export const STANDARD_STANDERFARVE: StanderFarve = "hvid";
+
+/**
+ * Tillæg for sort akryl — **pr. stander, med mængderabat**.
+ *
+ * Modsat `EGEN_FRONTFARVE_PRIS` hører den til emnet og ikke til trykket:
+ * ti sorte standere koster ti gange tillægget, og de får samme rabattrin som
+ * standerprisen. Derfor lægges den til `standUnitBase` i `priceFor()` frem
+ * for at stå som en selvstændig linje.
+ */
+export const SORT_STANDER_TILLAEG = 49;
+
+/** Tillæg pr. stander for en given farve. Hvid er grundudgaven og koster 0. */
+export function standerTillaeg(farve: StanderFarve): number {
+  return farve === "sort" ? SORT_STANDER_TILLAEG : 0;
+}
 
 /**
  * Pris for egen farve på fronten. **Pr. ORDRE, ikke pr. stander** — det er én
@@ -28,7 +55,7 @@ export const STANDARD_STANDERFARVE: StanderFarve = "sort";
  * Af samme grund gives der ingen mængderabat på den: rabatten hører til
  * enheden, og der er kun én opsætning.
  */
-export const EGEN_FRONTFARVE_PRIS = 139;
+export const EGEN_FRONTFARVE_PRIS = 49;
 
 /**
  * LoyalSums egen farve på skiltet: stjernerne, rammen om logofeltet og
@@ -83,7 +110,7 @@ export interface Frontvalg {
  *
  * ÉN funktion, fordi prisen hænger på svaret. Regnede brugerfladen og
  * serveren hver for sig, kunne kunden se "følger standeren" og alligevel
- * blive opkrævet 139 — eller omvendt.
+ * blive opkrævet tillægget — eller omvendt.
  *
  * En ugyldig eller manglende hex falder tilbage til standerens farve UDEN
  * tillæg. Et tomt felt må ikke koste penge.
@@ -111,6 +138,35 @@ export function frontFarve(
  * kurvens opsummering og på ordren. Tre håndskrevne udgaver bliver til tre
  * forskellige løfter om, hvad kunden får.
  */
+/**
+ * Ordlyden om farvetillægget ét sted — samme grund som `FRONT_TEKSTER`.
+ * Vælgeren står to steder (designeren og bestilling uden konto), og to
+ * håndskrevne udgaver bliver til to forskellige priser på skærmen.
+ */
+export const FARVE_TEKSTER = {
+  tillaegKort: `+${SORT_STANDER_TILLAEG} kr./stk.`,
+  gratis: "Ingen tillægspris",
+  prisNote:
+    "Tillægget er pr. stander og får samme mængderabat som standeren selv.",
+} as const;
+
+/**
+ * Forklaringen under standerlinjen i en prisopsummering.
+ *
+ * Tillægget ligger inde i enhedsprisen og har derfor ingen linje for sig
+ * selv — men totalen må ikke bare stige uforklarligt, når kunden vælger sort.
+ */
+export function farveTillaegNote(formateretBeloeb: string): string {
+  return `inkl. ${formateretBeloeb} pr. stk. for sort akryl`;
+}
+
+/** Den korte pristekst under et farvevalg. Hvid siger det ligeud: intet tillæg. */
+export function farveTillaegTekst(farve: StanderFarve): string {
+  return standerTillaeg(farve) > 0
+    ? FARVE_TEKSTER.tillaegKort
+    : FARVE_TEKSTER.gratis;
+}
+
 export const FRONT_TEKSTER = {
   tilvalg: "Egen farve på fronten",
   pris: `+${EGEN_FRONTFARVE_PRIS} kr. ex moms`,

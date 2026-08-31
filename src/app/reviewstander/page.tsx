@@ -14,6 +14,9 @@ import { AnmeldelseVisual } from "@/components/home/hero-visual";
 import { SkiltPreview } from "@/components/skilt-preview";
 import {
   EGEN_FRONTFARVE_PRIS,
+  FARVE_TEKSTER,
+  farveTillaegTekst,
+  SORT_STANDER_TILLAEG,
   FRONT_TEKSTER,
   STANDER_FARVER,
 } from "@/lib/stander-tilvalg";
@@ -119,14 +122,14 @@ const FARVEVALG: {
     standerFarve: "sort",
     baggrund: null,
     accent: null,
-    pris: "Uden tillæg",
+    pris: farveTillaegTekst("sort"),
   },
   {
     navn: STANDER_FARVER[1].navn,
     standerFarve: "hvid",
     baggrund: null,
     accent: null,
-    pris: "Uden tillæg",
+    pris: farveTillaegTekst("hvid"),
   },
   {
     navn: "Din egen farve",
@@ -751,9 +754,11 @@ export default function ReviewstanderPage() {
               Sort eller hvid — og din egen farve, hvis du vil
             </h2>
             <p className="mt-3 max-w-2xl leading-relaxed text-muted">
-              Standeren fås i to farver til samme pris, og du vælger ved
-              bestillingen. Vil du have den i forretningens egne farver, kan
-              både fronten og stjernerne skiftes.
+              Standeren fås i to farver, og du vælger ved bestillingen. Hvid
+              er grundudgaven; sort akryl koster {SORT_STANDER_TILLAEG} kr. ex
+              moms pr. stander og får samme mængderabat som standeren selv.
+              Vil du have den i forretningens egne farver, kan både fronten og
+              stjernerne skiftes.
             </p>
 
             <div className="mt-10 grid gap-8 sm:grid-cols-3">
@@ -779,9 +784,10 @@ export default function ReviewstanderPage() {
             </div>
 
             <p className="mx-auto mt-10 max-w-2xl text-center text-sm leading-relaxed text-muted">
-              {FRONT_TEKSTER.forklaring} {FRONT_TEKSTER.prisNote} Farven på
-              stjernerne og teksten er derimod uden beregning — det er den samme
-              trykfil med en anden farvekode.
+              {FRONT_TEKSTER.forklaring} {FRONT_TEKSTER.prisNote}{" "}
+              {FARVE_TEKSTER.prisNote} Farven på stjernerne og teksten er
+              derimod uden beregning — det er den samme trykfil med en anden
+              farvekode.
             </p>
           </div>
         </section>

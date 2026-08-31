@@ -17,7 +17,7 @@ import {
  *
  * DERFOR ER `frontfarve_betalt` PÅ DESIGNET og ikke på ordren. Tillægget er en
  * opsætning i trykket: den laves én gang for et design og genbruges derefter.
- * "139 kr. pr. ordre" var den rigtige regel, så længe der kun fandtes én ordre
+ * "én pris pr. ordre" var den rigtige regel, så længe der kun fandtes én ordre
  * pr. design; med genbestillinger er den rigtige regel "pr. design".
  */
 

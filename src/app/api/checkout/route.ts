@@ -312,7 +312,12 @@ export async function POST(request: NextRequest) {
   }
 
   const betalerFrontfarve = design ? skalBetaleFrontfarve(design) : false;
-  const pricing = priceFor(product, qty, { egenFrontfarve: betalerFrontfarve });
+  // Farven tages fra designet, serveren selv har hentet — aldrig fra kroppen.
+  // Ellers kunne en klient bestille sort og betale for hvid.
+  const pricing = priceFor(product, qty, {
+    egenFrontfarve: betalerFrontfarve,
+    standerFarve: design?.stander_farve,
+  });
   const base = getSiteUrl();
   const sub = Boolean(product.monthlyPrice);
 
