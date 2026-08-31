@@ -58,11 +58,14 @@ export function standerTillaeg(farve: StanderFarve): number {
 export const EGEN_FRONTFARVE_PRIS = 49;
 
 /**
- * LoyalSums egen farve på skiltet: stjernerne, rammen om logofeltet og
- * "Scan eller tap". Det er den, designet er tegnet med.
+ * LoyalSums egen farve på skiltet. Det er den, designet er tegnet med.
  *
- * RAMMEN SES KUN, SÅ LÆNGE FELTET ER TOMT. Lægger kunden et logo op,
- * forsvinder hele feltet og rammen med det — se `logoLag()` i skilt.ts.
+ * PÅ ET TRYKT SKILT FARVER DEN STJERNERNE OG "SCAN ELLER TAP" — ikke andet.
+ * Skabelonen tegner ganske vist også rammen om logofeltet i accenten, men
+ * `fjernAttrap()` skærer hele logofeltet ud, så snart der ligger et logo, og
+ * det gør der på enhver rigtig ordre. Rammen når altså aldrig trykket, og den
+ * må derfor ikke nævnes i det, kunden får at vide — den ville love en farve
+ * på noget, de aldrig kommer til at se. Se `logoLag()` i skilt.ts.
  *
  * ACCENTEN ER GRATIS AT SKIFTE, i modsætning til frontfarven. Det er ikke en
  * venlighed, men en konsekvens: accenten er den samme trykfil med en anden
@@ -143,6 +146,13 @@ export function frontFarve(
  * Vælgeren står to steder (designeren og bestilling uden konto), og to
  * håndskrevne udgaver bliver til to forskellige priser på skærmen.
  */
+export const ACCENT_TEKSTER = {
+  tilvalg: "Egen farve på stjerner og tekst",
+  pris: "uden beregning",
+  forklaring:
+    "Stjernerne og “Scan eller tap”. Det er den samme trykfil med en anden farvekode, så den koster ikke ekstra.",
+} as const;
+
 export const FARVE_TEKSTER = {
   tillaegKort: `+${SORT_STANDER_TILLAEG} kr./stk.`,
   gratis: "Ingen tillægspris",

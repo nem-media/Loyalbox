@@ -20,6 +20,7 @@ import {
   FRONT_TEKSTER,
   STANDARD_STANDERFARVE,
   STANDER_FARVER,
+  ACCENT_TEKSTER,
   farveTillaegTekst,
   farveTillaegNote,
   frontFarve,
@@ -353,10 +354,10 @@ export function BestilUdenKontoForm({
               id={accentId}
               checked={egenAccent}
               onChange={setEgenAccent}
-              navn="Egen farve på stjerner og tekst"
-              pris="uden beregning"
+              navn={ACCENT_TEKSTER.tilvalg}
+              pris={ACCENT_TEKSTER.pris}
               gratis
-              forklaring="Stjernerne, rammen om logofeltet og “Scan eller tap”. Det er den samme trykfil med en anden farvekode, så den koster ikke ekstra."
+              forklaring={ACCENT_TEKSTER.forklaring}
               proeve={STANDARD_ACCENT}
             >
               <div className="mt-3 flex flex-wrap items-center gap-3 pl-7">

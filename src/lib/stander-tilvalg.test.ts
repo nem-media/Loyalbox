@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  ACCENT_TEKSTER,
   EGEN_FRONTFARVE_PRIS,
   erGyldigHex,
   farveTillaegTekst,
@@ -225,5 +226,27 @@ describe("tillægget for sort stander", () => {
       String(SORT_STANDER_TILLAEG),
     );
     expect(farveTillaegTekst("hvid")).toBeTruthy();
+  });
+});
+
+describe("det, accenten loves at farve", () => {
+  it("nævner ikke rammen om logofeltet", () => {
+    // Skabelonen tegner rammen i accenten, så det er nærliggende at skrive
+    // den med — men `fjernAttrap()` skærer hele logofeltet ud, så snart der
+    // ligger et logo, og det gør der på enhver rigtig ordre. Rammen når
+    // aldrig trykket, og et løfte om en farve på noget, kunden aldrig ser,
+    // er værre end ingen forklaring.
+    expect(ACCENT_TEKSTER.forklaring).not.toMatch(/ramme/i);
+    expect(ACCENT_TEKSTER.forklaring).not.toMatch(/logofelt/i);
+  });
+
+  it("nævner det, der rent faktisk bliver trykt", () => {
+    expect(ACCENT_TEKSTER.forklaring).toMatch(/stjerne/i);
+    expect(ACCENT_TEKSTER.forklaring).toMatch(/Scan eller tap/);
+  });
+
+  it("siger at den er gratis — det er hele forskellen til frontfarven", () => {
+    expect(ACCENT_TEKSTER.pris).toMatch(/uden beregning/i);
+    expect(ACCENT_TEKSTER.forklaring).toMatch(/ikke ekstra/i);
   });
 });
