@@ -5,11 +5,9 @@ import Link from "next/link";
 import {
   MAX_QTY,
   VOLUME_DISCOUNTS,
-  harFysiskSkilt,
   priceFor,
   type Product,
 } from "@/lib/constants";
-import { SORT_STANDER_TILLAEG } from "@/lib/stander-tilvalg";
 import { formatCurrency } from "@/lib/utils";
 
 /**
@@ -136,15 +134,6 @@ export function QuantityOrder({
           <div className="flex items-baseline justify-between text-accent">
             <span>Mængderabat ({qty} stk.)</span>
             <span>−{p.discountPct}%</span>
-          </div>
-        ) : null}
-        {/* Farven vælges først i designeren, men prisen må ikke først dukke
-            op dér. Prisen ovenfor er den hvide grundudgave; sort er et
-            tilvalg, og produktsiden siger hvad det koster. */}
-        {harFysiskSkilt(product) ? (
-          <div className="flex items-baseline justify-between text-muted">
-            <span>Sort akryl (tilvalg)</span>
-            <span>+{formatCurrency(SORT_STANDER_TILLAEG)} pr. stk.</span>
           </div>
         ) : null}
         <div className="flex items-baseline justify-between">
