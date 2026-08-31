@@ -382,7 +382,7 @@ export default function LandingPage() {
                 De to lister ovenfor er platformen som helhed, og sådan skal
                 forsiden læses — men uden denne linje står stempelkort og
                 belønninger som noget, ENHVER stander kan. Den enkle
-                Reviewstander til 399 kr. viderestiller bare og har hverken
+                Reviewstander til 499 kr. viderestiller bare og har hverken
                 side, indbakke eller stempelkort. Et løfte, kunden først
                 opdager ikke gjaldt efter købet, er ikke en detalje.
 

@@ -250,6 +250,7 @@ export async function bestilUdenKonto(
   const taxRate = STRIPE_TAX_RATES[stripeMode()]!;
   const pricing = priceFor(product, v.antal, {
     egenFrontfarve: Boolean(v.frontHex),
+    standerFarve: v.standerFarve,
   });
   const base = getSiteUrl();
 
