@@ -25,6 +25,7 @@ import {
   type Product,
 } from "@/lib/constants";
 import {
+  ACCENT_TEKSTER,
   EGEN_FRONTFARVE_PRIS,
   farveTillaegTekst,
   farveTillaegNote,
@@ -131,7 +132,9 @@ export function StanderDesigner({
   const [egenFront, setEgenFront] = useState(false);
   const [hex, setHex] = useState("#26616e");
   /*
-   * Accentfarven: stjernerne, ringen og "Scan eller tap".
+   * Accentfarven: stjernerne og "Scan eller tap" på det trykte skilt.
+   * IKKE ringen — den afledes af baggrunden (`ringFarve()`), og ikke
+   * rammen om logofeltet, som skæres ud sammen med feltet.
    *
    * GRATIS, i modsætning til frontfarven. Det er ikke en venlighed, men en
    * konsekvens: accenten er den samme trykfil med en anden farvekode, mens
@@ -415,10 +418,10 @@ export function StanderDesigner({
               id={accentId}
               checked={egenAccent}
               onChange={setEgenAccent}
-              navn="Egen farve på stjerner og tekst"
-              pris="uden beregning"
+              navn={ACCENT_TEKSTER.tilvalg}
+              pris={ACCENT_TEKSTER.pris}
               gratis
-              forklaring="Stjernerne, rammen om logofeltet og “Scan eller tap”. Det er den samme trykfil med en anden farvekode, så den koster ikke ekstra."
+              forklaring={ACCENT_TEKSTER.forklaring}
               proeve={STANDARD_ACCENT}
             >
               <div className="mt-3 flex flex-wrap items-center gap-3 pl-7">
