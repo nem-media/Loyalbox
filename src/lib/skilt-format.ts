@@ -21,11 +21,11 @@ export type Variant = "sort" | "hvid";
  * lærred uden om designet, og det ville ellers blive til en gennemsigtig
  * stribe langs previewets kant, hvor silhuetten så ikke fulgte skiltet.
  */
-export const SKILT_BREDDE = 339.8125;
-export const SKILT_HOEJDE = 544.234374;
+export const SKILT_BREDDE = 351.242188;
+export const SKILT_HOEJDE = 552.933594;
 
 /** Standerens afrundede hjørner. */
-export const HJOERNE_R = 15.734375;
+export const HJOERNE_R = 15.601562;
 
 export interface Felt {
   x: number;
@@ -37,6 +37,10 @@ export interface Felt {
 /**
  * FELTERNE I SKABELONEN. Ét sæt tal til begge filer — de er ens ud over
  * farverne.
+ *
+ * MÅLT I EKSPORTEN 31. AUGUST (`_design-selv_online (1)`) ad to uafhængige
+ * veje: med getBBox i browseren og ved at regne tallene ud af filernes egne
+ * `d`-strenge. De to veje gav det samme, og de to filer gav det samme.
  *
  * DE HAR VÆRET UENIGE ÉN GANG. I eksporten tidligere samme dag lå den hvide
  * fils nederste blok 5 enheder lavere end den sortes, og logofeltet var 5
@@ -53,14 +57,14 @@ export interface Felt {
 export const MAAL = {
   /** Hele den firkant, "Dit logo" står i. */
   logo: {
-    x: 28.753906,
-    y: 17.578124,
-    bredde: 282.511719,
-    hoejde: 113.535157,
+    x: 35.664063,
+    y: 17.429688,
+    bredde: 280.121094,
+    hoejde: 112.574219,
   } as Felt,
 
   /** QR-pladsholderens felt. */
-  qr: { x: 195.3203, y: 252.875, bredde: 115.7344, hoejde: 115.7344 } as Felt,
+  qr: { x: 200.816406, y: 250.734376, bredde: 114.761719, hoejde: 114.761719 } as Felt,
 
   /**
    * NFC-feltet. Var en cirkel indtil 27. august og er nu en afrundet firkant
@@ -68,10 +72,10 @@ export const MAAL = {
    * Bruges til at holde QR-kodens dækflade klar af den.
    */
   nfc: {
-    x: 29.03125,
-    y: 253.574218,
-    bredde: 119.082031,
-    hoejde: 115.039063,
+    x: 35.9375,
+    y: 251.429688,
+    bredde: 118.078125,
+    hoejde: 114.066406,
   } as Felt,
 
   /**
@@ -79,7 +83,7 @@ export const MAAL = {
    * `FOD_START_Y`. Bomærket lå 4 mm nede i fodzonen i den første eksport af
    * det nye design; nu er der 2,5 mm luft.
    */
-  indholdBund: 395.4156,
+  indholdBund: 392.0701,
 };
 
 /**
@@ -121,18 +125,45 @@ export function daek(f: Felt): Felt {
  * netop fordi den ikke må trykkes med.
  */
 export const SKILT_CM = {
-  /** Hele det trykte ark. */
-  hoejde: 19.2,
-  bredde: 12,
+  /** Hele det TRYKTE ark — større end standeren med vilje, se `KLIP_CM`. */
+  hoejde: 19.5,
+  bredde: 12.4,
   /** Den del, der kan ses, når standeren står i sin fod. */
   front: 15,
 } as const;
 
 /**
+ * Det, der klippes af i hånden, før skiltet sættes i standeren.
+ *
+ * ARKET ER STØRRE END STANDEREN MED VILJE. Standeren er 12 cm bred, og
+ * trykket lægges 12,4 cm bredt, så der er 2 mm i hver side at klippe efter;
+ * i bunden er der 2 mm. Uden den overkant skal trykket ramme kanten præcist,
+ * og det gør et tryk aldrig.
+ *
+ * DERFOR ER `SKILT_CM` ARKET OG IKKE SKILTET. Sideforholdet i tegningen skal
+ * passe til det, der TRYKKES — prøven `har det sideforhold, centimetrene
+ * lover` sammenligner netop de to. Det, kunden får at vide, er derimod det
+ * FÆRDIGE mål, og det er `FAERDIG_CM`. De to var ens indtil 31. august, hvor
+ * arket voksede, og en linje, der havde blandet dem sammen, ville nu love
+ * kunden et skilt, der er 4 mm bredere end det, de får.
+ */
+export const KLIP_CM = { bredde: 0.4, bund: 0.2 } as const;
+
+/** Skiltet efter klipningen — det, kunden står med. */
+export const FAERDIG_CM = {
+  bredde: Math.round((SKILT_CM.bredde - KLIP_CM.bredde) * 10) / 10,
+  hoejde: Math.round((SKILT_CM.hoejde - KLIP_CM.bund) * 10) / 10,
+} as const;
+
+/**
  * Det, foden dækker. Udledt, aldrig skrevet af.
  *
- * AFRUNDET, fordi 19,2 − 15 giver 4,199999999999999 i flydende tal, og tallet
- * skal kunne skrives til en kunde.
+ * AFRUNDET, fordi et fradrag som 19,5 − 15 giver et flydende tal med hale, og
+ * tallet skal kunne skrives til en kunde.
+ *
+ * Bemærk at den regnes af ARKET og derfor også indeholder de 2 mm, der
+ * klippes af i bunden. Det er med vilje: begge dele er noget, kunden aldrig
+ * ser, og linjen, designet ikke må krydse, skal ligge over dem begge.
  */
 export const FOD_CM = Math.round((SKILT_CM.hoejde - SKILT_CM.front) * 10) / 10;
 
@@ -150,15 +181,20 @@ export function cmTekst(n: number): string {
 /**
  * Skiltets mål, som kunden ser dem.
  *
- * KUN FRONTEN. Arket er 19,2 cm, men de nederste sidder i foden — det er en
- * trykteknisk detalje, kunden ikke får noget ud af. Det tal, de skal bruge,
- * er hvor stort skiltet står på bordet.
+ * KUN FRONTEN, OG KUN DET FÆRDIGE SKILT. Arket er både bredere og højere end
+ * det, kunden får: det trykkes 12,4 cm bredt og klippes ned til 12, og de
+ * nederste centimeter sidder i foden. Begge dele er tryktekniske detaljer,
+ * kunden ikke får noget ud af. Det tal, de skal bruge, er hvor stort skiltet
+ * står på bordet.
+ *
+ * BRUG DERFOR `FAERDIG_CM` OG IKKE `SKILT_CM` her. De var ens indtil 31.
+ * august; siden ville `SKILT_CM.bredde` love 4 mm for meget.
  *
  * Begge bestillingsformularer viser den samme linje; to håndskrevne udgaver
  * bliver til to forskellige mål på det samme skilt.
  */
 export const FRONT_MAAL = `Fronten er ${cmTekst(
-  SKILT_CM.bredde,
+  FAERDIG_CM.bredde,
 )} cm bred og ${cmTekst(SKILT_CM.front)} cm høj.`;
 
 /** Fodens højde i skiltets egne enheder. */
