@@ -131,6 +131,31 @@ const PLADSHOLDERE = [
   },
   { navn: "LOGOFELT", anker: 'transform="matrix(1, 0, 0, 1, 102, 38)"', slags: "g", hvad: 'ordene "Dit logo"' },
   { navn: "QRFELT", anker: 'transform="matrix(1, 0, 0, 1, 200, 250)"', slags: "g", hvad: "QR-attrappen" },
+  {
+    /*
+     * OG QR-ATTRAPPEN HAR OGSÅ ET STYKKE UDENFOR. To hvide stier står i deres
+     * egen gruppe uden for den transformerede — en lille flig ved kodens
+     * øverste venstre hjørne, x 201-207 og y 251-262, altså helt inde i
+     * QR-feltet. Da attrappen blev skiftet ud med den rigtige kode, blev den
+     * stående som en hvid firkant ved siden af finder-mønstret. Set på et
+     * trykt skilt — og først derefter i koden.
+     *
+     * SAMME FEJLTYPE SOM LOGOFELTETS TRE DELE: Canva grupperer efter lag og
+     * ikke efter hvad der hører sammen, så ét anker pr. attrap er ikke nok.
+     * Antagelsen om, at QR-attrappen lå samlet i én gruppe, var det eneste
+     * i mekanikken, der aldrig blev efterprøvet.
+     *
+     * ANKRET ER GEOMETRI OG IKKE KLIP-ID'ET. `clip-path="url(#a96a2a2b93)"`
+     * ville være kortere, men id'et er en hash, Canva laver om ved hver
+     * eksport, og de to filer har hver sit. `d`-strengen er designets egne
+     * mål: flytter tegningen sig, fejler ankret — og det SKAL det, for så
+     * passer tallene i skilt-format.ts heller ikke længere.
+     */
+    navn: "QRFELT",
+    anker: 'd="M 206.714844 251.519531 L 206.714844 261.761719',
+    slags: "g",
+    hvad: "fligen ved QR-attrappens hjørne",
+  },
 ];
 
 /**

@@ -142,9 +142,60 @@ describe("attrapperne", () => {
     expect(antal(SKABELONER[v], "<!--/LOGOFELT-->")).toBe(3);
   });
 
-  it.each(VARIANTER)("%s: QR-feltet er mærket ét sted", (v) => {
-    expect(antal(SKABELONER[v], "<!--QRFELT-->")).toBe(1);
-    expect(antal(SKABELONER[v], "<!--/QRFELT-->")).toBe(1);
+  /*
+   * TO OG IKKE ÉT. Attrappen har en flig i sin egen gruppe uden for den
+   * transformerede — se `PLADSHOLDERE` i generatoren. Den blev stående som en
+   * hvid firkant ved siden af QR-kodens øverste venstre hjørne, og det blev
+   * set på et TRYKT skilt.
+   */
+  it.each(VARIANTER)("%s: QR-feltet er mærket i to stykker", (v) => {
+    expect(antal(SKABELONER[v], "<!--QRFELT-->")).toBe(2);
+    expect(antal(SKABELONER[v], "<!--/QRFELT-->")).toBe(2);
+  });
+
+  /*
+   * PRØVEN, DER FANGER EN GLEMT FLIG — uanset hvor mange mærker der er.
+   *
+   * At tælle mærker siger kun, at der er lige så mange, som der plejer. Det,
+   * der betyder noget, er, om der står noget TILBAGE i feltet, efter at
+   * attrappen er skåret ud — for oven på det bliver den rigtige kode eller
+   * kundens logo lagt, og en rest bliver til en plet ved siden af.
+   *
+   * Skærer kun på stier UDEN egen `transform`, hvis tal derfor er absolutte.
+   * En sti i en forskudt gruppe kan i teorien give et falsk udslag; i dag
+   * giver begge felter nul, og sker det en dag, SKAL nogen kigge på det —
+   * det er den samme slags fund som fligen selv.
+   */
+  it.each(VARIANTER)("%s: der er intet tilbage i felterne bagefter", (v) => {
+    const uden = SKABELONER[v]
+      .replace(/<!--LOGOFELT-->[\s\S]*?<!--\/LOGOFELT-->/g, "")
+      .replace(/<!--QRFELT-->[\s\S]*?<!--\/QRFELT-->/g, "");
+    const krop = uden.slice(uden.indexOf("</defs>"));
+
+    for (const [navn, felt] of [
+      ["logo", MAAL.logo],
+      ["qr", MAAL.qr],
+    ] as const) {
+      const rester = [...krop.matchAll(/<path[^>]*>/g)]
+        .map((m) => m[0])
+        .filter((el) => !el.includes("transform="))
+        .map((el) => el.match(/\sd="([^"]+)"/)?.[1])
+        .filter((d): d is string => Boolean(d))
+        .filter((d) => {
+          const tal = (d.match(/-?\d+(\.\d+)?/g) ?? []).map(Number);
+          if (tal.length < 4) return false;
+          const xs = tal.filter((_, i) => i % 2 === 0);
+          const ys = tal.filter((_, i) => i % 2 === 1);
+          return (
+            Math.min(...xs) >= felt.x &&
+            Math.max(...xs) <= felt.x + felt.bredde &&
+            Math.min(...ys) >= felt.y &&
+            Math.max(...ys) <= felt.y + felt.hoejde
+          );
+        });
+
+      expect(rester, `${navn}: ${rester[0]?.slice(0, 80) ?? ""}`).toHaveLength(0);
+    }
   });
 
   /*
