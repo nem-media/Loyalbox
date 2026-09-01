@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/dashboard-shell";
-import { Card, CardBody } from "@/components/ui/card";
+import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Table, THead, TBody, TR, TH, TD } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -13,29 +12,16 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { visCvr } from "@/lib/cvr";
 import { abonnementTilstand, erBetalende } from "@/lib/abonnement";
 import {
-  ABONNEMENTS_SLUGS,
   TILSTAND_ETIKET,
   kraeverHandling,
   maanedligOmsaetning,
   maanedspris,
   produktNavn,
-  sorterAbonnenter,
   stripeStatusTekst,
-  type AbonnentFelter,
 } from "@/lib/abonnenter";
-import { hentBetalinger } from "@/lib/stripe-abonnement";
+import { hentAbonnenter } from "@/lib/abonnent-opslag";
 
 export const metadata = { title: "Admin — Abonnenter" };
-
-/** Virksomhedsrækken, som denne side læser den. */
-type Abonnent = AbonnentFelter & {
-  id: string;
-  name: string;
-  cvr: string | null;
-  contact_email: string | null;
-  user_id: string | null;
-  created_at: string;
-};
 
 /**
  * Hvem betaler, for hvad, og hvornår trækkes der næste gang?
@@ -46,8 +32,13 @@ type Abonnent = AbonnentFelter & {
  * at få alle sine data slettet om seks måneder — var usynlig, medmindre man
  * åbnede netop hendes side og vidste, hvad man ledte efter.
  *
- * RÆKKEFØLGEN ER SIDENS POINTE. Det, der kræver noget, står øverst; se
- * `sorterAbonnenter()`. Sorteret på navn ville listen være en rapport.
+ * VARSLERNE STÅR ØVERST OG IKKE I EN KOLONNE. Et udløbende betalingskort og en
+ * tabt webhook er de to ting, ingen opdager af sig selv, og de kan begge
+ * afværges, hvis de ses i tide — men kun hvis de står et sted, øjet lander
+ * FØRST. I en kolonne længst til højre bliver de til noget, man scanner forbi.
+ *
+ * RÆKKEFØLGEN I TABELLEN ER OGSÅ SIDENS POINTE: det, der kræver noget, står
+ * øverst (`sorterAbonnenter()`). Sorteret på navn ville listen være en rapport.
  *
  * BETALINGSDATOEN HENTES LIVE HOS STRIPE og findes ikke i vores database — se
  * `stripe-abonnement.ts` for hvorfor der ikke blev lagt en kolonne. Svarer
@@ -59,29 +50,8 @@ export default async function AdminAbonnenterPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q } = await searchParams;
-  const supabase = await createClient();
-
-  let query = supabase
-    .from("companies")
-    .select("*")
-    // Abonnenterne er dem, der har købt en vare MED månedspris. Spurgte vi på
-    // `plan`, kom en kunde med, hvis niveau er sat i hånden i admin, uden at
-    // der er solgt noget — samme grund som harAbonnement() i abonnement.ts.
-    .in("product_slug", ABONNEMENTS_SLUGS);
-
-  const term = (q ?? "").replace(/[,%]/g, "").trim();
-  if (term) {
-    query = query.or(
-      `name.ilike.%${term}%,cvr.ilike.%${term}%,contact_email.ilike.%${term}%,billing_email.ilike.%${term}%,phone.ilike.%${term}%`,
-    );
-  }
-
-  const { data } = await query;
-  const raekker = sorterAbonnenter((data ?? []) as Abonnent[]);
-
-  const betalinger = await hentBetalinger(
-    raekker.map((r) => r.stripe_subscription_id),
-  );
+  const term = (q ?? "").trim();
+  const { raekker, betalinger, varsler } = await hentAbonnenter(q);
 
   /*
    * Tallene regnes af DE VISTE rækker. Er der søgt, er det søgningens tal, og
@@ -89,6 +59,7 @@ export default async function AdminAbonnenterPage({
    * mens et globalt tal ved siden af en filtreret liste bare forvirrer.
    */
   const betalende = raekker.filter((r) => erBetalende(r.stripe_status)).length;
+  const medVarsel = raekker.filter((r) => (varsler.get(r.id) ?? []).length > 0);
 
   return (
     <>
@@ -114,6 +85,36 @@ export default async function AdminAbonnenterPage({
           sub="Ex moms — kun dem, der faktisk betaler"
         />
       </div>
+
+      {medVarsel.length ? (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Se på det her</CardTitle>
+          </CardHeader>
+          <CardBody className="pt-0">
+            <ul className="space-y-3">
+              {medVarsel.map((c) => (
+                <li key={c.id} className="border-b border-border pb-3 last:border-b-0 last:pb-0">
+                  <Link
+                    href={`/admin/virksomheder/${c.id}`}
+                    className="font-medium text-accent hover:underline"
+                  >
+                    {c.name}
+                  </Link>
+                  <ul className="mt-1 space-y-1">
+                    {(varsler.get(c.id) ?? []).map((v) => (
+                      <li key={v.type} className="flex flex-wrap items-start gap-2">
+                        <Badge tone={v.tone}>{v.overskrift}</Badge>
+                        <span className="text-xs text-muted">{v.detalje}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          </CardBody>
+        </Card>
+      ) : null}
 
       <form className="mb-6 flex gap-2" action="/admin/abonnenter">
         <Input

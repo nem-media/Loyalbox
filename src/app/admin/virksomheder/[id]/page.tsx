@@ -13,6 +13,8 @@ import { Leveringsadresse } from "@/components/leveringsadresse";
 import { formatDate } from "@/lib/utils";
 import { BETALTE_ORDRE_STATUSSER, stripeMode } from "@/lib/commerce";
 import { hentBetalinger } from "@/lib/stripe-abonnement";
+import { varslerFor } from "@/lib/abonnent-varsler";
+import { hentAdminLog } from "@/lib/admin-log";
 import { AbonnementKort } from "./abonnement-kort";
 
 export const metadata = { title: "Admin — Virksomhed" };
@@ -102,6 +104,15 @@ export default async function AdminCompanyDetail({
     : undefined;
 
   /*
+   * Varslerne regnes af BÅDE vores felter og Stripes svar — se
+   * `abonnent-varsler.ts`. Uden Stripe-svaret står kun de varsler, vi selv
+   * kan se (aldrig faktureret, sletning på vej), og det er den ærlige
+   * halvdel frem for ingen.
+   */
+  const varsler = varslerFor(company, betaling);
+  const adminLog = await hentAdminLog(company.id);
+
+  /*
    * Test og live er adskilte verdener hos Stripe, og de har hver sin adresse i
    * dashboardet. Et link uden `test/` ville i udvikling føre til en kunde, der
    * ikke findes — og det ligner, at kunden er væk.
@@ -176,6 +187,8 @@ export default async function AdminCompanyDetail({
           betaling={betaling}
           historik={historik}
           stripeUrl={stripeUrl}
+          varsler={varsler}
+          log={adminLog}
         />
 
         <Card>

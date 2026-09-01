@@ -918,6 +918,31 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["drift_log"]["Insert"]>;
         Relationships: [];
       };
+      /** Se supabase/migrations/0025_admin_log.sql. Kun admin læser; skrives med service-role. */
+      admin_log: {
+        Row: {
+          id: string;
+          actor_id: string | null;
+          actor_email: string;
+          company_id: string | null;
+          handling: string;
+          foer: Record<string, unknown> | null;
+          efter: Record<string, unknown> | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          actor_id?: string | null;
+          actor_email: string;
+          company_id?: string | null;
+          handling: string;
+          foer?: Record<string, unknown> | null;
+          efter?: Record<string, unknown> | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["admin_log"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
