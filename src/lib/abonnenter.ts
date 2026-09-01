@@ -98,6 +98,23 @@ export function produktNavn(slug: string | null | undefined): string {
   return getProduct(slug)?.name ?? slug;
 }
 
+/**
+ * Kortet som én linje: "visa •••• 4242 · udløber 04/2027".
+ *
+ * FORMATERINGEN LIGGER HER og ikke i Stripe-opslaget, så den kan prøves uden
+ * et netværk — og så selve opslaget kan aflevere måned og år som TAL, der kan
+ * regnes på. Se `abonnent-varsler.ts`: udløbsdatoen er et varsel, ikke pynt.
+ */
+export function kortTekst(kort: {
+  maerke: string;
+  sidste4: string;
+  udloebMaaned: number;
+  udloebAar: number;
+}): string {
+  const maaned = String(kort.udloebMaaned).padStart(2, "0");
+  return `${kort.maerke} •••• ${kort.sidste4} · udløber ${maaned}/${kort.udloebAar}`;
+}
+
 /** De felter, en abonnentrække skal have for at kunne bedømmes. */
 export interface AbonnentFelter extends AbonnementFelter {
   product_slug: string | null;

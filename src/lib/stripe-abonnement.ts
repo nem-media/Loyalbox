@@ -36,8 +36,24 @@ export interface Betaling {
   valuta: string;
   /** Opsagt, men kører perioden ud. Kunden betaler ikke igen. */
   stopperVedPeriodeslut: boolean;
-  /** Kortet, der trækkes på. Null betyder ikke "intet kort" — se `kortTekst()`. */
-  kort: string | null;
+  /**
+   * Kortet, der trækkes på. Null betyder ikke "intet kort" — se `laesKort()`.
+   *
+   * STRUKTURERET OG IKKE EN FÆRDIG STRENG, fordi udløbsmåneden skal REGNES på:
+   * et kort, der udløber om seks uger, er den hyppigste årsag til, at et
+   * velfungerende abonnement pludselig går i past_due. Formateringen ligger i
+   * `kortTekst()` i abonnenter.ts, hvor den kan prøves uden et netværk.
+   */
+  kort: Kort | null;
+}
+
+/** Betalingskortet, som Stripe oplyser det. */
+export interface Kort {
+  maerke: string;
+  sidste4: string;
+  /** 1-12. */
+  udloebMaaned: number;
+  udloebAar: number;
 }
 
 /**
@@ -94,13 +110,17 @@ function beloebOere(sub: Stripe.Subscription): number | null {
  * mest almindelige grund til, at et velfungerende abonnement pludselig går i
  * past_due.
  */
-function kortTekst(sub: Stripe.Subscription): string | null {
+function laesKort(sub: Stripe.Subscription): Kort | null {
   const pm = sub.default_payment_method;
   if (!pm || typeof pm === "string") return null;
   const kort = pm.card;
   if (!kort) return null;
-  const maaned = String(kort.exp_month).padStart(2, "0");
-  return `${kort.brand} •••• ${kort.last4} · udløber ${maaned}/${kort.exp_year}`;
+  return {
+    maerke: kort.brand,
+    sidste4: kort.last4,
+    udloebMaaned: kort.exp_month,
+    udloebAar: kort.exp_year,
+  };
 }
 
 /**
@@ -137,7 +157,7 @@ export async function hentBetalinger(
         beloebOere: beloebOere(sub),
         valuta: (sub.currency ?? "dkk").toUpperCase(),
         stopperVedPeriodeslut: Boolean(sub.cancel_at_period_end),
-        kort: kortTekst(sub),
+        kort: laesKort(sub),
       });
     }
   } catch (err) {

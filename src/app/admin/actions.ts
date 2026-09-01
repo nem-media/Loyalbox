@@ -6,6 +6,9 @@ import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { generateSlug } from "@/lib/utils";
 import { KATALOG, planForProduct } from "@/lib/constants";
+import { stripe } from "@/lib/stripe";
+import { isStripeConfigured } from "@/lib/commerce";
+import { noterAdminHandling } from "@/lib/admin-log";
 import type { DestinationType, OrderStatus } from "@/lib/types/database";
 
 async function requireAdmin() {
@@ -141,7 +144,7 @@ export async function updateStandLinks(
  * Tom værdi rydder feltet (ingen registreret vare).
  */
 export async function setCompanyProduct(formData: FormData): Promise<void> {
-  await requireAdmin();
+  const bruger = await requireAdmin();
   const id = String(formData.get("company_id") ?? "");
   const slug = String(formData.get("product_slug") ?? "");
   if (!id) return;
@@ -161,12 +164,163 @@ export async function setCompanyProduct(formData: FormData): Promise<void> {
    * manuelt salg giver nu nøjagtig samme adgang som et betalt.
    */
   const supabase = await createClient();
-  await supabase
+
+  /*
+   * DET GAMLE LÆSES FØRST. Uden det kan loggen kun sige "produkt skiftet", og
+   * spørgsmålet, man stiller bagefter, er altid hvad der stod FØR — det er
+   * dét, der forklarer, hvorfor kunden har den adgang, hun har.
+   */
+  const { data: foer } = await supabase
     .from("companies")
-    .update({ product_slug: slug || null, plan: planForProduct(slug || null) })
-    .eq("id", id);
+    .select("product_slug, plan")
+    .eq("id", id)
+    .maybeSingle();
+
+  const efter = {
+    product_slug: slug || null,
+    plan: planForProduct(slug || null),
+  };
+
+  const { error } = await supabase.from("companies").update(efter).eq("id", id);
+  if (error) return;
+
+  await noterAdminHandling({
+    actorId: bruger.id,
+    actorEmail: bruger.email,
+    companyId: id,
+    handling: "produkt-skiftet",
+    foer: foer ?? null,
+    efter,
+  });
+
   revalidatePath(`/admin/virksomheder/${id}`);
   revalidatePath("/admin/virksomheder");
+  revalidatePath("/admin/abonnenter");
+}
+
+/**
+ * Opsig abonnementet VED PERIODENS UDLØB — aldrig med det samme.
+ *
+ * Kunden har betalt for indeværende periode. En øjeblikkelig opsigelse ville
+ * tage adgangen fra hende, mens pengene står på vores konto, og Stripe ville
+ * skulle refundere en stump. `cancel_at_period_end` lader perioden løbe ud og
+ * er DESUDEN fortrydelig — en øjeblikkelig opsigelse kan ikke gøres om, og et
+ * fejlklik ville kræve et helt nyt abonnement.
+ *
+ * SUSPENSIONEN RØRES IKKE. En opsigelse er kundens beslutning; en suspension
+ * er en manglende betaling. De to har hver sin vej tilbage, og at blande dem
+ * er netop det, `abonnement.ts` er skrevet for at undgå.
+ */
+export async function opsigAbonnement(
+  _prev: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  return await saetOpsigelse(formData, true);
+}
+
+/** Fortryd en opsigelse, så abonnementet fornys igen. */
+export async function fortrydOpsigelse(
+  _prev: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  return await saetOpsigelse(formData, false);
+}
+
+async function saetOpsigelse(
+  formData: FormData,
+  opsig: boolean,
+): Promise<FormResult> {
+  const bruger = await requireAdmin();
+  const id = String(formData.get("company_id") ?? "");
+  const abonnement = String(formData.get("subscription_id") ?? "");
+  if (!id || !abonnement) return { error: "Ugyldig virksomhed." };
+  if (!isStripeConfigured())
+    return { error: "Stripe er ikke konfigureret i dette miljø." };
+
+  try {
+    await stripe().subscriptions.update(abonnement, {
+      cancel_at_period_end: opsig,
+    });
+  } catch (err) {
+    // Fejlen VISES. En opsigelse, der ser ud til at lykkes og ikke gjorde
+    // det, er værre end en, der siger fra: pengene bliver ved med at komme.
+    return { error: `Stripe afviste ændringen: ${(err as Error).message}` };
+  }
+
+  await noterAdminHandling({
+    actorId: bruger.id,
+    actorEmail: bruger.email,
+    companyId: id,
+    handling: opsig ? "abonnement-opsagt" : "opsigelse-fortrudt",
+    foer: { opsagt_ved_periodeslut: !opsig },
+    efter: { opsagt_ved_periodeslut: opsig },
+  });
+
+  revalidatePath(`/admin/virksomheder/${id}`);
+  revalidatePath("/admin/abonnenter");
+  return { ok: true };
+}
+
+/**
+ * Genoptag kundeforholdet: aftalen er i kraft igen, og uret stopper.
+ *
+ * HVORFOR DEN HANDLING OG IKKE "UDSÆT SLETNINGEN". En sletning udsættes ikke
+ * lovligt: databehandleraftalens § 13 lover, at data er væk 30 dage efter
+ * AFTALENS ophør, og en knap, der skubber den dato, ville være en knap, der
+ * bryder løftet. Det, der lovligt standser uret, er, at aftalen ikke er
+ * ophørt længere — og det er netop det, der er sket, når en kunde betaler
+ * igen, også uden om Stripe. Derfor ryddes suspensionen og ophøret, og
+ * sletningsdatoen følger med af sig selv, fordi den UDLEDES af dem.
+ *
+ * KUNDENS EGEN SLETNINGSBESTILLING RØRES IKKE. Har hun selv bedt om at blive
+ * slettet, er det hendes beslutning med sin egen angrefrist, og den skal ikke
+ * kunne annulleres fra vores side ved et uheld.
+ *
+ * NIVEAUET GENDANNES fra varen. Webhooken sætter `plan` til basic, når et
+ * abonnement lukkes; uden det her skridt ville kunden være "aktiv" og stadig
+ * mangle sine funktioner.
+ */
+export async function genoptagKundeforhold(
+  _prev: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const bruger = await requireAdmin();
+  const id = String(formData.get("company_id") ?? "");
+  if (!id) return { error: "Ugyldig virksomhed." };
+
+  const supabase = await createClient();
+  const { data: foer } = await supabase
+    .from("companies")
+    .select("product_slug, plan, suspenderet_siden, ophoert_den")
+    .eq("id", id)
+    .maybeSingle();
+  if (!foer) return { error: "Virksomheden findes ikke." };
+
+  const efter = {
+    suspenderet_siden: null,
+    ophoert_den: null,
+    plan: planForProduct(foer.product_slug ?? null),
+  };
+
+  const { error } = await supabase.from("companies").update(efter).eq("id", id);
+  if (error) return { error: error.message };
+
+  await noterAdminHandling({
+    actorId: bruger.id,
+    actorEmail: bruger.email,
+    companyId: id,
+    handling: "kundeforhold-genoptaget",
+    foer: {
+      suspenderet_siden: foer.suspenderet_siden,
+      ophoert_den: foer.ophoert_den,
+      plan: foer.plan,
+    },
+    efter,
+  });
+
+  revalidatePath(`/admin/virksomheder/${id}`);
+  revalidatePath("/admin/abonnenter");
+  return { ok: true };
 }
 
 export async function setOrderStatus(formData: FormData): Promise<void> {

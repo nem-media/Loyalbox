@@ -9,12 +9,21 @@ import {
 } from "@/lib/abonnement";
 import {
   TILSTAND_ETIKET,
+  kortTekst,
   maanedspris,
   produktNavn,
   stripeStatusTekst,
   type AbonnentFelter,
 } from "@/lib/abonnenter";
+import type { Varsel } from "@/lib/abonnent-varsler";
+import {
+  HANDLING_TEKST,
+  beskrivAendring,
+  type AdminHandling,
+  type AdminLogRaekke,
+} from "@/lib/admin-log";
 import type { Betaling } from "@/lib/stripe-abonnement";
+import { AbonnementHandlinger } from "./abonnement-handlinger";
 
 /** Én linje i kortet. Etiket til venstre, svar til højre — aldrig et tomt felt. */
 function Linje({
@@ -40,31 +49,33 @@ function Linje({
 }
 
 /**
- * Alt om kundeforholdet ét sted: abonnementet, pengene og fristerne.
+ * Alt om kundeforholdet ét sted: varslerne, abonnementet, pengene, fristerne,
+ * de tre handlinger — og sporet af, hvad vi selv har ændret.
  *
  * HVAD DER MANGLEDE. Virksomhedssiden viste købt produkt og niveau, men INTET
  * om, at kunden betaler — eller er holdt op. `stripe_status`,
- * `suspenderet_siden`, `ophoert_den` og sletningsdatoen fandtes i basen og
- * blev læst af kundens egen betalingsskærm, mens vi selv kun kunne se dem i
- * Supabase. En kunde kunne stå seks måneder i suspension og få sine data
- * slettet, uden at det nogensinde stod på en skærm, vi kigger på.
+ * `suspenderet_siden` og `ophoert_den` fandtes i basen og blev læst af
+ * KUNDENS egen betalingsskærm, mens vi selv skulle i Supabase. En kunde kunne
+ * stå seks måneder i suspension og få slettet alle sine data, uden at det
+ * nogensinde stod på en skærm, vi kigger på.
  *
- * FRISTERNE ER DEN VIGTIGE DEL. De regnes med de SAMME funktioner, kunden får
- * sine tal af (`suspensionUdloeber`, `sletningSker`) — to udregninger af samme
- * dato ville før eller siden give to forskellige svar, og så ville vi love
- * kunden ét og selv planlægge efter noget andet.
+ * VARSLERNE STÅR ØVERST. Resten af kortet er tilstand; varslerne er det, der
+ * kræver noget, og de fleste af dem kan afværges, hvis de ses i tide.
  *
- * KØBSHISTORIKKEN STÅR HER OG IKKE UNDER ORDRER, fordi spørgsmålet "har hun
- * købt hos os før?" stilles, mens man har kunden i røret — ikke mens man
- * kigger på en ordreliste.
+ * FRISTERNE regnes med de SAMME funktioner, kunden får sine tal af
+ * (`suspensionUdloeber`, `sletningSker`) — to udregninger af samme dato ville
+ * før eller siden give to svar, og så ville vi love kunden ét og planlægge
+ * efter noget andet.
  */
 export function AbonnementKort({
   company,
   betaling,
   historik,
   stripeUrl,
+  varsler,
+  log,
 }: {
-  company: AbonnentFelter & { stripe_customer_id: string | null };
+  company: AbonnentFelter & { id: string; stripe_customer_id: string | null };
   /** Fra Stripe. Undefined hvis nøglen mangler, eller Stripe ikke svarede. */
   betaling: Betaling | undefined;
   historik: {
@@ -74,6 +85,8 @@ export function AbonnementKort({
   };
   /** Kunden hos Stripe. Null hvis der aldrig er oprettet en. */
   stripeUrl: string | null;
+  varsler: Varsel[];
+  log: AdminLogRaekke[];
 }) {
   const tilstand = TILSTAND_ETIKET[abonnementTilstand(company)];
   const pris = maanedspris(company.product_slug);
@@ -81,37 +94,36 @@ export function AbonnementKort({
   const sletning = sletningSker(company);
   const dageTilSletning = dageTil(sletning);
 
-  /*
-   * VORES STATUS MOD STRIPES. De to skal være ens; er de ikke, er en webhook
-   * gået tabt, og alt på siden — inklusive kundens egen adgang — bygger på det
-   * forkerte af de to tal. Det er værd at få at vide med det samme frem for at
-   * opdage det, når en kunde ringer.
-   */
-  const uenige =
-    betaling !== undefined && betaling.status !== company.stripe_status;
-
   return (
     <Card>
       <CardHeader>
         <CardTitle>Abonnement &amp; betaling</CardTitle>
       </CardHeader>
       <CardBody className="pt-0">
+        {varsler.length ? (
+          <ul className="mb-4 space-y-2">
+            {varsler.map((v) => (
+              <li
+                key={v.type}
+                className="box-shape border border-border bg-muted-bg p-3"
+              >
+                <Badge tone={v.tone}>{v.overskrift}</Badge>
+                <p className="mt-1 text-xs">{v.detalje}</p>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+
         <Linje etiket="Tilstand">
           <Badge tone={tilstand.tone}>{tilstand.label}</Badge>
         </Linje>
 
-        <Linje etiket="Status hos Stripe" hjaelp={stripeStatusTekst(company.stripe_status)}>
+        <Linje
+          etiket="Status hos Stripe"
+          hjaelp={stripeStatusTekst(company.stripe_status)}
+        >
           <code className="text-xs">{company.stripe_status ?? "ingen"}</code>
         </Linje>
-
-        {uenige ? (
-          <Linje
-            etiket="Uenighed"
-            hjaelp="Stripe siger noget andet end vores database. En webhook er sandsynligvis gået tabt — Stripes tal er det rigtige."
-          >
-            <Badge tone="danger">Stripe: {betaling.status}</Badge>
-          </Linje>
-        ) : null}
 
         <Linje
           etiket="Abonnement"
@@ -137,7 +149,7 @@ export function AbonnementKort({
             </>
           ) : (
             <span className="text-muted">
-              {/* Tre grunde til tomt, og de betyder ikke det samme. */}
+              {/* De to tomme tilfælde betyder ikke det samme. */}
               {company.stripe_subscription_id
                 ? "Ukendt — Stripe svarede ikke"
                 : "Intet abonnement hos Stripe"}
@@ -153,7 +165,11 @@ export function AbonnementKort({
               : undefined
           }
         >
-          {betaling?.kort ?? <span className="text-muted">Ikke oplyst</span>}
+          {betaling?.kort ? (
+            kortTekst(betaling.kort)
+          ) : (
+            <span className="text-muted">Ikke oplyst</span>
+          )}
         </Linje>
 
         {/* Fristerne vises KUN, når de findes. En tom "Suspenderet siden"-linje
@@ -202,9 +218,7 @@ export function AbonnementKort({
             <span className="text-muted">Ingen betalte køb</span>
           ) : (
             <>
-              {historik.antalBetalte}{" "}
-              {historik.antalBetalte === 1 ? "køb" : "køb"} ·{" "}
-              {formatCurrency(historik.samletBeloeb)}
+              {historik.antalBetalte} køb · {formatCurrency(historik.samletBeloeb)}
             </>
           )}
         </Linje>
@@ -223,6 +237,48 @@ export function AbonnementKort({
             <span className="text-muted">Ingen Stripe-kunde</span>
           )}
         </Linje>
+
+        <AbonnementHandlinger
+          companyId={company.id}
+          subscriptionId={company.stripe_subscription_id}
+          stopperVedPeriodeslut={betaling?.stopperVedPeriodeslut}
+          kanGenoptages={abonnementTilstand(company) !== "aktiv"}
+        />
+
+        {/*
+          SPORET AF OS SELV. De manuelle ændringer afgør kundens adgang og var
+          de eneste, der ikke efterlod noget. Loggen står HER og ikke på en
+          side for sig, fordi spørgsmålet altid stilles om én kunde: hvorfor
+          har hun den adgang, hun har?
+        */}
+        <div className="mt-4 border-t border-border pt-4">
+          <p className="etiket">Ændret i admin</p>
+          {log.length ? (
+            <ul className="mt-2 space-y-2">
+              {log.map((r) => {
+                const aendring = beskrivAendring(r);
+                return (
+                  <li key={r.id} className="text-xs">
+                    <span className="font-medium">
+                      {HANDLING_TEKST[r.handling as AdminHandling] ?? r.handling}
+                    </span>
+                    <span className="block text-muted">
+                      {formatDate(r.created_at)} · {r.actor_email}
+                    </span>
+                    {aendring ? (
+                      <span className="block text-muted">{aendring}</span>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p className="mt-1 text-xs text-muted">
+              Intet er ændret i hånden. Loggen begynder ved migration 0025 — det,
+              der skete før den, står ingen steder.
+            </p>
+          )}
+        </div>
       </CardBody>
     </Card>
   );
