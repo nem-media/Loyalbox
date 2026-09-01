@@ -235,7 +235,7 @@ export function BestilUdenKontoForm({
         {/* ----------------------------------------------------- dit skilt */}
         <FormSektion
           titel="Dit skilt"
-          beskrivelse="Farve, logo og de to farvevalg. Alt, du ændrer, ses med det samme."
+          beskrivelse="Farve, logo og de to farvevalg. Alt, du ændrer, ses med det samme i previewet."
           icon={StandIcon}
           fodnote={
             <>
