@@ -8,6 +8,7 @@ import {
   daek,
   iProcent,
   HJOERNE_RADIUS_FRONT,
+  PREVIEW_HOEJDE_CM,
 } from "@/lib/skilt-format";
 import {
   STANDARD_ACCENT,
@@ -42,6 +43,13 @@ import {
  * mod `FOD_START_Y`, så en ny Canva-eksport ikke kan skubbe noget ned i
  * fodzonen uden at en test fejler. Det er bare ikke længere kundens opgave at
  * holde øje med.
+ *
+ * OG DER KLIPPES EN CENTIMETER MERE END FODEN TAGER. Designet slutter godt en
+ * centimeter over fodlinjen, og den luft er rigtig på arket, men på skærmen
+ * var den bare en tom bund. Udsnittet er `PREVIEW_HOEJDE_CM` og hverken
+ * `SKILT_CM.front` eller `FOD_START_Y` — se dets egen kommentar: det er
+ * KOSMETIK OG MÅ ALDRIG SMITTE AF på trykket eller på den højde, vi lover
+ * kunden.
  *
  * LOGOET LÆGGES OVENPÅ HER OG BAGES IKKE IND.
  * Det er ikke en genvej: mens kunden designer, er logoet en lokal
@@ -105,21 +113,21 @@ export function SkiltPreview({
   /*
    * KLIPPET SKER I BEHOLDEREN, ikke i billedet: SVG'en er den samme fil som
    * trykken, og en beskåret udgave ville være en anden kilde. Beholderen får
-   * frontens sideforhold, billedet beholder sit eget og hænger fra toppen —
-   * så er det nederste, foden dækker, uden for kanten.
+   * udsnittets sideforhold, billedet beholder sit eget og hænger fra toppen —
+   * så er både foden og den tomme centimeter over den uden for kanten.
    *
    * Logoets procenter regnes stadig af HELE arket, fordi de gælder billedet
    * og ikke beholderen. Derfor ligger laget i en indre boks med billedets
    * egen højde.
    */
-  const hoejdeProcent = (SKILT_CM.hoejde / SKILT_CM.front) * 100;
+  const hoejdeProcent = (SKILT_CM.hoejde / PREVIEW_HOEJDE_CM) * 100;
 
   return (
     <div
       className={className}
       style={{
         position: "relative",
-        aspectRatio: `${SKILT_CM.bredde} / ${SKILT_CM.front}`,
+        aspectRatio: `${SKILT_CM.bredde} / ${PREVIEW_HOEJDE_CM}`,
         overflow: "hidden",
       }}
     >
