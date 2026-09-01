@@ -6,7 +6,9 @@ import { PageHeader } from "@/components/dashboard-shell";
 import { Card, CardBody } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Table, THead, TBody, TR, TH, TD } from "@/components/ui/table";
-import { BillingIcon } from "@/components/nav-icons";
+import { BillingIcon, SearchIcon } from "@/components/nav-icons";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { formatDate, formatCurrency } from "@/lib/utils";
 import { OrderStatusSelect } from "./order-status";
 
@@ -21,12 +23,44 @@ type Ordrelinje = Database["public"]["Tables"]["orders"]["Row"] & {
   > | null;
 };
 
-export default async function AdminOrdersPage() {
+/**
+ * Loft over listen. Den hentede FØR hver eneste ordre uden grænse — det
+ * fungerer ved tres og holder op med at svare ved tres tusind, uden at der
+ * undervejs er noget, der går i stykker og siger til. Søgefeltet er vejen uden
+ * om loftet.
+ */
+const MAKS_RAEKKER = 200;
+
+export default async function AdminOrdersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
   const supabase = await createClient();
-  const { data: orders } = await supabase
+
+  const term = (q ?? "").replace(/[,%]/g, "").trim();
+
+  /*
+   * SØGNINGEN GÅR PÅ VIRKSOMHEDEN og ikke på varenavnet. Der er tre varer i
+   * kataloget, så "Reviewstander" ville træffe næsten alt; det, man leder
+   * efter, er en bestemt kundes ordrer. `!inner` er nødvendig for at kunne
+   * filtrere på den sammenkoblede tabel — uden den er join'et valgfrit, og
+   * betingelsen bliver tavst ignoreret.
+   */
+  const join = term ? "companies!inner(name)" : "companies(name)";
+
+  let query = supabase
     .from("orders")
-    .select("*, company:companies(name), design:designs(stander_farve, front_type, front_hex, logo_url)")
-    .order("created_at", { ascending: false });
+    .select(
+      `*, company:${join}, design:designs(stander_farve, front_type, front_hex, logo_url)`,
+    )
+    .order("created_at", { ascending: false })
+    .limit(MAKS_RAEKKER);
+
+  if (term) query = query.ilike("companies.name", `%${term}%`);
+
+  const { data: orders } = await query;
 
   const raekker = (orders ?? []) as Ordrelinje[];
 
@@ -36,6 +70,17 @@ export default async function AdminOrdersPage() {
         title="Ordrer"
         description="Alle ordrer og deres status i produktionsflowet."
       />
+
+      <form className="mb-6 flex gap-2" action="/admin/ordrer">
+        <Input
+          name="q"
+          defaultValue={q ?? ""}
+          placeholder="Søg på virksomhed"
+        />
+        <Button type="submit" variant="outline">
+          Søg
+        </Button>
+      </form>
 
       {raekker.length ? (
         <Card>
@@ -115,6 +160,12 @@ export default async function AdminOrdersPage() {
             </Table>
           </CardBody>
         </Card>
+      ) : term ? (
+        <EmptyState
+          icon={SearchIcon}
+          title="Ingen ordrer fra den virksomhed"
+          description="Søgningen går på virksomhedens navn. Prøv en del af navnet."
+        />
       ) : (
         /* Stod før som en løs sætning med "Stripe — Sprint 2" i. Intern
            jargon om en sprintplan hører ikke til på en skærm, nogen bruger. */

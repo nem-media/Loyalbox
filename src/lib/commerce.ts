@@ -17,6 +17,23 @@ import {
   type Tier,
 } from "@/lib/constants";
 
+/**
+ * De ordrestatusser, der betyder AT DER ER BETALT.
+ *
+ * `new` betyder "oprettet, aldrig betalt" — webhooken flytter ordren, når
+ * pengene er hjemme — og `cancelled` er taget ud, fordi en annulleret ordre
+ * ikke skal tælle med i, hvad en kunde har lagt hos os.
+ *
+ * SAMLET ÉT STED, fordi listen står flere steder i admin: både i tallet
+ * "betalte ordrer i alt" og i købshistorikken på virksomheden. To håndskrevne
+ * udgaver ville før eller siden give to forskellige svar på samme spørgsmål.
+ */
+export const BETALTE_ORDRE_STATUSSER = [
+  "needs_onboarding",
+  "ready_for_production",
+  "shipped",
+] as const;
+
 /** True hvis Stripe-nøglen er sat i miljøet (server-only). */
 export function isStripeConfigured(): boolean {
   return Boolean(process.env.STRIPE_SECRET_KEY);

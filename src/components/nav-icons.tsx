@@ -170,6 +170,29 @@ export function SearchIcon(p: P) {
  * kende den aktuelle sti). Funktioner kan ikke sendes over den grænse, så
  * menuen sender et NAVN, og opslaget sker på klientsiden.
  */
+/**
+ * Abonnement — en cirkel, der lukker sig selv.
+ *
+ * IKKE ENDNU ET KORT. `BillingIcon` er allerede et betalingskort og står på
+ * Ordrer; to kort i samme menu ville ikke kunne skelnes ved 18 px, og punktet
+ * ved siden af er netop det, man ikke må ramme ved en fejl. Det, der skiller
+ * et abonnement fra en ordre, er GENTAGELSEN — derfor de to buer med hver sin
+ * pilespids, den samme form som en genindlæsning.
+ *
+ * Buerne er åbne i hver sin ende, så pilespidserne har noget at sidde på;
+ * en lukket cirkel med pile på ville se ud som et ur.
+ */
+export function SubscriptionIcon(p: P) {
+  return (
+    <Icon {...p}>
+      <path d="M20 12a8 8 0 0 1-13.6 5.7" />
+      <path d="M4 12a8 8 0 0 1 13.6-5.7" />
+      <path d="M17.6 3v3.3h-3.3" />
+      <path d="M6.4 21v-3.3h3.3" />
+    </Icon>
+  );
+}
+
 export const NAV_ICONS = {
   overview: OverviewIcon,
   stand: StandIcon,
@@ -179,6 +202,7 @@ export const NAV_ICONS = {
   staff: StaffIcon,
   store: StoreIcon,
   billing: BillingIcon,
+  subscription: SubscriptionIcon,
   help: HelpIcon,
 } as const;
 
