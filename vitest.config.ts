@@ -8,6 +8,17 @@ import { fileURLToPath } from "node:url";
  */
 export default defineConfig({
   resolve: {
-    alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+      /*
+       * `server-only` løses internt af Next og ligger ikke i node_modules.
+       * Uden en stand-in kan de fem filer, der bærer den, slet ikke testes —
+       * samme argument som `@`-aliaset ovenfor, og de er ikke tilfældige
+       * filer: det er dem, der rører Stripe, lageret og trykfilen.
+       */
+      "server-only": fileURLToPath(
+        new URL("./test-stubs/server-only.ts", import.meta.url),
+      ),
+    },
   },
 });

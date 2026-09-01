@@ -4,6 +4,7 @@ import { qrAdresseFor } from "@/lib/qr-adresse";
 import { getCurrentUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { STANDER_FARVER, normaliserHex } from "@/lib/stander-tilvalg";
+import { laegLogoPaaFront } from "@/lib/logo-flade";
 
 /**
  * Skiltet som billede — til previewet i bestillingen og til trykfilen.
@@ -30,17 +31,34 @@ const MAKS_LOGO = 3 * 1024 * 1024;
  *
  * Fejler hentningen, returneres null, og skiltet tegnes med pladsholderen.
  * Et skilt uden logo er bedre end intet skilt.
+ *
+ * LOGOET LÆGGES PÅ FRONTFARVEN undervejs — se `laegLogoPaaFront()`. Det er
+ * ikke pynt: en PNG med transparens gemmer stadig en farve i de
+ * gennemsigtige pixels, og den er som regel SORT. Respekterer trykkeriets RIP
+ * ikke alfakanalen, bliver de til sort blæk over hele logoets rektangel, dér
+ * hvor arket ellers ikke får blæk — en firkant bag logoet, som ikke kan ses
+ * på en skærm. Derfor sker det HER, hvor baggrunden er kendt.
  */
-async function hentLogo(url: string | null): Promise<string | null> {
+async function hentLogo(
+  url: string | null,
+  baggrund: string,
+): Promise<string | null> {
   if (!url) return null;
   try {
     const svar = await fetch(url);
     if (!svar.ok) return null;
-    const type = svar.headers.get("content-type") ?? "";
-    if (!type.startsWith("image/")) return null;
+    const raaType = svar.headers.get("content-type") ?? "";
+    if (!raaType.startsWith("image/")) return null;
     const buf = await svar.arrayBuffer();
     if (buf.byteLength > MAKS_LOGO) return null;
-    return `data:${type};base64,${Buffer.from(buf).toString("base64")}`;
+
+    const { buffer, type } = await laegLogoPaaFront(
+      Buffer.from(buf),
+      // Content-type kan komme med "; charset=..." på slutningen.
+      raaType.split(";")[0].trim(),
+      baggrund,
+    );
+    return `data:${type};base64,${buffer.toString("base64")}`;
   } catch {
     return null;
   }
@@ -108,7 +126,7 @@ export async function GET(request: NextRequest) {
     baggrund,
     accent,
     qrAdresse,
-    logoDataUri: await hentLogo(logoUrl),
+    logoDataUri: await hentLogo(logoUrl, baggrund),
   });
 
   return new NextResponse(svg, {
