@@ -102,7 +102,7 @@ export function LogoFelt({
 
       {!valgt ? (
         <p className="mt-2 text-xs text-muted">
-          Uden logo trykkes feltet med pladsholderen “Dit logo”.
+          Uden upload af logo trykkes feltet “Dit logo” med LoyalSum logoet.
         </p>
       ) : null}
     </div>
