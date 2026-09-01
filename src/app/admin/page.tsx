@@ -6,8 +6,11 @@ import { FeedbackList } from "@/components/feedback-list";
 import { DriftStatus } from "@/components/drift-status";
 import { BillingIcon } from "@/components/nav-icons";
 import { Liste, ListeRaekke, ListeTekst } from "@/components/ui/liste";
-import { formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate } from "@/lib/utils";
 import { BETALTE_ORDRE_STATUSSER } from "@/lib/commerce";
+import { hentAbonnenter, taelAlvorlige } from "@/lib/abonnent-opslag";
+import { erBetalende } from "@/lib/abonnement";
+import { maanedligOmsaetning } from "@/lib/abonnenter";
 
 export const metadata = { title: "Admin — Oversigt" };
 
@@ -81,6 +84,16 @@ export default async function AdminOverviewPage() {
     .in("status", ["needs_onboarding", "ready_for_production"])
     .order("created_at", { ascending: true })
     .limit(5);
+
+  /*
+   * ABONNENTERNE HENTES SAMLET, ikke tællet for sig. Samme funktion som
+   * abonnentsiden bruger — to opslag ville før eller siden få forsiden til at
+   * sige "3", mens listen viste fire, og begge tal ville se rigtige ud hver
+   * for sig. Kaldet rører Stripe; går det galt, kommer der tomme varsler
+   * tilbage, og resten af oversigten står uberørt.
+   */
+  const abonnenter = await hentAbonnenter();
+  const alvorlige = taelAlvorlige(abonnenter);
 
   const { data: recentFeedback } = await supabase
     .from("feedback")
@@ -163,6 +176,32 @@ export default async function AdminOverviewPage() {
           />
           <Stat size="sm" label="Virksomheder" value={activeCompanies} />
           <Stat size="sm" label="Samlede scanninger" value={totalScans} />
+        </div>
+      </Sektion>
+
+      {/*
+        ABONNENTERNE ER IKKE ET BAGGRUNDSTAL. Et udløbende betalingskort og en
+        tabt webhook er de to ting, ingen opdager af sig selv — og begge kan
+        afværges, hvis de ses i tide. Derfor et tal i fuld størrelse og en vej
+        direkte til listen, og ikke en linje nede blandt scanningerne.
+      */}
+      <Sektion
+        titel="Abonnenter"
+        link={{ href: "/admin/abonnenter", label: "Se abonnenter" }}
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Stat
+            label="Kræver din opmærksomhed"
+            value={alvorlige}
+            sub="Aldrig faktureret, udløbet kort, uenig med Stripe eller sletning på vej"
+          />
+          <Stat
+            label="Månedlig omsætning"
+            value={formatCurrency(maanedligOmsaetning(abonnenter.raekker))}
+            sub={`${
+              abonnenter.raekker.filter((r) => erBetalende(r.stripe_status)).length
+            } betaler nu · ex moms`}
+          />
         </div>
       </Sektion>
 
