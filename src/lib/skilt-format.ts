@@ -203,6 +203,45 @@ export const FOD_HOEJDE = (FOD_CM / SKILT_CM.hoejde) * SKILT_HOEJDE;
 /** Hvor foden begynder — den linje, designet ikke bør krydse. */
 export const FOD_START_Y = SKILT_HOEJDE - FOD_HOEJDE;
 
+/* ------------------------------------------------- previewets eget udsnit */
+
+/**
+ * DET, DER KLIPPES AF PREVIEWETS BUND — KUN PÅ SKÆRMEN.
+ *
+ * Previewet viste frontens fulde 15 cm. Men designet slutter ved
+ * `MAAL.indholdBund`, og derfra og ned til fodlinjen er der godt en
+ * centimeter tom baggrund. PÅ DET TRYKTE ARK SKAL DEN FLADE VÆRE DER — uden
+ * den står en hvid stribe frem under standeren — men på en skærm læste den
+ * som en tom bund, skiltet ikke havde brug for. Halvdelen af den tages her.
+ *
+ * TALLET RØRER KUN BEHOLDEREN I `SkiltPreview`. Det holdes BEVIDST adskilt
+ * fra `SKILT_CM.front`: fronten er et FYSISK mål — det, foden lader stå
+ * tilbage — og den bærer både `FOD_START_Y`, som designet ikke må krydse, og
+ * `FRONT_MAAL`, som lover kunden en højde. Slås de to sammen, flytter et
+ * kosmetisk udsnit på en skærm både trykkets sikkerhedslinje og det, vi
+ * skriver til kunden.
+ *
+ * EN HALV CENTIMETER OG IKKE EN HEL. Første forsøg tog hele centimeteren, og
+ * det var en halv for meget: skiltet kom til at sidde for tæt på beholderens
+ * kant. Det er altså IKKE grænsen, der bestemmer tallet — der er plads til
+ * mere — men øjemålet.
+ *
+ * GRÆNSEN ER DER ALLIGEVEL, og den er værd at kende: ved knap 1,2 cm rammer
+ * udsnittet `MAAL.indholdBund` og begynder at skære i selve designet, så
+ * previewet ville vise et andet skilt, end der bliver trykt. Ved en halv
+ * centimeter er der 6,7 mm luft ned til den. `skilt.test.ts` prøver netop
+ * den grænse — også så en ny Canva-eksport ikke kan skubbe indholdet ned i
+ * klippet.
+ */
+export const PREVIEW_KLIP_CM = 0.5;
+
+/**
+ * Previewets synlige højde. Afrundet, fordi et fradrag mellem decimaltal
+ * ellers giver en hale, der ville stå i en `aspect-ratio`.
+ */
+export const PREVIEW_HOEJDE_CM =
+  Math.round((SKILT_CM.front - PREVIEW_KLIP_CM) * 10) / 10;
+
 /**
  * Relativ lyshed efter WCAG. Bruges til tre ting: at vælge skabelon, at
  * afgøre hvilken vej en nuance skal gå, og at advare når en valgt farve
@@ -331,11 +370,14 @@ export function iProcent(f: Felt) {
  * tal alene ville give en oval på et højformat.
  *
  * Den lodrette procent regnes af BEHOLDERENS højde, og previewet viser kun
- * fronten — brugtes hele arkets højde, ville hjørnet blive fladtrykt. Kun de
- * to øverste hjørner sættes: nederst er skiltet skåret, ikke afrundet.
+ * sit eget udsnit — brugtes hele arkets højde, ville hjørnet blive fladtrykt.
+ * Derfor `PREVIEW_HOEJDE_CM` og ikke `SKILT_CM.front`: bliver udsnittet
+ * klippet en centimeter kortere, skal hjørnet følge med, ellers tegnes en
+ * radius for en beholder, der ikke findes. Kun de to øverste hjørner sættes:
+ * nederst er skiltet skåret, ikke afrundet.
  */
 export const HJOERNE_RADIUS_FRONT = `${(HJOERNE_R / SKILT_BREDDE) * 100}% ${
-  (HJOERNE_R / (SKILT_HOEJDE * (SKILT_CM.front / SKILT_CM.hoejde))) * 100
+  (HJOERNE_R / (SKILT_HOEJDE * (PREVIEW_HOEJDE_CM / SKILT_CM.hoejde))) * 100
 }%`;
 
 /**

@@ -19,6 +19,8 @@ import {
   FRONT_MAAL,
   SKILT_BREDDE,
   SKILT_HOEJDE,
+  PREVIEW_KLIP_CM,
+  PREVIEW_HOEJDE_CM,
   laesQrSvg,
 } from "./skilt-format";
 import { STANDARD_ACCENT } from "./stander-tilvalg";
@@ -273,6 +275,61 @@ describe("foden", () => {
     for (const f of [daek(MAAL.qr), MAAL.nfc]) {
       expect(f.y + f.hoejde).toBeLessThan(FOD_START_Y);
     }
+  });
+});
+
+/**
+ * PREVIEWETS UDSNIT ER KOSMETIK — og det er lige præcis derfor, det skal
+ * prøves. Et tal, der kun findes for at se godt ud på en skærm, sidder tæt
+ * op ad tre tal, der IKKE er kosmetik: fodlinjen designet ikke må krydse,
+ * højden vi lover kunden, og indholdets egen bund. Skrider udsnittet, er der
+ * ingen, der opdager det — previewet ser stadig fint ud, det viser bare ikke
+ * det, der bliver trykt.
+ */
+describe("previewets udsnit", () => {
+  it("klipper noget væk, men er stadig et udsnit af fronten", () => {
+    expect(PREVIEW_KLIP_CM).toBeGreaterThan(0);
+    expect(PREVIEW_HOEJDE_CM).toBeCloseTo(SKILT_CM.front - PREVIEW_KLIP_CM, 6);
+    expect(PREVIEW_HOEJDE_CM).toBeLessThan(SKILT_CM.front);
+  });
+
+  /**
+   * GRÆNSEN. Designet slutter ved `MAAL.indholdBund`, og previewets nederste
+   * kant skal ligge under den — ellers skæres der i selve skiltet, og kunden
+   * godkender noget andet, end der bliver trykt. Ved en halv centimeter er
+   * der godt 19 enheder (6,7 mm) tilbage; grænsen går ved knap 1,2 cm.
+   */
+  it("skærer ikke i selve designet", () => {
+    const previewBund = SKILT_HOEJDE * (PREVIEW_HOEJDE_CM / SKILT_CM.hoejde);
+    expect(previewBund).toBeGreaterThan(MAAL.indholdBund);
+    for (const f of [daek(MAAL.logo), daek(MAAL.qr), MAAL.nfc]) {
+      expect(f.y + f.hoejde, JSON.stringify(f)).toBeLessThan(previewBund);
+    }
+  });
+
+  /**
+   * Udsnittet ligger inde i fodzonen og ikke uden om den: det klipper MERE
+   * end foden, aldrig mindre. Gjorde det mindre, ville previewet vise en
+   * stribe, kunden aldrig kan se på sit bord.
+   */
+  it("klipper mere end foden og ikke mindre", () => {
+    const previewBund = SKILT_HOEJDE * (PREVIEW_HOEJDE_CM / SKILT_CM.hoejde);
+    expect(previewBund).toBeLessThan(FOD_START_Y);
+  });
+
+  /**
+   * DET, HELE ADSKILLELSEN FINDES FOR. `SKILT_CM.front` er det fysiske mål og
+   * bærer både fodlinjen og kundens tekst; udsnittet er kun en beholder.
+   * Blev de slået sammen, ville et skærmvalg flytte trykkets sikkerhedslinje
+   * og love kunden en anden højde.
+   */
+  it("rører hverken fodlinjen eller det, kunden får at vide", () => {
+    expect(FOD_START_Y).toBeCloseTo(
+      SKILT_HOEJDE - (FOD_CM / SKILT_CM.hoejde) * SKILT_HOEJDE,
+      6,
+    );
+    expect(FRONT_MAAL).toContain(cmTekst(SKILT_CM.front));
+    expect(FRONT_MAAL).not.toContain(cmTekst(PREVIEW_HOEJDE_CM));
   });
 });
 
