@@ -294,11 +294,10 @@ describe("previewets udsnit", () => {
   });
 
   /**
-   * DEN GRÆNSE, DER BINDER. Designet slutter ved `MAAL.indholdBund`, og
-   * previewets nederste kant skal ligge under den — ellers skæres der i selve
-   * skiltet, og kunden godkender noget andet, end der bliver trykt. Der er
-   * knap 5 enheder (1,7 mm) tilbage ved én centimeter, så den næste
-   * centimeter er der ikke plads til.
+   * GRÆNSEN. Designet slutter ved `MAAL.indholdBund`, og previewets nederste
+   * kant skal ligge under den — ellers skæres der i selve skiltet, og kunden
+   * godkender noget andet, end der bliver trykt. Ved en halv centimeter er
+   * der godt 19 enheder (6,7 mm) tilbage; grænsen går ved knap 1,2 cm.
    */
   it("skærer ikke i selve designet", () => {
     const previewBund = SKILT_HOEJDE * (PREVIEW_HOEJDE_CM / SKILT_CM.hoejde);

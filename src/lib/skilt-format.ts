@@ -212,8 +212,7 @@ export const FOD_START_Y = SKILT_HOEJDE - FOD_HOEJDE;
  * `MAAL.indholdBund`, og derfra og ned til fodlinjen er der godt en
  * centimeter tom baggrund. PÅ DET TRYKTE ARK SKAL DEN FLADE VÆRE DER — uden
  * den står en hvid stribe frem under standeren — men på en skærm læste den
- * som en tom bund, skiltet ikke havde brug for, og pladsen er bedre brugt på
- * det, kunden faktisk skal godkende.
+ * som en tom bund, skiltet ikke havde brug for. Halvdelen af den tages her.
  *
  * TALLET RØRER KUN BEHOLDEREN I `SkiltPreview`. Det holdes BEVIDST adskilt
  * fra `SKILT_CM.front`: fronten er et FYSISK mål — det, foden lader stå
@@ -222,12 +221,19 @@ export const FOD_START_Y = SKILT_HOEJDE - FOD_HOEJDE;
  * kosmetisk udsnit på en skærm både trykkets sikkerhedslinje og det, vi
  * skriver til kunden.
  *
- * DET ER IKKE FRIT, HVOR MEGET DER KAN KLIPPES. Under den her centimeter er
- * der 1,7 mm luft ned til `MAAL.indholdBund`; klippes der mere, skæres der i
- * selve designet, og previewet viser et andet skilt, end der bliver trykt.
- * `skilt.test.ts` prøver netop den grænse.
+ * EN HALV CENTIMETER OG IKKE EN HEL. Første forsøg tog hele centimeteren, og
+ * det var en halv for meget: skiltet kom til at sidde for tæt på beholderens
+ * kant. Det er altså IKKE grænsen, der bestemmer tallet — der er plads til
+ * mere — men øjemålet.
+ *
+ * GRÆNSEN ER DER ALLIGEVEL, og den er værd at kende: ved knap 1,2 cm rammer
+ * udsnittet `MAAL.indholdBund` og begynder at skære i selve designet, så
+ * previewet ville vise et andet skilt, end der bliver trykt. Ved en halv
+ * centimeter er der 6,7 mm luft ned til den. `skilt.test.ts` prøver netop
+ * den grænse — også så en ny Canva-eksport ikke kan skubbe indholdet ned i
+ * klippet.
  */
-export const PREVIEW_KLIP_CM = 1;
+export const PREVIEW_KLIP_CM = 0.5;
 
 /**
  * Previewets synlige højde. Afrundet, fordi et fradrag mellem decimaltal

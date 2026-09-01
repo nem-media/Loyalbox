@@ -44,9 +44,10 @@ import {
  * fodzonen uden at en test fejler. Det er bare ikke længere kundens opgave at
  * holde øje med.
  *
- * OG DER KLIPPES EN CENTIMETER MERE END FODEN TAGER. Designet slutter godt en
- * centimeter over fodlinjen, og den luft er rigtig på arket, men på skærmen
- * var den bare en tom bund. Udsnittet er `PREVIEW_HOEJDE_CM` og hverken
+ * OG DER KLIPPES EN HALV CENTIMETER MERE END FODEN TAGER. Designet slutter
+ * godt en centimeter over fodlinjen, og den luft er rigtig på arket, men på
+ * skærmen var den bare en tom bund. Kun HALVDELEN tages: en hel centimeter
+ * satte skiltet for tæt på kanten. Udsnittet er `PREVIEW_HOEJDE_CM` og hverken
  * `SKILT_CM.front` eller `FOD_START_Y` — se dets egen kommentar: det er
  * KOSMETIK OG MÅ ALDRIG SMITTE AF på trykket eller på den højde, vi lover
  * kunden.
@@ -114,7 +115,8 @@ export function SkiltPreview({
    * KLIPPET SKER I BEHOLDEREN, ikke i billedet: SVG'en er den samme fil som
    * trykken, og en beskåret udgave ville være en anden kilde. Beholderen får
    * udsnittets sideforhold, billedet beholder sit eget og hænger fra toppen —
-   * så er både foden og den tomme centimeter over den uden for kanten.
+   * så er både foden og en halv centimeter af den tomme bund over den uden
+   * for kanten.
    *
    * Logoets procenter regnes stadig af HELE arket, fordi de gælder billedet
    * og ikke beholderen. Derfor ligger laget i en indre boks med billedets
