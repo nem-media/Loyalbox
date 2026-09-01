@@ -7,6 +7,7 @@ import { DriftStatus } from "@/components/drift-status";
 import { BillingIcon } from "@/components/nav-icons";
 import { Liste, ListeRaekke, ListeTekst } from "@/components/ui/liste";
 import { formatDate } from "@/lib/utils";
+import { BETALTE_ORDRE_STATUSSER } from "@/lib/commerce";
 
 export const metadata = { title: "Admin — Oversigt" };
 
@@ -52,11 +53,7 @@ export default async function AdminOverviewPage() {
     headCount(supabase, "orders", { status: "new" }),
     headCount(supabase, "orders", { status: "needs_onboarding" }),
     headCount(supabase, "orders", { status: "ready_for_production" }),
-    statusCount(supabase, [
-      "needs_onboarding",
-      "ready_for_production",
-      "shipped",
-    ]),
+    statusCount(supabase, [...BETALTE_ORDRE_STATUSSER]),
     headCount(supabase, "companies"),
     headCount(supabase, "scans"),
   ]);

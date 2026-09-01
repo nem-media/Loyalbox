@@ -11,6 +11,9 @@ import { ProductSelect } from "./product-select";
 import { TIER_LABELS } from "@/lib/constants";
 import { Leveringsadresse } from "@/components/leveringsadresse";
 import { formatDate } from "@/lib/utils";
+import { BETALTE_ORDRE_STATUSSER, stripeMode } from "@/lib/commerce";
+import { hentBetalinger } from "@/lib/stripe-abonnement";
+import { AbonnementKort } from "./abonnement-kort";
 
 export const metadata = { title: "Admin — Virksomhed" };
 
@@ -30,8 +33,13 @@ export default async function AdminCompanyDetail({
 
   if (!company) notFound();
 
-  const [{ data: stands }, { data: feedback }, { count: scans }, { data: ordrer }] =
-    await Promise.all([
+  const [
+    { data: stands },
+    { data: feedback },
+    { count: scans },
+    { data: ordrer },
+    { data: betalteOrdrer },
+  ] = await Promise.all([
       supabase
         .from("stands")
         .select("*")
@@ -60,7 +68,49 @@ export default async function AdminCompanyDetail({
         .eq("company_id", id)
         .order("created_at", { ascending: false })
         .limit(5),
+      /*
+       * ALLE betalte ordrer, ikke de fem nyeste. Spørgsmålet "har hun handlet
+       * hos os før, og for hvor meget" kan ikke besvares af et udsnit — og et
+       * udsnit ville svare FORKERT med fuld selvtillid frem for at sige, at
+       * det ikke ved det.
+       */
+      supabase
+        .from("orders")
+        .select("total_amount, created_at")
+        .eq("company_id", id)
+        .in("status", [...BETALTE_ORDRE_STATUSSER])
+        .order("created_at", { ascending: true }),
     ]);
+
+  const betalte = betalteOrdrer ?? [];
+  const historik = {
+    antalBetalte: betalte.length,
+    // Beløbene er numeric i basen og kommer hjem som streng i nogle drivere.
+    // Number() på hver række frem for en sum i SQL: der er få ordrer, og en
+    // aggregering ville skulle vedligeholdes to steder.
+    samletBeloeb: betalte.reduce((sum, o) => sum + Number(o.total_amount ?? 0), 0),
+    foersteKoeb: betalte[0]?.created_at ?? null,
+  };
+
+  /*
+   * Betalingsdatoen findes ikke i basen — se `stripe-abonnement.ts`. Ét opslag
+   * for én virksomhed; svarer Stripe ikke, er kortet tomt, og siden virker.
+   */
+  const betalinger = await hentBetalinger([company.stripe_subscription_id]);
+  const betaling = company.stripe_subscription_id
+    ? betalinger.get(company.stripe_subscription_id)
+    : undefined;
+
+  /*
+   * Test og live er adskilte verdener hos Stripe, og de har hver sin adresse i
+   * dashboardet. Et link uden `test/` ville i udvikling føre til en kunde, der
+   * ikke findes — og det ligner, at kunden er væk.
+   */
+  const stripeUrl = company.stripe_customer_id
+    ? `https://dashboard.stripe.com/${
+        stripeMode() === "test" ? "test/" : ""
+      }customers/${company.stripe_customer_id}`
+    : null;
 
   /*
    * Adressen tages fra den NYESTE ordre, der har en. En ubetalt ordre har
@@ -117,7 +167,17 @@ export default async function AdminCompanyDetail({
         </CardBody>
       </Card>
 
+      {/* PENGENE FØRST. Kundeforholdet er det, man kommer for at afklare, når
+          man åbner en virksomhed i admin — og fristerne i kortet er dem, der
+          har en deadline. */}
       <div className="grid gap-6 lg:grid-cols-2">
+        <AbonnementKort
+          company={company}
+          betaling={betaling}
+          historik={historik}
+          stripeUrl={stripeUrl}
+        />
+
         <Card>
           <CardHeader>
             <CardTitle>Virksomhedsinfo</CardTitle>
@@ -159,15 +219,16 @@ export default async function AdminCompanyDetail({
           </CardBody>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Seneste feedback</CardTitle>
-          </CardHeader>
-          <CardBody className="pt-0">
-            <FeedbackList items={feedback ?? []} />
-          </CardBody>
-        </Card>
       </div>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Seneste feedback</CardTitle>
+        </CardHeader>
+        <CardBody className="pt-0">
+          <FeedbackList items={feedback ?? []} />
+        </CardBody>
+      </Card>
 
       <Card className="mt-6">
         <CardHeader>

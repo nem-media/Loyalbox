@@ -7,6 +7,11 @@ const SECTIONS: NavSection[] = [
     items: [
       { href: "/admin", label: "Oversigt", icon: "overview" },
       { href: "/admin/virksomheder", label: "Virksomheder", icon: "store" },
+      {
+        href: "/admin/abonnenter",
+        label: "Abonnenter",
+        icon: "subscription",
+      },
       { href: "/admin/ordrer", label: "Ordrer", icon: "billing" },
       { href: "/admin/feedback", label: "Feedback", icon: "feedback" },
     ],

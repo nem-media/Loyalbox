@@ -9,16 +9,48 @@ import { Badge } from "@/components/ui/badge";
 import { StoreIcon } from "@/components/nav-icons";
 import { visCvr } from "@/lib/cvr";
 import { TIER_LABELS, type Tier } from "@/lib/constants";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { SearchIcon } from "@/components/nav-icons";
+import { abonnementTilstand, harAbonnement } from "@/lib/abonnement";
+import { TILSTAND_ETIKET } from "@/lib/abonnenter";
 import { CreateCompany } from "./create-company";
 
 export const metadata = { title: "Admin — Virksomheder" };
 
-export default async function AdminCompaniesPage() {
+/**
+ * SØGNINGEN ER IKKE PYNT. Listen hentede HVER eneste virksomhed uden grænse
+ * og uden nogen måde at finde én bestemt på — den fungerede, så længe der var
+ * tyve, og ville være ubrugelig ved tusind, uden at noget gik i stykker
+ * undervejs. Nu er der et loft OG en vej uden om det.
+ *
+ * Der søges på CVR og telefon ved siden af navn og e-mail, fordi det er dem,
+ * man har foran sig: et CVR fra en faktura, et nummer fra en indgående opkald.
+ */
+const MAKS_RAEKKER = 100;
+
+export default async function AdminCompaniesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
   const supabase = await createClient();
-  const { data: companies } = await supabase
+
+  let query = supabase
     .from("companies")
     .select("*")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(MAKS_RAEKKER);
+
+  const term = (q ?? "").replace(/[,%]/g, "").trim();
+  if (term) {
+    query = query.or(
+      `name.ilike.%${term}%,cvr.ilike.%${term}%,contact_email.ilike.%${term}%,billing_email.ilike.%${term}%,phone.ilike.%${term}%`,
+    );
+  }
+
+  const { data: companies } = await query;
 
   return (
     <>
@@ -33,6 +65,17 @@ export default async function AdminCompaniesPage() {
         </CardBody>
       </Card>
 
+      <form className="mb-6 flex gap-2" action="/admin/virksomheder">
+        <Input
+          name="q"
+          defaultValue={q ?? ""}
+          placeholder="Søg på navn, CVR, e-mail eller telefon"
+        />
+        <Button type="submit" variant="outline">
+          Søg
+        </Button>
+      </form>
+
       {companies && companies.length ? (
         <Card>
           <CardBody className="p-0">
@@ -43,6 +86,7 @@ export default async function AdminCompaniesPage() {
                   <TH>CVR</TH>
                   <TH>Kontakt</TH>
                   <TH>Niveau</TH>
+                  <TH>Abonnement</TH>
                   <TH>Oprettet</TH>
                 </TR>
               </THead>
@@ -74,6 +118,18 @@ export default async function AdminCompaniesPage() {
                         {TIER_LABELS[c.plan as Tier]}
                       </Badge>
                     </TD>
+                    {/* KUN for dem, der HAR et abonnement. En tom celle på en
+                        engangskøber er sandheden; en "Aktiv"-badge ville love
+                        en månedlig betaling, der ikke findes. */}
+                    <TD className="whitespace-nowrap">
+                      {harAbonnement(c) ? (
+                        <Badge tone={TILSTAND_ETIKET[abonnementTilstand(c)].tone}>
+                          {TILSTAND_ETIKET[abonnementTilstand(c)].label}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted">–</span>
+                      )}
+                    </TD>
                     <TD className="whitespace-nowrap text-muted">
                       {formatDate(c.created_at)}
                     </TD>
@@ -83,6 +139,12 @@ export default async function AdminCompaniesPage() {
             </Table>
           </CardBody>
         </Card>
+      ) : term ? (
+        <EmptyState
+          icon={SearchIcon}
+          title="Ingen virksomheder matchede søgningen"
+          description="Prøv med et navn, et CVR-nummer, en e-mail eller et telefonnummer."
+        />
       ) : (
         <EmptyState
           icon={StoreIcon}
