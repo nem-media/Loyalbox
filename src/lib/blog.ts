@@ -2679,6 +2679,7 @@ export const POSTS: BlogPost[] = [
     imageAlt:
       "Et NFC-tag set indefra med sin antennespole og chip, mens en telefon holdes hen til det og åbner et anmeldelsesflow",
     related: [
+      "nfc-tag-iphone",
       "programmere-nfc-tag",
       "google-review-stander-guide",
       "qr-kode-til-google-anmeldelser",
@@ -2850,7 +2851,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: "Præcis hvordan notifikationen ser ud, og hvor hurtigt den kommer, varierer med model og iOS-version. Regn med at brugeroplevelsen ikke er helt ens på tværs af telefoner — og at nogle kunder derfor stadig hellere vil scanne en QR-kode.",
+        html: 'Præcis hvordan notifikationen ser ud, og hvor hurtigt den kommer, varierer med model og iOS-version. Regn med at brugeroplevelsen ikke er helt ens på tværs af telefoner — og at nogle kunder derfor stadig hellere vil scanne en QR-kode. Vi går i dybden med modeller, antenneplacering og fejlfinding i <a href="/blog/nfc-tag-iphone">NFC tag på iPhone</a>.',
       },
 
       { type: "h2", text: "NFC tag på Android" },
@@ -3052,8 +3053,8 @@ export const POSTS: BlogPost[] = [
       "En telefon med skriveappen åben, mens et NFC-tag holdes hen til den",
     related: [
       "nfc-tag",
+      "nfc-tag-iphone",
       "google-review-stander-guide",
-      "qr-kode-til-google-anmeldelser",
     ],
     body: [
       {
@@ -3175,6 +3176,131 @@ export const POSTS: BlogPost[] = [
           {
             q: "Hvorfor virker mit NFC tag ikke efter jeg har skrevet på det?",
             a: "De tre hyppigste årsager er et mellemrum før eller efter adressen, en adresse uden https:// foran, eller at tagget sidder på metal. Prøv at skrive det om og test på en anden telefon.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "nfc-tag-iphone",
+    title: "NFC tag på iPhone: sådan virker det",
+    metaTitle: "NFC tag iPhone — hvilke modeller, og hvordan det virker",
+    description:
+      "Læser din iPhone NFC-tags? Se hvilke modeller der læser automatisk, hvor antennen sidder, hvordan du skriver tags — og hvad du gør, når det ikke virker.",
+    keyword: "nfc tag iphone",
+    date: "2026-09-08",
+    readingMinutes: 6,
+    excerpt:
+      "Fra iPhone XR og XS og frem læser telefonen NFC-tags af sig selv. Her er hvilke modeller der kan hvad, og hvor du skal holde telefonen.",
+    image: "/blog/nfc-tag-iphone.svg",
+    imageAlt:
+      "En iPhone set bagfra med antennezonen markeret i toppen, mens et NFC-tag holdes hen til netop den zone",
+    related: [
+      "nfc-tag",
+      "programmere-nfc-tag",
+      "google-review-stander-guide",
+    ],
+    body: [
+      {
+        type: "p",
+        html: '<strong>Ja, en iPhone kan læse NFC-tags</strong> — og fra iPhone XR og XS og frem sker det helt af sig selv. Du behøver hverken app eller indstilling: hold den øverste del af telefonen mod tagget, mens skærmen er tændt og telefonen låst op, så dukker der en notifikation op. Er du ny i emnet, forklarer vores <a href="/blog/nfc-tag">guide til NFC-tags</a> teknikken bag.',
+      },
+
+      { type: "h2", text: "Hvilke iPhones kan hvad?" },
+      {
+        type: "table",
+        head: ["Model", "Læser tags", "Skriver tags"],
+        rows: [
+          ["iPhone XR, XS og nyere", "Ja — automatisk i baggrunden", "Ja, med en app"],
+          ["iPhone 7, 8 og X", "Ja, men kun via NFC-taglæseren i Kontrolcenter", "Ja, med en app"],
+          ["iPhone 6s og ældre", "Nej", "Nej"],
+        ],
+      },
+      {
+        type: "p",
+        html: 'Funktionen på de nyere modeller hedder <strong>baggrundslæsning</strong> og er beskrevet i <a href="https://developer.apple.com/documentation/corenfc/adding-support-for-background-tag-reading">Apples Core NFC-dokumentation</a>. Læseren er passiv og kan ikke slås fra — derfor er der heller ingen kontakt til den i Indstillinger på de modeller.',
+      },
+
+      { type: "h2", text: "Hvor sidder antennen?" },
+      {
+        type: "p",
+        html: "I <strong>toppen</strong> af telefonen, ved den øverste kant på bagsiden. Det er den enkeltstående ting, folk oftest gør forkert: de holder midten af telefonen mod tagget, som man gør på en Android, og så sker der ingenting.",
+      },
+      {
+        type: "figur",
+        src: "/blog/nfc-tag-iphone.svg",
+        alt: "En iPhone set bagfra med den øverste tredjedel markeret som antennezone, og et NFC-tag holdt hen til den",
+        caption:
+          "Hold den øverste tredjedel mod tagget. På Android er det som regel midten af bagsiden.",
+      },
+
+      { type: "h2", text: "Sådan slår du NFC-taglæseren til på ældre modeller" },
+      {
+        type: "ol",
+        items: [
+          "Åbn <strong>Indstillinger</strong> og gå til <strong>Kontrolcenter</strong>.",
+          "Find <strong>NFC-taglæser</strong> på listen over betjeningsmuligheder, og tilføj den.",
+          "Træk Kontrolcenter frem, tryk på ikonet, og hold telefonen mod tagget.",
+        ],
+      },
+      {
+        type: "p",
+        html: "Findes punktet ikke på listen, er det som regel fordi telefonen er nyere og læser i baggrunden i forvejen — så er der ikke noget at slå til.",
+      },
+
+      { type: "h2", text: "Kan du skrive tags fra en iPhone?" },
+      {
+        type: "p",
+        html: 'Ja, fra iPhone 7 og frem, men det kræver en app. NFC Tools er den mest brugte. Fremgangsmåden er den samme som på Android — vi har den trin for trin i <a href="/blog/programmere-nfc-tag">guiden til at programmere et NFC tag</a>.',
+      },
+
+      { type: "h2", text: "Når det ikke virker" },
+      {
+        type: "ul",
+        items: [
+          "<strong>Du holder det forkerte sted.</strong> Prøv den øverste tredjedel af bagsiden, og bevæg telefonen langsomt.",
+          "<strong>Skærmen er slukket eller telefonen låst.</strong> Begge dele skal være i orden.",
+          "<strong>Coveret er i vejen.</strong> Metal, magneter og tykke covers dæmper feltet. Tag det af og prøv igen.",
+          "<strong>Tagget sidder på metal.</strong> Så virker et almindeligt tag slet ikke — der skal et anti-metal-tag til.",
+          "<strong>Du er i gang med noget andet.</strong> Baggrundslæsning holder pause, mens kameraet eller Apple Pay er åbent.",
+        ],
+      },
+      {
+        type: "note",
+        title: "Oplevelsen er ikke ens på alle iPhones",
+        html: "Hvor hurtigt notifikationen kommer, og hvor præcist du skal ramme, varierer med model og iOS-version. Det er værd at huske, hvis du sætter tags op til kunder: nogle vil stadig hellere scanne en QR-kode, og derfor har gennemtænkte løsninger begge dele.",
+      },
+
+      { type: "h2", text: "NFC-tags og Genveje" },
+      {
+        type: "p",
+        html: "Du kan koble et tag sammen med en automatisering i Genveje-appen: opret en personlig automatisering, vælg NFC som udløser, scan tagget, og vælg hvad der skal ske. Det er sådan folk laver et tag på natbordet, der slår vækkeur og lys fra. Bemærk at det virker på din egen telefon — ikke på kundernes.",
+      },
+      {
+        type: "cta",
+        text: "Vil du bruge NFC til noget konkret i forretningen?",
+        href: "/reviewstander",
+        label: "Se reviewstanderen",
+      },
+
+      {
+        type: "faq",
+        items: [
+          {
+            q: "Understøtter min iPhone NFC-tags?",
+            a: "Fra iPhone XR og XS og frem læses tags automatisk i baggrunden. iPhone 7, 8 og X kan også læse tags, men først når NFC-taglæseren er slået til i Kontrolcenter. iPhone 6s og ældre kan ikke.",
+          },
+          {
+            q: "Hvor på iPhonen skal jeg holde tagget?",
+            a: "Mod den øverste del af telefonen, ved den øverste kant på bagsiden. Det er et andet sted end på Android, hvor antennen typisk sidder midt på bagsiden.",
+          },
+          {
+            q: "Skal jeg slå NFC til på min iPhone?",
+            a: "Nej. På nyere modeller er læseren passiv og altid aktiv — der er ingen kontakt at slå til. På iPhone 7, 8 og X skal NFC-taglæseren tilføjes i Kontrolcenter.",
+          },
+          {
+            q: "Hvorfor sker der ingenting, når jeg holder telefonen mod tagget?",
+            a: "De hyppigste årsager er, at du holder midten af telefonen mod tagget i stedet for toppen, at skærmen er slukket eller telefonen låst, at coveret indeholder metal, eller at tagget sidder på en metalflade.",
           },
         ],
       },

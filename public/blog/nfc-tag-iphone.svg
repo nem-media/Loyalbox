@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="En iPhone set bagfra med antennezonen markeret i toppen, mens et NFC-tag holdes hen til netop den zone">
+  <style>
+    .lab { font: 600 20px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #1e1c1a; }
+    .labd { font: 400 18px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #1e1c1a; opacity: .6; }
+  </style>
+  <rect width="1200" height="630" fill="#f6f4ee"/>
+  <rect x="120" y="556" width="960" height="16" rx="8" fill="#1e1c1a" opacity="0.12"/>
+
+  <g>
+    <rect x="380" y="60" width="330" height="490" rx="46" fill="#1e1c1a"/>
+    <rect x="394" y="74" width="302" height="462" rx="36" fill="#2b2926"/>
+
+    <rect x="424" y="104" width="112" height="112" rx="26" fill="#1e1c1a"/>
+    <circle cx="456" cy="136" r="20" fill="#0d0c0b"/>
+    <circle cx="504" cy="136" r="20" fill="#0d0c0b"/>
+    <circle cx="456" cy="184" r="20" fill="#0d0c0b"/>
+
+    <rect x="394" y="74" width="302" height="150" rx="36" fill="#ffb700" opacity=".22"/>
+    <rect x="394" y="190" width="302" height="34" fill="#ffb700" opacity=".22"/>
+    <path d="M394 224 L696 224" stroke="#ffb700" stroke-width="4" stroke-dasharray="12 10"/>
+  </g>
+
+  <text x="760" y="150" class="lab">Antennen sidder her</text>
+  <text x="760" y="182" class="labd">— i toppen, ikke midt på bagsiden.</text>
+  <text x="760" y="212" class="labd">På Android er det omvendt.</text>
+
+  <g fill="none" stroke="#ffb700" stroke-width="10" stroke-linecap="round">
+    <path d="M330 116 A 70 70 0 0 0 330 216"/>
+    <path d="M288 84 A 110 110 0 0 0 288 248"/>
+  </g>
+
+  <g>
+    <rect x="120" y="106" width="150" height="150" rx="18" fill="#ffffff"/>
+    <rect x="120" y="106" width="150" height="150" rx="18" fill="none" stroke="#1e1c1a" stroke-width="3" opacity=".3"/>
+    <g fill="none" stroke="#1b916a" stroke-width="6" stroke-linejoin="round">
+      <rect x="142" y="128" width="106" height="106" rx="12"/>
+      <rect x="158" y="144" width="74" height="74" rx="9"/>
+    </g>
+    <rect x="180" y="166" width="30" height="30" rx="5" fill="#19375c"/>
+  </g>
+
+  <g>
+    <rect x="756" y="290" width="330" height="96" rx="18" fill="#ffffff"/>
+    <rect x="756" y="290" width="330" height="96" rx="18" fill="none" stroke="#1e1c1a" stroke-opacity=".14" stroke-width="2"/>
+    <rect x="780" y="314" width="48" height="48" rx="12" fill="#1b916a" opacity=".16"/>
+    <path d="M793 338 l9 9 18 -18" fill="none" stroke="#1b916a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="846" y="318" width="200" height="14" rx="7" fill="#1e1c1a" opacity=".8"/>
+    <rect x="846" y="344" width="140" height="12" rx="6" fill="#1e1c1a" opacity=".35"/>
+  </g>
+  <text x="756" y="438" class="labd">Baggrundslæsning: notifikationen kommer af sig selv</text>
+  <text x="756" y="468" class="labd">fra iPhone XR og XS og frem.</text>
+</svg>
