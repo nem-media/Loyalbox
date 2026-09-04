@@ -223,8 +223,25 @@ describe("blogindhold", () => {
    * Reglen er mindst to dage mellem to udgivelser. Den står som en test og
    * ikke som en note, fordi den ellers bliver glemt af den, der tilføjer den
    * næste artikel — og fejlen kan først ses, når alle datoerne ligger der.
+   *
+   * UNDTAGELSEN, OG HVORFOR DEN ER SKREVET NED. NFC-klyngen — pillar-artiklen
+   * og dens tre støtteartikler — blev udgivet den 4. september 2026
+   * efter en bevidst beslutning om at få dem ud samtidig frem for spredt over
+   * en uge. Alternativet var at datere frem i tiden, og det er værre: en
+   * fremtidig dato får Google til at udskyde indekseringen.
+   *
+   * Undtagelsen står som en LISTE og ikke som en løsnet grænse, så reglen
+   * bliver ved med at gælde for alt andet. Skal der laves en ny undtagelse,
+   * skal nogen skrive den her — og dermed tage stilling til den.
    */
   const MINDST_DAGES_MELLEMRUM = 2;
+
+  /** Artikler, der bevidst er udgivet i klynge. Se kommentaren ovenfor. */
+  const KLYNGE_UNDTAGELSER = new Set([
+    "programmere-nfc-tag",
+    "nfc-tag-iphone",
+    "nfc-vs-qr-kode",
+  ]);
 
   it("udgiver ikke to artikler for tæt på hinanden", () => {
     const datoer = POSTS.map((p) => ({
@@ -235,6 +252,8 @@ describe("blogindhold", () => {
     for (let i = 1; i < datoer.length; i++) {
       const dage =
         (datoer[i].dato.getTime() - datoer[i - 1].dato.getTime()) / 86_400_000;
+
+      if (KLYNGE_UNDTAGELSER.has(datoer[i].slug)) continue;
 
       expect(
         dage,

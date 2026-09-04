@@ -2686,6 +2686,9 @@ export const POSTS: BlogPost[] = [
     imageAlt:
       "Et NFC-tag set indefra med sin antennespole og chip, mens en telefon holdes hen til det og åbner et anmeldelsesflow",
     related: [
+      "nfc-vs-qr-kode",
+      "nfc-tag-iphone",
+      "programmere-nfc-tag",
       "google-review-stander-guide",
       "qr-kode-til-google-anmeldelser",
       "saadan-faar-du-flere-google-anmeldelser",
@@ -2802,7 +2805,7 @@ export const POSTS: BlogPost[] = [
       { type: "h2", text: "Sådan programmerer du et NFC tag" },
       {
         type: "p",
-        html: "Du behøver hverken udstyr eller teknisk baggrund. En almindelig Android-telefon eller en nyere iPhone kan skrive til tags med en gratis app — <strong>NFC Tools</strong> er den mest udbredte og findes til begge platforme.",
+        html: 'Du behøver hverken udstyr eller teknisk baggrund. En almindelig Android-telefon eller en nyere iPhone kan skrive til tags med en gratis app — <strong>NFC Tools</strong> er den mest udbredte og findes til begge platforme. Her er det korte forløb; vi har også en <a href="/blog/programmere-nfc-tag">detaljeret guide til at programmere et NFC tag</a> med posttyper og de fejl, folk oftest laver.',
       },
       {
         type: "ol",
@@ -2856,7 +2859,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: "Præcis hvordan notifikationen ser ud, og hvor hurtigt den kommer, varierer med model og iOS-version. Regn med at brugeroplevelsen ikke er helt ens på tværs af telefoner — og at nogle kunder derfor stadig hellere vil scanne en QR-kode.",
+        html: 'Præcis hvordan notifikationen ser ud, og hvor hurtigt den kommer, varierer med model og iOS-version. Regn med at brugeroplevelsen ikke er helt ens på tværs af telefoner — og at nogle kunder derfor stadig hellere vil scanne en QR-kode. Vi går i dybden med modeller, antenneplacering og fejlfinding i <a href="/blog/nfc-tag-iphone">NFC tag på iPhone</a>.',
       },
 
       { type: "h2", text: "NFC tag på Android" },
@@ -2974,7 +2977,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: "Derfor har de fleste gennemtænkte touchpoints begge dele. Vores egne standere har både NFC og QR på samme flade, netop fordi ingen af os kan vide, hvilken telefon den næste kunde har i lommen.",
+        html: 'Derfor har de fleste gennemtænkte touchpoints begge dele. Vores egne standere har både NFC og QR på samme flade, netop fordi ingen af os kan vide, hvilken telefon den næste kunde har i lommen. Skal du vælge mellem dem, gennemgår vi afvejningen i <a href="/blog/nfc-vs-qr-kode">NFC eller QR-kode</a>.',
       },
 
       { type: "h2", text: "Hvad koster et NFC tag?" },
@@ -3037,6 +3040,388 @@ export const POSTS: BlogPost[] = [
           {
             q: "Er NFC bedre end en QR-kode?",
             a: "De løser problemet hver sin vej. NFC er hurtigere for kunden og virker i mørke, men kræver få centimeters afstand og en telefon, der understøtter det. QR virker på stort set alle telefoner og på afstand, men kræver at kameraet findes frem. De fleste gennemtænkte løsninger har begge dele.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "programmere-nfc-tag",
+    title: "Sådan programmerer du et NFC tag",
+    metaTitle: "Programmere NFC tag — trin for trin med NFC Tools",
+    description:
+      "Sådan programmerer du et NFC tag med en gratis app: vælg Write, tilføj en URL, skriv til tagget. Guide til posttyper, låsning og de fejl, folk oftest laver.",
+    keyword: "programmere nfc tag",
+    date: "2026-09-04",
+    readingMinutes: 7,
+    excerpt:
+      "Du behøver hverken udstyr eller teknisk baggrund. Her er hele fremgangsmåden — og de tre fejl, der oftest gør et nyskrevet tag ubrugeligt.",
+    image: "/blog/programmere-nfc-tag.svg",
+    imageAlt:
+      "En telefon med skriveappen åben, mens et NFC-tag holdes hen til den",
+    related: ["nfc-tag", "nfc-tag-iphone", "nfc-vs-qr-kode"],
+    body: [
+      {
+        type: "p",
+        html: 'At <strong>programmere et NFC tag</strong> tager under et minut og kræver kun en telefon og en gratis app. Du installerer en NFC-app, vælger <strong>Write</strong>, tilføjer en post af typen URL, indtaster adressen og holder tagget mod telefonen. Er du ikke sikker på, hvad et NFC tag egentlig er, så start med vores <a href="/blog/nfc-tag">guide til NFC-tags</a>.',
+      },
+
+      { type: "h2", text: "Hvad du skal bruge" },
+      {
+        type: "ul",
+        items: [
+          "<strong>Et tomt NFC-tag.</strong> Til et link er NTAG213 rigeligt — det har plads til omkring 130 tegn.",
+          "<strong>En telefon med NFC.</strong> Alle nyere Androids og iPhone 7 og frem kan skrive til tags.",
+          "<strong>En app.</strong> NFC Tools er den mest udbredte og findes gratis til begge platforme.",
+        ],
+      },
+      {
+        type: "p",
+        html: "Du skal ikke bruge en computer, en læser eller noget udstyr. Telefonen er skriveren.",
+      },
+
+      { type: "h2", text: "Trin for trin" },
+      {
+        type: "ol",
+        items: [
+          "<strong>Åbn appen</strong> og giv den lov til at bruge NFC. På Android skal NFC desuden være slået til i Indstillinger.",
+          "<strong>Vælg fanen Write</strong> — ikke Read.",
+          "<strong>Tryk Add a record</strong> og vælg posttypen. Til et link vælger du <strong>URL/URI</strong>.",
+          "<strong>Indtast adressen</strong> med <code>https://</code> foran. Tjek at der ikke er et mellemrum i hver ende.",
+          "<strong>Tryk Write</strong> og hold tagget mod telefonen, til appen melder, at der er skrevet.",
+          "<strong>Test på en anden telefon</strong> — helst både en iPhone og en Android.",
+        ],
+      },
+      {
+        type: "figur",
+        src: "/blog/nfc-tools-write.svg",
+        alt: "Tre skærmbilleder fra NFC Tools: vælg Write, tilføj en post af typen URL og indtast adressen, og hold tagget mod telefonen til der står Write complete",
+        caption:
+          "Skærmen ser lidt forskellig ud fra version til version, men rækkefølgen er den samme.",
+      },
+
+      { type: "h2", text: "Hvilken posttype skal du vælge?" },
+      {
+        type: "table",
+        head: ["Type", "Bruges til", "Godt at vide"],
+        rows: [
+          ["URL / URI", "Et link — langt det almindeligste", "Virker på alle telefoner. Vælg denne, hvis du er i tvivl."],
+          ["Text", "Ren tekst uden handling", "Åbner ingenting af sig selv. Sjældent det, du vil."],
+          ["Wi-Fi network", "Automatisk opkobling til gæstenet", "Understøttes bedst på Android; iPhone er mere restriktiv."],
+          ["Contact", "Et kontaktkort (vCard)", "Fylder mere — overvej NTAG215 frem for NTAG213."],
+          ["Application", "Åbner en bestemt app", "Bindes til én platform. Et almindeligt link er ofte bedre."],
+        ],
+      },
+      {
+        type: "p",
+        html: "URL-typen er det trygge valg. Den forstås ens af iPhone og Android, og den kan pege på hvad som helst — også en side, der selv sender brugeren videre.",
+      },
+
+      { type: "h2", text: "Write, rewrite og lock" },
+      {
+        type: "ul",
+        items: [
+          "<strong>Write</strong> — du skriver data på et tomt eller tidligere brugt tag.",
+          "<strong>Rewrite</strong> — du overskriver det gamle indhold. NXP angiver 100.000 skrivecyklusser for NTAG-chippene, så du løber ikke tør.",
+          "<strong>Lock</strong> — du gør tagget skrivebeskyttet.",
+        ],
+      },
+      {
+        type: "note",
+        title: "Lås aldrig, før du har testet",
+        html: "En permanent lås kan <strong>ikke</strong> fortrydes. Der findes ingen app og ingen producent, der kan låse tagget op igen. Skal indholdet beskyttes, så brug <strong>adgangskode</strong> i stedet — NTAG-chippene har en 32-bit kodebeskyttelse, der forhindrer, at andre skriver på tagget. Bemærk at den ikke skjuler indholdet: enhver kan stadig læse det.",
+      },
+
+      { type: "h2", text: "De tre fejl, folk oftest laver" },
+      {
+        type: "ol",
+        items: [
+          "<strong>Et mellemrum i adressen.</strong> Tagget bliver skrevet uden fejl, men åbner ingenting. Det er den hyppigste af dem alle.",
+          "<strong>Glemt <code>https://</code>.</strong> Uden protokollen ved telefonen ikke, at det er et link.",
+          "<strong>Tagget sidder på metal.</strong> Så virker det ikke — hverken at skrive eller læse. Læs hvorfor i <a href=\"/blog/nfc-tag\">guiden til NFC-tags</a>.",
+        ],
+      },
+      {
+        type: "p",
+        html: "En fjerde, som er værre, fordi den opdages sent: at pege tagget på en side, der senere flyttes. Et tag kan ikke ringes hjem. Brug derfor en adresse, du selv styrer, og som kan sende videre — så kan du skifte destination uden at røre tagget.",
+      },
+
+      { type: "h2", text: "Skal du overhovedet programmere dem selv?" },
+      {
+        type: "p",
+        html: 'Til et par tags i en butik: ja, absolut. Det tager ti minutter og koster ingenting. Skal du derimod ud med tyve standere, hver med sit eget link, bliver det en anden opgave — så skal hvert tag skrives, mærkes og testes hver for sig, og et enkelt ombyttet tag er svært at opdage bagefter.',
+      },
+      {
+        type: "p",
+        html: 'Det er dér, en færdig løsning giver mening: standeren kommer med tagget programmeret, linket kan ændres bagefter, og du kan se, at det virker. Se hvordan på vores <a href="/reviewstander">reviewstander</a>.',
+      },
+      {
+        type: "cta",
+        text: "Slip for at programmere og teste hvert tag selv.",
+        href: "/reviewstander",
+        label: "Se reviewstanderen",
+      },
+
+      {
+        type: "faq",
+        items: [
+          {
+            q: "Hvilken app skal jeg bruge til at programmere NFC tags?",
+            a: "NFC Tools er den mest udbredte og findes gratis til både iPhone og Android. Den kan skrive alle de almindelige posttyper, og den er nok til langt de fleste formål.",
+          },
+          {
+            q: "Kan man programmere et NFC tag med en iPhone?",
+            a: "Ja, fra iPhone 7 og frem. Du skal bruge en app som NFC Tools — i modsætning til læsning, der sker af sig selv på nyere modeller. Hold den øverste del af telefonen mod tagget.",
+          },
+          {
+            q: "Kan man ændre et NFC tag efter det er skrevet?",
+            a: "Ja, medmindre tagget er låst. Du skriver bare oven i det gamle indhold. NXP angiver 100.000 skrivecyklusser for NTAG-chippene.",
+          },
+          {
+            q: "Hvorfor virker mit NFC tag ikke efter jeg har skrevet på det?",
+            a: "De tre hyppigste årsager er et mellemrum før eller efter adressen, en adresse uden https:// foran, eller at tagget sidder på metal. Prøv at skrive det om og test på en anden telefon.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "nfc-tag-iphone",
+    title: "NFC tag på iPhone: sådan virker det",
+    metaTitle: "NFC tag iPhone — hvilke modeller, og hvordan det virker",
+    description:
+      "Læser din iPhone NFC-tags? Se hvilke modeller der læser automatisk, hvor antennen sidder, hvordan du skriver tags — og hvad du gør, når det ikke virker.",
+    keyword: "nfc tag iphone",
+    date: "2026-09-04",
+    readingMinutes: 6,
+    excerpt:
+      "Fra iPhone XR og XS og frem læser telefonen NFC-tags af sig selv. Her er hvilke modeller der kan hvad, og hvor du skal holde telefonen.",
+    image: "/blog/nfc-tag-iphone.svg",
+    imageAlt:
+      "En iPhone set bagfra med antennezonen markeret i toppen, mens et NFC-tag holdes hen til netop den zone",
+    related: ["nfc-tag", "programmere-nfc-tag", "nfc-vs-qr-kode"],
+    body: [
+      {
+        type: "p",
+        html: '<strong>Ja, en iPhone kan læse NFC-tags</strong> — og fra iPhone XR og XS og frem sker det helt af sig selv. Du behøver hverken app eller indstilling: hold den øverste del af telefonen mod tagget, mens skærmen er tændt og telefonen låst op, så dukker der en notifikation op. Er du ny i emnet, forklarer vores <a href="/blog/nfc-tag">guide til NFC-tags</a> teknikken bag.',
+      },
+
+      { type: "h2", text: "Hvilke iPhones kan hvad?" },
+      {
+        type: "table",
+        head: ["Model", "Læser tags", "Skriver tags"],
+        rows: [
+          ["iPhone XR, XS og nyere", "Ja — automatisk i baggrunden", "Ja, med en app"],
+          ["iPhone 7, 8 og X", "Ja, men kun via NFC-taglæseren i Kontrolcenter", "Ja, med en app"],
+          ["iPhone 6s og ældre", "Nej", "Nej"],
+        ],
+      },
+      {
+        type: "p",
+        html: 'Funktionen på de nyere modeller hedder <strong>baggrundslæsning</strong> og er beskrevet i <a href="https://developer.apple.com/documentation/corenfc/adding-support-for-background-tag-reading">Apples Core NFC-dokumentation</a>. Læseren er passiv og kan ikke slås fra — derfor er der heller ingen kontakt til den i Indstillinger på de modeller.',
+      },
+
+      { type: "h2", text: "Hvor sidder antennen?" },
+      {
+        type: "p",
+        html: "I <strong>toppen</strong> af telefonen, ved den øverste kant på bagsiden. Det er den enkeltstående ting, folk oftest gør forkert: de holder midten af telefonen mod tagget, som man gør på en Android, og så sker der ingenting.",
+      },
+      {
+        type: "figur",
+        src: "/blog/nfc-tag-iphone.svg",
+        alt: "En iPhone set bagfra med den øverste tredjedel markeret som antennezone, og et NFC-tag holdt hen til den",
+        caption:
+          "Hold den øverste tredjedel mod tagget. På Android er det som regel midten af bagsiden.",
+      },
+
+      { type: "h2", text: "Sådan slår du NFC-taglæseren til på ældre modeller" },
+      {
+        type: "ol",
+        items: [
+          "Åbn <strong>Indstillinger</strong> og gå til <strong>Kontrolcenter</strong>.",
+          "Find <strong>NFC-taglæser</strong> på listen over betjeningsmuligheder, og tilføj den.",
+          "Træk Kontrolcenter frem, tryk på ikonet, og hold telefonen mod tagget.",
+        ],
+      },
+      {
+        type: "p",
+        html: "Findes punktet ikke på listen, er det som regel fordi telefonen er nyere og læser i baggrunden i forvejen — så er der ikke noget at slå til.",
+      },
+
+      { type: "h2", text: "Kan du skrive tags fra en iPhone?" },
+      {
+        type: "p",
+        html: 'Ja, fra iPhone 7 og frem, men det kræver en app. NFC Tools er den mest brugte. Fremgangsmåden er den samme som på Android — vi har den trin for trin i <a href="/blog/programmere-nfc-tag">guiden til at programmere et NFC tag</a>.',
+      },
+
+      { type: "h2", text: "Når det ikke virker" },
+      {
+        type: "ul",
+        items: [
+          "<strong>Du holder det forkerte sted.</strong> Prøv den øverste tredjedel af bagsiden, og bevæg telefonen langsomt.",
+          "<strong>Skærmen er slukket eller telefonen låst.</strong> Begge dele skal være i orden.",
+          "<strong>Coveret er i vejen.</strong> Metal, magneter og tykke covers dæmper feltet. Tag det af og prøv igen.",
+          "<strong>Tagget sidder på metal.</strong> Så virker et almindeligt tag slet ikke — der skal et anti-metal-tag til.",
+          "<strong>Du er i gang med noget andet.</strong> Baggrundslæsning holder pause, mens kameraet eller Apple Pay er åbent.",
+        ],
+      },
+      {
+        type: "note",
+        title: "Oplevelsen er ikke ens på alle iPhones",
+        html: "Hvor hurtigt notifikationen kommer, og hvor præcist du skal ramme, varierer med model og iOS-version. Det er værd at huske, hvis du sætter tags op til kunder: nogle vil stadig hellere scanne en QR-kode, og derfor har gennemtænkte løsninger begge dele.",
+      },
+
+      { type: "h2", text: "NFC-tags og Genveje" },
+      {
+        type: "p",
+        html: "Du kan koble et tag sammen med en automatisering i Genveje-appen: opret en personlig automatisering, vælg NFC som udløser, scan tagget, og vælg hvad der skal ske. Det er sådan folk laver et tag på natbordet, der slår vækkeur og lys fra. Bemærk at det virker på din egen telefon — ikke på kundernes.",
+      },
+      {
+        type: "cta",
+        text: "Vil du bruge NFC til noget konkret i forretningen?",
+        href: "/reviewstander",
+        label: "Se reviewstanderen",
+      },
+
+      {
+        type: "faq",
+        items: [
+          {
+            q: "Understøtter min iPhone NFC-tags?",
+            a: "Fra iPhone XR og XS og frem læses tags automatisk i baggrunden. iPhone 7, 8 og X kan også læse tags, men først når NFC-taglæseren er slået til i Kontrolcenter. iPhone 6s og ældre kan ikke.",
+          },
+          {
+            q: "Hvor på iPhonen skal jeg holde tagget?",
+            a: "Mod den øverste del af telefonen, ved den øverste kant på bagsiden. Det er et andet sted end på Android, hvor antennen typisk sidder midt på bagsiden.",
+          },
+          {
+            q: "Skal jeg slå NFC til på min iPhone?",
+            a: "Nej. På nyere modeller er læseren passiv og altid aktiv — der er ingen kontakt at slå til. På iPhone 7, 8 og X skal NFC-taglæseren tilføjes i Kontrolcenter.",
+          },
+          {
+            q: "Hvorfor sker der ingenting, når jeg holder telefonen mod tagget?",
+            a: "De hyppigste årsager er, at du holder midten af telefonen mod tagget i stedet for toppen, at skærmen er slukket eller telefonen låst, at coveret indeholder metal, eller at tagget sidder på en metalflade.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "nfc-vs-qr-kode",
+    title: "NFC eller QR-kode? Sådan vælger du",
+    metaTitle: "NFC vs. QR-kode — forskelle, fordele og hvornår du vælger hvad",
+    description:
+      "NFC eller QR-kode? Se forskellene på rækkevidde, pris, telefoner og brugeroplevelse — og hvornår du med fordel bruger begge dele på samme flade.",
+    keyword: "nfc vs qr kode",
+    date: "2026-09-04",
+    readingMinutes: 6,
+    excerpt:
+      "De to teknologier fejler på hver sin måde. Derfor supplerer de hinanden bedre, end de konkurrerer — her er hvornår du vælger hvad.",
+    image: "/blog/nfc-vs-qr.svg",
+    imageAlt:
+      "Til venstre en telefon der tapper et NFC-tag tæt på, til højre en telefon der scanner en QR-kode på afstand",
+    related: ["nfc-tag", "qr-kode-til-google-anmeldelser", "google-review-stander-guide"],
+    body: [
+      {
+        type: "p",
+        html: 'Det korte svar: <strong>NFC er hurtigere for kunden, QR virker for flere</strong>. Et NFC-tag kræver, at telefonen holdes få centimeter væk, men åbner linket af sig selv. En QR-kode kræver, at kameraet findes frem, men virker på stort set alle telefoner og også på afstand. De fleste gennemtænkte løsninger har begge dele på samme flade. Vil du forstå teknikken bag NFC, har vi en <a href="/blog/nfc-tag">komplet guide til NFC-tags</a>.',
+      },
+
+      { type: "h2", text: "Forskellene på et blik" },
+      {
+        type: "table",
+        head: ["", "NFC tag", "QR-kode"],
+        rows: [
+          ["Sådan bruges den", "Hold telefonen hen til den", "Åbn kameraet og scan"],
+          ["Virker på", "Nyere iPhones og de fleste Androids", "Stort set alle telefoner med kamera"],
+          ["Afstand", "1-4 cm", "Fra få centimeter til flere meter"],
+          ["Pris pr. stk.", "Nogle få kroner", "Gratis — det er bare tryk"],
+          ["I mørke", "Virker", "Kan være svært at scanne"],
+          ["Bag glas eller på afstand", "Virker ikke", "Virker fint"],
+          ["På metal", "Kræver anti-metal-tag", "Ingen forskel"],
+          ["Kan ændres bagefter", "Ja, hvis tagget ikke er låst", "Kun med et dynamisk link"],
+        ],
+      },
+      {
+        type: "figur",
+        src: "/blog/nfc-vs-qr.svg",
+        alt: "Til venstre tapper en telefon et NFC-tag på få centimeters afstand, til højre scanner en telefon en QR-kode på afstand",
+        caption:
+          "Den afgørende forskel er afstanden — og den er både NFC's styrke og dens begrænsning.",
+      },
+
+      { type: "h2", text: "Hvor NFC vinder" },
+      {
+        type: "ul",
+        items: [
+          "<strong>Færre skridt.</strong> Kunden skal ikke finde kameraet frem, ramme koden og vente på fokus. Et tap er ét skridt.",
+          "<strong>Lys og vinkler er ligegyldige.</strong> Et mørkt lokale eller en skæv vinkel gør ingen forskel.",
+          "<strong>Det ser pænere ud.</strong> Der skal ikke være en firkantet kode på flader, hvor den skæmmer.",
+          "<strong>Sværere at bytte om på.</strong> Et klistermærke kan sættes oven på en QR-kode; et tag skal fysisk skiftes ud.",
+        ],
+      },
+
+      { type: "h2", text: "Hvor QR vinder" },
+      {
+        type: "ul",
+        items: [
+          "<strong>Alle kan bruge den.</strong> Har telefonen et kamera, virker den — også på ældre modeller.",
+          "<strong>Afstand.</strong> Den kan sidde i et vindue, på en plakat i den anden ende af lokalet eller på en skærm.",
+          "<strong>Den koster ingenting.</strong> Det er bare tryksværte, uanset hvor mange du laver.",
+          "<strong>Den virker gennem glas</strong> og på metal, hvor et almindeligt NFC-tag ikke gør.",
+          "<strong>Man kan se, at der er noget.</strong> En QR-kode signalerer selv, at den skal scannes. Et tag er usynligt uden en tekst, der forklarer det.",
+        ],
+      },
+      {
+        type: "note",
+        title: "Det sidste punkt er vigtigere, end det lyder",
+        html: "Et NFC-tag uden en tydelig opfordring bliver ikke brugt. Kunden skal vide, at der er noget at tappe på, og hvor. Det er derfor, standere og skilte med NFC næsten altid har både et ikon, en tekst og en QR-kode — de tre ting forklarer hinanden.",
+      },
+
+      { type: "h2", text: "Hvad koster de?" },
+      {
+        type: "p",
+        html: "En QR-kode koster ingenting at lave. Et NFC-tag koster typisk 3-10 kr. pr. stk., og prisen falder ved større antal. Forskellen betyder mest, når du skal ud med mange: hundrede klistermærker med QR er gratis at trykke, mens hundrede NFC-tags er en reel udgift.",
+      },
+      {
+        type: "p",
+        html: "Til gengæld er den reelle omkostning sjældent selve mediet. Den ligger i, hvad de peger på, og om nogen holder øje med, at det stadig virker.",
+      },
+
+      { type: "h2", text: "Til anmeldelser: brug begge" },
+      {
+        type: "p",
+        html: 'Ved kassen står kunden stille i få sekunder, og der er ingen tid at spilde. NFC er hurtigst, men du ved ikke, hvilken telefon den næste kunde har. Derfor har vores egne standere <strong>begge dele på samme flade</strong> — den, der tapper, og den, der scanner, kommer det samme sted hen.',
+      },
+      {
+        type: "p",
+        html: 'Skal du bare teste idéen først, kan du starte med en gratis QR-kode: se <a href="/blog/qr-kode-til-google-anmeldelser">guiden til QR-kode til Google-anmeldelser</a>. Vil du se, hvordan en færdig løsning ser ud, gennemgår <a href="/blog/google-review-stander-guide">guiden til review-standere</a> forskellene.',
+      },
+      {
+        type: "cta",
+        text: "Se en stander med både NFC og QR på samme flade.",
+        href: "/reviewstander",
+        label: "Se reviewstanderen",
+      },
+
+      {
+        type: "faq",
+        items: [
+          {
+            q: "Er NFC bedre end en QR-kode?",
+            a: "Ikke bedre — hurtigere for den kunde, hvis telefon understøtter det. NFC kræver få centimeters afstand og en nyere telefon; QR virker på stort set alle telefoner og også på afstand. De to supplerer hinanden, og de fleste gennemtænkte løsninger har begge dele.",
+          },
+          {
+            q: "Hvad er billigst, NFC eller QR?",
+            a: "QR. En QR-kode koster ingenting at lave — det er bare tryk. Et NFC-tag koster typisk 3-10 kr. pr. stk. Forskellen betyder mest, når du skal bruge mange.",
+          },
+          {
+            q: "Kan man have både NFC og QR på samme skilt?",
+            a: "Ja, og det er som regel den rigtige løsning. NFC-tagget sidder bag fladen, og QR-koden trykkes ovenpå. De kan pege samme sted hen, så det er ligegyldigt, hvad kunden vælger.",
+          },
+          {
+            q: "Virker NFC på alle telefoner?",
+            a: "Nej. Fra iPhone XR og XS og frem læses tags automatisk; iPhone 7, 8 og X kan læse dem via Kontrolcenter, og ældre modeller kan ikke. De fleste Androids i mellem- og topklassen har NFC, men det skal være slået til i indstillingerne.",
           },
         ],
       },
