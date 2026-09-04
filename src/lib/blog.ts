@@ -23,10 +23,17 @@ export type BlogBlock =
   /**
    * Ofte stillede spørgsmål.
    *
-   * Bliver TIL `FAQPage`-strukturdata på artiklen, så spørgsmålene kan folde
-   * sig ud direkte i søgeresultatet. Det er den enkeltstående ændring, der
-   * giver mest synlighed pr. arbejdstime — men den koster troværdighed, hvis
-   * spørgsmålene er opdigtede. Skriv kun dem, folk faktisk stiller.
+   * VÆRDIEN LIGGER I TEKSTEN, IKKE I VISNINGEN. Her stod tidligere, at
+   * blokken bliver til `FAQPage`-strukturdata, "så spørgsmålene kan folde sig
+   * ud direkte i søgeresultatet". Det passer ikke længere: Google indskrænkede
+   * FAQ-visningen i 2023 og **afskaffede den helt den 7. maj 2026** —
+   * dokumentationen for funktionen er fjernet fra developers.google.com.
+   * Markeringen genereres stadig (se `/blog/[slug]/page.tsx`), fordi den er
+   * gyldig og læses af andre end Google, men den giver ingen visning.
+   *
+   * Skriv derfor spørgsmålene, fordi læseren stiller dem — ikke for at vinde
+   * en plads i søgeresultatet. Opdigtede spørgsmål koster nu kun troværdighed
+   * og giver ingenting igen.
    */
   | { type: "faq"; items: { q: string; a: string }[] }
   | { type: "cta"; text: string; href: string; label: string }
