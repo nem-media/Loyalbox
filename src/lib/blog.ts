@@ -2679,6 +2679,7 @@ export const POSTS: BlogPost[] = [
     imageAlt:
       "Et NFC-tag set indefra med sin antennespole og chip, mens en telefon holdes hen til det og åbner et anmeldelsesflow",
     related: [
+      "programmere-nfc-tag",
       "google-review-stander-guide",
       "qr-kode-til-google-anmeldelser",
       "saadan-faar-du-flere-google-anmeldelser",
@@ -2795,7 +2796,7 @@ export const POSTS: BlogPost[] = [
       { type: "h2", text: "Sådan programmerer du et NFC tag" },
       {
         type: "p",
-        html: "Du behøver hverken udstyr eller teknisk baggrund. En almindelig Android-telefon eller en nyere iPhone kan skrive til tags med en gratis app — <strong>NFC Tools</strong> er den mest udbredte og findes til begge platforme.",
+        html: 'Du behøver hverken udstyr eller teknisk baggrund. En almindelig Android-telefon eller en nyere iPhone kan skrive til tags med en gratis app — <strong>NFC Tools</strong> er den mest udbredte og findes til begge platforme. Her er det korte forløb; vi har også en <a href="/blog/programmere-nfc-tag">detaljeret guide til at programmere et NFC tag</a> med posttyper og de fejl, folk oftest laver.',
       },
       {
         type: "ol",
@@ -3030,6 +3031,150 @@ export const POSTS: BlogPost[] = [
           {
             q: "Er NFC bedre end en QR-kode?",
             a: "De løser problemet hver sin vej. NFC er hurtigere for kunden og virker i mørke, men kræver få centimeters afstand og en telefon, der understøtter det. QR virker på stort set alle telefoner og på afstand, men kræver at kameraet findes frem. De fleste gennemtænkte løsninger har begge dele.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "programmere-nfc-tag",
+    title: "Sådan programmerer du et NFC tag",
+    metaTitle: "Programmere NFC tag — trin for trin med NFC Tools",
+    description:
+      "Sådan programmerer du et NFC tag med en gratis app: vælg Write, tilføj en URL, skriv til tagget. Guide til posttyper, låsning og de fejl, folk oftest laver.",
+    keyword: "programmere nfc tag",
+    date: "2026-09-06",
+    readingMinutes: 7,
+    excerpt:
+      "Du behøver hverken udstyr eller teknisk baggrund. Her er hele fremgangsmåden — og de tre fejl, der oftest gør et nyskrevet tag ubrugeligt.",
+    image: "/blog/programmere-nfc-tag.svg",
+    imageAlt:
+      "En telefon med skriveappen åben, mens et NFC-tag holdes hen til den",
+    related: [
+      "nfc-tag",
+      "google-review-stander-guide",
+      "qr-kode-til-google-anmeldelser",
+    ],
+    body: [
+      {
+        type: "p",
+        html: 'At <strong>programmere et NFC tag</strong> tager under et minut og kræver kun en telefon og en gratis app. Du installerer en NFC-app, vælger <strong>Write</strong>, tilføjer en post af typen URL, indtaster adressen og holder tagget mod telefonen. Er du ikke sikker på, hvad et NFC tag egentlig er, så start med vores <a href="/blog/nfc-tag">guide til NFC-tags</a>.',
+      },
+
+      { type: "h2", text: "Hvad du skal bruge" },
+      {
+        type: "ul",
+        items: [
+          "<strong>Et tomt NFC-tag.</strong> Til et link er NTAG213 rigeligt — det har plads til omkring 130 tegn.",
+          "<strong>En telefon med NFC.</strong> Alle nyere Androids og iPhone 7 og frem kan skrive til tags.",
+          "<strong>En app.</strong> NFC Tools er den mest udbredte og findes gratis til begge platforme.",
+        ],
+      },
+      {
+        type: "p",
+        html: "Du skal ikke bruge en computer, en læser eller noget udstyr. Telefonen er skriveren.",
+      },
+
+      { type: "h2", text: "Trin for trin" },
+      {
+        type: "ol",
+        items: [
+          "<strong>Åbn appen</strong> og giv den lov til at bruge NFC. På Android skal NFC desuden være slået til i Indstillinger.",
+          "<strong>Vælg fanen Write</strong> — ikke Read.",
+          "<strong>Tryk Add a record</strong> og vælg posttypen. Til et link vælger du <strong>URL/URI</strong>.",
+          "<strong>Indtast adressen</strong> med <code>https://</code> foran. Tjek at der ikke er et mellemrum i hver ende.",
+          "<strong>Tryk Write</strong> og hold tagget mod telefonen, til appen melder, at der er skrevet.",
+          "<strong>Test på en anden telefon</strong> — helst både en iPhone og en Android.",
+        ],
+      },
+      {
+        type: "figur",
+        src: "/blog/nfc-tools-write.svg",
+        alt: "Tre skærmbilleder fra NFC Tools: vælg Write, tilføj en post af typen URL og indtast adressen, og hold tagget mod telefonen til der står Write complete",
+        caption:
+          "Skærmen ser lidt forskellig ud fra version til version, men rækkefølgen er den samme.",
+      },
+
+      { type: "h2", text: "Hvilken posttype skal du vælge?" },
+      {
+        type: "table",
+        head: ["Type", "Bruges til", "Godt at vide"],
+        rows: [
+          ["URL / URI", "Et link — langt det almindeligste", "Virker på alle telefoner. Vælg denne, hvis du er i tvivl."],
+          ["Text", "Ren tekst uden handling", "Åbner ingenting af sig selv. Sjældent det, du vil."],
+          ["Wi-Fi network", "Automatisk opkobling til gæstenet", "Understøttes bedst på Android; iPhone er mere restriktiv."],
+          ["Contact", "Et kontaktkort (vCard)", "Fylder mere — overvej NTAG215 frem for NTAG213."],
+          ["Application", "Åbner en bestemt app", "Bindes til én platform. Et almindeligt link er ofte bedre."],
+        ],
+      },
+      {
+        type: "p",
+        html: "URL-typen er det trygge valg. Den forstås ens af iPhone og Android, og den kan pege på hvad som helst — også en side, der selv sender brugeren videre.",
+      },
+
+      { type: "h2", text: "Write, rewrite og lock" },
+      {
+        type: "ul",
+        items: [
+          "<strong>Write</strong> — du skriver data på et tomt eller tidligere brugt tag.",
+          "<strong>Rewrite</strong> — du overskriver det gamle indhold. NXP angiver 100.000 skrivecyklusser for NTAG-chippene, så du løber ikke tør.",
+          "<strong>Lock</strong> — du gør tagget skrivebeskyttet.",
+        ],
+      },
+      {
+        type: "note",
+        title: "Lås aldrig, før du har testet",
+        html: "En permanent lås kan <strong>ikke</strong> fortrydes. Der findes ingen app og ingen producent, der kan låse tagget op igen. Skal indholdet beskyttes, så brug <strong>adgangskode</strong> i stedet — NTAG-chippene har en 32-bit kodebeskyttelse, der forhindrer, at andre skriver på tagget. Bemærk at den ikke skjuler indholdet: enhver kan stadig læse det.",
+      },
+
+      { type: "h2", text: "De tre fejl, folk oftest laver" },
+      {
+        type: "ol",
+        items: [
+          "<strong>Et mellemrum i adressen.</strong> Tagget bliver skrevet uden fejl, men åbner ingenting. Det er den hyppigste af dem alle.",
+          "<strong>Glemt <code>https://</code>.</strong> Uden protokollen ved telefonen ikke, at det er et link.",
+          "<strong>Tagget sidder på metal.</strong> Så virker det ikke — hverken at skrive eller læse. Læs hvorfor i <a href=\"/blog/nfc-tag\">guiden til NFC-tags</a>.",
+        ],
+      },
+      {
+        type: "p",
+        html: "En fjerde, som er værre, fordi den opdages sent: at pege tagget på en side, der senere flyttes. Et tag kan ikke ringes hjem. Brug derfor en adresse, du selv styrer, og som kan sende videre — så kan du skifte destination uden at røre tagget.",
+      },
+
+      { type: "h2", text: "Skal du overhovedet programmere dem selv?" },
+      {
+        type: "p",
+        html: 'Til et par tags i en butik: ja, absolut. Det tager ti minutter og koster ingenting. Skal du derimod ud med tyve standere, hver med sit eget link, bliver det en anden opgave — så skal hvert tag skrives, mærkes og testes hver for sig, og et enkelt ombyttet tag er svært at opdage bagefter.',
+      },
+      {
+        type: "p",
+        html: 'Det er dér, en færdig løsning giver mening: standeren kommer med tagget programmeret, linket kan ændres bagefter, og du kan se, at det virker. Se hvordan på vores <a href="/reviewstander">reviewstander</a>.',
+      },
+      {
+        type: "cta",
+        text: "Slip for at programmere og teste hvert tag selv.",
+        href: "/reviewstander",
+        label: "Se reviewstanderen",
+      },
+
+      {
+        type: "faq",
+        items: [
+          {
+            q: "Hvilken app skal jeg bruge til at programmere NFC tags?",
+            a: "NFC Tools er den mest udbredte og findes gratis til både iPhone og Android. Den kan skrive alle de almindelige posttyper, og den er nok til langt de fleste formål.",
+          },
+          {
+            q: "Kan man programmere et NFC tag med en iPhone?",
+            a: "Ja, fra iPhone 7 og frem. Du skal bruge en app som NFC Tools — i modsætning til læsning, der sker af sig selv på nyere modeller. Hold den øverste del af telefonen mod tagget.",
+          },
+          {
+            q: "Kan man ændre et NFC tag efter det er skrevet?",
+            a: "Ja, medmindre tagget er låst. Du skriver bare oven i det gamle indhold. NXP angiver 100.000 skrivecyklusser for NTAG-chippene.",
+          },
+          {
+            q: "Hvorfor virker mit NFC tag ikke efter jeg har skrevet på det?",
+            a: "De tre hyppigste årsager er et mellemrum før eller efter adressen, en adresse uden https:// foran, eller at tagget sidder på metal. Prøv at skrive det om og test på en anden telefon.",
           },
         ],
       },
