@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Et NFC-tag set indefra med antennespole og chip, mens en telefon holdes hen til det">
+  <rect width="1200" height="630" fill="#f6f4ee"/>
+  <rect x="120" y="536" width="960" height="16" rx="8" fill="#1e1c1a" opacity="0.12"/>
+
+  <!-- NFC-tagget, set indefra: antennespole udenom, chip i hjørnet -->
+  <g>
+    <rect x="150" y="150" width="330" height="330" rx="26" fill="#ffffff"/>
+    <rect x="150" y="150" width="330" height="330" rx="26" fill="none" stroke="#1e1c1a" stroke-width="3" opacity="0.35"/>
+
+    <!-- Antennen: fire vindinger, tydeligt en spole og ikke et mønster -->
+    <g fill="none" stroke="#1b916a" stroke-width="7" stroke-linejoin="round">
+      <rect x="186" y="186" width="258" height="258" rx="20"/>
+      <rect x="208" y="208" width="214" height="214" rx="16"/>
+      <rect x="230" y="230" width="170" height="170" rx="12"/>
+      <rect x="252" y="252" width="126" height="126" rx="9"/>
+    </g>
+    <!-- Ledningen ind til chippen -->
+    <path d="M315 378 L315 424" fill="none" stroke="#1b916a" stroke-width="7" stroke-linecap="round"/>
+
+    <!-- Chippen -->
+    <rect x="286" y="286" width="58" height="58" rx="8" fill="#19375c"/>
+    <g stroke="#19375c" stroke-width="6" stroke-linecap="round">
+      <path d="M270 300 L286 300"/><path d="M270 315 L286 315"/><path d="M270 330 L286 330"/>
+      <path d="M344 300 L360 300"/><path d="M344 315 L360 315"/><path d="M344 330 L360 330"/>
+    </g>
+  </g>
+
+  <!-- Feltet mellem tag og telefon -->
+  <g fill="none" stroke="#ffb700" stroke-width="10" stroke-linecap="round" opacity="0.9">
+    <path d="M540 250 A 90 90 0 0 1 540 380"/>
+    <path d="M584 214 A 140 140 0 0 1 584 416"/>
+    <path d="M628 178 A 190 190 0 0 1 628 452"/>
+  </g>
+
+  <!-- Telefonen -->
+  <g>
+    <rect x="720" y="96" width="300" height="438" rx="38" fill="#1e1c1a"/>
+    <rect x="736" y="112" width="268" height="406" rx="28" fill="#ffffff"/>
+    <rect x="836" y="120" width="68" height="12" rx="6" fill="#1e1c1a" opacity="0.5"/>
+
+    <!-- Skærmen: anmeldelsesflowet er åbnet af sig selv -->
+    <circle cx="870" cy="200" r="30" fill="#1b916a" opacity="0.14"/>
+    <path d="M857 200 l9 9 18 -18" fill="none" stroke="#1b916a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <rect x="782" y="256" width="176" height="15" rx="7" fill="#1e1c1a" opacity="0.82"/>
+    <rect x="806" y="286" width="128" height="11" rx="5" fill="#1e1c1a" opacity="0.35"/>
+
+    <!-- Fem stjerner -->
+    <g fill="#ffb700">
+      <path d="M781 337l6.6 13.4 14.8 2.1-10.7 10.4 2.5 14.7-13.2-7-13.2 7 2.5-14.7-10.7-10.4 14.8-2.1z"/>
+      <path d="M825 337l6.6 13.4 14.8 2.1-10.7 10.4 2.5 14.7-13.2-7-13.2 7 2.5-14.7-10.7-10.4 14.8-2.1z"/>
+      <path d="M869 337l6.6 13.4 14.8 2.1-10.7 10.4 2.5 14.7-13.2-7-13.2 7 2.5-14.7-10.7-10.4 14.8-2.1z"/>
+      <path d="M913 337l6.6 13.4 14.8 2.1-10.7 10.4 2.5 14.7-13.2-7-13.2 7 2.5-14.7-10.7-10.4 14.8-2.1z"/>
+      <path d="M957 337l6.6 13.4 14.8 2.1-10.7 10.4 2.5 14.7-13.2-7-13.2 7 2.5-14.7-10.7-10.4 14.8-2.1z"/>
+    </g>
+
+    <rect x="782" y="410" width="176" height="46" rx="10" fill="#1b916a"/>
+    <rect x="822" y="428" width="96" height="11" rx="5" fill="#ffffff" opacity="0.92"/>
+  </g>
+</svg>
