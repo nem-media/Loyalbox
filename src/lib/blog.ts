@@ -2695,7 +2695,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: "Tagget arbejder på <strong>13,56&nbsp;MHz</strong> og følger NFC Forums standarder. Det, der gemmes på chippen, skrives i et format, der hedder <strong>NDEF</strong> — det er den fælles aftale, der gør, at et tag skrevet på en Android kan læses af en iPhone og omvendt.",
+        html: 'Tagget arbejder på <strong>13,56&nbsp;MHz</strong> og følger to standarder: <em>NFC Forum Type 2</em> og <em>ISO/IEC 14443 Type A</em>. Det, der gemmes på chippen, skrives i formatet <strong>NDEF</strong>, som er defineret af <a href="https://nfc-forum.org/learn/nfc-technology/">NFC Forum</a> — det er den fælles aftale, der gør, at et tag skrevet på en Android kan læses af en iPhone og omvendt.',
       },
       {
         type: "p",
@@ -2797,7 +2797,7 @@ export const POSTS: BlogPost[] = [
         type: "ul",
         items: [
           "<strong>Write</strong> — du skriver data på et tomt eller tidligere brugt tag.",
-          "<strong>Rewrite</strong> — du overskriver det, der stod der før. Et almindeligt NTAG-tag kan skrives om i størrelsesordenen 100.000 gange, så du løber ikke tør i praksis.",
+          "<strong>Rewrite</strong> — du overskriver det, der stod der før. NXP angiver <strong>100.000 skrivecyklusser</strong> og 10 års datalevetid for NTAG-chippene, så du løber ikke tør i praksis.",
           "<strong>Lock</strong> — du gør tagget skrivebeskyttet, så indholdet ikke kan ændres.",
         ],
       },
@@ -2810,7 +2810,7 @@ export const POSTS: BlogPost[] = [
       { type: "h2", text: "NFC tag på iPhone" },
       {
         type: "p",
-        html: 'Nyere iPhones læser NFC-tags <strong>af sig selv</strong>. Fra iPhone XR og XS og frem sker det i baggrunden: du behøver hverken app eller indstilling, blot at skærmen er tændt og telefonen låst op. Der dukker en notifikation op, som du trykker på for at åbne linket. Apple har en <a href="https://support.apple.com/da-dk/guide/iphone/aside/asd-nfc-reader/ios">oversigt over hvilke modeller der understøtter NFC-taglæser</a>.',
+        html: 'Nyere iPhones læser NFC-tags <strong>af sig selv</strong>. Fra iPhone XR og XS og frem sker det i baggrunden: du behøver hverken app eller indstilling, blot at skærmen er tændt og telefonen låst op. Der dukker en notifikation op, som du trykker på for at åbne linket. Funktionen hedder baggrundslæsning og er beskrevet i <a href="https://developer.apple.com/documentation/corenfc/adding-support-for-background-tag-reading">Apples Core NFC-dokumentation</a>.',
       },
       {
         type: "ul",
@@ -2835,7 +2835,7 @@ export const POSTS: BlogPost[] = [
         type: "ul",
         items: [
           "<strong>Antennen sidder typisk midt på bagsiden</strong> eller lidt over midten — altså et andet sted end på en iPhone.",
-          "<strong>Telefonen skal være låst op</strong> og skærmen tændt.",
+          '<strong>Telefonen skal være låst op.</strong> <a href="https://developer.android.com/develop/connectivity/nfc/nfc">Androids egen dokumentation</a> siger det ligeud: telefonen leder efter tags, når skærmen er låst op, medmindre NFC er slået fra i indstillingerne.',
           "<strong>Android læser og skriver</strong> begge veje uden ekstra tilbehør.",
           "<strong>Billige og ældre modeller</strong> springer af og til NFC over. Er du i tvivl, så søg på telefonmodellen plus <strong>NFC</strong> — det er ikke noget, man kan tilføje bagefter.",
         ],
@@ -2844,7 +2844,7 @@ export const POSTS: BlogPost[] = [
       { type: "h2", text: "NTAG213, NTAG215 eller NTAG216?" },
       {
         type: "p",
-        html: 'De tre chips, du støder på igen og igen, hedder NTAG213, NTAG215 og NTAG216. De kommer fra NXP, kører alle på 13,56&nbsp;MHz og opfører sig ens. Den eneste reelle forskel er, <strong>hvor meget der kan stå på dem</strong>. Tallene står i <a href="https://www.nxp.com/products/NTAG213_215_216">NXP\'s egen produktbeskrivelse</a>.',
+        html: 'De tre chips, du støder på igen og igen, hedder NTAG213, NTAG215 og NTAG216. De kommer fra NXP, kører alle på 13,56&nbsp;MHz, følger samme to standarder og opfører sig ens. Den eneste reelle forskel er, <strong>hvor meget der kan stå på dem</strong>. Tallene står i <a href="https://www.nxp.com/products/NTAG213_215_216">NXP\'s egen produktbeskrivelse</a>.',
       },
       {
         type: "table",
@@ -2867,7 +2867,7 @@ export const POSTS: BlogPost[] = [
       { type: "h2", text: "Hvor langt rækker et NFC tag?" },
       {
         type: "p",
-        html: "Kortere end de fleste tror. Standarden taler om op til <strong>10&nbsp;cm</strong>, men i praksis er det <strong>1-4&nbsp;cm</strong> med en almindelig telefon og et almindeligt tag. Det er ikke en fejl — det er hele pointen. Den korte rækkevidde er det, der gør NFC sikkert nok til betaling: du kan ikke komme til at aktivere noget ved at gå forbi.",
+        html: 'Kortere end de fleste tror. <a href="https://nfc-forum.org/learn/nfc-technology/">NFC Forum angiver selv</a> en typisk rækkevidde på <strong>op til 2&nbsp;cm</strong>. I praksis oplever man 1-4&nbsp;cm med en almindelig telefon og et almindeligt tag — tallet på 10&nbsp;cm, der går igen mange steder, er et teoretisk maksimum og ikke noget, du skal regne med. Den korte rækkevidde er ikke en fejl, men hele pointen: den er det, der gør NFC sikkert nok til betaling, for du kan ikke komme til at aktivere noget ved at gå forbi.',
       },
       {
         type: "p",
@@ -2903,7 +2903,7 @@ export const POSTS: BlogPost[] = [
         type: "ul",
         items: [
           "<strong>Skriv aldrig følsomme oplysninger</strong> på et tag. Det er en offentlig opslagstavle, ikke en pengeskuffe.",
-          "<strong>Beskyt tags i det offentlige rum</strong> med adgangskode eller lås, når linket er testet.",
+          "<strong>Beskyt tags i det offentlige rum</strong> med lås eller adgangskode, når linket er testet. NTAG-chippene har en 32-bit kodebeskyttelse — den forhindrer, at andre skriver på tagget, men den skjuler ikke indholdet.",
           "<strong>Sæt tagget, så det ikke kan pilles af</strong> — et løst mærkat kan skiftes ud på to sekunder.",
           "<strong>Tjek jævnligt</strong>, at dine tags stadig fører det rigtige sted hen. Det tager et halvt minut med din egen telefon.",
         ],
@@ -2984,7 +2984,7 @@ export const POSTS: BlogPost[] = [
           },
           {
             q: "Hvor langt rækker et NFC tag?",
-            a: "Standarden taler om op til 10 cm, men i praksis er det 1-4 cm med en almindelig telefon. Rækkevidden afhænger af tagges størrelse, telefonens antenne, og hvad tagget sidder på. Direkte på metal virker et almindeligt tag slet ikke — der skal et anti-metal-tag til.",
+            a: "NFC Forum angiver en typisk rækkevidde på op til 2 cm. I praksis oplever man 1-4 cm med en almindelig telefon; de 10 cm, der ofte nævnes, er et teoretisk maksimum. Rækkevidden afhænger af tagges størrelse, telefonens antenne, og hvad tagget sidder på. Direkte på metal virker et almindeligt tag slet ikke — der skal et anti-metal-tag til.",
           },
           {
             q: "Hvad er forskellen på NTAG213, NTAG215 og NTAG216?",
