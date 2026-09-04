@@ -3052,7 +3052,7 @@ export const POSTS: BlogPost[] = [
     description:
       "Sådan programmerer du et NFC tag med en gratis app: vælg Write, tilføj en URL, skriv til tagget. Guide til posttyper, låsning og de fejl, folk oftest laver.",
     keyword: "programmere nfc tag",
-    date: "2026-09-06",
+    date: "2026-09-04",
     readingMinutes: 7,
     excerpt:
       "Du behøver hverken udstyr eller teknisk baggrund. Her er hele fremgangsmåden — og de tre fejl, der oftest gør et nyskrevet tag ubrugeligt.",
@@ -3192,7 +3192,7 @@ export const POSTS: BlogPost[] = [
     description:
       "Læser din iPhone NFC-tags? Se hvilke modeller der læser automatisk, hvor antennen sidder, hvordan du skriver tags — og hvad du gør, når det ikke virker.",
     keyword: "nfc tag iphone",
-    date: "2026-09-08",
+    date: "2026-09-04",
     readingMinutes: 6,
     excerpt:
       "Fra iPhone XR og XS og frem læser telefonen NFC-tags af sig selv. Her er hvilke modeller der kan hvad, og hvor du skal holde telefonen.",
@@ -3313,7 +3313,7 @@ export const POSTS: BlogPost[] = [
     description:
       "NFC eller QR-kode? Se forskellene på rækkevidde, pris, telefoner og brugeroplevelse — og hvornår du med fordel bruger begge dele på samme flade.",
     keyword: "nfc vs qr kode",
-    date: "2026-09-10",
+    date: "2026-09-04",
     readingMinutes: 6,
     excerpt:
       "De to teknologier fejler på hver sin måde. Derfor supplerer de hinanden bedre, end de konkurrerer — her er hvornår du vælger hvad.",
