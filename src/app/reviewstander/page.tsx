@@ -291,12 +291,20 @@ export default function ReviewstanderPage() {
                 direkte videre på deres telefon.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <ButtonLink
-                  variant="secondary"
-                  href="/produkter/reviewstander"
-                  size="lg"
-                >
-                  Bestil reviewstander
+                {/*
+                  TIL KATALOGET OG IKKE TIL DEN ENE VARE. Der er TRE
+                  reviewstandere — den enkle, Pro og Komplet — og en knap, der
+                  gik direkte til engangskøbet, traf valget på kundens vegne.
+                  De to abonnementsvarer var kun at finde ved at rulle ned til
+                  kortene midt på siden.
+
+                  ORDET "BESTIL" ER VÆK MED VILJE: knappen fører til et valg og
+                  ikke til en bestilling, og en knap, der lover det forkerte
+                  skridt, er den slags løfte, resten af sitet er skrevet for
+                  ikke at give.
+                */}
+                <ButtonLink variant="secondary" href="/produkter" size="lg">
+                  Vælg din reviewstander
                 </ButtonLink>
                 <ButtonLink href="#saadan" variant="outline-invert" size="lg">
                   Se hvordan den virker
@@ -967,12 +975,9 @@ export default function ReviewstanderPage() {
               chance for at sige det højt.
             </p>
             <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-              <ButtonLink
-                variant="secondary"
-                href="/produkter/reviewstander"
-                size="lg"
-              >
-                Bestil reviewstander
+              {/* Samme valg som i toppen — se kommentaren der. */}
+              <ButtonLink variant="secondary" href="/produkter" size="lg">
+                Vælg din reviewstander
               </ButtonLink>
               <ButtonLink href="/signup" variant="outline-invert" size="lg">
                 Kom i gang med LoyalSum
