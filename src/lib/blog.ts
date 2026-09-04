@@ -29,7 +29,19 @@ export type BlogBlock =
    * spørgsmålene er opdigtede. Skriv kun dem, folk faktisk stiller.
    */
   | { type: "faq"; items: { q: string; a: string }[] }
-  | { type: "cta"; text: string; href: string; label: string };
+  | { type: "cta"; text: string; href: string; label: string }
+  /**
+   * Figur med billedtekst.
+   *
+   * FINDES, FORDI EN LANG GUIDE UDEN BILLEDER IKKE BLIVER LÆST FÆRDIG. Tre
+   * tusind ord er en mur, og de steder, hvor teksten forklarer noget rumligt
+   * — et forløb, en afstand, en skærm — gør en tegning det på et blik.
+   *
+   * `alt` beskriver hvad figuren VISER. `caption` står under og må gerne sige
+   * noget, teksten ikke siger; en billedtekst, der gentager overskriften, er
+   * spildt plads — og den læses oftere end brødteksten omkring den.
+   */
+  | { type: "figur"; src: string; alt: string; caption?: string };
 
 export interface BlogPost {
   slug: string;
@@ -2717,6 +2729,13 @@ export const POSTS: BlogPost[] = [
         ],
       },
       {
+        type: "figur",
+        src: "/blog/nfc-flow.svg",
+        alt: "Fire trin: telefonen sender et felt ud, tagget vågner af feltet, data læses, og telefonen åbner linket",
+        caption:
+          "Bemærk at der ikke er nogen forbindelse den anden vej. Tagget ved ikke, hvem der læste det.",
+      },
+      {
         type: "p",
         html: "Bemærk, at tagget ikke <em>ved</em>, hvem der læste det. Der er ingen forbindelse den anden vej, ingen konto og ingen sporing i selve chippen. Al måling sker først, når linket er åbnet, og det er den side, linket peger på, der kan tælle besøget.",
       },
@@ -2788,6 +2807,13 @@ export const POSTS: BlogPost[] = [
           "<strong>Hold tagget mod telefonen</strong>, til appen melder, at der er skrevet.",
           "<strong>Test på en anden telefon</strong> — helst både en iPhone og en Android, før du sætter hundrede tags i produktion.",
         ],
+      },
+      {
+        type: "figur",
+        src: "/blog/nfc-tools-write.svg",
+        alt: "Tre skærmbilleder fra NFC Tools: vælg Write, tilføj en post af typen URL og indtast adressen, og hold tagget mod telefonen til der står Write complete",
+        caption:
+          "Den hyppigste fejl er et mellemrum før eller efter adressen. Tagget bliver skrevet, men åbner ingenting.",
       },
       {
         type: "p",
@@ -2884,6 +2910,13 @@ export const POSTS: BlogPost[] = [
       {
         type: "p",
         html: "Sætter du et almindeligt NFC tag direkte på metal, <strong>virker det ikke</strong>. Metallet leder feltets energi væk som varme, og feltet falder sammen, før chippen når at vågne. Løsningen er et <em>anti-metal</em>-tag, der har et lag ferrit mellem chippen og metallet. Det skærmer for metallet og giver typisk 2-10&nbsp;cm rækkevidde igen. Samme problem gælder telefoncovers med metal eller magneter — og kort med et NFC-tag, der ligger klemt inde ved siden af et betalingskort.",
+      },
+      {
+        type: "figur",
+        src: "/blog/nfc-metal.svg",
+        alt: "Til venstre falder feltet sammen om et almindeligt tag på metal. Til højre bevarer et lag ferrit feltet, så tagget kan læses",
+        caption:
+          "Det er ikke tagget, der er i stykker. Fjern det fra metallet, og det virker igen med det samme.",
       },
 
       { type: "h2", text: "Er NFC tags sikre?" },

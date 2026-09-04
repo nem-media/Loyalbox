@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400" role="img" aria-label="Fire trin: telefonen sender et felt ud, tagget vågner af feltet, data læses, og telefonen åbner linket">
+  <style>
+    .t { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    .num { font: 700 22px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #ffffff; }
+    .h { font: 700 21px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #1e1c1a; }
+    .b { font: 400 17px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #1e1c1a; opacity: .72; }
+  </style>
+  <rect width="1200" height="400" fill="#f6f4ee"/>
+
+  <!-- Fire trin -->
+  <g>
+    <rect x="40" y="90" width="250" height="220" rx="14" fill="#ffffff" stroke="#1e1c1a" stroke-opacity=".14" stroke-width="2"/>
+    <circle cx="76" cy="126" r="20" fill="#1b916a"/>
+    <text x="76" y="134" class="num" text-anchor="middle">1</text>
+    <text x="112" y="134" class="h">Telefonen</text>
+    <text x="68" y="188" class="b">Sender konstant et</text>
+    <text x="68" y="212" class="b">svagt radiofelt ud,</text>
+    <text x="68" y="236" class="b">når skærmen er</text>
+    <text x="68" y="260" class="b">tændt og låst op.</text>
+  </g>
+
+  <g>
+    <rect x="330" y="90" width="250" height="220" rx="14" fill="#ffffff" stroke="#1e1c1a" stroke-opacity=".14" stroke-width="2"/>
+    <circle cx="366" cy="126" r="20" fill="#1b916a"/>
+    <text x="366" y="134" class="num" text-anchor="middle">2</text>
+    <text x="402" y="134" class="h">Tagget</text>
+    <text x="358" y="188" class="b">Feltet inducerer</text>
+    <text x="358" y="212" class="b">strøm i antennen —</text>
+    <text x="358" y="236" class="b">nok til at vække</text>
+    <text x="358" y="260" class="b">chippen. Intet batteri.</text>
+  </g>
+
+  <g>
+    <rect x="620" y="90" width="250" height="220" rx="14" fill="#ffffff" stroke="#1e1c1a" stroke-opacity=".14" stroke-width="2"/>
+    <circle cx="656" cy="126" r="20" fill="#1b916a"/>
+    <text x="656" y="134" class="num" text-anchor="middle">3</text>
+    <text x="692" y="134" class="h">Data</text>
+    <text x="648" y="188" class="b">Chippen sender sit</text>
+    <text x="648" y="212" class="b">indhold tilbage —</text>
+    <text x="648" y="236" class="b">typisk et link på</text>
+    <text x="648" y="260" class="b">nogle få hundrede tegn.</text>
+  </g>
+
+  <g>
+    <rect x="910" y="90" width="250" height="220" rx="14" fill="#ffffff" stroke="#1e1c1a" stroke-opacity=".14" stroke-width="2"/>
+    <circle cx="946" cy="126" r="20" fill="#1b916a"/>
+    <text x="946" y="134" class="num" text-anchor="middle">4</text>
+    <text x="982" y="134" class="h">Handling</text>
+    <text x="938" y="188" class="b">Telefonen genkender</text>
+    <text x="938" y="212" class="b">typen og åbner</text>
+    <text x="938" y="236" class="b">adressen, kontaktkortet</text>
+    <text x="938" y="260" class="b">eller wifi-netværket.</text>
+  </g>
+
+  <!-- Pile mellem trinene -->
+  <g fill="none" stroke="#ffb700" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M296 200 L322 200"/><path d="M312 191 L322 200 L312 209"/>
+    <path d="M586 200 L612 200"/><path d="M602 191 L612 200 L602 209"/>
+    <path d="M876 200 L902 200"/><path d="M892 191 L902 200 L892 209"/>
+  </g>
+
+  <text x="600" y="356" class="b" text-anchor="middle" style="opacity:.6">Hele forløbet tager under et sekund. Tagget ligger dødt indtil trin 2.</text>
+</svg>
