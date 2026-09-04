@@ -102,12 +102,15 @@ export default async function BlogPostPage({
   // Kun når artiklen FAKTISK viser spørgsmålene. Strukturdata, der beskriver
   // noget, læseren ikke kan se på siden, regnes som spam.
   //
-  // DEN VISES IKKE I RICH RESULTS TEST, og det er hverken en fejl eller noget,
-  // der kan rettes: Google indskrænkede i september 2023 FAQ-visningen til
-  // "well-known, authoritative government and health websites". Et alm.
-  // firmasite får ingen FAQ-visning, og testen rapporterer derfor slet ikke
-  // typen. Markeringen bliver stående — den er gyldig, den ignoreres af
-  // Google frem for at tælle imod os, og andre læsere end Google bruger den.
+  // DEN GIVER INGEN VISNING HOS GOOGLE, og det er hverken en fejl eller noget,
+  // der kan rettes. Google indskrænkede i september 2023 FAQ-visningen til
+  // "well-known, authoritative government and health websites" — og
+  // AFSKAFFEDE DEN HELT DEN 7. MAJ 2026, også for dem. Dokumentationen for
+  // funktionen er fjernet fra developers.google.com.
+  //
+  // Markeringen bliver stående alligevel: den er gyldig, den ignoreres frem
+  // for at tælle imod os, den koster nul, og andre læsere end Google —
+  // herunder sprogmodeller, der besvarer spørgsmål ud fra sider — bruger den.
   // Værdien af FAQ-afsnittene ligger i teksten på siden, ikke i visningen.
   const faqLd = faq.length
     ? {
