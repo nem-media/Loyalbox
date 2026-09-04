@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" width="1200" height="520" role="img" aria-label="Tre telefonskærme i NFC Tools: vælg Write, tilføj en post af typen URL og indtast adressen, og hold tagget mod telefonen til der er skrevet">
+  <style>
+    .h { font: 700 19px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #1e1c1a; }
+    .b { font: 400 15px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #1e1c1a; opacity: .72; }
+    .ui { font: 600 15px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #1e1c1a; }
+    .uid { font: 400 14px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #1e1c1a; opacity: .55; }
+    .num { font: 700 20px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #ffffff; }
+  </style>
+  <rect width="1200" height="520" fill="#f6f4ee"/>
+
+  <!-- TRIN 1 -->
+  <g>
+    <circle cx="60" cy="46" r="19" fill="#1b916a"/><text x="60" y="53" class="num" text-anchor="middle">1</text>
+    <text x="92" y="53" class="h">Vælg Write</text>
+    <rect x="40" y="80" width="300" height="380" rx="26" fill="#1e1c1a"/>
+    <rect x="52" y="92" width="276" height="356" rx="18" fill="#ffffff"/>
+    <rect x="52" y="92" width="276" height="46" rx="18" fill="#19375c"/>
+    <text x="72" y="122" class="ui" fill="#ffffff">NFC Tools</text>
+    <!-- faneblade -->
+    <rect x="68" y="156" width="110" height="34" rx="8" fill="#1e1c1a" opacity=".08"/>
+    <text x="92" y="179" class="uid">Read</text>
+    <rect x="190" y="156" width="110" height="34" rx="8" fill="#1b916a"/>
+    <text x="215" y="179" class="ui" fill="#ffffff">Write</text>
+    <rect x="68" y="216" width="232" height="44" rx="8" fill="#1e1c1a" opacity=".05"/>
+    <text x="86" y="244" class="uid">Add a record</text>
+    <rect x="68" y="272" width="232" height="44" rx="8" fill="#1e1c1a" opacity=".05"/>
+    <text x="86" y="300" class="uid">0 record / 0 bytes</text>
+    <rect x="68" y="386" width="232" height="44" rx="10" fill="#1b916a" opacity=".35"/>
+    <text x="152" y="414" class="ui" fill="#ffffff">Write</text>
+  </g>
+
+  <!-- TRIN 2 -->
+  <g>
+    <circle cx="460" cy="46" r="19" fill="#1b916a"/><text x="460" y="53" class="num" text-anchor="middle">2</text>
+    <text x="492" y="53" class="h">Tilføj en URL</text>
+    <rect x="440" y="80" width="300" height="380" rx="26" fill="#1e1c1a"/>
+    <rect x="452" y="92" width="276" height="356" rx="18" fill="#ffffff"/>
+    <rect x="452" y="92" width="276" height="46" rx="18" fill="#19375c"/>
+    <text x="472" y="122" class="ui" fill="#ffffff">Add a record</text>
+    <rect x="468" y="160" width="232" height="42" rx="8" fill="#1b916a" opacity=".12"/>
+    <text x="486" y="187" class="ui" fill="#1b916a">URL / URI</text>
+    <rect x="468" y="214" width="232" height="38" rx="8" fill="#1e1c1a" opacity=".05"/>
+    <text x="486" y="239" class="uid">Text</text>
+    <rect x="468" y="262" width="232" height="38" rx="8" fill="#1e1c1a" opacity=".05"/>
+    <text x="486" y="287" class="uid">Wi-Fi network</text>
+    <!-- indtastning -->
+    <rect x="468" y="320" width="232" height="46" rx="8" fill="#ffffff" stroke="#1b916a" stroke-width="2"/>
+    <text x="482" y="349" class="uid" style="font-size:13px">https://dinbutik.dk/anmeld</text>
+    <rect x="468" y="386" width="232" height="44" rx="10" fill="#1b916a"/>
+    <text x="552" y="414" class="ui" fill="#ffffff">OK</text>
+  </g>
+
+  <!-- TRIN 3 -->
+  <g>
+    <circle cx="860" cy="46" r="19" fill="#1b916a"/><text x="860" y="53" class="num" text-anchor="middle">3</text>
+    <text x="892" y="53" class="h">Hold tagget mod telefonen</text>
+    <rect x="840" y="80" width="300" height="380" rx="26" fill="#1e1c1a"/>
+    <rect x="852" y="92" width="276" height="356" rx="18" fill="#ffffff"/>
+    <rect x="852" y="92" width="276" height="46" rx="18" fill="#19375c"/>
+    <text x="872" y="122" class="ui" fill="#ffffff">Approach a tag</text>
+    <!-- felt-bølger -->
+    <g fill="none" stroke="#ffb700" stroke-width="7" stroke-linecap="round">
+      <path d="M955 236 A 40 40 0 0 1 955 306"/>
+      <path d="M985 216 A 66 66 0 0 1 985 326"/>
+      <path d="M1015 196 A 92 92 0 0 1 1015 346"/>
+    </g>
+    <rect x="886" y="246" width="56" height="50" rx="6" fill="#ffffff" stroke="#1e1c1a" stroke-opacity=".4" stroke-width="2"/>
+    <text x="914" y="277" class="uid" text-anchor="middle" style="font-size:12px">tag</text>
+    <rect x="868" y="386" width="244" height="44" rx="10" fill="#1b916a" opacity=".12"/>
+    <text x="990" y="414" class="ui" fill="#1b916a" text-anchor="middle">Write complete</text>
+  </g>
+
+  <text x="600" y="500" class="b" text-anchor="middle">Test altid på en anden telefon bagefter — og lås først, når linket er bekræftet.</text>
+</svg>

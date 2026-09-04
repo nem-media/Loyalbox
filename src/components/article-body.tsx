@@ -24,6 +24,26 @@ export function ArticleBody({ blocks }: { blocks: BlogBlock[] }) {
                 {block.text}
               </h2>
             );
+          case "figur":
+            return (
+              /* Egen ramme og lys bund, så en SVG med gennemsigtig baggrund
+                 ikke flyder sammen med siden. Ingen next/image: figurerne er
+                 håndlavede SVG'er, der skalerer af sig selv. */
+              <figure key={i} className="my-8">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={block.src}
+                  alt={block.alt}
+                  loading="lazy"
+                  className="box-shape w-full border border-border bg-white"
+                />
+                {block.caption ? (
+                  <figcaption className="mt-2 text-sm text-muted">
+                    {block.caption}
+                  </figcaption>
+                ) : null}
+              </figure>
+            );
           case "p":
             return (
               <p

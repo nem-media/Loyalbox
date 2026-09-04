@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 470" width="1200" height="470" role="img" aria-label="Til venstre: et almindeligt tag direkte på metal, hvor feltet falder sammen og intet kan læses. Til højre: et anti-metal-tag med et lag ferrit, hvor feltet bevares og tagget læses">
+  <style>
+    .h { font: 700 22px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    .b { font: 400 17px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #1e1c1a; opacity: .74; }
+    .lab { font: 600 15px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #1e1c1a; opacity: .8; }
+  </style>
+  <rect width="1200" height="470" fill="#f6f4ee"/>
+
+  <!-- VENSTRE: almindeligt tag på metal -->
+  <g>
+    <rect x="40" y="40" width="540" height="390" rx="16" fill="#ffffff" stroke="#b3453f" stroke-opacity=".3" stroke-width="2"/>
+    <text x="70" y="86" class="h" fill="#b3453f">Almindeligt tag direkte på metal</text>
+
+    <!-- Metalpladen -->
+    <rect x="90" y="300" width="440" height="46" rx="6" fill="#9aa3ab"/>
+    <g stroke="#ffffff" stroke-opacity=".45" stroke-width="3">
+      <path d="M120 300 L100 346"/><path d="M180 300 L160 346"/><path d="M240 300 L220 346"/>
+      <path d="M300 300 L280 346"/><path d="M360 300 L340 346"/><path d="M420 300 L400 346"/>
+      <path d="M480 300 L460 346"/>
+    </g>
+    <text x="310" y="376" class="lab" text-anchor="middle">Metal</text>
+
+    <!-- Tagget -->
+    <rect x="240" y="258" width="140" height="42" rx="6" fill="#ffffff" stroke="#1e1c1a" stroke-opacity=".4" stroke-width="2"/>
+    <text x="310" y="285" class="lab" text-anchor="middle">NFC-tag</text>
+
+    <!-- Feltet der falder sammen -->
+    <g fill="none" stroke="#b3453f" stroke-width="6" stroke-linecap="round" opacity=".55" stroke-dasharray="10 12">
+      <path d="M258 236 A 52 52 0 0 1 362 236"/>
+    </g>
+    <g stroke="#b3453f" stroke-width="7" stroke-linecap="round">
+      <path d="M288 176 L332 220"/><path d="M332 176 L288 220"/>
+    </g>
+
+    <text x="70" y="420" class="b">Metallet leder feltets energi væk som varme.</text>
+    <text x="70" y="444" class="b" style="opacity:0"> </text>
+  </g>
+
+  <!-- HØJRE: anti-metal-tag -->
+  <g>
+    <rect x="620" y="40" width="540" height="390" rx="16" fill="#ffffff" stroke="#1b916a" stroke-opacity=".35" stroke-width="2"/>
+    <text x="650" y="86" class="h" fill="#1b916a">Anti-metal-tag med ferrit</text>
+
+    <rect x="670" y="300" width="440" height="46" rx="6" fill="#9aa3ab"/>
+    <g stroke="#ffffff" stroke-opacity=".45" stroke-width="3">
+      <path d="M700 300 L680 346"/><path d="M760 300 L740 346"/><path d="M820 300 L800 346"/>
+      <path d="M880 300 L860 346"/><path d="M940 300 L920 346"/><path d="M1000 300 L980 346"/>
+      <path d="M1060 300 L1040 346"/>
+    </g>
+    <text x="890" y="376" class="lab" text-anchor="middle">Metal</text>
+
+    <!-- Ferritlaget -->
+    <rect x="820" y="286" width="140" height="14" rx="3" fill="#19375c"/>
+    <text x="984" y="298" class="lab" style="font-size:14px">← ferrit</text>
+
+    <!-- Tagget -->
+    <rect x="820" y="244" width="140" height="42" rx="6" fill="#ffffff" stroke="#1e1c1a" stroke-opacity=".4" stroke-width="2"/>
+    <text x="890" y="271" class="lab" text-anchor="middle">NFC-tag</text>
+
+    <!-- Feltet bevares -->
+    <g fill="none" stroke="#1b916a" stroke-width="6" stroke-linecap="round">
+      <path d="M838 222 A 52 52 0 0 1 942 222"/>
+      <path d="M814 190 A 76 76 0 0 1 966 190"/>
+      <path d="M790 158 A 100 100 0 0 1 990 158"/>
+    </g>
+
+    <text x="650" y="420" class="b">Ferritten skærmer chippen og bevarer feltet: 2–10 cm igen.</text>
+  </g>
+</svg>
