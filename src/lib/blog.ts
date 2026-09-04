@@ -2679,6 +2679,7 @@ export const POSTS: BlogPost[] = [
     imageAlt:
       "Et NFC-tag set indefra med sin antennespole og chip, mens en telefon holdes hen til det og åbner et anmeldelsesflow",
     related: [
+      "nfc-vs-qr-kode",
       "nfc-tag-iphone",
       "programmere-nfc-tag",
       "google-review-stander-guide",
@@ -2969,7 +2970,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: "Derfor har de fleste gennemtænkte touchpoints begge dele. Vores egne standere har både NFC og QR på samme flade, netop fordi ingen af os kan vide, hvilken telefon den næste kunde har i lommen.",
+        html: 'Derfor har de fleste gennemtænkte touchpoints begge dele. Vores egne standere har både NFC og QR på samme flade, netop fordi ingen af os kan vide, hvilken telefon den næste kunde har i lommen. Skal du vælge mellem dem, gennemgår vi afvejningen i <a href="/blog/nfc-vs-qr-kode">NFC eller QR-kode</a>.',
       },
 
       { type: "h2", text: "Hvad koster et NFC tag?" },
@@ -3051,11 +3052,7 @@ export const POSTS: BlogPost[] = [
     image: "/blog/programmere-nfc-tag.svg",
     imageAlt:
       "En telefon med skriveappen åben, mens et NFC-tag holdes hen til den",
-    related: [
-      "nfc-tag",
-      "nfc-tag-iphone",
-      "google-review-stander-guide",
-    ],
+    related: ["nfc-tag", "nfc-tag-iphone", "nfc-vs-qr-kode"],
     body: [
       {
         type: "p",
@@ -3195,11 +3192,7 @@ export const POSTS: BlogPost[] = [
     image: "/blog/nfc-tag-iphone.svg",
     imageAlt:
       "En iPhone set bagfra med antennezonen markeret i toppen, mens et NFC-tag holdes hen til netop den zone",
-    related: [
-      "nfc-tag",
-      "programmere-nfc-tag",
-      "google-review-stander-guide",
-    ],
+    related: ["nfc-tag", "programmere-nfc-tag", "nfc-vs-qr-kode"],
     body: [
       {
         type: "p",
@@ -3301,6 +3294,127 @@ export const POSTS: BlogPost[] = [
           {
             q: "Hvorfor sker der ingenting, når jeg holder telefonen mod tagget?",
             a: "De hyppigste årsager er, at du holder midten af telefonen mod tagget i stedet for toppen, at skærmen er slukket eller telefonen låst, at coveret indeholder metal, eller at tagget sidder på en metalflade.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "nfc-vs-qr-kode",
+    title: "NFC eller QR-kode? Sådan vælger du",
+    metaTitle: "NFC vs. QR-kode — forskelle, fordele og hvornår du vælger hvad",
+    description:
+      "NFC eller QR-kode? Se forskellene på rækkevidde, pris, telefoner og brugeroplevelse — og hvornår du med fordel bruger begge dele på samme flade.",
+    keyword: "nfc vs qr kode",
+    date: "2026-09-10",
+    readingMinutes: 6,
+    excerpt:
+      "De to teknologier fejler på hver sin måde. Derfor supplerer de hinanden bedre, end de konkurrerer — her er hvornår du vælger hvad.",
+    image: "/blog/nfc-vs-qr.svg",
+    imageAlt:
+      "Til venstre en telefon der tapper et NFC-tag tæt på, til højre en telefon der scanner en QR-kode på afstand",
+    related: ["nfc-tag", "qr-kode-til-google-anmeldelser", "google-review-stander-guide"],
+    body: [
+      {
+        type: "p",
+        html: 'Det korte svar: <strong>NFC er hurtigere for kunden, QR virker for flere</strong>. Et NFC-tag kræver, at telefonen holdes få centimeter væk, men åbner linket af sig selv. En QR-kode kræver, at kameraet findes frem, men virker på stort set alle telefoner og også på afstand. De fleste gennemtænkte løsninger har begge dele på samme flade. Vil du forstå teknikken bag NFC, har vi en <a href="/blog/nfc-tag">komplet guide til NFC-tags</a>.',
+      },
+
+      { type: "h2", text: "Forskellene på et blik" },
+      {
+        type: "table",
+        head: ["", "NFC tag", "QR-kode"],
+        rows: [
+          ["Sådan bruges den", "Hold telefonen hen til den", "Åbn kameraet og scan"],
+          ["Virker på", "Nyere iPhones og de fleste Androids", "Stort set alle telefoner med kamera"],
+          ["Afstand", "1-4 cm", "Fra få centimeter til flere meter"],
+          ["Pris pr. stk.", "Nogle få kroner", "Gratis — det er bare tryk"],
+          ["I mørke", "Virker", "Kan være svært at scanne"],
+          ["Bag glas eller på afstand", "Virker ikke", "Virker fint"],
+          ["På metal", "Kræver anti-metal-tag", "Ingen forskel"],
+          ["Kan ændres bagefter", "Ja, hvis tagget ikke er låst", "Kun med et dynamisk link"],
+        ],
+      },
+      {
+        type: "figur",
+        src: "/blog/nfc-vs-qr.svg",
+        alt: "Til venstre tapper en telefon et NFC-tag på få centimeters afstand, til højre scanner en telefon en QR-kode på afstand",
+        caption:
+          "Den afgørende forskel er afstanden — og den er både NFC's styrke og dens begrænsning.",
+      },
+
+      { type: "h2", text: "Hvor NFC vinder" },
+      {
+        type: "ul",
+        items: [
+          "<strong>Færre skridt.</strong> Kunden skal ikke finde kameraet frem, ramme koden og vente på fokus. Et tap er ét skridt.",
+          "<strong>Lys og vinkler er ligegyldige.</strong> Et mørkt lokale eller en skæv vinkel gør ingen forskel.",
+          "<strong>Det ser pænere ud.</strong> Der skal ikke være en firkantet kode på flader, hvor den skæmmer.",
+          "<strong>Sværere at bytte om på.</strong> Et klistermærke kan sættes oven på en QR-kode; et tag skal fysisk skiftes ud.",
+        ],
+      },
+
+      { type: "h2", text: "Hvor QR vinder" },
+      {
+        type: "ul",
+        items: [
+          "<strong>Alle kan bruge den.</strong> Har telefonen et kamera, virker den — også på ældre modeller.",
+          "<strong>Afstand.</strong> Den kan sidde i et vindue, på en plakat i den anden ende af lokalet eller på en skærm.",
+          "<strong>Den koster ingenting.</strong> Det er bare tryksværte, uanset hvor mange du laver.",
+          "<strong>Den virker gennem glas</strong> og på metal, hvor et almindeligt NFC-tag ikke gør.",
+          "<strong>Man kan se, at der er noget.</strong> En QR-kode signalerer selv, at den skal scannes. Et tag er usynligt uden en tekst, der forklarer det.",
+        ],
+      },
+      {
+        type: "note",
+        title: "Det sidste punkt er vigtigere, end det lyder",
+        html: "Et NFC-tag uden en tydelig opfordring bliver ikke brugt. Kunden skal vide, at der er noget at tappe på, og hvor. Det er derfor, standere og skilte med NFC næsten altid har både et ikon, en tekst og en QR-kode — de tre ting forklarer hinanden.",
+      },
+
+      { type: "h2", text: "Hvad koster de?" },
+      {
+        type: "p",
+        html: "En QR-kode koster ingenting at lave. Et NFC-tag koster typisk 3-10 kr. pr. stk., og prisen falder ved større antal. Forskellen betyder mest, når du skal ud med mange: hundrede klistermærker med QR er gratis at trykke, mens hundrede NFC-tags er en reel udgift.",
+      },
+      {
+        type: "p",
+        html: "Til gengæld er den reelle omkostning sjældent selve mediet. Den ligger i, hvad de peger på, og om nogen holder øje med, at det stadig virker.",
+      },
+
+      { type: "h2", text: "Til anmeldelser: brug begge" },
+      {
+        type: "p",
+        html: 'Ved kassen står kunden stille i få sekunder, og der er ingen tid at spilde. NFC er hurtigst, men du ved ikke, hvilken telefon den næste kunde har. Derfor har vores egne standere <strong>begge dele på samme flade</strong> — den, der tapper, og den, der scanner, kommer det samme sted hen.',
+      },
+      {
+        type: "p",
+        html: 'Skal du bare teste idéen først, kan du starte med en gratis QR-kode: se <a href="/blog/qr-kode-til-google-anmeldelser">guiden til QR-kode til Google-anmeldelser</a>. Vil du se, hvordan en færdig løsning ser ud, gennemgår <a href="/blog/google-review-stander-guide">guiden til review-standere</a> forskellene.',
+      },
+      {
+        type: "cta",
+        text: "Se en stander med både NFC og QR på samme flade.",
+        href: "/reviewstander",
+        label: "Se reviewstanderen",
+      },
+
+      {
+        type: "faq",
+        items: [
+          {
+            q: "Er NFC bedre end en QR-kode?",
+            a: "Ikke bedre — hurtigere for den kunde, hvis telefon understøtter det. NFC kræver få centimeters afstand og en nyere telefon; QR virker på stort set alle telefoner og også på afstand. De to supplerer hinanden, og de fleste gennemtænkte løsninger har begge dele.",
+          },
+          {
+            q: "Hvad er billigst, NFC eller QR?",
+            a: "QR. En QR-kode koster ingenting at lave — det er bare tryk. Et NFC-tag koster typisk 3-10 kr. pr. stk. Forskellen betyder mest, når du skal bruge mange.",
+          },
+          {
+            q: "Kan man have både NFC og QR på samme skilt?",
+            a: "Ja, og det er som regel den rigtige løsning. NFC-tagget sidder bag fladen, og QR-koden trykkes ovenpå. De kan pege samme sted hen, så det er ligegyldigt, hvad kunden vælger.",
+          },
+          {
+            q: "Virker NFC på alle telefoner?",
+            a: "Nej. Fra iPhone XR og XS og frem læses tags automatisk; iPhone 7, 8 og X kan læse dem via Kontrolcenter, og ældre modeller kan ikke. De fleste Androids i mellem- og topklassen har NFC, men det skal være slået til i indstillingerne.",
           },
         ],
       },

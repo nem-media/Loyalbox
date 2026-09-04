@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Til venstre en telefon der tapper et NFC-tag på få centimeters afstand, til højre en telefon der scanner en QR-kode på afstand">
+  <style>
+    .h { font: 700 26px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    .b { font: 400 19px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #1e1c1a; opacity: .66; }
+    .vs { font: 700 24px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #1e1c1a; opacity: .35; }
+  </style>
+  <rect width="1200" height="630" fill="#f6f4ee"/>
+
+  <path d="M600 90 L600 540" stroke="#1e1c1a" stroke-opacity=".12" stroke-width="2" stroke-dasharray="10 10"/>
+  <circle cx="600" cy="315" r="34" fill="#f6f4ee"/>
+  <text x="600" y="324" class="vs" text-anchor="middle">vs</text>
+
+  <text x="80" y="122" class="h" fill="#1b916a">NFC</text>
+  <text x="80" y="158" class="b">Hold telefonen hen — 1-4 cm</text>
+
+  <g>
+    <rect x="80" y="210" width="180" height="180" rx="20" fill="#ffffff"/>
+    <rect x="80" y="210" width="180" height="180" rx="20" fill="none" stroke="#1e1c1a" stroke-width="3" opacity=".28"/>
+    <g fill="none" stroke="#1b916a" stroke-width="7" stroke-linejoin="round">
+      <rect x="104" y="234" width="132" height="132" rx="14"/>
+      <rect x="122" y="252" width="96" height="96" rx="11"/>
+    </g>
+    <rect x="152" y="282" width="36" height="36" rx="6" fill="#19375c"/>
+  </g>
+
+  <g fill="none" stroke="#ffb700" stroke-width="9" stroke-linecap="round">
+    <path d="M292 258 A 56 56 0 0 1 292 342"/>
+    <path d="M322 228 A 96 96 0 0 1 322 372"/>
+  </g>
+
+  <g>
+    <rect x="366" y="176" width="160" height="250" rx="26" fill="#1e1c1a"/>
+    <rect x="378" y="188" width="136" height="226" rx="18" fill="#ffffff"/>
+    <circle cx="446" cy="262" r="22" fill="#1b916a" opacity=".16"/>
+    <path d="M436 262 l7 7 14 -14" fill="none" stroke="#1b916a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="400" y="304" width="92" height="10" rx="5" fill="#1e1c1a" opacity=".7"/>
+    <rect x="414" y="326" width="64" height="8" rx="4" fill="#1e1c1a" opacity=".3"/>
+  </g>
+
+  <text x="80" y="480" class="b">Hurtigst for kunden. Virker i mørke.</text>
+  <text x="80" y="510" class="b">Kræver nyere telefon og tæt afstand.</text>
+
+  <text x="672" y="122" class="h" fill="#19375c">QR-kode</text>
+  <text x="672" y="158" class="b">Åbn kameraet — også på afstand</text>
+
+  <g>
+    <rect x="672" y="210" width="180" height="180" rx="12" fill="#ffffff"/>
+    <rect x="672" y="210" width="180" height="180" rx="12" fill="none" stroke="#1e1c1a" stroke-width="3" opacity=".28"/>
+    <g fill="#19375c">
+      <rect x="694" y="232" width="44" height="44" rx="4"/><rect x="706" y="244" width="20" height="20" fill="#ffffff"/>
+      <rect x="786" y="232" width="44" height="44" rx="4"/><rect x="798" y="244" width="20" height="20" fill="#ffffff"/>
+      <rect x="694" y="324" width="44" height="44" rx="4"/><rect x="706" y="336" width="20" height="20" fill="#ffffff"/>
+      <rect x="752" y="232" width="14" height="14"/><rect x="752" y="260" width="14" height="14"/>
+      <rect x="766" y="288" width="14" height="14"/><rect x="738" y="288" width="14" height="14"/>
+      <rect x="794" y="302" width="14" height="14"/><rect x="766" y="330" width="14" height="14"/>
+      <rect x="808" y="330" width="14" height="14"/><rect x="780" y="358" width="14" height="14"/>
+      <rect x="752" y="316" width="14" height="14"/><rect x="808" y="358" width="14" height="14"/>
+    </g>
+  </g>
+
+  <g fill="none" stroke="#19375c" stroke-width="4" stroke-opacity=".4" stroke-dasharray="12 9">
+    <path d="M962 220 L878 288"/>
+    <path d="M962 410 L878 342"/>
+  </g>
+
+  <g>
+    <rect x="962" y="176" width="160" height="250" rx="26" fill="#1e1c1a"/>
+    <rect x="974" y="188" width="136" height="226" rx="18" fill="#ffffff"/>
+    <rect x="994" y="238" width="96" height="96" rx="8" fill="#19375c" opacity=".1"/>
+    <g fill="none" stroke="#19375c" stroke-width="5" stroke-linecap="round">
+      <path d="M994 262 L994 238 L1018 238"/><path d="M1066 238 L1090 238 L1090 262"/>
+      <path d="M1090 310 L1090 334 L1066 334"/><path d="M1018 334 L994 334 L994 310"/>
+    </g>
+    <rect x="1000" y="360" width="84" height="10" rx="5" fill="#1e1c1a" opacity=".7"/>
+  </g>
+
+  <text x="672" y="480" class="b">Virker på stort set alle telefoner</text>
+  <text x="672" y="510" class="b">og bag glas. Kræver lys og fokus.</text>
+</svg>
