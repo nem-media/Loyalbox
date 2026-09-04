@@ -2655,9 +2655,9 @@ export const POSTS: BlogPost[] = [
   {
     slug: "nfc-tag",
     title: "NFC tag: hvad er det, og hvordan virker det?",
-    metaTitle: "NFC tag — komplet guide: sådan virker det, og sådan bruger du det",
+    metaTitle: "NFC tag — komplet guide til NFC-tags",
     description:
-      "Hvad er et NFC tag, hvordan virker det, og hvad kan du bruge det til? Komplet dansk guide til NFC-tags: programmering, iPhone, Android, NTAG213/215/216 og NFC vs. QR.",
+      "Hvad er et NFC tag, hvordan virker det, og hvad kan du bruge det til? Komplet dansk guide: programmering, iPhone, Android, NTAG213/215/216 og NFC vs. QR.",
     keyword: "nfc tag",
     date: "2026-09-04",
     readingMinutes: 14,
