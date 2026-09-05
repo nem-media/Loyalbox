@@ -6,7 +6,6 @@ import { resolvePublicReviewLinks, resolveExtraLink } from "@/lib/stands";
 import { deviceTypeFromUA } from "@/lib/utils";
 import { StandLanding } from "./stand-landing";
 import { hentOffentligKundescore } from "@/lib/omdoemme-data";
-import { OffentligKundescoreVisning } from "@/components/offentlig-kundescore";
 import { Logo } from "@/components/brand";
 
 export const dynamic = "force-dynamic";
@@ -154,24 +153,6 @@ export default async function ReviewPage({
           {!hasLoyalty ? (
             <p className="mt-1 text-sm text-muted">Del din oplevelse med os</p>
           ) : null}
-
-          {/*
-            KUNDESCOREN, hvis butikken har valgt at vise den. Den står under
-            navnet og over valgene — det er der, den hører til som en oplysning
-            om forretningen.
-
-            VÆRD AT VIDE: et gennemsnit, kunden ser FØR hun sætter stjerner,
-            kan flytte hendes vurdering mod tallet. Derfor er det et TILVALG og
-            slået fra som standard — og derfor er det holdt lille og neutralt
-            frem for fremhævet. Skal effekten helt væk, er stedet at flytte den
-            til efter bedømmelsen er sat, ikke at gøre den mindre.
-          */}
-          {offentligScore ? (
-            <OffentligKundescoreVisning
-              score={offentligScore}
-              className="mt-4 border-t border-border pt-4"
-            />
-          ) : null}
         </div>
 
         {/* StandLanding er den eneste indgang. Den springer selv valgskærmen
@@ -182,6 +163,7 @@ export default async function ReviewPage({
           companyId={company.id}
           publicLinks={publicLinks}
           extra={extra}
+          offentligScore={offentligScore}
         />
       </div>
 

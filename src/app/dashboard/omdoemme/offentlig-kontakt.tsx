@@ -15,7 +15,14 @@ import { saetOffentligKundescore, type FormResult } from "./actions";
  * dialog på et frivilligt tilvalg er i vejen. Ved at slå FRA er der heller
  * ingen — at fjerne noget offentligt er den forsigtige retning.
  */
-export function OffentligKontakt({ til }: { til: boolean }) {
+export function OffentligKontakt({
+  til,
+  label,
+}: {
+  til: boolean;
+  /** Overskriv knapteksten — nudgen siger "Vis min kundescore". */
+  label?: string;
+}) {
   const [state, action, pending] = useActionState<FormResult, FormData>(
     saetOffentligKundescore,
     {},
@@ -32,9 +39,7 @@ export function OffentligKontakt({ til }: { til: boolean }) {
       >
         {pending
           ? "Gemmer…"
-          : til
-            ? "Slå visningen fra"
-            : "Vis kundescoren offentligt"}
+          : (label ?? (til ? "Slå visningen fra" : "Vis kundescoren offentligt"))}
       </Button>
       {state.error ? (
         <span className="text-sm text-danger">{state.error}</span>

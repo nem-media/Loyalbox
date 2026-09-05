@@ -17,6 +17,9 @@ import {
   offentligKundescore,
   klarTilOffentligVisning,
   OFFENTLIG_MINIMUM,
+  OFFENTLIG_PERIODE_MAANEDER,
+  offentligPeriodeStart,
+  boerForeslaaOffentlig,
   OFFENTLIG_TEKST,
   FORBUDTE_ORD,
   type EksternProfil,
@@ -560,5 +563,84 @@ describe("den offentlige kundescore", () => {
     expect(OFFENTLIG_TEKST.grundlag(86)).toContain("86");
     expect(OFFENTLIG_TEKST.grundlag(1)).toContain("kundeoplevelse");
     expect(OFFENTLIG_TEKST.grundlag(2)).toContain("kundeoplevelser");
+  });
+});
+
+describe("den offentlige periode og nudgen", () => {
+  /**
+   * RULLENDE 12 MÅNEDER. Den interne score dækker hele historikken — det er
+   * to forskellige spørgsmål. Udadtil skal tallet sige noget om, hvordan
+   * butikken er NU, og en femstjernet periode fra for tre år siden skal ikke
+   * kunne bære et tal, en kunde læser i dag.
+   */
+  it("regner perioden 12 måneder tilbage", () => {
+    const nu = new Date("2026-09-05T12:00:00Z");
+    const start = offentligPeriodeStart(nu);
+    expect(start.getUTCFullYear()).toBe(2025);
+    expect(start.getUTCMonth()).toBe(8); // september (0-indekseret)
+    expect(OFFENTLIG_PERIODE_MAANEDER).toBe(12);
+  });
+
+  /** Årsskiftet må ikke give en dato i fremtiden eller en måned forkert. */
+  it("håndterer årsskiftet", () => {
+    const start = offentligPeriodeStart(new Date("2026-01-15T12:00:00Z"));
+    expect(start.getUTCFullYear()).toBe(2025);
+    expect(start.getUTCMonth()).toBe(0); // januar
+    expect(start.getTime()).toBeLessThan(new Date("2026-01-15T12:00:00Z").getTime());
+  });
+
+  /** Perioden SKAL stå i teksten — ellers kan tallet være fra hvornår som helst. */
+  it("skriver perioden sammen med antallet", () => {
+    const t = OFFENTLIG_TEKST.grundlag(67);
+    expect(t).toContain("67");
+    expect(t).toContain("12 måneder");
+  });
+
+  /**
+   * NUDGEN KRÆVER BÅDE MÆNGDE OG KVALITET. Et forslag ved fem oplevelser
+   * ville være en opfordring til at offentliggøre et tyndt tal, og et forslag
+   * ved 4,1 ville være en opfordring til at offentliggøre noget, butikken
+   * formentlig ikke vil vise.
+   */
+  it("foreslår kun offentlig visning ved både nok data og stærk score", () => {
+    expect(boerForeslaaOffentlig(20, 4.5, false)).toBe(true);
+    expect(boerForeslaaOffentlig(19, 4.9, false)).toBe(false);
+    expect(boerForeslaaOffentlig(200, 4.4, false)).toBe(false);
+    expect(boerForeslaaOffentlig(200, null, false)).toBe(false);
+  });
+
+  /** Er den allerede slået til, er der intet at foreslå. */
+  it("foreslår ikke noget, når visningen allerede er slået til", () => {
+    expect(boerForeslaaOffentlig(500, 5, true)).toBe(false);
+  });
+
+  /**
+   * NUDGEN ÆNDRER INTET VED MÅLINGEN. Den er en ren funktion af tal, vi
+   * allerede har — den kan ikke røre hverken flowet eller beregningen. Prøven
+   * står her som en påmindelse: får den nogensinde en bivirkning, er det et
+   * brud på, at alle måles ens.
+   */
+  it("er en ren aflæsning uden bivirkninger", () => {
+    const fordeling1 = fordeling({ 5: 30 });
+    const foer = beregnOmdoemme({
+      fordeling: fordeling1,
+      haandteredeNegative: 0,
+      profiler: [],
+    });
+    boerForeslaaOffentlig(30, 5, false);
+    const efter = beregnOmdoemme({
+      fordeling: fordeling1,
+      haandteredeNegative: 0,
+      profiler: [],
+    });
+    expect(efter).toEqual(foer);
+  });
+
+  /** Negative vurderinger skal tælle med — ikke filtreres fra. */
+  it("tæller negative vurderinger med i den offentlige score", () => {
+    const kun5 = offentligKundescore(fordeling({ 5: 10 }), true)!;
+    const medEn1 = offentligKundescore(fordeling({ 5: 10, 1: 1 }), true)!;
+    expect(medEn1.score).toBeLessThan(kun5.score);
+    expect(medEn1.antal).toBe(11);
   });
 });

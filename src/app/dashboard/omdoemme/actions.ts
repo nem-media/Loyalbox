@@ -3,7 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { getCompanyAccess } from "@/lib/loyalty/access";
 import { createClient } from "@/lib/supabase/server";
-import { PLATFORME, valider } from "@/lib/omdoemme";
+import {
+  OFFENTLIG_MINIMUM,
+  OFFENTLIG_TEKST,
+  PLATFORME,
+  valider,
+} from "@/lib/omdoemme";
+import { hentOffentligtGrundlag } from "@/lib/omdoemme-data";
 
 /**
  * Handlingerne bag Omdømme-siden.
@@ -185,7 +191,29 @@ export async function saetOffentligKundescore(
   const access = await getCompanyAccess();
   if (!access) return { error: "Ingen adgang." };
 
+  /*
+   * KUN EJEREN. Hvad der står offentligt om forretningen, er ikke en daglig
+   * handling som at stemple et kort — det er en beslutning om, hvordan
+   * butikken fremstår. En medarbejder med adgang til disken skal ikke kunne
+   * træffe den, heller ikke ved et uheld.
+   */
+  if (access.role !== "owner") {
+    return { error: "Kun virksomhedens ejer kan ændre den offentlige visning." };
+  }
+
   const til = formData.get("til") === "1";
+
+  /*
+   * MINIMUMSGRÆNSEN HÅNDHÆVES HER OG IKKE KUN I VISNINGEN. Knappen er
+   * deaktiveret i brugerfladen, men en server-action skal kunne stå alene:
+   * en formular kan sendes uden om en deaktiveret knap.
+   */
+  if (til) {
+    const grundlag = await hentOffentligtGrundlag(access.companyId);
+    if (grundlag.antal < OFFENTLIG_MINIMUM) {
+      return { error: OFFENTLIG_TEKST.forTidligt };
+    }
+  }
 
   const supabase = await createClient();
   const { error } = await supabase

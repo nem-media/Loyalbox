@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ReviewFlow, type PublicLink, type ExtraLink } from "./review-flow";
+import type { OffentligKundescore } from "@/lib/omdoemme";
 import { Button, ButtonLink } from "@/components/ui/button";
 
 /**
@@ -27,6 +28,7 @@ export function StandLanding({
   companyId,
   publicLinks,
   extra,
+  offentligScore,
 }: {
   /** Null når butikken ikke har stempelkort. */
   enrollHref: string | null;
@@ -34,6 +36,9 @@ export function StandLanding({
   companyId: string;
   publicLinks: PublicLink[];
   extra?: ExtraLink | null;
+  /** Butikkens offentlige kundescore, hvis den er slået til. Vises FØRST efter
+   *  kunden har sat sine stjerner — se ReviewFlow. */
+  offentligScore?: OffentligKundescore | null;
 }) {
   const [mode, setMode] = useState<"choose" | "review">("choose");
 
@@ -48,6 +53,7 @@ export function StandLanding({
         companyId={companyId}
         publicLinks={publicLinks}
         extra={extra}
+        offentligScore={offentligScore}
       />
     );
   }

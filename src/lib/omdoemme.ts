@@ -305,6 +305,26 @@ export function datagrundlag(
 export const OFFENTLIG_MINIMUM = 5;
 
 /**
+ * Perioden bag den OFFENTLIGE score: rullende 12 måneder.
+ *
+ * DEN INTERNE SCORE ER UPÅVIRKET og dækker fortsat hele historikken — det er
+ * to forskellige spørgsmål. Internt vil man vide, hvordan det er gået; udadtil
+ * skal tallet sige noget om, hvordan butikken er NU. En femstjernet periode
+ * fra 2023 skal ikke kunne bære et tal, en kunde læser i dag.
+ *
+ * Har butikken ikke eksisteret i 12 måneder, tæller alt siden start af sig
+ * selv: vinduet er en nedre grænse for datoen, ikke et krav om at fylde den.
+ */
+export const OFFENTLIG_PERIODE_MAANEDER = 12;
+
+/** Datoen, den offentlige score tæller fra. Ren funktion, så den kan prøves. */
+export function offentligPeriodeStart(nu: Date = new Date()): Date {
+  const d = new Date(nu);
+  d.setMonth(d.getMonth() - OFFENTLIG_PERIODE_MAANEDER);
+  return d;
+}
+
+/**
  * Over den her grænse er tallet ikke længere "foreløbigt".
  *
  * Samme tal som `datagrundlag()` bruger til "godt datagrundlag". Ét sted at
@@ -380,17 +400,60 @@ export function klarTilOffentligVisning(
  */
 export const OFFENTLIG_TEKST = {
   overskrift: "Kunderne vurderer os",
+  /**
+   * Antallet OG perioden. Begge dele er nødvendige: et gennemsnit uden
+   * grundlag er en påstand, og et grundlag uden periode skjuler, om tallet er
+   * fra i år eller fra for fem år siden.
+   */
   grundlag: (antal: number) =>
-    `Baseret på ${antal} ${antal === 1 ? "kundeoplevelse" : "kundeoplevelser"}`,
+    `Baseret på ${antal} ${antal === 1 ? "kundeoplevelse" : "kundeoplevelser"} de seneste ${OFFENTLIG_PERIODE_MAANEDER} måneder`,
   kilde: "Målt via LoyalSum",
   foreloebig: "Foreløbig kundescore",
+  forklaringLink: "Hvordan beregnes scoren?",
+  forklaring:
+    "LoyalSum Kundescore er gennemsnittet af kundeoplevelser registreret direkte gennem LoyalSum. Den offentlige score beregnes ud fra kundeoplevelser inden for de seneste 12 måneder, og alle vurderinger i perioden indgår.",
+  /** Beskeden, når nogen forsøger at slå visningen til for tidligt. */
+  forTidligt: `Du skal have mindst ${OFFENTLIG_MINIMUM} kundeoplevelser, før din kundescore kan vises offentligt.`,
 } as const;
+
+/* ------------------------------------------------------------------ nudge */
+
+/** Antal kundeoplevelser, før vi overhovedet foreslår offentlig visning. */
+export const NUDGE_MINIMUM_ANTAL = 20;
+
+/** Og hvor god scoren skal være, før forslaget giver mening. */
+export const NUDGE_MINIMUM_SCORE = 4.5;
+
+/**
+ * Skal dashboardet foreslå offentlig visning?
+ *
+ * VI MÅ GERNE FORESLÅ DET — og det ændrer ingenting. Hverken flowet, hvem der
+ * bliver spurgt, eller hvordan scoren regnes, afhænger af, om forslaget vises
+ * eller tages imod. Det eneste, virksomheden vælger, er om det samlede tal
+ * står offentligt. Var det anderledes, ville vi måle forskelligt på dem, vi
+ * regner for stærke, og det er den slags, hele `review-flow.ts` er skrevet
+ * for at undgå.
+ *
+ * Grænserne er højere end minimum for visning: et forslag skal kun komme,
+ * når svaret formentlig er ja. Et forslag ved fem oplevelser ville være en
+ * opfordring til at offentliggøre et tyndt tal.
+ */
+export function boerForeslaaOffentlig(
+  antal: number,
+  kundescore: number | null,
+  tilvalgt: boolean,
+): boolean {
+  if (tilvalgt) return false;
+  if (kundescore === null) return false;
+  return antal >= NUDGE_MINIMUM_ANTAL && kundescore >= NUDGE_MINIMUM_SCORE;
+}
 
 /** Ord, den offentlige visning ALDRIG må bruge. Prøves i omdoemme.test.ts. */
 export const FORBUDTE_ORD = [
   "verificeret",
   "certificeret",
   "godkendt",
+  "officiel rating",
   "verified",
 ] as const;
 

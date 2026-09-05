@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { submitFeedback } from "./actions";
+import { OffentligKundescoreVisning } from "@/components/offentlig-kundescore";
+import type { OffentligKundescore } from "@/lib/omdoemme";
 import { StarIcon } from "@/components/ui/stars";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
@@ -26,6 +28,20 @@ interface Props {
   publicLinks: PublicLink[];
   /** Valgfrit ekstra link (menukort, booking m.m.) — ikke en anmeldelse. */
   extra?: ExtraLink | null;
+  /**
+   * Butikkens offentlige kundescore — hvis den er slået til.
+   *
+   * VISES FØRST NÅR STJERNERNE ER SAT, og det er hele grunden til, at den
+   * ligger her og ikke oppe ved butikkens navn. Et gennemsnit, kunden ser
+   * FØR hun vælger, flytter hendes vurdering mod tallet — og det tal er
+   * netop det, vores egen score bygger på. Når stjernerne er valgt, kan
+   * oplysningen ikke længere påvirke dem.
+   *
+   * Det er samme tænkning som `reviewChoices()`, der ikke får bedømmelsen at
+   * vide: den sikreste måde at undgå en påvirkning er, at oplysningen ikke er
+   * til stede, når valget træffes.
+   */
+  offentligScore?: OffentligKundescore | null;
 }
 
 /**
@@ -49,6 +65,7 @@ export function ReviewFlow({
   companyId,
   publicLinks,
   extra,
+  offentligScore,
 }: Props) {
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -118,6 +135,12 @@ export function ReviewFlow({
           <a href={extra.url} className="mt-4 inline-block text-sm font-medium text-accent">
             {extra.label} →
           </a>
+        ) : null}
+        {offentligScore ? (
+          <OffentligKundescoreVisning
+            score={offentligScore}
+            className="mt-6 border-t border-border pt-5"
+          />
         ) : null}
       </div>
     );
@@ -219,6 +242,17 @@ export function ReviewFlow({
             </div>
           )}
 
+          {/*
+            KUNDESCOREN — først her, efter stjernerne er sat. Se kommentaren
+            ved `offentligScore` i Props: fra dette punkt kan tallet ikke
+            længere påvirke kundens egen vurdering.
+          */}
+          {offentligScore ? (
+            <OffentligKundescoreVisning
+              score={offentligScore}
+              className="border-t border-border pt-5 text-center"
+            />
+          ) : null}
         </>
       )}
     </div>

@@ -8,11 +8,17 @@ import { Badge } from "@/components/ui/badge";
 import { UpgradeNotice } from "@/components/upgrade-notice";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ReputationIcon, FeedbackBubbleIcon } from "@/components/nav-icons";
-import { hentOmdoemme, gemDagensSnapshot } from "@/lib/omdoemme-data";
+import {
+  hentOmdoemme,
+  gemDagensSnapshot,
+  hentOffentligtGrundlag,
+} from "@/lib/omdoemme-data";
 import {
   DATAGRUNDLAG_TEKST,
   DEL_NAVNE,
   OFFENTLIG_MINIMUM,
+  OFFENTLIG_TEKST,
+  boerForeslaaOffentlig,
   EKSTERNE_FORBEHOLD,
   OMDOEMME_FORBEHOLD,
   VAEGTE,
@@ -21,6 +27,7 @@ import {
 } from "@/lib/omdoemme";
 import { EksterneProfiler } from "./eksterne-profiler";
 import { OffentligKontakt } from "./offentlig-kontakt";
+import { OffentligNudge } from "./offentlig-nudge";
 import { OffentligKundescoreVisning } from "@/components/offentlig-kundescore";
 import { formatDate } from "@/lib/utils";
 
@@ -83,6 +90,18 @@ export default async function OmdoemmePage() {
   const dele = Object.keys(VAEGTE) as Delnavn[];
 
   const offentligTil = company.offentlig_kundescore;
+
+  /*
+   * GRUNDLAGET FOR DEN OFFENTLIGE SCORE regnes på de seneste 12 måneder og
+   * er derfor et ANDET tal end den interne kundescore ovenfor. Det er med
+   * vilje: udadtil skal tallet sige noget om, hvordan butikken er nu.
+   */
+  const offentligt = await hentOffentligtGrundlag(company.id);
+  const foreslaa = boerForeslaaOffentlig(
+    offentligt.antal,
+    offentligt.kundescore,
+    offentligTil,
+  );
 
   return (
     <>
@@ -294,13 +313,28 @@ export default async function OmdoemmePage() {
 
       {/* ------------------------------------------ offentlig kundescore */}
       <Sektion titel="Offentlig kundescore">
+        {/*
+          NUDGEN. Kun når der er både nok data og en stærk score — se
+          boerForeslaaOffentlig(). Den ændrer intet ved målingen: hverken
+          flowet, hvem der bliver spurgt, eller hvordan scoren regnes,
+          afhænger af, om forslaget vises eller tages imod.
+        */}
+        {foreslaa && offentligt.kundescore !== null ? (
+          <OffentligNudge
+            antal={offentligt.antal}
+            kundescore={offentligt.kundescore}
+          />
+        ) : null}
+
         <Card>
           <CardBody className="space-y-4 text-sm">
-            <p>
-              Du kan vælge at vise din <strong>LoyalSum Kundescore</strong> på
-              den side, dine kunder lander på. Den viser stjernegennemsnittet og
-              hvor mange kundeoplevelser, det bygger på — ikke andet.
-            </p>
+            <div>
+              <p className="font-medium">Vis LoyalSum Kundescore offentligt</p>
+              <p className="mt-1 text-muted">
+                Vis din kundescore på din LoyalSum-side. Scoren beregnes ud fra
+                kundeoplevelser indsamlet gennem LoyalSum.
+              </p>
+            </div>
 
             <ul className="space-y-1.5 text-muted">
               <li>
@@ -312,50 +346,42 @@ export default async function OmdoemmePage() {
                 stjerner, dine egne kunder har givet gennem LoyalSum.
               </li>
               <li>
-                Antallet af kundeoplevelser står <strong>altid</strong> ved
-                siden af tallet.
+                Tallet dækker de seneste <strong>12 måneder</strong>, og antallet
+                af kundeoplevelser står altid ved siden af.
               </li>
               <li>
-                Der skal være mindst {OFFENTLIG_MINIMUM} kundeoplevelser, før
-                tallet kan vises. Under det kan én vurdering flytte
-                gennemsnittet for meget.
-              </li>
-              <li>
-                Det er ikke en godkendelse eller en certificering — der står
-                blot, at tallet er målt via LoyalSum.
+                Den vises først, <strong>efter kunden har sat sine stjerner</strong>
+                — så tallet ikke kan påvirke, hvad hun selv giver.
               </li>
             </ul>
 
-            {omdoemme.antalOplevelser < OFFENTLIG_MINIMUM ? (
-              <p className="text-muted">
-                Du har {omdoemme.antalOplevelser} af {OFFENTLIG_MINIMUM}{" "}
-                kundeoplevelser. Du kan slå visningen til nu — tallet dukker
-                først op på den offentlige side, når grundlaget er der.
-              </p>
-            ) : null}
-
-            {/* Sådan kommer det til at se ud. Man skal kunne se det, før man
+            {/* Sådan kommer det til at se ud. Man skal kunne se det, FØR man
                 siger ja — ikke bagefter på sin egen offentlige side. */}
-            {offentligTil && omdoemme.kundescore !== null &&
-            omdoemme.antalOplevelser >= OFFENTLIG_MINIMUM ? (
+            {offentligt.visning ? (
               <div className="box-shape border border-border bg-muted-bg p-4 text-center">
                 <p className="mb-3 text-xs text-muted">Sådan ser det ud:</p>
-                <OffentligKundescoreVisning
-                  score={{
-                    score: omdoemme.kundescore,
-                    antal: omdoemme.antalOplevelser,
-                    foreloebig: omdoemme.antalOplevelser < 20,
-                  }}
-                />
+                <OffentligKundescoreVisning score={offentligt.visning} />
               </div>
             ) : null}
 
             <div className="border-t border-border pt-4">
-              <OffentligKontakt til={offentligTil} />
+              {/*
+                AT SLÅ FRA SKAL ALTID KUNNE LADE SIG GØRE. Minimumsgrænsen
+                spærrer kun for at slå TIL. Vinduet på 12 måneder ruller, så en
+                butik kan falde under fem kundeoplevelser uden at have gjort
+                noget — og stod knappen så ikke der, var hun låst fast i en
+                offentlig visning, hun selv havde valgt til. Vi lover, at den
+                kan slås fra når som helst.
+              */}
+              {!offentligTil && offentligt.antal < OFFENTLIG_MINIMUM ? (
+                <p className="text-muted">{OFFENTLIG_TEKST.forTidligt}</p>
+              ) : (
+                <OffentligKontakt til={offentligTil} />
+              )}
               <p className="mt-2 text-xs text-muted">
                 {offentligTil
-                  ? "Vises på din offentlige side lige nu. Du kan slå den fra når som helst."
-                  : "Slået fra. Ingen ser din kundescore uden for dette dashboard."}
+                  ? "Vises på din LoyalSum-side lige nu. Du kan til enhver tid slå visningen fra igen — dine data og din historik påvirkes ikke."
+                  : "Slået fra. Ingen ser din kundescore uden for dette dashboard, og dine data og din historik påvirkes ikke."}
               </p>
             </div>
           </CardBody>

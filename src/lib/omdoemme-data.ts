@@ -3,8 +3,11 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   TOM_FORDELING,
+  antalOplevelser,
   beregnOmdoemme,
+  gennemsnit,
   offentligKundescore,
+  offentligPeriodeStart,
   type EksternProfil,
   type Omdoemme,
   type Stjernefordeling,
@@ -54,13 +57,17 @@ async function hentFordeling(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
   companyId: string,
+  /** Valgfri nedre grænse for datoen — bruges til den offentlige 12-måneders score. */
+  siden?: Date,
 ): Promise<Stjernefordeling> {
   const tael = async (rating: number) => {
-    const { count } = await supabase
+    let q = supabase
       .from("feedback")
       .select("*", { count: "exact", head: true })
       .eq("company_id", companyId)
       .eq("rating", rating);
+    if (siden) q = q.gte("created_at", siden.toISOString());
+    const { count } = await q;
     return count ?? 0;
   };
 
@@ -241,6 +248,41 @@ export async function hentOffentligKundescore(
 ) {
   if (!tilvalgt) return null;
   const supabase = await createClient();
-  const fordeling = await hentFordeling(supabase, companyId);
+  /*
+   * KUN DE SENESTE 12 MÅNEDER. Den interne score dækker hele historikken — det
+   * er to forskellige spørgsmål. Udadtil skal tallet sige noget om, hvordan
+   * butikken er NU, og en femstjernet periode fra for tre år siden skal ikke
+   * kunne bære et tal, en kunde læser i dag.
+   */
+  const fordeling = await hentFordeling(
+    supabase,
+    companyId,
+    offentligPeriodeStart(),
+  );
   return offentligKundescore(fordeling, true);
+}
+
+/**
+ * Kundescoren for de seneste 12 måneder — UANSET om visningen er slået til.
+ *
+ * Bruges i dashboardet til to ting: at vise et eksempel på, hvad kunderne
+ * ville se, og at afgøre om forslaget om offentlig visning skal komme. Begge
+ * dele er butikkens eget dashboard; ingen kunde ser noget af det.
+ */
+export async function hentOffentligtGrundlag(companyId: string) {
+  const supabase = await createClient();
+  const fordeling = await hentFordeling(
+    supabase,
+    companyId,
+    offentligPeriodeStart(),
+  );
+  return {
+    antal: antalOplevelser(fordeling),
+    kundescore: (() => {
+      const s = gennemsnit(fordeling);
+      return s === null ? null : Math.round(s * 10) / 10;
+    })(),
+    /** Sådan ville det se ud, hvis visningen blev slået til nu. */
+    visning: offentligKundescore(fordeling, true),
+  };
 }
