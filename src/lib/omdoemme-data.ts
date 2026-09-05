@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import {
   TOM_FORDELING,
   beregnOmdoemme,
+  offentligKundescore,
   type EksternProfil,
   type Omdoemme,
   type Stjernefordeling,
@@ -217,4 +218,29 @@ export async function gemDagensSnapshot(
   } catch (err) {
     console.error("[omdoemme] kunne ikke gemme snapshot:", (err as Error).message);
   }
+}
+
+/**
+ * Kundescoren til den OFFENTLIGE side.
+ *
+ * EGEN FUNKTION FREM FOR `hentOmdoemme()`. Den offentlige side rammes af
+ * kunder og skal være let: her hentes kun de fem tællinger, der skal til for
+ * et gennemsnit — ingen profiler, ingen snapshots, ingen skrivning.
+ *
+ * ER VISNINGEN SLÅET FRA, RØRES BASEN SLET IKKE. Det er det almindelige
+ * tilfælde, og så skal det også være det billigste. Tjekket ligger FØR
+ * forespørgslerne og ikke efter.
+ *
+ * Bruger `createClient()` som resten: den offentlige side læser feedback
+ * gennem RLS ligesom alt andet. Tællinger afslører intet om den enkelte
+ * kunde — kun hvor mange der gav hvilke stjerner.
+ */
+export async function hentOffentligKundescore(
+  companyId: string,
+  tilvalgt: boolean,
+) {
+  if (!tilvalgt) return null;
+  const supabase = await createClient();
+  const fordeling = await hentFordeling(supabase, companyId);
+  return offentligKundescore(fordeling, true);
 }

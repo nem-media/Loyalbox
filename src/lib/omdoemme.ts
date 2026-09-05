@@ -292,6 +292,108 @@ export function datagrundlag(
   return "godt";
 }
 
+/* ------------------------------------------------- den offentlige kundescore */
+
+/**
+ * Mindste antal kundeoplevelser, før kundescoren må vises OFFENTLIGT.
+ *
+ * SAMME GRÆNSE SOM "begrænset datagrundlag" internt, og det er med vilje: et
+ * tal, vi selv kalder for tyndt til at konkludere på, må ikke stå ude hos
+ * kunderne som en vurdering af butikken. Under fem oplevelser kan én
+ * utilfreds flytte gennemsnittet et helt point, og så er tallet støj.
+ */
+export const OFFENTLIG_MINIMUM = 5;
+
+/**
+ * Over den her grænse er tallet ikke længere "foreløbigt".
+ *
+ * Samme tal som `datagrundlag()` bruger til "godt datagrundlag". Ét sted at
+ * skrue på, hvis erfaringen viser noget andet — og aldrig to grænser, der
+ * siger hver sit om det samme datasæt.
+ */
+export const OFFENTLIG_FORELOEBIG_UNDER = 20;
+
+export interface OffentligKundescore {
+  /** Gennemsnittet med én decimal, fx 4,7. */
+  score: number;
+  antal: number;
+  /** Sandt mellem minimum og grænsen for godt datagrundlag. */
+  foreloebig: boolean;
+}
+
+/**
+ * Den kundescore, der må vises offentligt — eller null.
+ *
+ * TAGER `tilvalgt` SOM ARGUMENT OG SPØRGER IKKE SELV. Funktionen kan ikke vise
+ * noget, den ikke får besked på at vise: er flaget ikke sat, er svaret null,
+ * uanset hvor god scoren er. Det er samme greb som `reviewChoices()`, der ikke
+ * tager bedømmelsen som argument — en funktion, der ikke kender oplysningen,
+ * kan ikke komme til at bruge den.
+ *
+ * DEN RØRER ALDRIG EKSTERNE RATINGS. Kun `fordeling`, altså kundernes egne
+ * stjerner gennem LoyalSum. En offentlig score, der indeholdt tal, butikken
+ * selv har indtastet, ville være et selvportræt med vores navn under.
+ */
+export function offentligKundescore(
+  fordeling: Stjernefordeling,
+  tilvalgt: boolean,
+): OffentligKundescore | null {
+  if (!tilvalgt) return null;
+  const antal = antalOplevelser(fordeling);
+  if (antal < OFFENTLIG_MINIMUM) return null;
+  const snit = gennemsnit(fordeling);
+  if (snit === null) return null;
+  return {
+    score: Math.round(snit * 10) / 10,
+    antal,
+    foreloebig: antal < OFFENTLIG_FORELOEBIG_UNDER,
+  };
+}
+
+/**
+ * Er virksomheden klar til at slå den offentlige score til?
+ *
+ * Bruges til at foreslå det i dashboardet. VI MÅ GERNE FORESLÅ DET — men
+ * hverken flowet eller beregningen ændrer sig af, om nogen siger ja: kunden
+ * møder nøjagtig det samme, og scoren regnes ens for alle. Forslaget er en
+ * knap i dashboardet, ikke en anden måde at måle på.
+ */
+export function klarTilOffentligVisning(
+  fordeling: Stjernefordeling,
+  tilvalgt: boolean,
+): boolean {
+  if (tilvalgt) return false;
+  return antalOplevelser(fordeling) >= OFFENTLIG_MINIMUM;
+}
+
+/**
+ * Teksterne til den offentlige visning.
+ *
+ * INGEN AF DEM MÅ LYDE SOM EN GODKENDELSE. Ikke "verificeret", ikke
+ * "certificeret", ikke "godkendt" — LoyalSum er ikke en
+ * certificeringsmyndighed, og et ord som "verificeret" ville påstå, at vi har
+ * efterprøvet noget, vi ikke har. "Målt via LoyalSum" siger præcis det, der er
+ * sandt: tallet er indsamlet gennem vores flow.
+ *
+ * Samlet her, så ordlyden ikke kan drive fra hinanden — og så en test kan
+ * holde de forbudte ord ude.
+ */
+export const OFFENTLIG_TEKST = {
+  overskrift: "Kunderne vurderer os",
+  grundlag: (antal: number) =>
+    `Baseret på ${antal} ${antal === 1 ? "kundeoplevelse" : "kundeoplevelser"}`,
+  kilde: "Målt via LoyalSum",
+  foreloebig: "Foreløbig kundescore",
+} as const;
+
+/** Ord, den offentlige visning ALDRIG må bruge. Prøves i omdoemme.test.ts. */
+export const FORBUDTE_ORD = [
+  "verificeret",
+  "certificeret",
+  "godkendt",
+  "verified",
+] as const;
+
 /* ---------------------------------------------------------------- etiketter */
 
 /**

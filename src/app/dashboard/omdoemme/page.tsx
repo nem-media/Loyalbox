@@ -12,6 +12,7 @@ import { hentOmdoemme, gemDagensSnapshot } from "@/lib/omdoemme-data";
 import {
   DATAGRUNDLAG_TEKST,
   DEL_NAVNE,
+  OFFENTLIG_MINIMUM,
   EKSTERNE_FORBEHOLD,
   OMDOEMME_FORBEHOLD,
   VAEGTE,
@@ -19,6 +20,8 @@ import {
   type Delnavn,
 } from "@/lib/omdoemme";
 import { EksterneProfiler } from "./eksterne-profiler";
+import { OffentligKontakt } from "./offentlig-kontakt";
+import { OffentligKundescoreVisning } from "@/components/offentlig-kundescore";
 import { formatDate } from "@/lib/utils";
 
 export const metadata = { title: "Omdømme" };
@@ -78,6 +81,8 @@ export default async function OmdoemmePage() {
   await gemDagensSnapshot(company.id, omdoemme);
 
   const dele = Object.keys(VAEGTE) as Delnavn[];
+
+  const offentligTil = company.offentlig_kundescore;
 
   return (
     <>
@@ -285,6 +290,76 @@ export default async function OmdoemmePage() {
         {profiler.length ? (
           <p className="mt-3 text-xs text-muted">{EKSTERNE_FORBEHOLD}</p>
         ) : null}
+      </Sektion>
+
+      {/* ------------------------------------------ offentlig kundescore */}
+      <Sektion titel="Offentlig kundescore">
+        <Card>
+          <CardBody className="space-y-4 text-sm">
+            <p>
+              Du kan vælge at vise din <strong>LoyalSum Kundescore</strong> på
+              den side, dine kunder lander på. Den viser stjernegennemsnittet og
+              hvor mange kundeoplevelser, det bygger på — ikke andet.
+            </p>
+
+            <ul className="space-y-1.5 text-muted">
+              <li>
+                Det er <strong>kun kundescoren</strong>. Din Reputation Score
+                bliver aldrig vist offentligt — den er et internt værktøj.
+              </li>
+              <li>
+                <strong>Eksterne ratings tæller ikke med.</strong> Kun de
+                stjerner, dine egne kunder har givet gennem LoyalSum.
+              </li>
+              <li>
+                Antallet af kundeoplevelser står <strong>altid</strong> ved
+                siden af tallet.
+              </li>
+              <li>
+                Der skal være mindst {OFFENTLIG_MINIMUM} kundeoplevelser, før
+                tallet kan vises. Under det kan én vurdering flytte
+                gennemsnittet for meget.
+              </li>
+              <li>
+                Det er ikke en godkendelse eller en certificering — der står
+                blot, at tallet er målt via LoyalSum.
+              </li>
+            </ul>
+
+            {omdoemme.antalOplevelser < OFFENTLIG_MINIMUM ? (
+              <p className="text-muted">
+                Du har {omdoemme.antalOplevelser} af {OFFENTLIG_MINIMUM}{" "}
+                kundeoplevelser. Du kan slå visningen til nu — tallet dukker
+                først op på den offentlige side, når grundlaget er der.
+              </p>
+            ) : null}
+
+            {/* Sådan kommer det til at se ud. Man skal kunne se det, før man
+                siger ja — ikke bagefter på sin egen offentlige side. */}
+            {offentligTil && omdoemme.kundescore !== null &&
+            omdoemme.antalOplevelser >= OFFENTLIG_MINIMUM ? (
+              <div className="box-shape border border-border bg-muted-bg p-4 text-center">
+                <p className="mb-3 text-xs text-muted">Sådan ser det ud:</p>
+                <OffentligKundescoreVisning
+                  score={{
+                    score: omdoemme.kundescore,
+                    antal: omdoemme.antalOplevelser,
+                    foreloebig: omdoemme.antalOplevelser < 20,
+                  }}
+                />
+              </div>
+            ) : null}
+
+            <div className="border-t border-border pt-4">
+              <OffentligKontakt til={offentligTil} />
+              <p className="mt-2 text-xs text-muted">
+                {offentligTil
+                  ? "Vises på din offentlige side lige nu. Du kan slå den fra når som helst."
+                  : "Slået fra. Ingen ser din kundescore uden for dette dashboard."}
+              </p>
+            </div>
+          </CardBody>
+        </Card>
       </Sektion>
 
       {/* --------------------------------------------- sådan beregnes scoren */}

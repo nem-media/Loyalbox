@@ -164,3 +164,39 @@ export async function saetHaandteret(
   revalidatePath("/dashboard");
   return { ok: true };
 }
+
+/**
+ * Slå den offentlige kundescore til eller fra.
+ *
+ * VIRKSOMHEDENS EGET VALG, OG KUN DERES. `company_id` kommer fra
+ * `getCompanyAccess()`, aldrig fra formularen — ingen kan slå en anden
+ * butiks offentlige visning til. Feltet er `false` som standard i basen, så
+ * ingen får sit tal offentliggjort ved en migration.
+ *
+ * DEN ÆNDRER INTET ANDET. Hverken anmeldelsesflowet eller beregningen ser
+ * anderledes ud, om den står til eller fra: kunden møder nøjagtig det samme,
+ * og scoren regnes ens for alle. Det eneste, der ændrer sig, er om tallet
+ * står på den offentlige side.
+ */
+export async function saetOffentligKundescore(
+  _prev: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const access = await getCompanyAccess();
+  if (!access) return { error: "Ingen adgang." };
+
+  const til = formData.get("til") === "1";
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("companies")
+    .update({ offentlig_kundescore: til })
+    .eq("id", access.companyId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/dashboard/omdoemme");
+  // Den offentlige side skal skifte med det samme, ikke ved næste udrulning.
+  revalidatePath("/r/[slug]", "page");
+  return { ok: true };
+}

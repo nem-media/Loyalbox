@@ -14,6 +14,11 @@ import {
   scoreEtiket,
   valider,
   vejetScore,
+  offentligKundescore,
+  klarTilOffentligVisning,
+  OFFENTLIG_MINIMUM,
+  OFFENTLIG_TEKST,
+  FORBUDTE_ORD,
   type EksternProfil,
   type Stjernefordeling,
 } from "./omdoemme";
@@ -474,5 +479,86 @@ describe("validering af eksterne profiler", () => {
     expect(
       valider({ ...gyldig, antalAnmeldelser: Number.POSITIVE_INFINITY }).length,
     ).toBeGreaterThan(0);
+  });
+});
+
+describe("den offentlige kundescore", () => {
+  /**
+   * SLÅET FRA ER SLÅET FRA. Funktionen kan ikke vise noget, den ikke får
+   * besked på at vise — uanset hvor god scoren er. Det er samme greb som
+   * `reviewChoices()`, der ikke tager bedømmelsen som argument: en funktion,
+   * der ikke kender oplysningen, kan ikke komme til at bruge den.
+   */
+  it("viser ingenting, når virksomheden ikke har slået det til", () => {
+    expect(offentligKundescore(fordeling({ 5: 500 }), false)).toBeNull();
+  });
+
+  /**
+   * MINIMUMSGRÆNSEN. Under fem oplevelser kan én utilfreds kunde flytte
+   * gennemsnittet et helt point. Et tal, vi selv kalder for tyndt internt, må
+   * ikke stå ude hos kunderne som en vurdering af butikken.
+   */
+  it("viser ingenting under minimumsgrænsen", () => {
+    expect(offentligKundescore(fordeling({ 5: 4 }), true)).toBeNull();
+    expect(offentligKundescore(fordeling({ 5: OFFENTLIG_MINIMUM }), true)).not.toBeNull();
+  });
+
+  it("markerer scoren som foreløbig mellem minimum og godt datagrundlag", () => {
+    expect(offentligKundescore(fordeling({ 5: 5 }), true)!.foreloebig).toBe(true);
+    expect(offentligKundescore(fordeling({ 5: 19 }), true)!.foreloebig).toBe(true);
+    expect(offentligKundescore(fordeling({ 5: 20 }), true)!.foreloebig).toBe(false);
+  });
+
+  it("giver gennemsnittet med én decimal og antallet med", () => {
+    const r = offentligKundescore(fordeling({ 5: 80, 4: 11, 3: 6, 2: 2, 1: 1 }), true)!;
+    expect(r.score).toBeCloseTo(4.7, 1);
+    expect(r.antal).toBe(100);
+  });
+
+  /**
+   * DEN VIGTIGSTE. Den offentlige score er kundernes egne stjerner gennem
+   * LoyalSum — intet andet. Funktionen tager slet ikke eksterne profiler ind,
+   * så et tal, butikken selv har indtastet, kan ikke havne i det, der står
+   * offentligt. En offentlig score med selvoplyste tal ville være et
+   * selvportræt med vores navn under.
+   */
+  it("kan ikke påvirkes af eksterne ratings", () => {
+    // Signaturen tager kun fordelingen. Der ER ingen vej ind for eksterne tal.
+    expect(offentligKundescore.length).toBe(2);
+    const kun = offentligKundescore(fordeling({ 3: 30 }), true)!;
+    expect(kun.score).toBe(3);
+  });
+
+  it("foreslår først offentlig visning, når grundlaget er der", () => {
+    expect(klarTilOffentligVisning(fordeling({ 5: 4 }), false)).toBe(false);
+    expect(klarTilOffentligVisning(fordeling({ 5: 5 }), false)).toBe(true);
+    // Er den slået til, er der intet at foreslå.
+    expect(klarTilOffentligVisning(fordeling({ 5: 50 }), true)).toBe(false);
+  });
+
+  /**
+   * LOYALSUM ER IKKE EN CERTIFICERINGSMYNDIGHED. "Verificeret" ville påstå,
+   * at vi har efterprøvet noget, vi ikke har. Prøven står her, fordi den
+   * slags ord sniger sig ind, når nogen vil have teksten til at lyde
+   * stærkere — og det ville være en påstand, vi ikke kan bakke op.
+   */
+  it("bruger ikke ord, der lyder som en godkendelse", () => {
+    const tekster = [
+      OFFENTLIG_TEKST.overskrift,
+      OFFENTLIG_TEKST.kilde,
+      OFFENTLIG_TEKST.foreloebig,
+      OFFENTLIG_TEKST.grundlag(86),
+    ].join(" ").toLowerCase();
+
+    for (const ord of FORBUDTE_ORD) {
+      expect(tekster, ord).not.toContain(ord);
+    }
+  });
+
+  /** Antallet skal ALTID med — et gennemsnit uden grundlag er en påstand. */
+  it("skriver altid antallet af kundeoplevelser", () => {
+    expect(OFFENTLIG_TEKST.grundlag(86)).toContain("86");
+    expect(OFFENTLIG_TEKST.grundlag(1)).toContain("kundeoplevelse");
+    expect(OFFENTLIG_TEKST.grundlag(2)).toContain("kundeoplevelser");
   });
 });
