@@ -5,6 +5,7 @@ import { Card, CardBody } from "@/components/ui/card";
 import { FeedbackList } from "@/components/feedback-list";
 import { UpgradeNotice } from "@/components/upgrade-notice";
 import { tierCan, type Tier } from "@/lib/constants";
+import { Haandter } from "./haandter";
 
 export const metadata = { title: "Feedback" };
 
@@ -40,7 +41,20 @@ export default async function FeedbackPage() {
       />
       <Card>
         <CardBody>
-          <FeedbackList items={items} />
+          {/*
+            OPFØLGNING KUN PÅ DE UTILFREDSE. Knappen vises ved 1-2 stjerner,
+            fordi det er dem, Reputation Score måler håndteringen af — og fordi
+            en "markér som fulgt op" på en femstjernet ros er støj på en liste,
+            man skal kunne skimme.
+          */}
+          <FeedbackList
+            items={items}
+            handling={(f) =>
+              f.rating <= 2 ? (
+                <Haandter id={f.id} haandteret={Boolean(f.haandteret_den)} />
+              ) : null
+            }
+          />
         </CardBody>
       </Card>
     </>

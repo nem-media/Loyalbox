@@ -80,6 +80,15 @@ export default async function DashboardLayout({
               },
             ] satisfies NavItem[])
           : []),
+        ...(tierCan(plan, "reputation")
+          ? ([
+              {
+                href: "/dashboard/omdoemme",
+                label: "Omdømme",
+                icon: "reputation",
+              },
+            ] satisfies NavItem[])
+          : []),
       ],
     },
     {

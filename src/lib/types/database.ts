@@ -283,6 +283,7 @@ export interface Database {
           customer_email: string | null;
           is_public_review_clicked: boolean;
           created_at: string;
+          haandteret_den: string | null;
         };
         Insert: {
           id?: string;
@@ -294,6 +295,7 @@ export interface Database {
           customer_email?: string | null;
           is_public_review_clicked?: boolean;
           created_at?: string;
+          haandteret_den?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["feedback"]["Insert"]>;
         Relationships: [
@@ -941,6 +943,74 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["admin_log"]["Insert"]>;
+        Relationships: [];
+      };
+      /** Se supabase/migrations/0026_omdoemme.sql. Oplyst af virksomheden selv. */
+      eksterne_profiler: {
+        Row: {
+          id: string;
+          company_id: string;
+          platform: string;
+          visningsnavn: string | null;
+          rating: number | null;
+          rating_skala: number | null;
+          antal_anmeldelser: number;
+          anbefaling_procent: number | null;
+          profil_url: string | null;
+          kilde: string;
+          opdateret_den: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          company_id: string;
+          platform: string;
+          visningsnavn?: string | null;
+          rating?: number | null;
+          rating_skala?: number | null;
+          antal_anmeldelser?: number;
+          anbefaling_procent?: number | null;
+          profil_url?: string | null;
+          kilde?: string;
+          opdateret_den?: string;
+          created_at?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["eksterne_profiler"]["Insert"]
+        >;
+        Relationships: [];
+      };
+      /** Se supabase/migrations/0026_omdoemme.sql. Én række pr. virksomhed pr. dag. */
+      omdoemme_snapshots: {
+        Row: {
+          id: string;
+          company_id: string;
+          score: number;
+          kundetilfredshed: number | null;
+          positive_oplevelser: number | null;
+          feedbackhaandtering: number | null;
+          eksterne_ratings: number | null;
+          kundescore: number | null;
+          antal_oplevelser: number;
+          version: string;
+          beregnet_den: string;
+        };
+        Insert: {
+          id?: string;
+          company_id: string;
+          score: number;
+          kundetilfredshed?: number | null;
+          positive_oplevelser?: number | null;
+          feedbackhaandtering?: number | null;
+          eksterne_ratings?: number | null;
+          kundescore?: number | null;
+          antal_oplevelser?: number;
+          version: string;
+          beregnet_den?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["omdoemme_snapshots"]["Insert"]
+        >;
         Relationships: [];
       };
     };
