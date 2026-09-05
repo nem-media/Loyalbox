@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { resolvePublicReviewLinks, resolveExtraLink } from "@/lib/stands";
 import { deviceTypeFromUA } from "@/lib/utils";
 import { StandLanding } from "./stand-landing";
+import { hentOffentligKundescore } from "@/lib/omdoemme-data";
 import { Logo } from "@/components/brand";
 
 export const dynamic = "force-dynamic";
@@ -39,7 +40,9 @@ export default async function ReviewPage({
 
   const { data: stand } = await supabase
     .from("stands")
-    .select("*, company:companies(id, name, logo_url, product_slug)")
+    .select(
+      "*, company:companies(id, name, logo_url, product_slug, offentlig_kundescore)",
+    )
     .eq("slug", slug)
     .maybeSingle();
 
@@ -50,6 +53,7 @@ export default async function ReviewPage({
     id: string;
     name: string;
     logo_url: string | null;
+    offentlig_kundescore: boolean;
     /** Til harAbonnement(): afgør om siden vises eller viderestiller. */
     product_slug: string | null;
   };
@@ -117,6 +121,15 @@ export default async function ReviewPage({
     .maybeSingle();
   const hasLoyalty = Boolean(loyaltyProgram);
 
+  /*
+   * Den offentlige kundescore — kun hvis virksomheden selv har slået den til.
+   * Er den fra, rører kaldet slet ikke basen; se hentOffentligKundescore().
+   */
+  const offentligScore = await hentOffentligKundescore(
+    company.id,
+    company.offentlig_kundescore,
+  );
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-dark px-4 py-10">
       <div className="box-shape w-full max-w-md border border-border bg-card p-6 shadow-[0_30px_60px_-25px_rgba(0,0,0,0.5)] sm:p-8">
@@ -150,6 +163,7 @@ export default async function ReviewPage({
           companyId={company.id}
           publicLinks={publicLinks}
           extra={extra}
+          offentligScore={offentligScore}
         />
       </div>
 

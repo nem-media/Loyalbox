@@ -3,7 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { getCompanyAccess } from "@/lib/loyalty/access";
 import { createClient } from "@/lib/supabase/server";
-import { PLATFORME, valider } from "@/lib/omdoemme";
+import {
+  OFFENTLIG_MINIMUM,
+  OFFENTLIG_TEKST,
+  PLATFORME,
+  valider,
+} from "@/lib/omdoemme";
+import { hentOffentligtGrundlag } from "@/lib/omdoemme-data";
 
 /**
  * Handlingerne bag Omdømme-siden.
@@ -162,5 +168,63 @@ export async function saetHaandteret(
   revalidatePath("/dashboard/omdoemme");
   revalidatePath("/dashboard/feedback");
   revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+/**
+ * Slå den offentlige kundescore til eller fra.
+ *
+ * VIRKSOMHEDENS EGET VALG, OG KUN DERES. `company_id` kommer fra
+ * `getCompanyAccess()`, aldrig fra formularen — ingen kan slå en anden
+ * butiks offentlige visning til. Feltet er `false` som standard i basen, så
+ * ingen får sit tal offentliggjort ved en migration.
+ *
+ * DEN ÆNDRER INTET ANDET. Hverken anmeldelsesflowet eller beregningen ser
+ * anderledes ud, om den står til eller fra: kunden møder nøjagtig det samme,
+ * og scoren regnes ens for alle. Det eneste, der ændrer sig, er om tallet
+ * står på den offentlige side.
+ */
+export async function saetOffentligKundescore(
+  _prev: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const access = await getCompanyAccess();
+  if (!access) return { error: "Ingen adgang." };
+
+  /*
+   * KUN EJEREN. Hvad der står offentligt om forretningen, er ikke en daglig
+   * handling som at stemple et kort — det er en beslutning om, hvordan
+   * butikken fremstår. En medarbejder med adgang til disken skal ikke kunne
+   * træffe den, heller ikke ved et uheld.
+   */
+  if (access.role !== "owner") {
+    return { error: "Kun virksomhedens ejer kan ændre den offentlige visning." };
+  }
+
+  const til = formData.get("til") === "1";
+
+  /*
+   * MINIMUMSGRÆNSEN HÅNDHÆVES HER OG IKKE KUN I VISNINGEN. Knappen er
+   * deaktiveret i brugerfladen, men en server-action skal kunne stå alene:
+   * en formular kan sendes uden om en deaktiveret knap.
+   */
+  if (til) {
+    const grundlag = await hentOffentligtGrundlag(access.companyId);
+    if (grundlag.antal < OFFENTLIG_MINIMUM) {
+      return { error: OFFENTLIG_TEKST.forTidligt };
+    }
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("companies")
+    .update({ offentlig_kundescore: til })
+    .eq("id", access.companyId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/dashboard/omdoemme");
+  // Den offentlige side skal skifte med det samme, ikke ved næste udrulning.
+  revalidatePath("/r/[slug]", "page");
   return { ok: true };
 }

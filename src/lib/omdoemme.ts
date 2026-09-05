@@ -292,6 +292,171 @@ export function datagrundlag(
   return "godt";
 }
 
+/* ------------------------------------------------- den offentlige kundescore */
+
+/**
+ * Mindste antal kundeoplevelser, før kundescoren må vises OFFENTLIGT.
+ *
+ * SAMME GRÆNSE SOM "begrænset datagrundlag" internt, og det er med vilje: et
+ * tal, vi selv kalder for tyndt til at konkludere på, må ikke stå ude hos
+ * kunderne som en vurdering af butikken. Under fem oplevelser kan én
+ * utilfreds flytte gennemsnittet et helt point, og så er tallet støj.
+ */
+export const OFFENTLIG_MINIMUM = 5;
+
+/**
+ * Perioden bag den OFFENTLIGE score: rullende 12 måneder.
+ *
+ * DEN INTERNE SCORE ER UPÅVIRKET og dækker fortsat hele historikken — det er
+ * to forskellige spørgsmål. Internt vil man vide, hvordan det er gået; udadtil
+ * skal tallet sige noget om, hvordan butikken er NU. En femstjernet periode
+ * fra 2023 skal ikke kunne bære et tal, en kunde læser i dag.
+ *
+ * Har butikken ikke eksisteret i 12 måneder, tæller alt siden start af sig
+ * selv: vinduet er en nedre grænse for datoen, ikke et krav om at fylde den.
+ */
+export const OFFENTLIG_PERIODE_MAANEDER = 12;
+
+/** Datoen, den offentlige score tæller fra. Ren funktion, så den kan prøves. */
+export function offentligPeriodeStart(nu: Date = new Date()): Date {
+  const d = new Date(nu);
+  d.setMonth(d.getMonth() - OFFENTLIG_PERIODE_MAANEDER);
+  return d;
+}
+
+/**
+ * Over den her grænse er tallet ikke længere "foreløbigt".
+ *
+ * Samme tal som `datagrundlag()` bruger til "godt datagrundlag". Ét sted at
+ * skrue på, hvis erfaringen viser noget andet — og aldrig to grænser, der
+ * siger hver sit om det samme datasæt.
+ */
+export const OFFENTLIG_FORELOEBIG_UNDER = 20;
+
+export interface OffentligKundescore {
+  /** Gennemsnittet med én decimal, fx 4,7. */
+  score: number;
+  antal: number;
+  /** Sandt mellem minimum og grænsen for godt datagrundlag. */
+  foreloebig: boolean;
+}
+
+/**
+ * Den kundescore, der må vises offentligt — eller null.
+ *
+ * TAGER `tilvalgt` SOM ARGUMENT OG SPØRGER IKKE SELV. Funktionen kan ikke vise
+ * noget, den ikke får besked på at vise: er flaget ikke sat, er svaret null,
+ * uanset hvor god scoren er. Det er samme greb som `reviewChoices()`, der ikke
+ * tager bedømmelsen som argument — en funktion, der ikke kender oplysningen,
+ * kan ikke komme til at bruge den.
+ *
+ * DEN RØRER ALDRIG EKSTERNE RATINGS. Kun `fordeling`, altså kundernes egne
+ * stjerner gennem LoyalSum. En offentlig score, der indeholdt tal, butikken
+ * selv har indtastet, ville være et selvportræt med vores navn under.
+ */
+export function offentligKundescore(
+  fordeling: Stjernefordeling,
+  tilvalgt: boolean,
+): OffentligKundescore | null {
+  if (!tilvalgt) return null;
+  const antal = antalOplevelser(fordeling);
+  if (antal < OFFENTLIG_MINIMUM) return null;
+  const snit = gennemsnit(fordeling);
+  if (snit === null) return null;
+  return {
+    score: Math.round(snit * 10) / 10,
+    antal,
+    foreloebig: antal < OFFENTLIG_FORELOEBIG_UNDER,
+  };
+}
+
+/**
+ * Er virksomheden klar til at slå den offentlige score til?
+ *
+ * Bruges til at foreslå det i dashboardet. VI MÅ GERNE FORESLÅ DET — men
+ * hverken flowet eller beregningen ændrer sig af, om nogen siger ja: kunden
+ * møder nøjagtig det samme, og scoren regnes ens for alle. Forslaget er en
+ * knap i dashboardet, ikke en anden måde at måle på.
+ */
+export function klarTilOffentligVisning(
+  fordeling: Stjernefordeling,
+  tilvalgt: boolean,
+): boolean {
+  if (tilvalgt) return false;
+  return antalOplevelser(fordeling) >= OFFENTLIG_MINIMUM;
+}
+
+/**
+ * Teksterne til den offentlige visning.
+ *
+ * INGEN AF DEM MÅ LYDE SOM EN GODKENDELSE. Ikke "verificeret", ikke
+ * "certificeret", ikke "godkendt" — LoyalSum er ikke en
+ * certificeringsmyndighed, og et ord som "verificeret" ville påstå, at vi har
+ * efterprøvet noget, vi ikke har. "Målt via LoyalSum" siger præcis det, der er
+ * sandt: tallet er indsamlet gennem vores flow.
+ *
+ * Samlet her, så ordlyden ikke kan drive fra hinanden — og så en test kan
+ * holde de forbudte ord ude.
+ */
+export const OFFENTLIG_TEKST = {
+  overskrift: "Kunderne vurderer os",
+  /**
+   * Antallet OG perioden. Begge dele er nødvendige: et gennemsnit uden
+   * grundlag er en påstand, og et grundlag uden periode skjuler, om tallet er
+   * fra i år eller fra for fem år siden.
+   */
+  grundlag: (antal: number) =>
+    `Baseret på ${antal} ${antal === 1 ? "kundeoplevelse" : "kundeoplevelser"} de seneste ${OFFENTLIG_PERIODE_MAANEDER} måneder`,
+  kilde: "Målt via LoyalSum",
+  foreloebig: "Foreløbig kundescore",
+  forklaringLink: "Hvordan beregnes scoren?",
+  forklaring:
+    "LoyalSum Kundescore er gennemsnittet af kundeoplevelser registreret direkte gennem LoyalSum. Den offentlige score beregnes ud fra kundeoplevelser inden for de seneste 12 måneder, og alle vurderinger i perioden indgår.",
+  /** Beskeden, når nogen forsøger at slå visningen til for tidligt. */
+  forTidligt: `Du skal have mindst ${OFFENTLIG_MINIMUM} kundeoplevelser, før din kundescore kan vises offentligt.`,
+} as const;
+
+/* ------------------------------------------------------------------ nudge */
+
+/** Antal kundeoplevelser, før vi overhovedet foreslår offentlig visning. */
+export const NUDGE_MINIMUM_ANTAL = 20;
+
+/** Og hvor god scoren skal være, før forslaget giver mening. */
+export const NUDGE_MINIMUM_SCORE = 4.5;
+
+/**
+ * Skal dashboardet foreslå offentlig visning?
+ *
+ * VI MÅ GERNE FORESLÅ DET — og det ændrer ingenting. Hverken flowet, hvem der
+ * bliver spurgt, eller hvordan scoren regnes, afhænger af, om forslaget vises
+ * eller tages imod. Det eneste, virksomheden vælger, er om det samlede tal
+ * står offentligt. Var det anderledes, ville vi måle forskelligt på dem, vi
+ * regner for stærke, og det er den slags, hele `review-flow.ts` er skrevet
+ * for at undgå.
+ *
+ * Grænserne er højere end minimum for visning: et forslag skal kun komme,
+ * når svaret formentlig er ja. Et forslag ved fem oplevelser ville være en
+ * opfordring til at offentliggøre et tyndt tal.
+ */
+export function boerForeslaaOffentlig(
+  antal: number,
+  kundescore: number | null,
+  tilvalgt: boolean,
+): boolean {
+  if (tilvalgt) return false;
+  if (kundescore === null) return false;
+  return antal >= NUDGE_MINIMUM_ANTAL && kundescore >= NUDGE_MINIMUM_SCORE;
+}
+
+/** Ord, den offentlige visning ALDRIG må bruge. Prøves i omdoemme.test.ts. */
+export const FORBUDTE_ORD = [
+  "verificeret",
+  "certificeret",
+  "godkendt",
+  "officiel rating",
+  "verified",
+] as const;
+
 /* ---------------------------------------------------------------- etiketter */
 
 /**

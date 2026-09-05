@@ -97,6 +97,7 @@ export interface Database {
           address: string | null;
           stand_text: string | null;
           created_at: string;
+          offentlig_kundescore: boolean;
         };
         Insert: {
           id?: string;
@@ -126,6 +127,7 @@ export interface Database {
           address?: string | null;
           stand_text?: string | null;
           created_at?: string;
+          offentlig_kundescore?: boolean;
         };
         Update: Partial<Database["public"]["Tables"]["companies"]["Insert"]>;
         Relationships: [
