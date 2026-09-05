@@ -29,6 +29,9 @@ const TABELLER = [
   "users",
   "companies",
   "stands",
+  // designs SKAL ligge før orders: orders.design_id peger på den. Lå den til
+  // sidst, ville alle ordrer blive afvist ved en gendannelse.
+  "designs",
   "orders",
   "locations",
   "employees",
@@ -47,6 +50,12 @@ const TABELLER = [
   "loyalty_audit_log",
   "consent_log",
   "drift_log",
+  // Herunder: peger kun på companies (og admin_log desuden på users), så de
+  // kan lægges tilbage til sidst.
+  "subscriptions",
+  "eksterne_profiler",
+  "omdoemme_snapshots",
+  "admin_log",
 ];
 
 const SIDE = 1000; // PostgREST leverer højst 1000 rækker ad gangen.
@@ -84,6 +93,27 @@ async function hentTabel(url, hoveder, tabel) {
     // Kortere end en fuld side betyder, at der ikke er mere.
     if (raekker.length < SIDE) return alle;
   }
+}
+
+/**
+ * Alle tabeller, basen faktisk har — spurgt basen, ikke gættet.
+ *
+ * HVORFOR: `TABELLER` er en håndskrevet liste, og en migration, der tilføjer en
+ * tabel, glemmer den. Det skete: `designs`, `admin_log`, `eksterne_profiler`,
+ * `omdoemme_snapshots` og `subscriptions` stod udenfor i månedsvis, mens
+ * eksporten meldte "Færdig" hver gang. `designs` var den dyre — `orders.design_id`
+ * peger på den, så en gendannelse ville have afvist HVER ENESTE ordre på en
+ * fremmednøgle. Backuppen så komplet ud og kunne ikke lægges tilbage.
+ *
+ * PostgREST beskriver sig selv på rod-adressen, og hver tabel står som en
+ * definition. Det er samme kilde, som klienten bruger, så listen kan ikke være
+ * uenig med det, der faktisk findes.
+ */
+async function hentTabelnavne(url, hoveder) {
+  const svar = await fetch(`${url}/rest/v1/`, { headers: hoveder });
+  if (!svar.ok) throw new Error(`skema: HTTP ${svar.status}`);
+  const { definitions = {} } = await svar.json();
+  return Object.keys(definitions);
 }
 
 /**
@@ -169,17 +199,35 @@ mkdirSync(mappe, { recursive: true });
 
 console.log(`Eksporterer til ${mappe}\n`);
 
+/*
+ * Hvad har basen, som listen ikke kender? Spørges FØR eksporten, så de ukendte
+ * kan komme med i samme kørsel i stedet for at vente på, at nogen retter
+ * listen. Kan skemaet ikke hentes, fortsætter eksporten — en backup uden
+ * kontrollen er stadig bedre end ingen backup.
+ */
+let ukendte = [];
+try {
+  const iBasen = await hentTabelnavne(url, hoveder);
+  ukendte = iBasen.filter((t) => !TABELLER.includes(t));
+} catch (err) {
+  console.log(`  (kunne ikke tjekke skemaet: ${err.message.slice(0, 60)})\n`);
+}
+
 const optalt = {};
-for (const tabel of TABELLER) {
+const sprunget = [];
+for (const tabel of [...TABELLER, ...ukendte]) {
   try {
     const raekker = await hentTabel(url, hoveder, tabel);
     writeFileSync(join(mappe, `${tabel}.json`), JSON.stringify(raekker, null, 2));
     optalt[tabel] = raekker.length;
-    console.log(`  ${tabel.padEnd(22)} ${String(raekker.length).padStart(6)}`);
+    const maerke = ukendte.includes(tabel) ? "  ← IKKE PÅ LISTEN" : "";
+    console.log(`  ${tabel.padEnd(22)} ${String(raekker.length).padStart(6)}${maerke}`);
   } catch (err) {
     // En manglende tabel må ikke stoppe resten — så var eksporten intet værd
-    // netop den dag, en migration var halvvejs.
+    // netop den dag, en migration var halvvejs. Men den skal TÆLLES, så
+    // kørslen ikke kan slutte med "Færdig" og exit 0.
     optalt[tabel] = null;
+    sprunget.push(tabel);
     console.log(`  ${tabel.padEnd(22)}  SPRUNGET OVER (${err.message.slice(0, 60)})`);
   }
 }
@@ -200,7 +248,12 @@ writeFileSync(
       raekker: optalt,
       auth_users: brugere.length,
       filer: antalFiler,
+      // Rækkefølgen dækker KUN de kendte. De ukendte står for sig, fordi deres
+      // plads i rækkefølgen ikke kan gættes — den afhænger af fremmednøgler,
+      // som kun et menneske kan slå op.
       indlaesningsraekkefoelge: TABELLER,
+      ukendte_tabeller: ukendte,
+      sprungne_tabeller: sprunget,
       bemaerk:
         "Adgangskoder er IKKE med og kan ikke hentes ud. Efter en gendannelse skal alle sætte ny adgangskode.",
     },
@@ -212,3 +265,22 @@ writeFileSync(
 const total = Object.values(optalt).reduce((a, b) => a + (b ?? 0), 0);
 console.log(`\nFærdig: ${total} rækker, ${brugere.length} brugere, ${antalFiler} filer.`);
 console.log(`Ligger i ${mappe}`);
+
+/*
+ * DATA ER I HUS, MEN KØRSLEN ER IKKE OK. Begge tilfælde ville ellers stå som
+ * to linjer midt i en skærm fuld af tal og et "Færdig" nedenunder — og en
+ * backup, der springer noget over uden at sige det, er værre end ingen.
+ * Filerne er skrevet; exit-koden er dét, der kræver et menneske.
+ */
+if (ukendte.length) {
+  console.log(
+    `\nADVARSEL: ${ukendte.length} tabel(ler) var ikke på listen i backup.mjs:` +
+      `\n  ${ukendte.join(", ")}` +
+      `\nDe ER hentet med, men deres plads i indlæsningsrækkefølgen er UKENDT.` +
+      `\nSlå deres fremmednøgler op, skriv dem ind i TABELLER, og kør igen.`,
+  );
+}
+if (sprunget.length) {
+  console.log(`\nADVARSEL: ${sprunget.length} tabel(ler) blev sprunget over: ${sprunget.join(", ")}`);
+}
+if (ukendte.length || sprunget.length) process.exit(1);
