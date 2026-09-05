@@ -108,6 +108,7 @@ export type Capability =
   | "customBranding" // eget logo + tilpasset design
   | "feedbackInbox" // se privat feedback i dashboardet
   | "statistics" // scan-/klik-/rating-statistik
+  | "reputation" // omdømme: Reputation Score, eksterne profiler, historik
   | "dynamicLinks"; // skift destination + flere destinationstyper
 
 export const TIER_CAPABILITIES: Record<Tier, Record<Capability, boolean>> = {
@@ -115,18 +116,21 @@ export const TIER_CAPABILITIES: Record<Tier, Record<Capability, boolean>> = {
     customBranding: false,
     feedbackInbox: false,
     statistics: false,
+    reputation: false,
     dynamicLinks: false,
   },
   premium: {
     customBranding: true,
     feedbackInbox: false,
     statistics: false,
+    reputation: false,
     dynamicLinks: false,
   },
   pro: {
     customBranding: true,
     feedbackInbox: true,
     statistics: true,
+    reputation: true,
     dynamicLinks: true,
   },
 };
@@ -135,6 +139,7 @@ export const TIER_CAPABILITIES: Record<Tier, Record<Capability, boolean>> = {
 export const CAPABILITY_LABELS: Record<Capability, string> = {
   customBranding: "Eget logo og design på kundens side",
   feedbackInbox: "Privat feedback-indbakke",
+  reputation: "Omdømme og Reputation Score",
   statistics: "Statistik i realtid",
   dynamicLinks: "Skift links når som helst + flere platforme",
 };

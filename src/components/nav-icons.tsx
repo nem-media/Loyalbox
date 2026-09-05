@@ -193,6 +193,23 @@ export function SubscriptionIcon(p: P) {
   );
 }
 
+/**
+ * Omdømme — et skjold med en stjerne.
+ *
+ * IKKE ENDNU EN STJERNE ALENE. `StampCardIcon` og feedback-boblen bruger i
+ * forvejen runde former, og en løs stjerne ville læses som "favorit". Skjoldet
+ * bærer betydningen: noget der står på spil og skal passes. Stjernen indeni
+ * binder det til anmeldelser frem for til sikkerhed.
+ */
+export function ReputationIcon(p: P) {
+  return (
+    <Icon {...p}>
+      <path d="M12 2.75 4.75 5.5v5.4c0 4.4 3 8.1 7.25 9.35 4.25-1.25 7.25-4.95 7.25-9.35V5.5Z" />
+      <path d="M12 8.6l1.35 2.75 3.03.44-2.19 2.13.52 3.02L12 15.51l-2.71 1.43.52-3.02-2.19-2.13 3.03-.44Z" />
+    </Icon>
+  );
+}
+
 export const NAV_ICONS = {
   overview: OverviewIcon,
   stand: StandIcon,
@@ -203,6 +220,7 @@ export const NAV_ICONS = {
   store: StoreIcon,
   billing: BillingIcon,
   subscription: SubscriptionIcon,
+  reputation: ReputationIcon,
   help: HelpIcon,
 } as const;
 

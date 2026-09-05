@@ -14,6 +14,10 @@ import { GuideCard } from "@/components/guide";
 import { getGuide } from "@/lib/guides";
 import { PeriodPicker } from "@/components/period-picker";
 import { parsePeriod, FORRIGE_LABEL } from "@/lib/period";
+import { hentOmdoemme } from "@/lib/omdoemme-data";
+import { ReputationIcon } from "@/components/nav-icons";
+import { Badge } from "@/components/ui/badge";
+import { scoreTone, DATAGRUNDLAG_TEKST } from "@/lib/omdoemme";
 
 /** Varerne med et abonnement. Udledt, så navnene ikke kan drive. */
 const ABONNEMENTER = PRODUCTS.filter((p) => p.monthlyPrice && !p.addon).map(
@@ -56,6 +60,7 @@ export default async function DashboardPage({
   const plan = (company?.plan ?? "basic") as Tier;
   const canSeeStats = tierCan(plan, "statistics");
   const canSeeFeedback = tierCan(plan, "feedbackInbox");
+  const canSeeOmdoemme = tierCan(plan, "reputation");
 
   if (!company) {
     return (
@@ -153,6 +158,15 @@ export default async function DashboardPage({
 
   const stats = await getCompanyStats(company.id, period);
 
+  /*
+   * OMDØMMET HENTES KUN, NÅR DET KAN VISES. Kaldet læser fem tællinger og to
+   * tabeller, og der er ingen grund til at belægge basen for en Basic-konto,
+   * der alligevel får et opgraderingskort at se.
+   */
+  const omdoemme = canSeeOmdoemme
+    ? (await hentOmdoemme(company.id)).omdoemme
+    : null;
+
   return (
     <>
       <PageHeader
@@ -221,6 +235,66 @@ export default async function DashboardPage({
           />
         )}
       </Sektion>
+
+      {/*
+        DIT OMDØMME — kompakt med vilje. Ét tal, én etiket, én vej videre. Hele
+        breakdownet ligger på omdømmesiden; her skal man kunne se på to
+        sekunder, om der er noget at komme efter.
+      */}
+      {canSeeOmdoemme && omdoemme && omdoemme.score !== null ? (
+        <Card className="mt-6">
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle icon={ReputationIcon}>Dit omdømme</CardTitle>
+            <ButtonLink href="/dashboard/omdoemme" size="sm" variant="outline">
+              Se omdømme
+            </ButtonLink>
+          </CardHeader>
+          <CardBody className="pt-0">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="flex items-baseline gap-2">
+                  <span className="text-4xl font-bold tracking-tight">
+                    {omdoemme.score}
+                  </span>
+                  <span className="text-lg text-muted">/ 100</span>
+                </p>
+                <p className="mt-2 flex flex-wrap items-center gap-2">
+                  <Badge tone={scoreTone(omdoemme.score)}>{omdoemme.etiket}</Badge>
+                  <span className="text-xs text-muted">
+                    {DATAGRUNDLAG_TEKST[omdoemme.datagrundlag]}
+                  </span>
+                </p>
+              </div>
+
+              {omdoemme.kundescore !== null ? (
+                <div className="sm:text-right">
+                  <p className="etiket">LoyalSum Kundescore</p>
+                  <p className="mt-1 text-2xl font-bold tracking-tight">
+                    {omdoemme.kundescore.toFixed(1).replace(".", ",")}{" "}
+                    <span className="text-base font-normal text-muted">/ 5</span>
+                  </p>
+                  <p className="text-sm text-muted">
+                    {omdoemme.antalOplevelser}{" "}
+                    {omdoemme.antalOplevelser === 1
+                      ? "kundeoplevelse"
+                      : "kundeoplevelser"}
+                  </p>
+                </div>
+              ) : null}
+            </div>
+
+            {omdoemme.uhaandteredeNegative > 0 ? (
+              <p className="mt-4 border-t border-border pt-3 text-sm text-muted">
+                {omdoemme.uhaandteredeNegative}{" "}
+                {omdoemme.uhaandteredeNegative === 1
+                  ? "kunde venter"
+                  : "kunder venter"}{" "}
+                på opfølgning.
+              </p>
+            ) : null}
+          </CardBody>
+        </Card>
+      ) : null}
 
       {/* De to kort herunder får INGEN fælles sektionsoverskrift: de peger
           hver sit sted hen, og ét navn over begge ville lyve. Her er det
