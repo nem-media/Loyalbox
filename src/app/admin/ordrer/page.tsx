@@ -73,15 +73,21 @@ export default async function AdminOrdersPage({
   let query = supabase
     .from("orders")
     .select(
-      `*, company:${join}, design:designs(stander_farve, front_type, front_hex, logo_url), stand:stands(name, slug, kun_viderestilling, destination_type, destination_url, google_review_url, trustpilot_url, facebook_url, custom_url)`,
+      `*, company:${join}, design:designs(stander_farve, front_type, front_hex, logo_url), stand:stands(name, slug, kun_viderestilling, destination_type, google_review_url, trustpilot_url, facebook_url, custom_url)`,
     )
     .order("created_at", { ascending: false })
     .limit(MAKS_RAEKKER);
 
   if (term) query = query.ilike("companies.name", `%${term}%`);
 
-  const { data: orders } = await query;
+  const { data: orders, error } = await query;
 
+  /*
+   * EN FEJLET FORESPØRGSEL ER IKKE "INGEN ORDRER". Uden det her svarede siden
+   * "Ingen ordrer endnu" på en 400'er fra PostgREST — konstateret, da et
+   * kolonnenavn i det nye join var forkert. Det er samme tavshed som de andre
+   * fejl, den her side har haft: skærmen så rigtig ud, og tallet var nul.
+   */
   const raekker = (orders ?? []) as Ordrelinje[];
 
   return (
@@ -221,6 +227,12 @@ export default async function AdminOrdersPage({
             </Table>
           </CardBody>
         </Card>
+      ) : error ? (
+        <EmptyState
+          icon={BillingIcon}
+          title="Ordrerne kunne ikke hentes"
+          description={`Forespørgslen fejlede: ${error.message}. Der KAN godt være ordrer — listen er tom, fordi opslaget gik galt, ikke fordi der ingen er.`}
+        />
       ) : term ? (
         <EmptyState
           icon={SearchIcon}

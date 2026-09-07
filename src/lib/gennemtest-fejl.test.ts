@@ -365,3 +365,20 @@ describe("8. admin skal kunne se, hvad der skal trykkes", () => {
     expect(side).not.toContain("createAdminClient");
   });
 });
+
+describe("9. en fejlet forespørgsel må ikke se ud som ingen data", () => {
+  /**
+   * MIN EGEN FEJL, fanget på preview. Et forkert kolonnenavn i et nyt join gav
+   * en 400'er fra PostgREST; supabase-js svarede `data: null`, og siden skrev
+   * "Ingen ordrer endnu". Alle ti ordrer var der stadig.
+   *
+   * Det er præcis samme tavshed som resten af dagens fejl: skærmen så rigtig
+   * ud, og tallet var nul. Derfor skal `error` læses og siges — en tom liste
+   * og et mislykket opslag er ikke det samme.
+   */
+  it("ordreoversigten skelner mellem tomt og fejlet", () => {
+    const side = kilde("src/app/admin/ordrer/page.tsx");
+    expect(side).toMatch(/const \{ data: orders, error \}/);
+    expect(side).toContain("Ordrerne kunne ikke hentes");
+  });
+});
