@@ -121,6 +121,14 @@ export function BestilUdenKontoForm({
   const [destinationUrl, setDestinationUrl] = useState("");
 
   /*
+   * Vilkårsfeltet var som det eneste helt ustyret. En `key` alene hjælper
+   * ikke der: den remonterer feltet, og et ustyret felt kommer tilbage
+   * tomt. Det skal have en tilstand at blive tegnet ud fra — ellers skal
+   * kunden sætte fluebenet igen, hver gang noget ANDET var galt.
+   */
+  const [vilkaar, setVilkaar] = useState(false);
+
+  /*
    * Nøglen, der tvinger afkrydsnings- og radiofelterne til at blive tegnet
    * forfra ved hvert svar. For et styret felt sætter nulstillingen DOM'ens
    * `checked` tilbage, UDEN at React gentegner — tilstanden er jo uændret.
@@ -610,6 +618,8 @@ export function BestilUdenKontoForm({
               type="checkbox"
               name="accepterVilkaar"
               value="1"
+              checked={vilkaar}
+              onChange={(e) => setVilkaar(e.target.checked)}
               className="mt-1 h-4 w-4 shrink-0 accent-accent"
             />
             <label htmlFor={vilkaarId} className="text-sm leading-relaxed">

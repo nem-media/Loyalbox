@@ -277,6 +277,17 @@ describe("7. bestillingsformularen må ikke tømme sig selv", () => {
     }
   });
 
+  /**
+   * VILKÅRSFELTET SKAL OGSÅ HAVE EN TILSTAND. Det var som det eneste helt
+   * ustyret, og en `key` alene hjalp ikke: den remonterer feltet, og et
+   * ustyret felt kommer tilbage tomt. Set på preview — alt andet overlevede,
+   * netop dét gjorde ikke.
+   */
+  it("vilkårsfeltet er styret og ikke bare remonteret", () => {
+    expect(form).toContain("checked={vilkaar}");
+    expect(form).toContain("setVilkaar(e.target.checked)");
+  });
+
   /** Radio og afkrydsningsfelter tegnes forfra ved hvert svar. */
   it("farve, tilvalg og vilkår tegnes forfra ved hvert svar", () => {
     expect(form).toMatch(/key=\{`farve-\$\{f\.vaerdi\}-\$\{nulstil\}`\}/);
