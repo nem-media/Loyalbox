@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { maaKnyttesAutomatisk } from "./loyalty/member-account";
+import { koebSpaerreUdenKonto } from "./commerce";
+import { PRODUCTS } from "./constants";
 import { stampProgress, redemptionStampDelta } from "./loyalty/balance";
 
 /**
@@ -207,5 +209,100 @@ describe("5. tilmeldingen må ikke tømme felterne", () => {
       action.indexOf("export async function claimCard"),
     );
     expect(del).not.toMatch(/return \{ error:/);
+  });
+});
+
+/**
+ * Bestillingsflowet, kørt igennem 2026-09-07. To fejl mere af samme slags:
+ * usynlige, og begge på den vej ind, hvor en fremmed kunde taster mest.
+ */
+describe("6. bestilling uden konto må ikke love et køb, der ikke kan gennemføres", () => {
+  const vare = PRODUCTS.find((p) => p.slug === "reviewstander");
+
+  /**
+   * DEN OPRINDELIGE FEJL: siden spurgte kun `canSell()`, som siger ja i
+   * testtilstand. Forsiden, /produkter, produktsiden og /bestil sagde "du kan
+   * ikke købe online endnu" til den SAMME besøgende, mens bestillingen uden
+   * konto gav hele formularen og en virkende betalingsknap — der førte til et
+   * Stripe-sandbox, hvor kundens rigtige kort blev afvist uden forklaring.
+   */
+  it("spærrer en besøgende uden e-mail, når vi ikke er i live-tilstand", () => {
+    if (process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_")) return;
+    expect(koebSpaerreUdenKonto(vare)).not.toBeNull();
+    expect(koebSpaerreUdenKonto(vare, "kunde@example.com")).not.toBeNull();
+  });
+
+  /** En ukendt vare kan aldrig sælges. */
+  it("spærrer en vare, der ikke findes", () => {
+    expect(koebSpaerreUdenKonto(undefined, "test@loyalbox.test")).not.toBeNull();
+  });
+
+  /**
+   * Men flowet skal stadig kunne afprøves. Handlingen spørger med den
+   * INDTASTEDE e-mail, så en testkonto kommer igennem — præcis som den vej
+   * ind, der kræver login.
+   */
+  it("lukker en testkonto ind, så flowet kan afprøves", () => {
+    if (!process.env.STRIPE_SECRET_KEY) return;
+    expect(koebSpaerreUdenKonto(vare, "test@loyalbox.test")).toBeNull();
+  });
+
+  /** Reglen skal spørges BEGGE steder — ellers er siden og handlingen uenige. */
+  it("både siden og handlingen spørger den samme regel", () => {
+    expect(kilde("src/app/bestil/uden-konto/page.tsx")).toContain(
+      "koebSpaerreUdenKonto",
+    );
+    expect(kilde("src/app/bestil/uden-konto/actions.ts")).toContain(
+      "koebSpaerreUdenKonto",
+    );
+  });
+});
+
+describe("7. bestillingsformularen må ikke tømme sig selv", () => {
+  const form = kilde("src/app/bestil/uden-konto/bestil-form.tsx");
+
+  /**
+   * Et forkert ciffer i CVR-feltet tømte firmanavn, CVR, e-mail og linket —
+   * og slog standerfarven tilbage til hvid, mens komponenten stadig mente
+   * "sort". Antallet og hex-farven overlevede, fordi de kommer fra `value`;
+   * det er `checked`, React ikke gentegner efter en nulstilling.
+   */
+  it("de fire tekstfelter er styrede", () => {
+    // Bindingen OG opdateringen skal begge findes: uden `value` er feltet frit
+    // og bliver tømt, uden `onChange` kan kunden ikke skrive i det.
+    for (const felt of ["firmanavn", "cvr", "email", "destinationUrl"]) {
+      const stor = felt[0].toUpperCase() + felt.slice(1);
+      expect(form, `${felt} mangler value=`).toContain(`value={${felt}}`);
+      expect(form, `${felt} mangler onChange`).toContain(`set${stor}(e.target.value)`);
+    }
+  });
+
+  /**
+   * VILKÅRSFELTET SKAL OGSÅ HAVE EN TILSTAND. Det var som det eneste helt
+   * ustyret, og en `key` alene hjalp ikke: den remonterer feltet, og et
+   * ustyret felt kommer tilbage tomt. Set på preview — alt andet overlevede,
+   * netop dét gjorde ikke.
+   */
+  it("vilkårsfeltet er styret og ikke bare remonteret", () => {
+    expect(form).toContain("checked={vilkaar}");
+    expect(form).toContain("setVilkaar(e.target.checked)");
+  });
+
+  /** Radio og afkrydsningsfelter tegnes forfra ved hvert svar. */
+  it("farve, tilvalg og vilkår tegnes forfra ved hvert svar", () => {
+    expect(form).toMatch(/key=\{`farve-\$\{f\.vaerdi\}-\$\{nulstil\}`\}/);
+    expect(form).toMatch(/key=\{`front-\$\{nulstil\}`\}/);
+    expect(form).toMatch(/key=\{`accent-\$\{nulstil\}`\}/);
+    expect(form).toMatch(/key=\{`vilkaar-\$\{nulstil\}`\}/);
+    expect(form).toMatch(/const nulstil = state\.forsoeg/);
+  });
+
+  /** Og tælleren må ikke kunne blive glemt på en af de mange fejlveje. */
+  it("hver fejlvej i handlingen tæller forsøget med", () => {
+    const action = kilde("src/app/bestil/uden-konto/actions.ts");
+    expect(action).toMatch(/forsoeg = \(_prev\.forsoeg \?\? 0\) \+ 1/);
+    const del = action.slice(action.indexOf("const forsoeg ="));
+    expect(del).not.toMatch(/return \{ besked:/);
+    expect(del).not.toMatch(/return \{ fejl:/);
   });
 });

@@ -110,6 +110,34 @@ export function BestilUdenKontoForm({
   const [destination, setDestination] = useState(DESTINATIONER[0].vaerdi);
 
   /*
+   * TEKSTFELTERNE ER STYREDE. React nulstiller formularen, når en server
+   * action svarer, så et forkert ciffer i CVR-feltet tømte firmanavn, CVR,
+   * e-mail og linket. Det er den side, hvor en fremmed kunde taster mest, og
+   * fejlen ramte netop den, der var tættest på at betale.
+   */
+  const [firmanavn, setFirmanavn] = useState("");
+  const [cvr, setCvr] = useState("");
+  const [email, setEmail] = useState("");
+  const [destinationUrl, setDestinationUrl] = useState("");
+
+  /*
+   * Vilkårsfeltet var som det eneste helt ustyret. En `key` alene hjælper
+   * ikke der: den remonterer feltet, og et ustyret felt kommer tilbage
+   * tomt. Det skal have en tilstand at blive tegnet ud fra — ellers skal
+   * kunden sætte fluebenet igen, hver gang noget ANDET var galt.
+   */
+  const [vilkaar, setVilkaar] = useState(false);
+
+  /*
+   * Nøglen, der tvinger afkrydsnings- og radiofelterne til at blive tegnet
+   * forfra ved hvert svar. For et styret felt sætter nulstillingen DOM'ens
+   * `checked` tilbage, UDEN at React gentegner — tilstanden er jo uændret.
+   * Uden den sprang standerfarven tilbage til hvid, mens komponenten stadig
+   * mente "sort", og formularen ville sende noget andet end det, kunden så.
+   */
+  const nulstil = state.forsoeg ?? 0;
+
+  /*
    * REFERENCEN ER DET ENESTE, DER KAN TØMME ET FILFELT.
    *
    * Et <input type="file"> kan ikke sættes til "ingen fil" gennem React —
@@ -216,10 +244,22 @@ export function BestilUdenKontoForm({
                 linje. */}
             <div className="grid gap-3 sm:grid-cols-2">
               <Field label="Firmanavn" fejl={fejl.firmanavn}>
-                <Input name="firmanavn" required autoComplete="organization" />
+                <Input
+                  name="firmanavn"
+                  required
+                  autoComplete="organization"
+                  value={firmanavn}
+                  onChange={(e) => setFirmanavn(e.target.value)}
+                />
               </Field>
               <Field label="CVR-nummer (valgfrit)" fejl={fejl.cvr}>
-                <Input name="cvr" inputMode="numeric" placeholder="12345678" />
+                <Input
+                  name="cvr"
+                  inputMode="numeric"
+                  placeholder="12345678"
+                  value={cvr}
+                  onChange={(e) => setCvr(e.target.value)}
+                />
               </Field>
             </div>
             <Field
@@ -227,7 +267,14 @@ export function BestilUdenKontoForm({
               fejl={fejl.email}
               hint="Hertil sender vi kvittering og besked, når skiltet er afsendt."
             >
-              <Input name="email" type="email" required autoComplete="email" />
+              <Input
+                name="email"
+                type="email"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </Field>
           </div>
         </FormSektion>
@@ -259,6 +306,7 @@ export function BestilUdenKontoForm({
                     }`}
                   >
                     <input
+                      key={`farve-${f.vaerdi}-${nulstil}`}
                       type="radio"
                       checked={standerFarve === f.vaerdi}
                       onChange={() => setStanderFarve(f.vaerdi)}
@@ -316,6 +364,7 @@ export function BestilUdenKontoForm({
 
             {/* ----------------------------------------------- egen front */}
             <TilvalgRaekke
+              key={`front-${nulstil}`}
               id={frontId}
               name="egenFrontfarve"
               checked={egenFront}
@@ -351,6 +400,7 @@ export function BestilUdenKontoForm({
             {/* Samme tilvalg som i designeren for en kunde med konto — de to
                 bestillingsveje skal give det samme skilt. */}
             <TilvalgRaekke
+              key={`accent-${nulstil}`}
               id={accentId}
               checked={egenAccent}
               onChange={setEgenAccent}
@@ -420,6 +470,8 @@ export function BestilUdenKontoForm({
                 type="url"
                 placeholder="https://…"
                 required
+                value={destinationUrl}
+                onChange={(e) => setDestinationUrl(e.target.value)}
               />
             </Field>
           </div>
@@ -561,10 +613,13 @@ export function BestilUdenKontoForm({
         <div className="mt-4">
           <div className="mb-3 flex items-start gap-2.5">
             <input
+              key={`vilkaar-${nulstil}`}
               id={vilkaarId}
               type="checkbox"
               name="accepterVilkaar"
               value="1"
+              checked={vilkaar}
+              onChange={(e) => setVilkaar(e.target.checked)}
               className="mt-1 h-4 w-4 shrink-0 accent-accent"
             />
             <label htmlFor={vilkaarId} className="text-sm leading-relaxed">
