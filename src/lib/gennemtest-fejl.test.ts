@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { maaKnyttesAutomatisk } from "./loyalty/member-account";
 import { koebSpaerreUdenKonto } from "./commerce";
@@ -304,5 +304,64 @@ describe("7. bestillingsformularen må ikke tømme sig selv", () => {
     const del = action.slice(action.indexOf("const forsoeg ="));
     expect(del).not.toMatch(/return \{ besked:/);
     expect(del).not.toMatch(/return \{ fejl:/);
+  });
+});
+
+describe("8. admin skal kunne se, hvad der skal trykkes", () => {
+  /** Alle migrationer samlet — en policy kan være tilføjet i en senere fil. */
+  function alleMigrationer(): string {
+    const mappe = join(process.cwd(), "supabase/migrations");
+    return readdirSync(mappe)
+      .filter((f) => f.endsWith(".sql"))
+      .map((f) => readFileSync(join(mappe, f), "utf8"))
+      .join("\n");
+  }
+
+  /**
+   * DEN OPRINDELIGE FEJL: `designs` fik i 0018 kun ejerens policy. Alle de
+   * øvrige tabeller, admin læser, har en `is_admin()`-klausul — den blev
+   * aldrig skrevet for designs. TRYK-kolonnen i /admin/ordrer stod derfor tom
+   * for HVER ordre, også dem med farve og logo.
+   *
+   * Og den fejlede tavst: PostgREST kaster ikke på et blokeret join, det
+   * returnerer `null`. Siden tegnede sin tomme-tilstand og så helt rigtig ud.
+   */
+  it("designs har en admin-policy", () => {
+    const sql = alleMigrationer();
+    const paaDesigns = [...sql.matchAll(/create policy\s+(\w+)\s+on public\.designs[\s\S]{0,400}?;/g)];
+    expect(paaDesigns.length, "der er ingen policies på designs").toBeGreaterThan(0);
+    const medAdmin = paaDesigns.filter((m) => m[0].includes("is_admin()"));
+    expect(
+      medAdmin.length,
+      "designs mangler en policy med is_admin() — admin kan så ikke se, hvad der skal trykkes",
+    ).toBeGreaterThan(0);
+  });
+
+  /**
+   * KUN LÆSNING. Designet er kundens eget valg og det, de har betalt for. En
+   * admin, der kunne skrive i det, ville kunne ændre hvad der bliver trykt,
+   * uden at kunden ved det.
+   */
+  it("admins adgang til designs er kun læsning", () => {
+    const sql = alleMigrationer();
+    const admin = [...sql.matchAll(/create policy\s+\w+\s+on public\.designs[\s\S]{0,400}?;/g)]
+      .filter((m) => m[0].includes("is_admin()"));
+    for (const m of admin) {
+      expect(m[0], "en admin-policy på designs må kun være for select").toMatch(
+        /for select/,
+      );
+      expect(m[0]).not.toMatch(/for all|with check/);
+    }
+  });
+
+  /**
+   * Og siden skal blive ved at læse med brugerens egen klient — det er dét,
+   * der gør policyen til den rigtige rettelse. Skiftes den til service-role,
+   * er policyen pludselig ligegyldig, og næste tabel falder i samme hul.
+   */
+  it("ordreoversigten læser stadig gennem RLS", () => {
+    const side = kilde("src/app/admin/ordrer/page.tsx");
+    expect(side).toContain("createClient()");
+    expect(side).not.toContain("createAdminClient");
   });
 });
