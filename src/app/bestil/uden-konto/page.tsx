@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { BestilUdenKontoForm } from "./bestil-form";
 import { PurchaseNotice } from "@/components/purchase-notice";
 import { getProduct } from "@/lib/constants";
-import { canSell, kanBestillesUdenKonto } from "@/lib/commerce";
+import { koebSpaerreUdenKonto, kanBestillesUdenKonto } from "@/lib/commerce";
 
 export const metadata = {
   title: "Bestil uden konto",
@@ -55,15 +55,24 @@ export default async function UdenKontoPage({
           linket QR-koden skal føre til — så sender vi skiltet.
         </p>
 
+        {/*
+          BESKEDEN STÅR OVER FORMULAREN, ikke i stedet for den — præcis som på
+          produktsiden og /bestil. Før valgte siden mellem de to på `canSell()`,
+          som siger ja i testtilstand, og så var det ENESTE sted på sitet, hvor
+          en besøgende fik at vide, at de godt kunne købe. Betalingsknappen
+          førte til en sandbox, der afviste deres rigtige kort uden forklaring.
+
+          Formularen bliver stående, så flowet kan afprøves fra en testkonto:
+          handlingen spørger den samme regel igen med den INDTASTEDE e-mail.
+        */}
         <div className="mt-8">
-          {canSell(product) ? (
-            <BestilUdenKontoForm
-              product={product}
-              initialQty={Number(antal) || 1}
-            />
-          ) : (
-            <PurchaseNotice />
-          )}
+          {koebSpaerreUdenKonto(product) ? (
+            <PurchaseNotice className="mb-6" />
+          ) : null}
+          <BestilUdenKontoForm
+            product={product}
+            initialQty={Number(antal) || 1}
+          />
         </div>
 
         <p className="mt-10 max-w-xl text-sm text-muted">

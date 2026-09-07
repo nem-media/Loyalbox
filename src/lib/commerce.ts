@@ -140,6 +140,32 @@ export function koebSpaerre(
   return null;
 }
 
+/**
+ * Må en besøgende UDEN konto starte et køb?
+ *
+ * `/bestil/uden-konto` har ingen bruger at spørge om og tjekkede derfor kun
+ * `canSell()`. Den siger ja i testtilstand — så sitet fortalte den SAMME
+ * besøgende to forskellige ting: forsiden, /produkter, produktsiden og /bestil
+ * sagde "du kan ikke købe online endnu", mens bestillingen uden konto gav
+ * hele formularen og en virkende betalingsknap. Den førte til et Stripe-
+ * checkout i sandbox, hvor kundens RIGTIGE kort blev afvist uden forklaring.
+ *
+ * Reglen er den samme som `koebSpaerre()`, bare med e-mailen fra formularen i
+ * stedet for fra en konto. SIDEN kalder den uden e-mail — den kender den ikke
+ * endnu — og viser beskeden, når svaret ikke er null. HANDLINGEN kalder den
+ * MED den indtastede adresse, så flowet stadig kan afprøves fra en
+ * testkonto, præcis som den vej ind der kræver login.
+ */
+export function koebSpaerreUdenKonto(
+  product: Product | undefined,
+  email?: string | null,
+): KoebSpaerre | null {
+  if (!isStripeConfigured()) return "ikke-aabnet";
+  if (!product || !canSell(product)) return "ikke-aabnet";
+  if (stripeMode() !== "live" && !isTestBuyer(email)) return "ikke-aabnet";
+  return null;
+}
+
 export function canStartCheckout(
   user:
     | { email: string; company: { cvr?: string | null } | null }

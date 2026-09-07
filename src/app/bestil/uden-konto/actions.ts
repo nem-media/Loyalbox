@@ -2,7 +2,11 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { stripe, INTEGRATION_ID } from "@/lib/stripe";
-import { stripeIdsFor, stripeMode, canSell } from "@/lib/commerce";
+import {
+  stripeIdsFor,
+  stripeMode,
+  koebSpaerreUdenKonto,
+} from "@/lib/commerce";
 import {
   getProduct,
   priceFor,
@@ -30,6 +34,17 @@ export interface BestillingResultat {
   fejl?: Fejl;
   /** Fejl, der ikke hører til et bestemt felt. */
   besked?: string;
+  /**
+   * Hvilket forsøg i rækken svaret hører til.
+   *
+   * Bruges som `key` på afkrydsnings- og radiofelterne. React nulstiller
+   * formularen, når en server action svarer, og for et STYRET felt sættes
+   * DOM'ens `checked` tilbage, uden at React opdager det — tilstanden er jo
+   * uændret, så der gentegnes ikke. Et forkert ciffer i CVR-feltet slog
+   * derfor standerfarven tilbage til hvid og fjernede både frontfarven og
+   * accepten af vilkårene, mens komponenten mente det modsatte.
+   */
+  forsoeg?: number;
 }
 
 /** Destinationstypen bestemmer, hvilken kolonne adressen havner i. */
@@ -70,9 +85,32 @@ export async function bestilUdenKonto(
   _prev: BestillingResultat,
   formData: FormData,
 ): Promise<BestillingResultat> {
+  // Ét sted ud med en fejl, så forsøgstælleren ikke kan blive glemt på en af
+  // de tolv veje ud herunder — se `forsoeg` i BestillingResultat.
+  const forsoeg = (_prev.forsoeg ?? 0) + 1;
+  const svar = (r: Omit<BestillingResultat, "forsoeg">): BestillingResultat => ({
+    ...r,
+    forsoeg,
+  });
+
   const product = getProduct(String(formData.get("produkt") ?? ""));
-  if (!product || !canSell(product)) {
-    return { besked: "Varen kan ikke bestilles lige nu." };
+  const email = String(formData.get("email") ?? "");
+
+  /*
+   * SAMME SPÆRRE SOM DEN VEJ IND, DER KRÆVER LOGIN. Her spørges der med den
+   * indtastede e-mail, fordi der ikke er nogen konto. Uden den kunne en
+   * besøgende i testtilstand lande i et Stripe-sandbox, hvor deres rigtige
+   * kort blev afvist uden forklaring — se koebSpaerreUdenKonto().
+   */
+  // Eksplicit, så typen indsnævres: spærren svarer også "ikke-aabnet" på en
+  // ukendt vare, men det fortæller TypeScript ikke noget om.
+  if (!product) return svar({ besked: "Varen kan ikke bestilles lige nu." });
+
+  if (koebSpaerreUdenKonto(product, email)) {
+    return svar({
+      besked:
+        "Du kan ikke købe online endnu. Skriv til kontakt@loyalsum.dk, så hjælper vi med bestillingen.",
+    });
   }
 
   const laest = laesBestilling({
@@ -89,7 +127,7 @@ export async function bestilUdenKonto(
     accepterVilkaar: formData.get("accepterVilkaar") === "1",
   });
 
-  if (!laest.ok || !laest.vaerdier) return { fejl: laest.fejl };
+  if (!laest.ok || !laest.vaerdier) return svar({ fejl: laest.fejl });
   const v = laest.vaerdier;
 
   const admin = createAdminClient();
@@ -114,7 +152,7 @@ export async function bestilUdenKonto(
     // Kontrolleres HER OG IKKE KUN I BROWSEREN. Formularen er offentlig, og en
     // browser kan sende hvad som helst — også en 40 MB fil eller en exe.
     if (!kontrol.ok)
-      return { fejl: { firmanavn: undefined }, besked: kontrol.fejl };
+      return svar({ fejl: { firmanavn: undefined }, besked: kontrol.fejl });
 
     const ext = logo.name.split(".").pop()?.toLowerCase() || "png";
     const sti = `uden-konto/${crypto.randomUUID()}.${ext}`;
@@ -124,7 +162,7 @@ export async function bestilUdenKonto(
 
     if (error) {
       await noterFejl("bestilling-uden-konto", `Logo-upload: ${error.message}`);
-      return { besked: "Logoet kunne ikke uploades. Prøv igen." };
+      return svar({ besked: "Logoet kunne ikke uploades. Prøv igen." });
     }
 
     logoUrl = admin.storage.from("logos").getPublicUrl(sti).data.publicUrl;
@@ -158,7 +196,7 @@ export async function bestilUdenKonto(
         .maybeSingle()
     : { data: null };
 
-  if (fundet?.user_id) return { fejl: { cvr: CVR_HAR_KONTO } };
+  if (fundet?.user_id) return svar({ fejl: { cvr: CVR_HAR_KONTO } });
 
   let companyId = fundet?.id ?? null;
 
@@ -181,7 +219,7 @@ export async function bestilUdenKonto(
 
     if (error || !data) {
       await noterFejl("bestilling-uden-konto", `Virksomhed: ${error?.message}`);
-      return { besked: "Bestillingen kunne ikke oprettes. Prøv igen." };
+      return svar({ besked: "Bestillingen kunne ikke oprettes. Prøv igen." });
     }
     companyId = data.id;
   } else {
@@ -222,7 +260,7 @@ export async function bestilUdenKonto(
 
   if (designFejl || !design) {
     await noterFejl("bestilling-uden-konto", `Design: ${designFejl?.message}`);
-    return { besked: "Designet kunne ikke gemmes. Prøv igen." };
+    return svar({ besked: "Designet kunne ikke gemmes. Prøv igen." });
   }
 
   /* --------------------------------------------------------------- standen */
@@ -242,7 +280,7 @@ export async function bestilUdenKonto(
 
   if (standFejl || !stand) {
     await noterFejl("bestilling-uden-konto", `Stander: ${standFejl?.message}`);
-    return { besked: "Bestillingen kunne ikke oprettes. Prøv igen." };
+    return svar({ besked: "Bestillingen kunne ikke oprettes. Prøv igen." });
   }
 
   /* -------------------------------------------------------------- betaling */
@@ -325,7 +363,7 @@ export async function bestilUdenKonto(
       "bestilling-uden-konto",
       `Stripe: ${(err as Error).message}`,
     );
-    return { besked: "Betalingen kunne ikke startes. Prøv igen." };
+    return svar({ besked: "Betalingen kunne ikke startes. Prøv igen." });
   }
 
   await admin.from("orders").insert({
