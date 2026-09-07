@@ -173,6 +173,7 @@ export default async function CardPage({
                 rewardName={reward?.name ?? null}
                 cardText={program.card_text}
                 companyName={company?.name}
+                beholderOverskydende={program.keep_overflow}
               />
               {rewardsForMs.length > 0 ? (
                 <div className="box-shape border border-success/30 bg-success/10 p-3 text-center text-sm font-medium text-success">

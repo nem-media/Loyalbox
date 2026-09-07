@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Logo } from "@/components/brand";
 import { PRIVAT_SIDE } from "@/lib/site";
+import { signout } from "@/app/(auth)/actions";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -71,7 +72,22 @@ export default async function StaffPage({
       <header className="border-b border-border bg-dark px-4 py-4 text-dark-fg">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           <Logo image="light" hoejde="h-7" />
-          <span className="text-sm text-white/70">Personale</span>
+          {/*
+            LOG UD SKAL STÅ HER. Det her er den ENESTE side, en medarbejder kan
+            nå — dashboardet sender dem tilbage hertil — og der var ingen vej ud
+            af sin egen konto nogen steder på den. På en delt telefon ved disken
+            betyder det, at den forrige vagt stadig er logget ind. Det er samme
+            fejl, som blev rettet i menuen på dashboardet; den var bare aldrig
+            rettet her, hvor den gælder på alle skærmstørrelser.
+          */}
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-white/70">Personale</span>
+            <form action={signout}>
+              <button className="box-shape px-2.5 py-1.5 text-xs text-white/70 transition-colors hover:bg-white/10 hover:text-white">
+                Log ud
+              </button>
+            </form>
+          </div>
         </div>
       </header>
 

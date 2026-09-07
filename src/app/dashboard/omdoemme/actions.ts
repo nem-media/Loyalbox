@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getCompanyAccess } from "@/lib/loyalty/access";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import {
   OFFENTLIG_MINIMUM,
   OFFENTLIG_TEKST,
@@ -156,14 +157,35 @@ export async function saetHaandteret(
   if (!id) return { error: "Ugyldig feedback." };
   const fortryd = formData.get("fortryd") === "1";
 
-  const supabase = await createClient();
-  const { error } = await supabase
+  /*
+   * SERVICE-ROLE, IKKE BRUGERENS EGEN KLIENT — og det er ikke en genvej.
+   * `feedback` har KUN en læse-policy; skrivninger er fra begyndelsen ment til
+   * at gå gennem service-role (se kommentaren i migration 0001). Med brugerens
+   * klient ramte opdateringen NUL rækker, og RLS giver ingen fejl ved det: der
+   * blev returneret `ok`, skærmen så rigtig ud, og knappen havde aldrig virket
+   * for nogen. Fundet i en gennemtest — ingen feedback i hele basen havde
+   * `haandteret_den` sat.
+   *
+   * Konsekvensen var ikke kosmetisk: feedbackhåndtering vejer 18 % af
+   * Reputation Score, og den del stod derfor permanent på 0, mens dashboardet
+   * opfordrede til at gøre præcis dét, knappen ikke kunne.
+   *
+   * Adgangen er sikret to steder i stedet: `getCompanyAccess()` ovenfor, og
+   * `company_id` fra adgangen — aldrig fra formularen — så en fremmed id kan
+   * ikke ramme en anden butiks feedback.
+   */
+  const admin = createAdminClient();
+  const { error, data } = await admin
     .from("feedback")
     .update({ haandteret_den: fortryd ? null : new Date().toISOString() })
     .eq("id", id)
-    .eq("company_id", access.companyId);
+    .eq("company_id", access.companyId)
+    .select("id");
 
   if (error) return { error: error.message };
+  // Ramte den ingenting, hører feedbacken ikke til virksomheden. Det skal
+  // SIGES — det var tavsheden, der gjorde den oprindelige fejl usynlig.
+  if (!data?.length) return { error: "Feedbacken blev ikke fundet." };
 
   revalidatePath("/dashboard/omdoemme");
   revalidatePath("/dashboard/feedback");
