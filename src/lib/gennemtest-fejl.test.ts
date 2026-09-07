@@ -150,4 +150,27 @@ describe("5. tilmeldingen må ikke tømme felterne", () => {
     expect(form).toMatch(/value=\{email\}/);
     expect(form).toMatch(/checked=\{vilkaar\}/);
   });
+
+  /**
+   * AFKRYDSNINGSFELTERNE KRÆVER MERE END EN TILSTAND. Efterprøvet på et rigtigt
+   * preview: teksterne overlevede et afvist forsøg, men fluebenene sprang
+   * tilbage. React nulstiller formularen, og for et styret afkrydsningsfelt
+   * sættes DOM'ens `checked` tilbage, uden at React gentegner — tilstanden er
+   * jo uændret. Et nyt `key` pr. svar fra handlingen tvinger dem forfra.
+   */
+  it("afkrydsningsfelterne tegnes forfra ved hvert svar", () => {
+    const form = kilde("src/app/kort/tilmeld/[slug]/self-enroll-form.tsx");
+    expect(form).toMatch(/key=\{`vilkaar-\$\{state\.forsoeg/);
+    expect(form).toMatch(/key=\{`markedsfoering-\$\{state\.forsoeg/);
+
+    // Og tælleren skal faktisk komme fra handlingen, ellers står key stille.
+    const action = kilde("src/app/kort/actions.ts");
+    expect(action).toMatch(/forsoeg = \(_prev\.forsoeg \?\? 0\) \+ 1/);
+    // Ingen fejlvej i selfEnroll må gå uden om tælleren.
+    const del = action.slice(
+      action.indexOf("export async function selfEnroll"),
+      action.indexOf("export async function claimCard"),
+    );
+    expect(del).not.toMatch(/return \{ error:/);
+  });
 });

@@ -16,6 +16,17 @@ export interface EnrollState {
   error?: string;
   /** Kortet er beskyttet af en konto — kunden skal logge ind for at åbne det. */
   loginRequired?: boolean;
+  /**
+   * Hvilket forsøg i rækken det her svar hører til.
+   *
+   * Bruges som `key` på afkrydsningsfelterne i formularen. React nulstiller en
+   * formular, når en server action svarer, og for et STYRET afkrydsningsfelt
+   * bliver DOM'ens `checked` sat tilbage uden at React opdager det — tilstanden
+   * er jo uændret, så der gentegnes ikke. Feltet så derfor tomt ud, mens
+   * komponenten mente det modsatte. Et nyt `key` pr. svar tvinger felterne til
+   * at blive tegnet forfra fra tilstanden. Teksterne har ikke problemet.
+   */
+  forsoeg?: number;
 }
 
 export interface ClaimCardState {
@@ -54,12 +65,21 @@ export async function selfEnroll(
   const email = str(formData.get("email"));
   const phone = str(formData.get("phone"));
 
-  if (!slug) return { error: "Ugyldig stander." };
+  // Ét sted ud med en fejl, så forsøgstælleren aldrig kan blive glemt på en af
+  // dem — se `forsoeg` i EnrollState.
+  const forsoeg = (_prev.forsoeg ?? 0) + 1;
+  const fejl = (error: string, extra: Partial<EnrollState> = {}): EnrollState => ({
+    error,
+    forsoeg,
+    ...extra,
+  });
+
+  if (!slug) return fejl("Ugyldig stander.");
   if (!name && !email && !phone) {
-    return { error: "Udfyld mindst dit navn, din e-mail eller dit telefonnummer." };
+    return fejl("Udfyld mindst dit navn, din e-mail eller dit telefonnummer.");
   }
   if (!bool(formData.get("consent_terms"))) {
-    return { error: "Du skal acceptere vilkårene for at oprette et stempelkort." };
+    return fejl("Du skal acceptere vilkårene for at oprette et stempelkort.");
   }
 
   const admin = createAdminClient();
@@ -70,7 +90,7 @@ export async function selfEnroll(
     .select("company_id, is_active")
     .eq("slug", slug)
     .maybeSingle();
-  if (!stand || !stand.is_active) return { error: "Standeren blev ikke fundet." };
+  if (!stand || !stand.is_active) return fejl("Standeren blev ikke fundet.");
 
   // Aktivt stempelkort for virksomheden
   const { data: program } = await admin
@@ -82,7 +102,7 @@ export async function selfEnroll(
     .limit(1)
     .maybeSingle();
   if (!program) {
-    return { error: "Der er endnu ikke noget aktivt stempelkort her." };
+    return fejl("Der er endnu ikke noget aktivt stempelkort her.");
   }
 
   const visitor = await getCurrentUser();
@@ -126,11 +146,10 @@ export async function selfEnroll(
       // nok til at åbne det — ellers kunne en fremmed med kendskab til blot en
       // e-mailadresse få kortets token udleveret her.
       if (existing.user_id && existing.user_id !== ejer?.id) {
-        return {
-          error:
-            "Der findes allerede et stempelkort med de oplysninger, og det er knyttet til en konto. Log ind for at åbne det.",
-          loginRequired: true,
-        };
+        return fejl(
+          "Der findes allerede et stempelkort med de oplysninger, og det er knyttet til en konto. Log ind for at åbne det.",
+          { loginRequired: true },
+        );
       }
       memberId = existing.id;
       token = existing.public_token;
@@ -151,7 +170,7 @@ export async function selfEnroll(
       .select("id, public_token")
       .single();
     if (error || !member) {
-      return { error: "Kunne ikke oprette kortet. Prøv igen." };
+      return fejl("Kunne ikke oprette kortet. Prøv igen.");
     }
     memberId = member.id;
     token = member.public_token;

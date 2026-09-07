@@ -60,8 +60,17 @@ export function SelfEnrollForm({ slug }: { slug: string }) {
         />
       </Field>
 
+      {/*
+        `key` PÅ AFKRYDSNINGSFELTERNE. React nulstiller formularen, når en
+        server action svarer, og for et styret afkrydsningsfelt sættes DOM'ens
+        `checked` tilbage, uden at React opdager det: tilstanden er uændret, så
+        der gentegnes ikke, og feltet så tomt ud, mens komponenten mente det
+        modsatte. Et nyt key pr. svar tvinger dem til at blive tegnet forfra
+        fra tilstanden. Tekstfelterne har ikke problemet og er urørte.
+      */}
       <label className="flex items-start gap-2 text-sm">
         <input
+          key={`vilkaar-${state.forsoeg ?? 0}`}
           type="checkbox"
           name="consent_terms"
           className="mt-0.5 h-4 w-4 accent-[var(--accent)]"
@@ -72,6 +81,7 @@ export function SelfEnrollForm({ slug }: { slug: string }) {
       </label>
       <label className="flex items-start gap-2 text-sm">
         <input
+          key={`markedsfoering-${state.forsoeg ?? 0}`}
           type="checkbox"
           name="consent_marketing"
           className="mt-0.5 h-4 w-4 accent-[var(--accent)]"
