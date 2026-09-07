@@ -99,11 +99,20 @@ export function StampCardPreview({
               +{p.overskydende}{" "}
               {p.overskydende === 1 ? "ekstra stempel" : "ekstra stempler"}
             </span>
+            {/* Ét stempel er "det", flere er "de". En sætning, kunden læser
+                med telefonen i hånden, må ikke skurre. */}
             {beholderOverskydende === undefined ? null : beholderOverskydende ? (
-              <> · de følger med over på næste kort, når belønningen er indløst.</>
+              <>
+                {" "}
+                · {p.overskydende === 1 ? "det følger" : "de følger"} med over på
+                næste kort, når belønningen er indløst.
+              </>
             ) : (
-              <> · de bortfalder, når belønningen indløses. Indløs den, før du
-                samler videre.</>
+              <>
+                {" "}
+                · {p.overskydende === 1 ? "det bortfalder" : "de bortfalder"},
+                når belønningen indløses. Indløs den, før du samler videre.
+              </>
             )}
           </div>
         ) : null}
