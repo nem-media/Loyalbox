@@ -23,6 +23,15 @@ export interface CompanyAccess {
   role: "owner" | "employee";
   employeeId: string | null;
   permissions: LoyaltyPermissions;
+  /**
+   * Er det en ADMIN, der yder support på virksomheden?
+   *
+   * Rollen står som `owner`, fordi support skal kunne alt det, ejeren kan —
+   * ellers kan vi ikke hjælpe med det, der er gået galt. Men `actorUserId` er
+   * admins eget, og flaget her gør det muligt at SIGE det: en advarsel på
+   * skærmen, og et spor, der ikke påstår, at kunden selv gjorde det.
+   */
+  erSupport?: boolean;
 }
 
 const FULL: LoyaltyPermissions = {
@@ -41,7 +50,8 @@ export async function getCompanyAccess(): Promise<CompanyAccess | null> {
   const user = await getCurrentUser();
   if (!user) return null;
 
-  // Ejer: har en virksomhed knyttet direkte.
+  // Ejer: har en virksomhed knyttet direkte. Er det en admin i
+  // supporttilstand, er `company` kundens — se getCurrentUser().
   if (user.company) {
     return {
       companyId: user.company.id,
@@ -49,6 +59,7 @@ export async function getCompanyAccess(): Promise<CompanyAccess | null> {
       role: "owner",
       employeeId: null,
       permissions: FULL,
+      erSupport: user.supportFor?.id === user.company.id,
     };
   }
 

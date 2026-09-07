@@ -27,7 +27,17 @@ export type AdminHandling =
   | "produkt-skiftet"
   | "abonnement-opsagt"
   | "opsigelse-fortrudt"
-  | "kundeforhold-genoptaget";
+  | "kundeforhold-genoptaget"
+  /*
+   * SUPPORTADGANG. Noteres, når admin åbner en kundes dashboard — ikke ved
+   * hver enkelt rettelse derinde. Det er en bevidst afgrænsning: de
+   * handlinger, der ER værd at spore hver for sig, har allerede deres eget
+   * spor (`loyalty_audit_log` med admins bruger-id, og linjerne herover).
+   * Det, der manglede, var svaret på "var vi overhovedet inde?" — og det er
+   * netop dét, en kunde vil spørge om.
+   */
+  | "support-adgang-aabnet"
+  | "support-adgang-lukket";
 
 /** Det, hver handling hedder på skærmen. */
 export const HANDLING_TEKST: Record<AdminHandling, string> = {
@@ -35,6 +45,8 @@ export const HANDLING_TEKST: Record<AdminHandling, string> = {
   "abonnement-opsagt": "Opsagde abonnementet ved periodens udløb",
   "opsigelse-fortrudt": "Fortrød opsigelsen",
   "kundeforhold-genoptaget": "Genoptog kundeforholdet",
+  "support-adgang-aabnet": "Åbnede kundens dashboard (support)",
+  "support-adgang-lukket": "Forlod kundens dashboard",
 };
 
 export interface AdminLogRaekke {

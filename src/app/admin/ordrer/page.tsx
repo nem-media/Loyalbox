@@ -10,6 +10,7 @@ import { BillingIcon, SearchIcon } from "@/components/nav-icons";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatDate, formatCurrency } from "@/lib/utils";
+import { qrAdresseFor, type StandDestination } from "@/lib/qr-adresse";
 import { OrderStatusSelect } from "./order-status";
 
 export const metadata = { title: "Admin — Ordrer" };
@@ -21,7 +22,26 @@ type Ordrelinje = Database["public"]["Tables"]["orders"]["Row"] & {
     Database["public"]["Tables"]["designs"]["Row"],
     "stander_farve" | "front_type" | "front_hex" | "logo_url"
   > | null;
+  stand:
+    | (StandDestination & {
+        name: string | null;
+        slug: string;
+        kun_viderestilling: boolean;
+      })
+    | null;
 };
+
+/**
+ * Adressen, QR-koden kommer til at pege på — kort nok til en tabelcelle.
+ *
+ * Vores egne sider vises som `/r/<slug>`, fordi værtsnavnet er det samme for
+ * dem alle og kun stjæler plads. Kundens eget link vises uden `https://` og
+ * uden skråstreg til sidst, så man kan se hvilken tjeneste det er.
+ */
+function kortAdresse(url: string): string {
+  const uden = url.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  return uden.startsWith("loyalsum.dk/r/") ? uden.slice("loyalsum.dk".length) : uden;
+}
 
 /**
  * Loft over listen. Den hentede FØR hver eneste ordre uden grænse — det
@@ -53,7 +73,7 @@ export default async function AdminOrdersPage({
   let query = supabase
     .from("orders")
     .select(
-      `*, company:${join}, design:designs(stander_farve, front_type, front_hex, logo_url)`,
+      `*, company:${join}, design:designs(stander_farve, front_type, front_hex, logo_url), stand:stands(name, slug, kun_viderestilling, destination_type, destination_url, google_review_url, trustpilot_url, facebook_url, custom_url)`,
     )
     .order("created_at", { ascending: false })
     .limit(MAKS_RAEKKER);
@@ -93,6 +113,11 @@ export default async function AdminOrdersPage({
                   <TH className="w-16">Tryk</TH>
                   <TH>Produkt</TH>
                   <TH>Virksomhed</TH>
+                  {/* HVOR SKILTET FØRER HEN. Stod før kun på detaljesiden, så
+                      man skulle åbne hver ordre for at se, om den overhovedet
+                      havde en adresse — og en ordre UDEN er netop den, der
+                      skal handles på, før der kan trykkes. */}
+                  <TH>Fører til</TH>
                   <TH numerisk>Beløb</TH>
                   <TH>Dato</TH>
                   <TH>Status</TH>
@@ -137,6 +162,42 @@ export default async function AdminOrdersPage({
                     </TD>
 
                     <TD className="text-muted">{o.company?.name ?? "–"}</TD>
+
+                    {/*
+                      SAMME FUNKTION, SOM TEGNER TRYKFILEN. Uden abonnement
+                      peger koden DIREKTE på butikkens eget link; med
+                      abonnement på vores egen side. Ville man skrive
+                      `/r/<slug>` her, stod der en adresse, der ikke bliver
+                      trykt — den fejl er rettet på detaljesiden én gang før.
+                    */}
+                    <TD>
+                      {o.stand ? (
+                        (() => {
+                          const adr = qrAdresseFor(o.stand!);
+                          return adr ? (
+                            <a
+                              href={adr}
+                              target="_blank"
+                              rel="noreferrer"
+                              title={adr}
+                              className="font-mono text-xs text-accent hover:underline"
+                            >
+                              {kortAdresse(adr)}
+                            </a>
+                          ) : (
+                            <span className="text-xs text-muted">
+                              Standeren mangler en destination
+                            </span>
+                          );
+                        })()
+                      ) : (
+                        /* En ordre uden stander kan ikke trykkes færdig. Den
+                           skal skille sig ud, ikke bare stå tom. */
+                        <span className="text-xs font-medium text-danger">
+                          Ikke valgt
+                        </span>
+                      )}
+                    </TD>
 
                     <TD numerisk>{formatCurrency(Number(o.total_amount))}</TD>
 

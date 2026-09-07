@@ -8,6 +8,8 @@ import { CompanyInfo } from "./company-info";
 import { AdminStandLinks } from "./admin-stand-links";
 import { AddStand } from "./add-stand";
 import { ProductSelect } from "./product-select";
+import { Button } from "@/components/ui/button";
+import { aabnSupportAdgang } from "@/app/admin/actions";
 import { TIER_LABELS } from "@/lib/constants";
 import { Leveringsadresse } from "@/components/leveringsadresse";
 import { formatDate } from "@/lib/utils";
@@ -141,6 +143,32 @@ export default async function AdminCompanyDetail({
         title={company.name}
         description={`${scans ?? 0} scanninger · ${stands?.length ?? 0} standere`}
       />
+
+      {/*
+        SUPPORT: se og ret kundens dashboard som ADMIN.
+        Den ligger øverst, fordi den er svaret på "kunden ringer og siger, at
+        noget ikke virker" — ikke en indstilling, man leder efter. Der skiftes
+        ikke identitet: du forbliver dig selv, adgangen noteres i loggen
+        herunder, og et banner står på hver side, så man ikke glemmer det.
+      */}
+      <Card className="mb-6">
+        <CardBody className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <CardTitle>Yd support</CardTitle>
+            <p className="mt-1 max-w-xl text-sm text-muted">
+              Åbn {company.name}s eget dashboard, og ret det, kunden ikke selv
+              kan komme videre med. Du er stadig logget ind som dig selv —
+              ikke som kunden — og adgangen noteres i loggen.
+            </p>
+          </div>
+          <form action={aabnSupportAdgang}>
+            <input type="hidden" name="companyId" value={company.id} />
+            <Button type="submit" variant="outline">
+              Åbn kundens dashboard
+            </Button>
+          </form>
+        </CardBody>
+      </Card>
 
 {/*
         ÉN VÆLGER, IKKE TO. Planen kan ikke sættes i hånden mere — den FØLGER

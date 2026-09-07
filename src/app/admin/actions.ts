@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -9,6 +10,7 @@ import { KATALOG, planForProduct } from "@/lib/constants";
 import { stripe } from "@/lib/stripe";
 import { isStripeConfigured } from "@/lib/commerce";
 import { noterAdminHandling } from "@/lib/admin-log";
+import { SUPPORT_COOKIE } from "@/lib/support-adgang";
 import type { DestinationType, OrderStatus } from "@/lib/types/database";
 
 async function requireAdmin() {
@@ -20,6 +22,62 @@ async function requireAdmin() {
 export interface FormResult {
   ok?: boolean;
   error?: string;
+}
+
+/* ------------------------------------------------------- supportadgang --- */
+
+/**
+ * Åbn en kundes dashboard som ADMIN.
+ *
+ * Der skiftes ikke identitet: cookien siger kun HVILKEN virksomhed der ses på,
+ * og `requireAdmin()` afgør hver gang, om man må. En cookie sat i hånden af en
+ * almindelig bruger giver derfor ingenting. Se `src/lib/support-adgang.ts`.
+ *
+ * ADGANGEN NOTERES, og det er ikke en formalitet: det er svaret på det
+ * spørgsmål, en kunde stiller — "har I været inde i min konto?". Uden linjen
+ * ville supporttilstanden være den eneste vej ind, der ikke efterlod et spor,
+ * og det var netop dét, `admin_log` blev bygget for at rette.
+ */
+export async function aabnSupportAdgang(formData: FormData): Promise<void> {
+  const admin = await requireAdmin();
+  const companyId = String(formData.get("companyId") ?? "");
+  if (!companyId) return;
+
+  const c = await cookies();
+  c.set(SUPPORT_COOKIE, companyId, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+  });
+
+  await noterAdminHandling({
+    actorId: admin.id,
+    actorEmail: admin.email,
+    companyId,
+    handling: "support-adgang-aabnet",
+  });
+
+  redirect("/dashboard");
+}
+
+/** Forlad supporttilstanden og vend tilbage til admin. */
+export async function lukSupportAdgang(): Promise<void> {
+  const admin = await requireAdmin();
+  const c = await cookies();
+  const companyId = c.get(SUPPORT_COOKIE)?.value ?? "";
+  c.delete(SUPPORT_COOKIE);
+
+  if (companyId) {
+    await noterAdminHandling({
+      actorId: admin.id,
+      actorEmail: admin.email,
+      companyId,
+      handling: "support-adgang-lukket",
+    });
+  }
+
+  redirect(companyId ? `/admin/virksomheder/${companyId}` : "/admin");
 }
 
 export async function createCompany(

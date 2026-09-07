@@ -116,6 +116,12 @@ export default async function DashboardLayout({
       email={user.email}
       roleLabel={TIER_LABELS[plan]}
       companyName={user.company?.name}
+      // Kun sat, når en ADMIN ser på en kundes dashboard — se getCurrentUser().
+      support={
+        user.supportFor
+          ? { companyName: user.supportFor.name ?? "virksomheden" }
+          : null
+      }
       // Genvejen vises kun, hvis der ER kunder at finde. Ellers ville den
       // føre til en side, virksomheden ikke har adgang til.
       quickAction={

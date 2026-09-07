@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand";
 import { signout } from "@/app/(auth)/actions";
+import { lukSupportAdgang } from "@/app/admin/actions";
 import { Badge } from "@/components/ui/badge";
 import { SearchIcon } from "@/components/nav-icons";
 import { DashboardNav, type NavSection } from "@/components/dashboard-nav";
@@ -14,6 +15,7 @@ export function DashboardShell({
   roleLabel,
   companyName,
   quickAction,
+  support,
   children,
 }: {
   sections: NavSection[];
@@ -22,6 +24,15 @@ export function DashboardShell({
   companyName?: string | null;
   /** Den daglige handling. Udelades, hvis virksomheden ikke har stempelkort. */
   quickAction?: { href: string; label: string };
+  /**
+   * Ser en ADMIN på en kundes dashboard?
+   *
+   * Banneret er ikke pynt. Skærmen er ellers kundens i ét og alt, og den
+   * eneste forskel er, hvem der sidder foran den — det er præcis den slags,
+   * man glemmer efter to minutter. Advarslen står øverst på HVER side og
+   * bærer vejen tilbage, så man ikke skal finde den.
+   */
+  support?: { companyName: string } | null;
   children: React.ReactNode;
 }) {
   const initialer = (companyName ?? email).trim().slice(0, 2).toUpperCase();
@@ -104,6 +115,32 @@ export function DashboardShell({
       {/* `bg-app-bg` og ikke `bg-background`: kortene er hvide, så grunden
           skal være noget andet end hvid, ellers ligger de ikke PÅ noget. */}
       <main className="panel flex-1 bg-app-bg">
+        {/*
+          SUPPORTBANNERET LIGGER UDEN FOR max-w-5xl og i fuld bredde, så det
+          ikke kan forveksles med sidens eget indhold. Det er en advarsel om,
+          hvem man er — ikke en besked i dashboardet.
+        */}
+        {support ? (
+          <div className="border-b border-secondary/50 bg-secondary/15 px-4 py-3 md:px-8">
+            <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3">
+              <p className="text-sm">
+                <strong className="font-bold">
+                  Du ser {support.companyName} som ADMIN.
+                </strong>{" "}
+                <span className="text-muted">
+                  Du er stadig dig selv — ikke kunden. Din adgang er noteret i
+                  admin-loggen, og de handlinger, du foretager, står med dit
+                  navn.
+                </span>
+              </p>
+              <form action={lukSupportAdgang}>
+                <button className="btn-shape shrink-0 border border-border bg-background px-3 py-1.5 text-sm font-medium transition-colors hover:bg-muted-bg">
+                  Tilbage til admin
+                </button>
+              </form>
+            </div>
+          </div>
+        ) : null}
         <div className="mx-auto max-w-5xl p-4 md:p-8">{children}</div>
       </main>
     </div>

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { userHasCards } from "@/lib/loyalty/member-account";
+import { valgtSupportVirksomhed } from "@/lib/support-adgang";
 import type { Database, UserRole } from "@/lib/types/database";
 
 type CompanyRow = Database["public"]["Tables"]["companies"]["Row"];
@@ -10,6 +11,15 @@ export interface CurrentUser {
   email: string;
   role: UserRole;
   company: CompanyRow | null;
+  /**
+   * Ser en ADMIN på en kundes virksomhed lige nu?
+   *
+   * `company` er så kundens, mens `id`, `email` og `role` bliver ved at være
+   * admins egne. Det er hele forskellen på den her løsning og at logge ind som
+   * kunden: alt, der spørger hvem der handler, får stadig det rigtige svar.
+   * Se `src/lib/support-adgang.ts`.
+   */
+  supportFor: CompanyRow | null;
 }
 
 /**
@@ -31,6 +41,25 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
 
   const role: UserRole = profile?.role ?? "customer";
 
+  /*
+   * ADMIN I SUPPORTTILSTAND. Admin har ingen egen virksomhed, så dashboardet
+   * ville ellers sende dem videre. Er der valgt en kunde, hentes DEN — med
+   * service-role, fordi admin ikke ejer rækken, og fordi rollen allerede er
+   * kontrolleret her.
+   */
+  let supportFor: CompanyRow | null = null;
+  if (role === "admin") {
+    const valgt = await valgtSupportVirksomhed();
+    if (valgt) {
+      const { data } = await createAdminClient()
+        .from("companies")
+        .select("*")
+        .eq("id", valgt)
+        .maybeSingle();
+      supportFor = data ?? null;
+    }
+  }
+
   let company: CompanyRow | null = null;
   if (role === "customer") {
     const { data } = await supabase
@@ -47,7 +76,10 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     id: user.id,
     email: profile?.email ?? user.email ?? "",
     role,
-    company,
+    // Supportvirksomheden træder i stedet for admins (ikke-eksisterende) egen,
+    // så hver dashboardside virker uden at kende til supporttilstanden.
+    company: company ?? supportFor,
+    supportFor,
   };
 }
 
