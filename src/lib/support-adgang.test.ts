@@ -149,6 +149,16 @@ describe("man skal kunne se og forlade det", () => {
     expect(shell).toContain("Tilbage til admin");
   });
 
+  /**
+   * OG DASHBOARDET SKAL LUKKE ADMIN IND. Uden undtagelsen sendte
+   * supportknappen én tur til /dashboard og direkte tilbage til /admin, og
+   * det så ud som om knappen ikke virkede. Fanget på preview.
+   */
+  it("dashboardet sender ikke en admin i supporttilstand væk", () => {
+    const layout = kilde("src/app/dashboard/layout.tsx");
+    expect(layout).toMatch(/role === "admin" && !user\.supportFor/);
+  });
+
   /** Og virksomhedssiden skal have vejen ind. */
   it("admin kan åbne kundens dashboard fra virksomheden", () => {
     const side = kilde("src/app/admin/virksomheder/[id]/page.tsx");
