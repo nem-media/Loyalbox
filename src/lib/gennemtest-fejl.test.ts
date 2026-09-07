@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { maaKnyttesAutomatisk } from "./loyalty/member-account";
-import { stampProgress } from "./loyalty/balance";
+import { stampProgress, redemptionStampDelta } from "./loyalty/balance";
 
 /**
  * De fem fejl fra gennemtesten 2026-09-07 — låst fast.
@@ -119,6 +119,41 @@ describe("3. overskydende stempler må ikke lyve", () => {
     expect(komponent).toContain("beholderOverskydende");
     expect(komponent).toContain("bortfalder");
   });
+
+  /**
+   * TÆRSKLEN ER IKKE TI. `required_stamps` sættes pr. belønning, og en butik
+   * kan lige så godt vælge 6 eller 20. Hele gennemtesten kørte på ti, så det
+   * her er dét, der holder fast i, at intet er skrevet fast til det tal.
+   * Efterprøvet på et rigtigt kort med 6: belønning ved præcis 6/6, og et
+   * syvende stempel gav "6 af 6" plus "+1 ekstra stempel".
+   */
+  it.each([3, 6, 12, 20])("virker med %i stempler som tærskel", (kraevet) => {
+    expect(stampProgress(kraevet - 1, kraevet).reached).toBe(false);
+    expect(stampProgress(kraevet - 1, kraevet).overskydende).toBe(0);
+
+    const netop = stampProgress(kraevet, kraevet);
+    expect(netop.reached).toBe(true);
+    expect(netop.overskydende).toBe(0);
+    expect(netop.remaining).toBe(0);
+
+    const over = stampProgress(kraevet + 2, kraevet);
+    expect(over.overskydende).toBe(2);
+    expect(Math.min(over.have, over.required)).toBe(kraevet);
+  });
+
+  /**
+   * OG DE TO INDSTILLINGER SKAL BLIVE VED AT BETYDE HVER SIT. Begge er set
+   * virke på et rigtigt kort med tærsklen 6: beholdes de overskydende, står
+   * kortet på 1 efter indløsningen; gør de ikke, står det på 0.
+   */
+  it.each([3, 6, 12, 20])(
+    "trækker det rigtige ved indløsning med tærskel %i",
+    (kraevet) => {
+      const saldo = kraevet + 2;
+      expect(redemptionStampDelta(saldo, kraevet, true)).toBe(-kraevet);
+      expect(redemptionStampDelta(saldo, kraevet, false)).toBe(-saldo);
+    },
+  );
 });
 
 describe("4. medarbejderen skal kunne logge ud", () => {
