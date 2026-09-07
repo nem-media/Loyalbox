@@ -22,7 +22,12 @@ export default async function DashboardLayout({
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/dashboard");
-  if (user.role === "admin") redirect("/admin");
+  /*
+   * Admin hører hjemme i /admin — MEDMINDRE de yder support på en kunde.
+   * Uden undtagelsen sendte supportknappen én tur til /dashboard og direkte
+   * tilbage, og det så ud som om knappen ikke virkede.
+   */
+  if (user.role === "admin" && !user.supportFor) redirect("/admin");
 
   // Dashboardet er ejer-only. Alle andre uden virksomhed skal videre — ellers
   // lander de på "Du har endnu ingen virksomhed. Kontakt support", som er en
@@ -116,6 +121,12 @@ export default async function DashboardLayout({
       email={user.email}
       roleLabel={TIER_LABELS[plan]}
       companyName={user.company?.name}
+      // Kun sat, når en ADMIN ser på en kundes dashboard — se getCurrentUser().
+      support={
+        user.supportFor
+          ? { companyName: user.supportFor.name ?? "virksomheden" }
+          : null
+      }
       // Genvejen vises kun, hvis der ER kunder at finde. Ellers ville den
       // føre til en side, virksomheden ikke har adgang til.
       quickAction={
