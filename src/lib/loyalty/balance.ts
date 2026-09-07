@@ -28,6 +28,17 @@ export interface StampProgress {
   reached: boolean;
   /** Fremgang 0-100 (til progress-bar). */
   percent: number;
+  /**
+   * Stempler UD OVER tærsklen.
+   *
+   * Findes, fordi kortet før viste "11 af 10 stempler" — et tal, der hverken
+   * er sandt for kunden eller pænt at læse. Værre: der udstedes kun ÉN
+   * udestående belønning ad gangen, så de ekstra stempler giver ikke en ekstra
+   * belønning, og med `keep_overflow = false` bliver de trukket væk ved
+   * indløsningen. De skal derfor kunne VISES for sig og forklares — ikke
+   * lægges oveni tælleren, som om de var på vej mod noget.
+   */
+  overskydende: number;
 }
 
 /** Beregner fremgang mod næste belønning — bruges i kort-UI og medarbejderflow. */
@@ -37,7 +48,15 @@ export function stampProgress(have: number, required: number): StampProgress {
   const reached = clampedHave >= safeRequired;
   const remaining = Math.max(0, safeRequired - clampedHave);
   const percent = Math.min(100, Math.round((clampedHave / safeRequired) * 100));
-  return { have: clampedHave, required: safeRequired, remaining, reached, percent };
+  const overskydende = Math.max(0, clampedHave - safeRequired);
+  return {
+    have: clampedHave,
+    required: safeRequired,
+    remaining,
+    reached,
+    percent,
+    overskydende,
+  };
 }
 
 /**

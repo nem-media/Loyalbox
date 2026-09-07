@@ -12,6 +12,7 @@ export function StampCardPreview({
   rewardName,
   cardText,
   companyName,
+  beholderOverskydende,
 }: {
   name: string;
   color?: string;
@@ -20,6 +21,12 @@ export function StampCardPreview({
   rewardName?: string | null;
   cardText?: string | null;
   companyName?: string | null;
+  /**
+   * Beholder butikken stempler ud over tærsklen ved en indløsning
+   * (`loyalty_programs.keep_overflow`)? Udelades den, siges der intet om,
+   * hvad der sker med dem — bedre end at gætte forkert på kundens vegne.
+   */
+  beholderOverskydende?: boolean;
 }) {
   const total = Math.max(1, Math.min(requiredStamps, 30));
   const p = stampProgress(filled, requiredStamps);
@@ -61,8 +68,15 @@ export function StampCardPreview({
         </div>
 
         <div className="mt-4 flex items-center justify-between text-sm">
+          {/*
+            TÆLLEREN STOPPER VED TÆRSKLEN. Den viste før den rå saldo, så et
+            fyldt kort med et ekstra stempel stod som "11 af 10 stempler".
+            Overskydende stempler hører ikke til i tælleren: de er ikke på vej
+            mod noget, for der udstedes kun én belønning ad gangen. De står
+            for sig nedenfor — med hvad der sker med dem.
+          */}
           <span className="text-white/80">
-            {p.have} af {p.required} stempler
+            {Math.min(p.have, p.required)} af {p.required} stempler
           </span>
           {rewardName ? (
             <span className="rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium">
@@ -71,6 +85,37 @@ export function StampCardPreview({
             </span>
           ) : null}
         </div>
+
+        {/*
+          DE OVERSKYDENDE STEMPLER, OG SANDHEDEN OM DEM. Kunden har fået dem og
+          kan se dem på kvitteringen; at lade som om de ikke findes ville være
+          lige så forkert som at lægge dem i tælleren. Beholder butikken dem
+          ikke, skal det stå NU — ikke opdages, når kortet efter indløsningen
+          står på nul.
+        */}
+        {p.overskydende > 0 ? (
+          <div className="border-t border-white/15 px-5 py-3 text-xs text-white/70">
+            <span className="font-medium text-white/90">
+              +{p.overskydende}{" "}
+              {p.overskydende === 1 ? "ekstra stempel" : "ekstra stempler"}
+            </span>
+            {/* Ét stempel er "det", flere er "de". En sætning, kunden læser
+                med telefonen i hånden, må ikke skurre. */}
+            {beholderOverskydende === undefined ? null : beholderOverskydende ? (
+              <>
+                {" "}
+                · {p.overskydende === 1 ? "det følger" : "de følger"} med over på
+                næste kort, når belønningen er indløst.
+              </>
+            ) : (
+              <>
+                {" "}
+                · {p.overskydende === 1 ? "det bortfalder" : "de bortfalder"},
+                når belønningen indløses. Indløs den, før du samler videre.
+              </>
+            )}
+          </div>
+        ) : null}
       </div>
     </div>
   );

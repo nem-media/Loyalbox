@@ -6,13 +6,27 @@ import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCompanyAccess } from "@/lib/loyalty/access";
 import { getCurrentUser } from "@/lib/auth";
-import { claimCardForUser } from "@/lib/loyalty/member-account";
+import {
+  claimCardForUser,
+  maaKnyttesAutomatisk,
+} from "@/lib/loyalty/member-account";
 import { giveStamp, redeemReward } from "@/lib/loyalty/service";
 
 export interface EnrollState {
   error?: string;
   /** Kortet er beskyttet af en konto — kunden skal logge ind for at åbne det. */
   loginRequired?: boolean;
+  /**
+   * Hvilket forsøg i rækken det her svar hører til.
+   *
+   * Bruges som `key` på afkrydsningsfelterne i formularen. React nulstiller en
+   * formular, når en server action svarer, og for et STYRET afkrydsningsfelt
+   * bliver DOM'ens `checked` sat tilbage uden at React opdager det — tilstanden
+   * er jo uændret, så der gentegnes ikke. Feltet så derfor tomt ud, mens
+   * komponenten mente det modsatte. Et nyt `key` pr. svar tvinger felterne til
+   * at blive tegnet forfra fra tilstanden. Teksterne har ikke problemet.
+   */
+  forsoeg?: number;
 }
 
 export interface ClaimCardState {
@@ -51,12 +65,21 @@ export async function selfEnroll(
   const email = str(formData.get("email"));
   const phone = str(formData.get("phone"));
 
-  if (!slug) return { error: "Ugyldig stander." };
+  // Ét sted ud med en fejl, så forsøgstælleren aldrig kan blive glemt på en af
+  // dem — se `forsoeg` i EnrollState.
+  const forsoeg = (_prev.forsoeg ?? 0) + 1;
+  const fejl = (error: string, extra: Partial<EnrollState> = {}): EnrollState => ({
+    error,
+    forsoeg,
+    ...extra,
+  });
+
+  if (!slug) return fejl("Ugyldig stander.");
   if (!name && !email && !phone) {
-    return { error: "Udfyld mindst dit navn, din e-mail eller dit telefonnummer." };
+    return fejl("Udfyld mindst dit navn, din e-mail eller dit telefonnummer.");
   }
   if (!bool(formData.get("consent_terms"))) {
-    return { error: "Du skal acceptere vilkårene for at oprette et stempelkort." };
+    return fejl("Du skal acceptere vilkårene for at oprette et stempelkort.");
   }
 
   const admin = createAdminClient();
@@ -67,7 +90,7 @@ export async function selfEnroll(
     .select("company_id, is_active")
     .eq("slug", slug)
     .maybeSingle();
-  if (!stand || !stand.is_active) return { error: "Standeren blev ikke fundet." };
+  if (!stand || !stand.is_active) return fejl("Standeren blev ikke fundet.");
 
   // Aktivt stempelkort for virksomheden
   const { data: program } = await admin
@@ -79,11 +102,31 @@ export async function selfEnroll(
     .limit(1)
     .maybeSingle();
   if (!program) {
-    return { error: "Der er endnu ikke noget aktivt stempelkort her." };
+    return fejl("Der er endnu ikke noget aktivt stempelkort her.");
   }
 
-  // Er den besøgende logget ind, knyttes kortet til deres konto med det samme.
   const visitor = await getCurrentUser();
+
+  /*
+   * KORTET KNYTTES KUN TIL KONTOEN, HVIS E-MAILEN ER DEN SAMME.
+   *
+   * Før blev kortet knyttet til hvem som helst, der var logget ind i browseren.
+   * Det lyder som en venlighed og er det på kundens egen telefon — men
+   * tilmeldingen sker typisk på butikkens tablet ved disken, og den er logget
+   * ind som ejeren eller en medarbejder. Så blev HVER kundes kort bundet til
+   * personalets konto, og kunden kunne aldrig få det: spærren nedenfor ("er
+   * knyttet til en konto — log ind") lukkede hende ude af sit eget kort.
+   * Konstateret i en gennemtest, hvor et kort oprettet i en kundes navn endte
+   * under en administrators "Mine stempelkort".
+   *
+   * E-mailen er det eneste, der binder den indloggede til den, der står i
+   * formularen. Passer de ikke — eller er der ingen e-mail — oprettes kortet
+   * frit, og kunden kan selv trykke "Gem på min konto" fra kortets egen
+   * adresse. Det er samme regel som resten af systemet: besiddelse af tokenet
+   * er autorisationen, og tilknytning er en HANDLING, ikke en bivirkning.
+   */
+  const ejer =
+    visitor && maaKnyttesAutomatisk(visitor.email, email) ? visitor : null;
 
   // Genbrug eksisterende medlem (åbn kort) hvis e-mail/telefon matcher.
   let memberId: string | null = null;
@@ -102,12 +145,11 @@ export async function selfEnroll(
       // Har kunden knyttet kortet til en konto, er e-mail/telefon ikke længere
       // nok til at åbne det — ellers kunne en fremmed med kendskab til blot en
       // e-mailadresse få kortets token udleveret her.
-      if (existing.user_id && existing.user_id !== visitor?.id) {
-        return {
-          error:
-            "Der findes allerede et stempelkort med de oplysninger, og det er knyttet til en konto. Log ind for at åbne det.",
-          loginRequired: true,
-        };
+      if (existing.user_id && existing.user_id !== ejer?.id) {
+        return fejl(
+          "Der findes allerede et stempelkort med de oplysninger, og det er knyttet til en konto. Log ind for at åbne det.",
+          { loginRequired: true },
+        );
       }
       memberId = existing.id;
       token = existing.public_token;
@@ -122,19 +164,20 @@ export async function selfEnroll(
         name: name || null,
         email: email || null,
         phone: phone || null,
-        user_id: visitor?.id ?? null,
-        claimed_at: visitor ? new Date().toISOString() : null,
+        user_id: ejer?.id ?? null,
+        claimed_at: ejer ? new Date().toISOString() : null,
       })
       .select("id, public_token")
       .single();
     if (error || !member) {
-      return { error: "Kunne ikke oprette kortet. Prøv igen." };
+      return fejl("Kunne ikke oprette kortet. Prøv igen.");
     }
     memberId = member.id;
     token = member.public_token;
-  } else if (visitor && token) {
-    // Eksisterende, endnu ikke tilknyttet kort — knyt det til den indloggede.
-    await claimCardForUser(token, visitor.id);
+  } else if (ejer && token) {
+    // Eksisterende, endnu ikke tilknyttet kort — knyt det til den indloggede,
+    // men KUN når e-mailen er den samme. Se kommentaren ved `sammeKonto`.
+    await claimCardForUser(token, ejer.id);
   }
 
   // Sikr medlemskab til programmet (idempotent).

@@ -138,6 +138,32 @@ export type ClaimResult =
   | { ok: false; error: string };
 
 /**
+ * Må et NYT kort knyttes automatisk til den, der er logget ind?
+ *
+ * KUN NÅR E-MAILEN ER DEN SAMME. Tilmeldingen knyttede før kortet til hvem som
+ * helst, browseren var logget ind som. På kundens egen telefon er det en
+ * venlighed — men tilmeldingen sker typisk på butikkens tablet ved disken, og
+ * den er logget ind som ejeren eller en medarbejder. Så blev hver kundes kort
+ * bundet til personalets konto, og kunden kunne aldrig få det tilbage.
+ *
+ * E-mailen er det eneste, der binder den indloggede til den, der står i
+ * formularen. Er der ingen e-mail, eller passer de ikke, oprettes kortet frit,
+ * og kunden kan selv trykke "Gem på min konto" fra kortets egen adresse — en
+ * HANDLING, ikke en bivirkning, præcis som `claimCardForUser` nedenfor.
+ *
+ * Ren funktion, så reglen kan prøves uden en base og uden en browser.
+ */
+export function maaKnyttesAutomatisk(
+  kontoEmail: string | null | undefined,
+  formularEmail: string | null | undefined,
+): boolean {
+  const a = (kontoEmail ?? "").trim().toLowerCase();
+  const b = (formularEmail ?? "").trim().toLowerCase();
+  if (!a || !b) return false;
+  return a === b;
+}
+
+/**
  * Knytter kortet bag `token` til `userId`.
  *
  * Tokenet ER autorisationen: kun den, der har kortets URL, kan knytte det til en

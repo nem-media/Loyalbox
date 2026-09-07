@@ -42,9 +42,18 @@ export function StaffStampPanel({
       ) : null}
       {state.ok ? (
         <p className="mt-2 text-sm font-medium text-success">
+          {/*
+            KVITTERINGEN TIL PERSONALET TÆLLER OGSÅ KUN TIL TÆRSKLEN — den sagde
+            før "11/10 stempler". Er der stempler ud over, siges det som en
+            tilføjelse, så den, der står med kunden, kan nå at sige det højt:
+            de bortfalder ved indløsningen, hvis butikken ikke beholder dem.
+          */}
           {state.rewardEarned
-            ? `🎉 Belønning optjent: ${state.rewardName}. Nu ${state.have}/${state.required}.`
-            : `Stempel givet · ${state.have}/${state.required} stempler.`}
+            ? `🎉 Belønning optjent: ${state.rewardName}. Nu ${Math.min(state.have ?? 0, state.required ?? 0)}/${state.required}.`
+            : `Stempel givet · ${Math.min(state.have ?? 0, state.required ?? 0)}/${state.required} stempler.`}
+          {(state.have ?? 0) > (state.required ?? 0)
+            ? ` (+${(state.have ?? 0) - (state.required ?? 0)} ud over kortet — indløs belønningen først.)`
+            : ""}
         </p>
       ) : null}
     </form>
