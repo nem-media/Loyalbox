@@ -238,7 +238,13 @@ export default function LandingPage() {
                 "Ingen app for dine kunder",
                 "Virker på alle telefoner",
                 "Dansk platform",
-                "Ingen binding på Basic",
+                // "på Basic" stod her, som om de to abonnementsvarer bandt
+                // kunden. Det gør de ikke: handelsbetingelsernes §6 siger
+                // ligeud, at der ingen bindingsperiode er, og opsigelsen kan
+                // ske når som helst fra dashboardet. Et forbehold, der ikke
+                // svarer til vilkårene, er en dårligere handel end den, vi
+                // faktisk tilbyder.
+                "Ingen binding",
               ].map((t) => (
                 <li key={t} className="inline-flex items-center gap-2">
                   <span className="text-accent">{IconCheck}</span>

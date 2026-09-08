@@ -126,11 +126,17 @@ export default async function ProductPage({
             </div>
 
             <div className="mt-6 box-shape border border-accent/20 bg-accent/5 p-4 text-sm text-muted">
-              Fri fragt i Danmark · Klar til brug ud af kassen ·{" "}
-              {product.monthlyPrice
-                ? "Ingen binding ud over løbende måned"
-                : "Ingen binding"}{" "}
-              · Alle priser ex moms
+              {/*
+                "Ingen binding" — uden forbehold, også på abonnementsvarerne.
+                Der stod før "ud over løbende måned", men den løbende måned er
+                ikke en binding: den er den periode, kunden allerede HAR betalt
+                for, og som hun beholder adgangen i. Handelsbetingelsernes §6
+                siger ligeud, at der ingen bindingsperiode er. Detaljen om,
+                hvornår opsigelsen træder i kraft, hører hjemme dér — ikke som
+                et forbehold i en salgslinje.
+              */}
+              Fri fragt i Danmark · Klar til brug ud af kassen · Ingen binding ·
+              Alle priser ex moms
             </div>
 
             {/* LoyalSum: hele platformen inkluderet — ellers op-salg til Komplet */}
