@@ -3,7 +3,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 /**
- * "INGEN BINDING" MÅ IKKE HAVE ET FORBEHOLD.
+ * "INGEN BINDING" MÅ IKKE INDSNÆVRES.
  *
  * Forsiden sagde "Ingen binding på Basic", og produktsiden sagde "Ingen
  * binding ud over løbende måned". Begge dele var en DÅRLIGERE handel end den,
@@ -13,9 +13,7 @@ import { join } from "node:path";
  * betalt for og beholder adgangen i.
  *
  * Et forbehold, der ikke svarer til vilkårene, koster salg uden at beskytte
- * nogen. Prøven her holder påstanden ren på de sider, en kunde køber fra —
- * og lader med vilje de juridiske sider være, for det er DÉR, detaljen om
- * hvornår en opsigelse træder i kraft, hører hjemme.
+ * nogen.
  */
 
 /** Siderne en kunde ser før et køb. De juridiske sider er bevidst udeladt. */
@@ -49,34 +47,80 @@ function udenKommentarer(fil: string): string {
     .replace(/^\s*\/\/.*$/gm, "");
 }
 
+/**
+ * Ord, der BEGRÆNSER påstanden.
+ *
+ * Skellet er mellem at begrænse og at uddybe. "Ingen binding på Basic" og
+ * "ingen binding ud over løbende måned" tager noget fra kunden — der er altså
+ * binding et andet sted. "Ingen binding — du kan opsige når som helst" tager
+ * intet: det siger det samme én gang til. Derfor fanges de ord, der
+ * indsnævrer, og ikke enhver fortsættelse.
+ */
+const INDSNAEVRENDE = [
+  "på",
+  "ud over",
+  "udover",
+  "kun",
+  "dog",
+  "bortset",
+  "medmindre",
+  "med mindre",
+  "hvis",
+  "mod",
+  "efter",
+  "ved",
+];
+
 describe("påstanden om ingen binding", () => {
-  /**
-   * Enhver forekomst skal stå ALENE. Fanger både "på Basic", "ud over løbende
-   * måned" og enhver ny variant, nogen måtte finde på.
-   */
-  it("står uden forbehold på alle salgssider", () => {
+  it("indsnævres ikke på nogen salgsside", () => {
     const synder: string[] = [];
     for (const fil of salgsSider()) {
-      const src = udenKommentarer(fil);
-      for (const m of src.matchAll(/[Ii]ngen binding([^"'<}\n]*)/g)) {
-        const hale = m[1].trim();
-        // Et efterfølgende skilletegn er fint — et forbehold er ikke.
-        if (hale && !/^[·.,!\s]*$/.test(hale)) {
-          synder.push(`${fil.replace(process.cwd(), "")}: "Ingen binding${m[1]}"`);
+      for (const m of udenKommentarer(fil).matchAll(
+        /[Ii]ngen binding[ ]+([^"'<}\n]*)/g,
+      )) {
+        const efter = m[1].trim().toLowerCase();
+        const rammer = INDSNAEVRENDE.some(
+          (ord) => efter === ord || efter.startsWith(ord + " "),
+        );
+        if (rammer) {
+          synder.push(
+            `${fil.replace(process.cwd(), "")}: "…ingen binding ${m[1]
+              .trim()
+              .slice(0, 40)}…"`,
+          );
         }
       }
     }
     expect(
       synder,
-      `Påstanden har fået et forbehold:\n  ${synder.join("\n  ")}\n` +
-        `Vilkårenes §6 siger, at der INGEN bindingsperiode er. ` +
-        `Hører detaljen hjemme et sted, er det på handelsbetingelserne.`,
+      `Påstanden er blevet indsnævret:\n  ${synder.join("\n  ")}\n` +
+        `Vilkårenes §6 siger, at der INGEN bindingsperiode er — uden ` +
+        `undtagelser. Hører en detalje hjemme et sted, er det på ` +
+        `handelsbetingelserne.`,
     ).toEqual([]);
   });
 
   /**
+   * OG DEN SKAL FAKTISK STÅ DER, hvor et abonnement sælges. Det var pointen
+   * med at tilføje den på kampagnesiderne: kundens næste spørgsmål efter
+   * prisen er, hvad hun binder sig til.
+   */
+  it("står på forsiden og begge kampagnesider", () => {
+    for (const sti of [
+      "src/app/page.tsx",
+      "src/app/reviewstander/page.tsx",
+      "src/app/stempelkort/page.tsx",
+    ]) {
+      expect(
+        readFileSync(join(process.cwd(), sti), "utf8").toLowerCase(),
+        `${sti} nævner ikke, at der ingen binding er`,
+      ).toContain("ingen binding");
+    }
+  });
+
+  /**
    * OG PÅSTANDEN SKAL VÆRE SAND. Står der ikke længere i vilkårene, at der
-   * ingen bindingsperiode er, må forsiden heller ikke sige det.
+   * ingen bindingsperiode er, må salgssiderne heller ikke love det.
    */
   it("er dækket af handelsbetingelserne", () => {
     const vilkaar = readFileSync(

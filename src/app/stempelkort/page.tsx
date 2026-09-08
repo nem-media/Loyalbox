@@ -305,7 +305,7 @@ const FAQ = [
   },
   {
     q: "Hvad koster et digitalt stempelkort?",
-    a: "Stempelkortet er en del af LoyalSum Komplet. Du betaler for standeren én gang og et fast månedligt abonnement — se de aktuelle priser på produktsiden.",
+    a: "Stempelkortet er en del af LoyalSum Komplet. Du betaler for standeren én gang og et fast månedligt abonnement — se de aktuelle priser på produktsiden. Der er ingen binding: du kan opsige når som helst fra dit dashboard.",
   },
 ];
 
@@ -971,9 +971,12 @@ export default function StempelkortPage() {
                     </div>
                   ) : null}
                 </dl>
+                {/* "Ingen binding" står HER og ikke kun i FAQ'en: det er ved
+                    prisen, spørgsmålet melder sig, og et svar, man skal rulle
+                    ned efter, når det ikke. */}
                 <p className="mt-4 text-sm text-muted">
                   Alle priser er ex moms. Køber du flere standere, falder prisen
-                  pr. stk.
+                  pr. stk. Ingen binding.
                 </p>
                 <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                   <ButtonLink href={`/produkter/${komplet.slug}`} size="lg">
