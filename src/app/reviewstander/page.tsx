@@ -204,7 +204,7 @@ const FAQ = [
   },
   {
     q: "Kræver reviewstanderen et abonnement?",
-    a: "Nej. Den enkle Reviewstander er en engangspris uden abonnement. Vil du have din egen anmeldelsesside, flere platforme, dynamiske links, privat feedback og statistik, er det Reviewstander Pro, der har et månedligt abonnement. Skal du også have digitalt stempelkort, er det LoyalSum Komplet.",
+    a: "Nej. Den enkle Reviewstander er en engangspris uden abonnement. Vil du have din egen anmeldelsesside, flere platforme, dynamiske links, privat feedback og statistik, er det Reviewstander Pro, der har et månedligt abonnement. Skal du også have digitalt stempelkort, er det LoyalSum Komplet. Der er ingen binding — du kan opsige når som helst fra dit dashboard.",
   },
   {
     q: "Hvor bør jeg placere standeren?",
@@ -847,8 +847,12 @@ export default function ReviewstanderPage() {
                         ) : (
                           <p className="text-sm text-muted">Intet abonnement</p>
                         )}
+                        {/* "Ingen binding" står HER og ikke kun i FAQ'en:
+                            det er ved prisen, spørgsmålet melder sig, og et
+                            svar, man skal rulle ned efter, når det ikke. */}
                         <p className="mt-1 text-xs text-muted">
                           Priser ex moms · fri fragt i Danmark
+                          {p.monthlyPrice ? " · ingen binding" : null}
                         </p>
                       </div>
 
