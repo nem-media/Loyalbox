@@ -31,6 +31,7 @@ import {
 import { LOGO_TEKSTER, laesPngHoved, validerLogo } from "@/lib/logo";
 import { LogoFelt } from "@/components/logo-felt";
 import { DESTINATIONER } from "@/lib/bestilling-uden-konto";
+import { kraeverDestination } from "@/lib/commerce";
 import { DESTINATION_INTRO } from "@/components/destination-felt";
 import { formatCurrency } from "@/lib/utils";
 
@@ -155,6 +156,13 @@ export function BestilUdenKontoForm({
   const brugtAccent =
     egenAccent && normaliserHex(accent) ? normaliserHex(accent) : null;
   const visAccent = brugtAccent ?? STANDARD_ACCENT;
+  /*
+   * SAMME REGEL SOM SERVEREN. `kraeverDestination` afgør både om feltet vises
+   * og om det valideres; læses den to steder med hver sin logik, ender vi med
+   * et felt, der er skjult og påkrævet på én gang.
+   */
+  const kraevDestination = kraeverDestination(product, null);
+
   const pris = priceFor(product, qty, {
     egenFrontfarve: front.egen,
     standerFarve,
@@ -433,7 +441,14 @@ export function BestilUdenKontoForm({
           </div>
         </FormSektion>
 
-        {/* --------------------------------------------------- destination */}
+        {/* --------------------------------------------------- destination
+            KUN NÅR DEN IKKE KAN ÆNDRES BAGEFTER. Et abonnement får sin egen
+            /r/<slug>, og målet sættes i dashboardet efter aktiveringen —
+            derfor er skemaet her kortere for Pro og Komplet end for Basic.
+            Reglen er `kraeverDestination()`, den SAMME funktion som serveren
+            validerer med, så feltet ikke kan blive skjult og krævet på én
+            gang. */}
+        {kraevDestination ? (
         <FormSektion
           titel="Hvor QR-koden fører hen"
           icon={LinkIcon}
@@ -476,6 +491,15 @@ export function BestilUdenKontoForm({
             </Field>
           </div>
         </FormSektion>
+        ) : (
+          <FormSektion titel="Hvor QR-koden fører hen" icon={LinkIcon}>
+            <p className="text-sm leading-relaxed text-muted">
+              Det bestemmer du bagefter. Med {product.name} peger koden på din
+              egen LoyalSum-side, så du kan skifte målet når som helst — uden
+              at bestille nye skilte.
+            </p>
+          </FormSektion>
+        )}
 
       </div>
 
@@ -605,6 +629,20 @@ export function BestilUdenKontoForm({
                   </span>
                 </dd>
               </div>
+              {/* MÅNEDSPRISEN SKAL STÅ HER. Uden den ser et abonnement ud som
+                  et engangskøb, og den første månedsopkrævning ville komme
+                  som en overraskelse — det er dét, indsigelser er lavet af. */}
+              {product.monthlyPrice ? (
+                <div className="flex items-baseline justify-between gap-4">
+                  <dt className="font-medium">Herefter</dt>
+                  <dd className="tabular-nums">
+                    {formatCurrency(product.monthlyPrice)}{" "}
+                    <span className="text-xs font-normal text-muted">
+                      ex moms pr. måned
+                    </span>
+                  </dd>
+                </div>
+              ) : null}
             </dl>
           </div>
         </div>

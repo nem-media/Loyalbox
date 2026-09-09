@@ -7,6 +7,7 @@ import {
   stripeMode,
   skalOpretteFoersteStander,
   kanBestillesUdenKonto,
+  kraeverDestination,
 } from "./commerce";
 import {
   getProduct,
@@ -281,11 +282,35 @@ describe("kanBestillesUdenKonto", () => {
     expect(kanBestillesUdenKonto(getProduct("reviewstander"))).toBe(true);
   });
 
-  /** Et abonnement kræver en konto at give adgang til. */
-  it("holder abonnementsvarerne ude", () => {
-    for (const p of PRODUCTS.filter((p) => p.monthlyPrice)) {
-      expect(kanBestillesUdenKonto(p), p.slug).toBe(false);
+  /**
+   * ABONNEMENTERNE ER LUKKET IND (2026-09-09). Reglen var før, at et
+   * abonnement kræver en konto at give adgang til, og kunden skulle derfor
+   * oprette sig FØR købet. Nu oprettes virksomheden uden ejer — som Basic
+   * altid har gjort — og køberen gør den til sin bagefter med et token, se
+   * `src/lib/aktivering.ts`.
+   *
+   * Prøven står tilbage som det MODSATTE af den, den var: går den i stykker,
+   * er hele det nye flow lukket ned uden at nogen har sagt det.
+   */
+  it("lukker abonnementsvarerne ind", () => {
+    const abonnementer = PRODUCTS.filter((p) => p.monthlyPrice && !p.addon);
+    expect(abonnementer.length).toBeGreaterThan(0);
+    for (const p of abonnementer) {
+      expect(kanBestillesUdenKonto(p), p.slug).toBe(true);
     }
+  });
+
+  /**
+   * OG DE SKAL IKKE OPLYSE EN DESTINATION. Det er hele gevinsten ved at
+   * flytte kontoen om bagved: skemaet bliver kortere, ikke længere. Med
+   * abonnement peger QR'en på vores egen side og kan omdirigeres bagefter.
+   */
+  it("kræver ikke en destination af et abonnement", () => {
+    for (const p of PRODUCTS.filter((p) => p.monthlyPrice && !p.addon)) {
+      expect(kraeverDestination(p, null), p.slug).toBe(false);
+    }
+    // Basic skal derimod stadig oplyse den — koden trykkes fast.
+    expect(kraeverDestination(getProduct("reviewstander"), null)).toBe(true);
   });
 
   /**

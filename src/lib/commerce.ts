@@ -299,10 +299,18 @@ export function toGoogleShoppingItem(product: Product) {
  * kunne siden vise en formular, en videresendelse aldrig ville nå frem til —
  * eller omvendt.
  *
- * TRE LED, alle nødvendige:
+ * ABONNEMENTER MÅ NU OGSÅ (ændret 2026-09-09). Reglen var før, at et
+ * abonnement kræver en konto at give adgang til, og derfor skulle kunden
+ * oprette sig FØR købet. Det er vendt om: virksomheden oprettes uden ejer —
+ * `companies.user_id` har været nullable siden 0001, og Basic har brugt det
+ * hele tiden — og køberen gør den til sin bagefter med et token. Se
+ * `src/lib/aktivering.ts`.
  *
- *   Et ABONNEMENT kræver en konto at give adgang til. Det er hele grunden
- *   til, at flowet uden konto findes: Basic er et trykt skilt, ikke et system.
+ * DET GJORDE SKEMAET KORTERE, ikke længere: en abonnementsstander skal ikke
+ * oplyse en destination ved bestillingen, fordi QR-koden peger på vores egen
+ * `/r/<slug>` og kan omdirigeres bagefter. Se `kraeverDestination()`.
+ *
+ * TO LED ER TILBAGE, og begge er nødvendige:
  *
  *   Et TILKØB (`addon: true`) hører til et bestående kundeforhold. Det har
  *   ingen offentlig produktside, står ikke i kataloget og skal derfor heller
@@ -319,7 +327,7 @@ export function kanBestillesUdenKonto(
   // sætning som resten: siden kan ikke komme til at bruge en vare, den lige
   // har afvist.
   if (!product) return false;
-  return !product.monthlyPrice && !product.addon && harFysiskSkilt(product);
+  return !product.addon && harFysiskSkilt(product);
 }
 
 /**
