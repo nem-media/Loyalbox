@@ -10,7 +10,7 @@ import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Stat } from "@/components/ui/stat";
 import { CopyButton } from "@/components/copy-button";
 import { ButtonLink } from "@/components/ui/button";
-import { tierCan, type Tier } from "@/lib/constants";
+import { tierCan, hasLoyaltyAccess, type Tier } from "@/lib/constants";
 import { EditStand } from "./edit-stand";
 
 export const metadata = { title: "Stander" };
@@ -40,6 +40,33 @@ export default async function StandDetailPage({
     "dynamicLinks",
   );
 
+  /*
+   * MANGLER DER ET STEMPELKORT?
+   *
+   * Knappen "Åbn dit stempelkort" på `/r/<slug>` vises KUN, hvis butikken har
+   * et `loyalty_programs` med status `active` — og har de hverken program
+   * eller ekstra link, springes hele valgskærmen over, så kunden går direkte
+   * i anmeldelsesflowet. En frisk Komplet-kunde har altså betalt for
+   * stempelkortet uden at deres kunder kan se det, og INTET siger fra: siden
+   * ser rigtig ud, og der er ingen fejl at opdage.
+   *
+   * SPØRG OM PRODUKTET OG IKKE OM `plan`. Både Reviewstander Pro og LoyalSum
+   * Komplet er niveau `pro`; forskellen ER stempelkortet. Spurgte vi planen,
+   * ville en Pro-kunde få at vide, at de mangler noget, de ikke har købt.
+   */
+  const harKomplet = hasLoyaltyAccess(company.product_slug);
+  let manglerStempelkort = false;
+  if (harKomplet) {
+    const { data: program } = await supabase
+      .from("loyalty_programs")
+      .select("id")
+      .eq("company_id", company.id)
+      .eq("status", "active")
+      .limit(1)
+      .maybeSingle();
+    manglerStempelkort = !program;
+  }
+
   const [{ count: scans }, { count: clicks }] = await Promise.all([
     supabase
       .from("scans")
@@ -63,6 +90,32 @@ export default async function StandDetailPage({
         </Link>
       </div>
       <PageHeader title={stand.name} description={`Slug: /r/${stand.slug}`} />
+
+      {/*
+        ØVERST OG IKKE NEDERST. Det er en ting, kunden HAR betalt for og ikke
+        får glæde af — ikke et tilbud. Står den under redigeringen, læses den
+        som en fodnote, og så er den lige så god som ingenting.
+
+        INGEN ADVARSELSFARVE: der er intet i stykker, og et rødt felt på en
+        stander, der virker, ville lære folk at overse dem.
+      */}
+      {manglerStempelkort ? (
+        <div className="box-shape mb-6 border border-accent/30 bg-accent/5 p-5">
+          <p className="font-medium">Dit stempelkort er ikke oprettet endnu</p>
+          <p className="mt-1 text-sm leading-relaxed text-muted">
+            Standeren virker — men dine kunder får kun valget “Del din
+            oplevelse”. Knappen til stempelkortet dukker først op, når du har
+            oprettet et kort og gjort det aktivt. Det tager et par minutter.
+          </p>
+          <ButtonLink
+            href="/dashboard/loyalitet/programmer"
+            size="sm"
+            className="mt-3"
+          >
+            Opret stempelkort
+          </ButtonLink>
+        </div>
+      ) : null}
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">

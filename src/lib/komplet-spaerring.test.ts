@@ -65,3 +65,39 @@ describe("hasLoyaltyAccess", () => {
     expect(hasLoyaltyAccess("findes-ikke")).toBe(false);
   });
 });
+
+/**
+ * KOMPLET-KUNDEN SKAL VIDE, AT STEMPELKORTET MANGLER.
+ *
+ * Knappen "Åbn dit stempelkort" på `/r/<slug>` vises kun, når butikken har et
+ * `loyalty_programs` med status `active`. En frisk Komplet-kunde har altså
+ * betalt for stempelkortet, uden at deres kunder kan se det — og INTET siger
+ * fra: siden ser rigtig ud, og der er ingen fejl at opdage. Præcis samme
+ * klasse som spærringerne ovenfor: tavs, og til ingens fordel.
+ *
+ * Læses i kilden, fordi siden er en server-komponent.
+ */
+describe("standersiden siger fra, når stempelkortet mangler", () => {
+  const KILDE = readFileSync(
+    join(process.cwd(), "src/app/dashboard/standere/[id]/page.tsx"),
+    "utf8",
+  );
+
+  it("slår op, om der findes et aktivt program", () => {
+    expect(KILDE).toMatch(/loyalty_programs/);
+    expect(KILDE).toMatch(/"status",\s*"active"/);
+  });
+
+  /**
+   * SPØRG OM PRODUKTET OG IKKE OM `plan`. Både Reviewstander Pro og LoyalSum
+   * Komplet er niveau `pro`; forskellen ER stempelkortet. Spurgte vi planen,
+   * ville en Pro-kunde få at vide, at de mangler noget, de ikke har købt.
+   */
+  it("spørger om produktet og ikke om planen", () => {
+    expect(KILDE).toMatch(/hasLoyaltyAccess\(company\.product_slug\)/);
+  });
+
+  it("viser en vej videre og ikke bare en besked", () => {
+    expect(KILDE).toMatch(/\/dashboard\/loyalitet\/programmer/);
+  });
+});
