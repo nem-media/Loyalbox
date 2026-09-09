@@ -454,6 +454,29 @@ export async function POST(request: NextRequest) {
           ),
         );
 
+        /*
+         * KUNDEFORHOLDET — ÉN KÆDE MED TRE UDFALD, OG INGEN AF DEM MÅ FORLADE
+         * `case`EN.
+         *
+         * Grenene stod før som tre selvstændige `if`-blokke, hvor de to første
+         * sluttede med `break`. Et `break` inde i en `switch` forlader ikke
+         * bare blokken — det springer ud af HELE `case`en, altså også forbi
+         * ordreopdateringen nedenfor. Resultatet var, at ordren kun blev
+         * markeret betalt ad én eneste vej: en BESTÅENDE kunde, der købte en
+         * ENGANGSVARE. Præcis den vej blev afprøvet ende-til-ende 7. september,
+         * og derfor så alt rigtigt ud.
+         *
+         * For alle andre — ethvert abonnementskøb og enhver førstegangskøber —
+         * blev ordren stående som `new`, altså "oprettet, aldrig betalt":
+         * usynlig i admins tal over betalte ordrer, aldrig videre til
+         * `needs_onboarding`, og UDEN leveringsadresse, som kun indsamles her
+         * hos Stripe. Oveni hænger kundebekræftelsens idempotens på netop den
+         * status, så en gentaget webhook ville sende bekræftelsen igen.
+         *
+         * Fundet 8. september 2026 med et rigtigt testkøb af LoyalSum Komplet.
+         * Kæden er derfor ÉN `if/else if`-kæde: uanset hvilket udfald der
+         * rammer, falder vi igennem til ordreopdateringen.
+         */
         if (erAbonnement && typeof session.subscription === "string") {
           // ABONNEMENTSKØB. Det er her kundeforholdet sættes eller genoptages:
           // niveau, vare og abonnement følger den vare, der lige blev betalt,
@@ -473,22 +496,14 @@ export async function POST(request: NextRequest) {
               sletning_udfoeres_den: null,
             })
             .eq("id", companyId);
-          break;
-        }
-
-        // ENGANGSKØB — en stander uden abonnement, enten den almindelige
-        // Reviewstander eller et tilkøb.
-        //
-        // ET ENGANGSKØB MÅ ALDRIG ÆNDRE ET BESTÅENDE KUNDEFORHOLD. Før gjorde
-        // det tre ting galt på én gang, hvis en Pro-kunde bestilte et skilt
-        // mere: niveauet faldt til basic (varen har ingen månedspris),
-        // `stripe_status` blev sat til null, og en igangværende suspension
-        // blev ophævet, selvom det manglende abonnement ikke var betalt.
-        //
-        // Reglen er derfor: et engangskøb ETABLERER et kundeforhold, hvis der
-        // ikke er et, og rører det ellers ikke. Kun kundenummeret gemmes, så
-        // kvitteringerne hænger sammen.
-        if (!bestaaende?.product_slug) {
+        } else if (!bestaaende?.product_slug) {
+          // ENGANGSKØB UDEN BESTÅENDE KUNDEFORHOLD — købet ETABLERER det.
+          //
+          // ET ENGANGSKØB MÅ ALDRIG ÆNDRE ET BESTÅENDE KUNDEFORHOLD. Før gjorde
+          // det tre ting galt på én gang, hvis en Pro-kunde bestilte et skilt
+          // mere: niveauet faldt til basic (varen har ingen månedspris),
+          // `stripe_status` blev sat til null, og en igangværende suspension
+          // blev ophævet, selvom det manglende abonnement ikke var betalt.
           await admin
             .from("companies")
             .update({
@@ -497,17 +512,24 @@ export async function POST(request: NextRequest) {
               stripe_customer_id: kundeId,
             })
             .eq("id", companyId);
-          break;
-        }
-
-        if (kundeId && !bestaaende.stripe_customer_id) {
+        } else if (kundeId && !bestaaende.stripe_customer_id) {
+          // ENGANGSKØB HOS EN BESTÅENDE KUNDE. Forholdet røres ikke; kun
+          // kundenummeret gemmes, så kvitteringerne hænger sammen.
           await admin
             .from("companies")
             .update({ stripe_customer_id: kundeId })
             .eq("id", companyId);
         }
 
-        await admin
+        /*
+         * ORDREN MARKERES BETALT — for ALLE tre udfald ovenfor.
+         *
+         * `select("id")` er ikke pynt: en `update` mod PostgREST svarer glad,
+         * når den rammer nul rækker, og det var netop en stille nul-rammer,
+         * der gjorde fejlen usynlig. Pengene ER hjemme på dette tidspunkt, så
+         * en ordre, vi ikke kan finde, skal råbe op.
+         */
+        const { data: opdateretOrdre, error: ordreFejl } = await admin
           .from("orders")
           .update({
             // Betalt ordre går videre til onboarding — det er næste skridt i
@@ -519,7 +541,15 @@ export async function POST(request: NextRequest) {
             leveringsadresse: leveringsadresse(session),
             kontakt_email: session.customer_details?.email ?? undefined,
           })
-          .eq("stripe_session_id", session.id);
+          .eq("stripe_session_id", session.id)
+          .select("id");
+
+        if (ordreFejl || !opdateretOrdre?.length) {
+          await noterFejl(
+            "stripe-webhook",
+            `Betalt ordre blev ikke markeret betalt (session ${session.id}): ${ordreFejl?.message ?? "ingen rækker ramt"}`,
+          );
+        }
         break;
       }
 
