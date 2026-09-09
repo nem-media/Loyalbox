@@ -26,6 +26,8 @@ export interface PublicLink {
   type: string;
   url: string;
   platform: string;
+  /** Entydig nøgle, når `type` ikke er det — se `ReviewLink` i stands.ts. */
+  key?: string;
 }
 
 export interface ReviewChoice {
@@ -55,7 +57,10 @@ export const PRIVATE_CHOICE_KEY = "privat";
 export function reviewChoices(publicLinks: PublicLink[]): ReviewChoice[] {
   const choices: ReviewChoice[] = publicLinks.map((link) => ({
     kind: "public",
-    key: link.type,
+    // `type` er ikke entydig for butikkens egne platforme — de er alle
+    // `custom`. Se `ReviewLink.key` i stands.ts for hvad to ens nøgler ville
+    // koste i en React-liste.
+    key: link.key ?? link.type,
     label: `Anmeld os på ${link.platform}`,
     weight: "primary",
     url: link.url,

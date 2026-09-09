@@ -226,6 +226,11 @@ export interface Database {
           facebook_url: string | null;
           custom_url: string | null;
           custom_label: string | null;
+          /**
+           * Butikkens egne anmeldelsesplatforme (0032):
+           * `[{navn, url}]`, højst to. Læses med `laesEgnePlatforme()`.
+           */
+          egne_platforme: unknown;
           is_active: boolean;
           /**
            * Sandt = /r/<slug> viderestiller uden at vise en side og uden at
@@ -245,6 +250,7 @@ export interface Database {
           facebook_url?: string | null;
           custom_url?: string | null;
           custom_label?: string | null;
+          egne_platforme?: unknown;
           is_active?: boolean;
           kun_viderestilling?: boolean;
           created_at?: string;
