@@ -130,6 +130,8 @@ export async function updateCompanyAdmin(
       address: String(formData.get("address") ?? "").trim() || null,
       postnummer: postnummerRaw || null,
       by: String(formData.get("by") ?? "").trim() || null,
+      kontaktperson:
+        String(formData.get("kontaktperson") ?? "").trim() || null,
     })
     .eq("id", id);
 

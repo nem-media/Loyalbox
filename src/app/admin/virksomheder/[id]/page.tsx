@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { aabnSupportAdgang } from "@/app/admin/actions";
 import { TIER_LABELS } from "@/lib/constants";
 import { Leveringsadresse } from "@/components/leveringsadresse";
+import { modtagerNavn } from "@/lib/adresse";
 import { formatDate } from "@/lib/utils";
 import { BETALTE_ORDRE_STATUSSER, stripeMode } from "@/lib/commerce";
 import { hentBetalinger } from "@/lib/stripe-abonnement";
@@ -68,7 +69,9 @@ export default async function AdminCompanyDetail({
        */
       supabase
         .from("orders")
-        .select("id, product_name, quantity, status, created_at, leveringsadresse")
+        .select(
+          "id, product_name, quantity, status, created_at, leveringsadresse, leveringsnavn",
+        )
         .eq("company_id", id)
         .order("created_at", { ascending: false })
         .limit(5),
@@ -231,7 +234,10 @@ export default async function AdminCompanyDetail({
               {senesteAdresse ? (
                 <>
                   <Leveringsadresse
-                    navn={company.name}
+                    navn={
+                      senesteAdresse.leveringsnavn ??
+                      modtagerNavn(company.name, company.kontaktperson)
+                    }
                     adresse={
                       senesteAdresse.leveringsadresse as Record<
                         string,

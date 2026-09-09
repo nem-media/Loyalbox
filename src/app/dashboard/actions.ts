@@ -78,6 +78,8 @@ export async function updateCompany(
       address: String(formData.get("address") ?? "").trim() || null,
       postnummer: postnummerRaw || null,
       by: String(formData.get("by") ?? "").trim() || null,
+      kontaktperson:
+        String(formData.get("kontaktperson") ?? "").trim() || null,
       // `stand_text` skrives IKKE længere. Feltet "Ønsket tekst på
       // standeren" var write-only: det blev gemt her og læst af ingenting.
       // Standerens udseende afgøres i designflowet (`designs`: farve, front,

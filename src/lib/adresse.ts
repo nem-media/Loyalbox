@@ -47,6 +47,30 @@ export function harKompletAdresse(a: Adresse | null | undefined): boolean {
 }
 
 /**
+ * Hvem pakken stiles til.
+ *
+ * STRIPE HAR KUN ÉT NAVNEFELT på `shipping`, og en pakke til en butik skal
+ * kunne finde både virksomheden og et menneske: adressen finder huset,
+ * navnet finder skrivebordet. Derfor sættes de sammen på én linje, præcis
+ * som en dansk pakkelabel skrives.
+ *
+ * UDEN KONTAKTPERSON ER DET BARE FIRMANAVNET — det var opførslen før 0030,
+ * og den skal blive ved med at være rigtig for de kunder, der ikke udfylder
+ * feltet.
+ *
+ * ÉN FUNKTION, fordi navnet skal bruges tre steder: sendes til Stripe ved
+ * checkout, vises i admin hvor der pakkes, og stå i ordrevarslet. Skrevet tre
+ * steder ville pakkelabelen og mailen før eller siden sige hver sit.
+ */
+export function modtagerNavn(
+  firmanavn: string,
+  kontaktperson: string | null | undefined,
+): string {
+  const person = kontaktperson?.trim();
+  return person ? `${firmanavn.trim()} att. ${person}` : firmanavn.trim();
+}
+
+/**
  * Adressen som Stripe vil have den — eller null, hvis den ikke er komplet.
  *
  * `name` er MED, fordi Stripes `shipping` kræver et navn. Uden det afvises

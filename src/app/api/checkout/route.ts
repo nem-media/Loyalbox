@@ -34,7 +34,7 @@ import {
 import { getSiteUrl } from "@/lib/site";
 import { DPA_VERSION, requiresDpa } from "@/lib/dpa";
 import { noterFejl } from "@/lib/drift";
-import { tilStripeShipping } from "@/lib/adresse";
+import { tilStripeShipping, modtagerNavn } from "@/lib/adresse";
 
 /**
  * Læser og renser et design fra klienten.
@@ -447,7 +447,10 @@ export async function POST(request: NextRequest) {
    * Springes over ved `genoptag`: dér indsamles ingen leveringsadresse, fordi
    * der ikke sendes noget — standeren står allerede på disken.
    */
-  const shipping = tilStripeShipping(company, company.name);
+  const shipping = tilStripeShipping(
+    company,
+    modtagerNavn(company.name, company.kontaktperson),
+  );
   if (!genoptag && company.stripe_customer_id && shipping) {
     try {
       await stripe().customers.update(company.stripe_customer_id, { shipping });
