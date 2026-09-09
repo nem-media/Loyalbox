@@ -7,9 +7,12 @@ import { sendIntern, sendKundeMail } from "@/lib/mail";
 import { ordrevarsel, type Koebstype } from "@/lib/ordrevarsel";
 import { ordrebekraeftelse } from "@/lib/ordrebekraeftelse";
 import { erBetalende } from "@/lib/abonnement";
-import { noterFejl } from "@/lib/drift";
+import { noterFejl, noterKoersel } from "@/lib/drift";
 import { generateSlug } from "@/lib/utils";
-import { skalOpretteFoersteStander } from "@/lib/commerce";
+import {
+  skalOpretteFoersteStander,
+  sessionErBetalt,
+} from "@/lib/commerce";
 import { qrAdresseFor } from "@/lib/qr-adresse";
 
 /**
@@ -279,11 +282,57 @@ export async function POST(request: NextRequest) {
   try {
     switch (event.type) {
       /* ------------------------------------------------ betaling gennemført */
-      case "checkout.session.completed": {
+      /*
+       * TO HÆNDELSER, ÉN BEHANDLING.
+       *
+       * `completed` betyder, at kunden nåede igennem formularen — ikke at
+       * pengene er faldet. Ved en betalingsmetode med FORSINKET SVAR (Klarna
+       * og flere europæiske bankmetoder er slået til på kontoen) afsluttes
+       * sessionen `unpaid`, og svaret kommer bagefter som
+       * `async_payment_succeeded`. Den skal derfor kunne gøre nøjagtig det
+       * samme arbejde — ellers ville en Klarna-kunde betale og aldrig få
+       * hverken adgang, stander eller ordre.
+       */
+      case "checkout.session.completed":
+      case "checkout.session.async_payment_succeeded": {
         const session = event.data.object;
         const companyId = session.metadata?.company_id;
         const productSlug = session.metadata?.product_slug;
         if (!companyId || !productSlug) break;
+
+        /*
+         * PENGENE SKAL VÆRE FALDET, FØR DER GIVES NOGET.
+         *
+         * Uden denne linje gav en afsluttet, men UBETALT session fuld adgang,
+         * oprettede virksomhedens første stander, markerede ordren klar til
+         * tryk og sendte begge mails. Betalingen kunne derefter fejle, og så
+         * stod vi med et skilt i produktion og en kunde på Pro, der aldrig
+         * havde betalt.
+         *
+         * Det kunne ikke ses i testtilstand: testkortet svarer `paid` med det
+         * samme, og hele flowet er kun afprøvet med kort.
+         *
+         * ORDREN BEVARES SOM `new` — "oprettet, aldrig betalt" er præcis den
+         * rigtige beskrivelse imens. Falder betalingen på plads, kommer
+         * `async_payment_succeeded` og kører hele behandlingen forfra.
+         */
+        if (!sessionErBetalt(session.payment_status)) {
+          /*
+           * NOTERES SOM EN KØRSEL OG IKKE SOM EN FEJL. Det er ikke en fejl —
+           * det er den normale vej for en forsinket betalingsmetode. Og
+           * `noterFejl` sender alarmmail: enhver besøgende kunne udløse den
+           * ved at vælge Klarna, og så er logningen selv blevet en mailbombe.
+           * Samme regel som for en ugyldig webhook-signatur.
+           *
+           * Kun status og antal — aldrig persondata. Sessionens id er vores
+           * eget referencenummer og ikke en oplysning om et menneske.
+           */
+          await noterKoersel("stripe-afventer-betaling", {
+            session: session.id,
+            payment_status: session.payment_status,
+          });
+          break;
+        }
 
         const kundeId =
           typeof session.customer === "string" ? session.customer : null;
@@ -589,6 +638,24 @@ export async function POST(request: NextRequest) {
       }
 
       /* ------------------------------------------- abonnement ændret/ophørt */
+      /*
+       * DEN FORSINKEDE BETALING FEJLEDE.
+       *
+       * Der er intet at rulle tilbage — vi gav aldrig noget, fordi
+       * `sessionErBetalt()` afviste den ovenfor. Ordren bliver stående som
+       * `new`, altså "oprettet, aldrig betalt", og det er den rigtige
+       * beskrivelse af, hvad der skete.
+       *
+       * Noteres uden alarm af samme grund som ovenfor: en udefrakommende kan
+       * udløse den frit.
+       */
+      case "checkout.session.async_payment_failed": {
+        await noterKoersel("stripe-betaling-fejlede", {
+          session: event.data.object.id,
+        });
+        break;
+      }
+
       case "customer.subscription.updated":
       case "customer.subscription.deleted": {
         const sub = event.data.object;

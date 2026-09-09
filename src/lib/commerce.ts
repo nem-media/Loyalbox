@@ -34,6 +34,33 @@ export const BETALTE_ORDRE_STATUSSER = [
   "shipped",
 ] as const;
 
+/**
+ * ER DER FALDT PENGE PÅ EN CHECKOUT-SESSION?
+ *
+ * `checkout.session.completed` betyder KUN, at kunden nåede igennem
+ * formularen — ikke at betalingen er gennemført. For betalingsmetoder med
+ * FORSINKET SVAR (Klarna og flere af de europæiske bankmetoder er slået til
+ * på kontoen) afsluttes sessionen med `payment_status: "unpaid"`, og svaret
+ * kommer først senere som `checkout.session.async_payment_succeeded`.
+ *
+ * Uden denne kontrol gav webhooken fuld adgang, oprettede standeren, markerede
+ * ordren betalt og sendte begge mails — for en betaling, der endnu ikke var
+ * faldet, og som kunne fejle bagefter. Det kunne ikke ses i testtilstand:
+ * testkortet svarer altid `paid` med det samme.
+ *
+ * `no_payment_required` tæller med. Den optræder, når beløbet er nul — fx en
+ * fuld rabat — og dér er der ikke noget at vente på.
+ */
+export const BETALTE_SESSIONER = ["paid", "no_payment_required"] as const;
+
+export function sessionErBetalt(
+  payment_status: string | null | undefined,
+): boolean {
+  return (BETALTE_SESSIONER as readonly string[]).includes(
+    payment_status ?? "",
+  );
+}
+
 /** True hvis Stripe-nøglen er sat i miljøet (server-only). */
 export function isStripeConfigured(): boolean {
   return Boolean(process.env.STRIPE_SECRET_KEY);
