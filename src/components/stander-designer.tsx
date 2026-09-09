@@ -19,6 +19,7 @@ import { SkiltPreview } from "@/components/skilt-preview";
 import { FRONT_MAAL } from "@/lib/skilt-format";
 import {
   MAX_QTY,
+  PRORATA_FORKLARING,
   TERMS_VERSION,
   VOLUME_DISCOUNTS,
   priceFor,
@@ -607,12 +608,21 @@ export function StanderDesigner({
               </div>
 
               {pris.monthly > 0 ? (
-                <div className="flex justify-between gap-4 text-muted">
-                  <dt>Derefter</dt>
-                  <dd className="tabular-nums">
-                    {formatCurrency(pris.monthly)} pr. måned
-                  </dd>
-                </div>
+                <>
+                  <div className="flex justify-between gap-4 text-muted">
+                    <dt>Derefter</dt>
+                    <dd className="tabular-nums">
+                      {formatCurrency(pris.monthly)} pr. måned
+                    </dd>
+                  </div>
+                  {/* SAMME FORKLARING BEGGE VEJE IND. Bestillingen uden konto
+                      siger det samme med de samme ord — to formuleringer af
+                      hvorfor første betaling er mindre ville før eller siden
+                      blive til to forskellige løfter. */}
+                  <p className="pt-1 text-xs leading-relaxed text-muted">
+                    {PRORATA_FORKLARING}
+                  </p>
+                </>
               ) : null}
             </dl>
           </div>

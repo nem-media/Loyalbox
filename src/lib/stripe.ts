@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { TRAEKDAG } from "@/lib/constants";
 
 /**
  * Stripe-klient. Server-only — nøglen må aldrig nå browseren.
@@ -44,7 +45,7 @@ export const INTEGRATION_ID = "loyalsum-checkout-hjkmnpqr";
  */
 export function nextBillingAnchor(now = new Date()): number {
   const anchor = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 20, 9, 0, 0),
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), TRAEKDAG, 9, 0, 0),
   );
   if (anchor.getTime() <= now.getTime()) {
     anchor.setUTCMonth(anchor.getUTCMonth() + 1);

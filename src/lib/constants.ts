@@ -64,6 +64,28 @@ export const TERMS_DATE = "2026-08-28";
  * Skal der sælges uden for Danmark en dag, er det ikke en linje her — det er
  * momshåndtering og fragt, og begge dele skal bygges først.
  */
+/**
+ * Den faste trækdato for abonnementer.
+ *
+ * ÉT STED, fordi tre ting skal være enige: `nextBillingAnchor()` sætter
+ * ankeret hos Stripe, bestillingen forklarer kunden hvorfor første betaling
+ * er mindre, og ordrebekræftelsen gentager det. Stod tallet tre steder, ville
+ * en flyttet trækdato efterlade to tekster, der lover noget andet, end der
+ * bliver trukket — og dét opdages først på en kontoudskrift.
+ */
+export const TRAEKDAG = 20;
+
+/**
+ * HVORFOR FØRSTE BETALING IKKE ER MÅNEDSPRISEN.
+ *
+ * Stripe fakturerer perioden fra købet frem til trækdatoen med det samme
+ * (pro rata) og trækker derefter fuld pris. Uden en forklaring ser det ud
+ * som et vilkårligt beløb, og et beløb, kunden ikke kan genkende, er dét,
+ * indsigelser og opkald er lavet af.
+ */
+export const PRORATA_FORKLARING =
+  `Ved købet betaler du kun for dagene frem til den ${TRAEKDAG}. Derefter trækkes abonnementet fast den ${TRAEKDAG}. i hver måned.`;
+
 export const LEVERINGSLANDE = ["DK"] as const;
 export const LEVERINGSLAND_NAVN = "Danmark";
 

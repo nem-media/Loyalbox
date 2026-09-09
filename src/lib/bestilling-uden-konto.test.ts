@@ -190,3 +190,46 @@ describe("checkout-sessionen for et abonnement", () => {
     expect(KILDE).toMatch(/mode:\s*abonnement\s*\?/);
   });
 });
+
+/**
+ * DE TO HULLER, DET FØRSTE RIGTIGE ABONNEMENTSKØB AFSLØREDE (9. sep. 2026).
+ *
+ * Begge stammer fra samme sted: flowet var skrevet, dengang det kun kunne
+ * sælge Basic, og antagelserne stod som kommentarer frem for som kode.
+ */
+describe("abonnement uden konto: det Basic ikke havde brug for", () => {
+  const KILDE = readFileSync(
+    join(process.cwd(), "src/app/bestil/uden-konto/actions.ts"),
+    "utf8",
+  );
+  const FORM = readFileSync(
+    join(process.cwd(), "src/app/bestil/uden-konto/bestil-form.tsx"),
+    "utf8",
+  );
+
+  /**
+   * DATABEHANDLERAFTALEN. Basic indsamler ingenting — standeren viderestiller
+   * — så der var ingen databehandlerrolle at aftale. Et abonnement indsamler
+   * feedback og medlemsdata om butikkens EGNE kunder, og så er vi
+   * databehandler. Det første testkøb kom igennem med `dpa_accepted_at = null`.
+   */
+  it("registrerer databehandleraftalen", () => {
+    expect(KILDE).toMatch(/requiresDpa\(product\)/);
+    expect(KILDE).toMatch(/dpa_accepted_at/);
+    expect(KILDE).toMatch(/dpa_version/);
+  });
+
+  /**
+   * OG KUNDEN SKAL HAVE SET DEN. En registreret accept af noget, der aldrig
+   * blev vist, er værre end ingen registrering.
+   */
+  it("viser aftalen ved afkrydsningsfeltet, når varen kræver den", () => {
+    expect(FORM).toMatch(/kraeverDpa/);
+    expect(FORM).toMatch(/databehandleraftale/);
+  });
+
+  /** Første betaling er hverken standerens pris eller abonnementets. */
+  it("forklarer hvorfor første betaling er mindre", () => {
+    expect(FORM).toMatch(/PRORATA_FORKLARING/);
+  });
+});
