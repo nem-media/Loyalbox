@@ -8,6 +8,12 @@ import { generateSlug } from "@/lib/utils";
 import { tierCan, TIER_ORDER, type Tier } from "@/lib/constants";
 import { erGyldigtCvr, normaliserCvr, CVR_FEJL } from "@/lib/cvr";
 import { erGyldigtPostnummer, POSTNUMMER_FEJL } from "@/lib/adresse";
+import { erGyldigUrl } from "@/lib/bestilling-uden-konto";
+import {
+  MAKS_EGNE_PLATFORME,
+  MAKS_ANMELDELSESLINKS,
+  EGEN_PLATFORM_NAVN_MAKS,
+} from "@/lib/stands";
 import { harAbonnement } from "@/lib/abonnement";
 import type { CompanyPlan, DestinationType } from "@/lib/types/database";
 
@@ -207,6 +213,56 @@ export async function updateStand(
   const plan = (user.company.plan ?? "basic") as Tier;
   const canDynamicLinks = tierCan(plan, "dynamicLinks");
 
+  /*
+   * BUTIKKENS EGNE ANMELDELSESPLATFORME (0032).
+   *
+   * Navnet vises OFFENTLIGT som "Anmeld os på {navn}", så det klippes og
+   * renses; adressen skal være http/https, ellers kunne en `javascript:`-URL
+   * havne på en knap, butikkens kunder trykker på.
+   *
+   * Et par tæller kun med, når BEGGE dele er udfyldt: en adresse uden navn
+   * ville give en knap, der hedder "Anmeld os på " — og et navn uden adresse
+   * en knap, der ikke fører nogen steder hen.
+   */
+  const egnePlatforme: { navn: string; url: string }[] = [];
+  for (let i = 0; i < MAKS_EGNE_PLATFORME; i++) {
+    const navn = String(formData.get(`egen_navn_${i}`) ?? "")
+      .trim()
+      .slice(0, EGEN_PLATFORM_NAVN_MAKS);
+    const url = String(formData.get(`egen_url_${i}`) ?? "").trim();
+    if (!navn && !url) continue;
+    if (!navn || !url) {
+      return { error: "Skriv både navn og link på din egen platform." };
+    }
+    if (!erGyldigUrl(url)) {
+      return { error: "Linket skal begynde med http:// eller https://" };
+    }
+    egnePlatforme.push({ navn, url });
+  }
+
+  /*
+   * HØJST TRE ANMELDELSESKNAPPER — håndhævet HER, hvor valget træffes.
+   *
+   * Grænsen kunne have været sat ved visningen, men så ville panelet vise et
+   * link, butikkens kunder aldrig fik at se, og det ville ingen opdage. Se
+   * `MAKS_ANMELDELSESLINKS` i stands.ts for hvorfor listen ikke må blive
+   * lang: når alle valg vejer lige meget med vilje, er længden det eneste
+   * signal tilbage.
+   */
+  const antalLinks = canDynamicLinks
+    ? [
+        String(formData.get("google_review_url") ?? "").trim(),
+        String(formData.get("trustpilot_url") ?? "").trim(),
+        String(formData.get("facebook_url") ?? "").trim(),
+      ].filter(Boolean).length + egnePlatforme.length
+    : 0;
+
+  if (antalLinks > MAKS_ANMELDELSESLINKS) {
+    return {
+      error: `Du kan have højst ${MAKS_ANMELDELSESLINKS} anmeldelsesplatforme ad gangen. Ryd et link, før du tilføjer et nyt — så vælger du selv, hvad dine kunder ser.`,
+    };
+  }
+
   // Uden dynamicLinks er destinationen låst til Google og de øvrige
   // linktyper kan ikke sættes fra klienten.
   const dynamicFields = canDynamicLinks
@@ -219,6 +275,7 @@ export async function updateStand(
         facebook_url: String(formData.get("facebook_url") ?? "").trim() || null,
         custom_url: String(formData.get("custom_url") ?? "").trim() || null,
         custom_label: String(formData.get("custom_label") ?? "").trim() || null,
+        egne_platforme: egnePlatforme,
       }
     : { destination_type: "google" as DestinationType };
 

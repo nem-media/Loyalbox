@@ -6,6 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input, Field } from "@/components/ui/input";
 import type { Database } from "@/lib/types/database";
 import { DESTINATION_LABELS } from "@/lib/constants";
+import {
+  laesEgnePlatforme,
+  MAKS_EGNE_PLATFORME,
+  MAKS_ANMELDELSESLINKS,
+  EGEN_PLATFORM_NAVN_MAKS,
+} from "@/lib/stands";
 
 type Stand = Database["public"]["Tables"]["stands"]["Row"];
 
@@ -22,6 +28,9 @@ export function EditStand({
     updateStand,
     {},
   );
+
+  /* Kolonnen er jsonb og læses forsvarligt — se `laesEgnePlatforme`. */
+  const egne = laesEgnePlatforme(stand.egne_platforme);
 
   return (
     <form action={action} className="space-y-5">
@@ -92,6 +101,53 @@ export function EditStand({
                 placeholder="Menukort"
               />
             </Field>
+          </div>
+
+          {/*
+            DINE EGNE ANMELDELSESPLATFORME (0032).
+            Google, Trustpilot og Facebook har hver sin kolonne, fordi vi
+            kender deres navne. Her skriver butikken selv både navn og
+            adresse — en tandlæge vil på jameda, et værksted på en
+            brancheportal, og dem kan vi ikke forudse.
+
+            IKKE DET SAMME SOM "eget link" ovenfor: dét er menukortet eller
+            bookingen og hedder aldrig "Anmeld os på".
+          */}
+          <div className="mt-6">
+            <p className="etiket">Dine egne anmeldelsesplatforme</p>
+            <p className="mt-1 text-sm leading-relaxed text-muted">
+              Bruger dine kunder en anden portal end Google, Trustpilot og
+              Facebook? Skriv den her. Der kan stå{" "}
+              <strong>højst {MAKS_ANMELDELSESLINKS} anmeldelsesknapper</strong>{" "}
+              på siden ad gangen — ryd et link, hvis du vil bytte. Alle knapper
+              vejer det samme, og en lang liste vælger reelt for kunden.
+            </p>
+
+            <div className="mt-4 space-y-4">
+              {Array.from({ length: MAKS_EGNE_PLATFORME }, (_, i) => {
+                const p = egne[i];
+                return (
+                  <div key={i} className="grid gap-5 sm:grid-cols-[14rem_1fr]">
+                    <Field label={`Navn ${i + 1}`} hint="Står på knappen.">
+                      <Input
+                        name={`egen_navn_${i}`}
+                        defaultValue={p?.navn ?? ""}
+                        maxLength={EGEN_PLATFORM_NAVN_MAKS}
+                        placeholder="Fx jameda"
+                      />
+                    </Field>
+                    <Field label={`Link ${i + 1}`}>
+                      <Input
+                        name={`egen_url_${i}`}
+                        type="url"
+                        defaultValue={p?.url ?? ""}
+                        placeholder="https://…"
+                      />
+                    </Field>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </>
       ) : (
