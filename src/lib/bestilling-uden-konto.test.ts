@@ -1,4 +1,6 @@
 import { describe, it, expect } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   erGyldigEmail,
   erGyldigUrl,
@@ -147,5 +149,44 @@ describe("læsning af bestillingen", () => {
     expect(laesBestilling(gyldig({ antal: 101 })).fejl.antal).toBeTruthy();
     expect(laesBestilling(gyldig({ antal: -3 })).fejl.antal).toBeTruthy();
     expect(laesBestilling(gyldig({ antal: 100 })).ok).toBe(true);
+  });
+});
+
+/**
+ * DE TING, STRIPE AFVISER — og som hverken tests eller build kan se.
+ *
+ * Sessionen oprettes af en server action, der taler med Stripe. Går et felt
+ * ikke i spænd med `mode`, fejler HELE bestillingen, og kunden får
+ * "Betalingen kunne ikke startes" efter at have udfyldt det hele. Prøves i
+ * kilden, fordi der ikke er noget at kalde uden et rigtigt Stripe-kald.
+ */
+describe("checkout-sessionen for et abonnement", () => {
+  const KILDE = readFileSync(
+    join(process.cwd(), "src/app/bestil/uden-konto/actions.ts"),
+    "utf8",
+  );
+
+  /**
+   * DEN FEJL, DER FAKTISK SKETE 9. september 2026: `invoice_creation` stod
+   * ubetinget. Stripe svarer "You can only enable invoice creation when
+   * `mode` is set to `payment`" — et abonnement laver sine fakturaer selv.
+   */
+  it("slår kun fakturaoprettelse til ved engangskøb", () => {
+    const i = KILDE.indexOf("invoice_creation");
+    expect(i, "invoice_creation er væk — så er prøven her forældet").toBeGreaterThan(-1);
+    expect(
+      KILDE.slice(Math.max(0, i - 200), i),
+      "invoice_creation skal være betinget af `abonnement`",
+    ).toMatch(/abonnement\s*\?/);
+  });
+
+  /** Og månedsprisen skal med som sin egen linje, ellers bliver det et engangskøb. */
+  it("lægger månedsprisen på som en linje", () => {
+    expect(KILDE).toMatch(/ids\.monthlyPriceId/);
+  });
+
+  /** Uden `mode: subscription` opretter Stripe aldrig et abonnement. */
+  it("vælger subscription-tilstand for et abonnement", () => {
+    expect(KILDE).toMatch(/mode:\s*abonnement\s*\?/);
   });
 });
