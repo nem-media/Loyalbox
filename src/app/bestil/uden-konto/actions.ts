@@ -1,11 +1,13 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { stripe, INTEGRATION_ID } from "@/lib/stripe";
+import { stripe, INTEGRATION_ID, nextBillingAnchor } from "@/lib/stripe";
 import {
   stripeIdsFor,
   stripeMode,
   koebSpaerreUdenKonto,
+  kraeverDestination,
+  checkoutMode,
 } from "@/lib/commerce";
 import {
   getProduct,
@@ -24,6 +26,8 @@ import {
 } from "@/lib/bestilling-uden-konto";
 import { getSiteUrl } from "@/lib/site";
 import { generateSlug } from "@/lib/utils";
+import { aktiveringUdloeber } from "@/lib/aktivering";
+import { randomBytes } from "node:crypto";
 import { noterFejl } from "@/lib/drift";
 import type { DestinationType } from "@/lib/types/database";
 
@@ -125,7 +129,18 @@ export async function bestilUdenKonto(
     destinationType: formData.get("destinationType"),
     destinationUrl: formData.get("destinationUrl"),
     accepterVilkaar: formData.get("accepterVilkaar") === "1",
-  });
+  },
+  undefined,
+  /*
+   * DESTINATIONEN KRÆVES KUN, NÅR DEN IKKE KAN ÆNDRES BAGEFTER.
+   *
+   * `null` som virksomhed er det rigtige her og ikke en forglemmelse: der ER
+   * ingen kunde endnu, så svaret afhænger alene af varen. Et abonnement peger
+   * på vores egen /r/<slug> og sættes i dashboardet efter aktiveringen; et
+   * engangsskilt trykkes direkte til butikkens link og kan aldrig omdirigeres.
+   */
+  kraeverDestination(product, null),
+  );
 
   if (!laest.ok || !laest.vaerdier) return svar({ fejl: laest.fejl });
   const v = laest.vaerdier;
@@ -188,6 +203,35 @@ export async function bestilUdenKonto(
    * `cvr where cvr is not null` (migration 0015), så den anden tomme streng
    * ville få indsættelsen til at fejle.
    */
+  /*
+   * ER DET ET ABONNEMENT? Det afgør tre ting længere nede: om standeren får
+   * vores egen side, om der skal udstedes et aktiveringstoken, og om Stripe
+   * skal oprette et abonnement frem for et engangskøb.
+   */
+  const abonnement = checkoutMode(product) === "subscription";
+
+  /*
+   * TOKENET, DER GØR VIRKSOMHEDEN TIL KUNDENS.
+   *
+   * Udstedes ved BESTILLINGEN og ikke i webhooken, fordi tak-siden skal kunne
+   * tilbyde aktiveringen i samme øjeblik Stripe sender kunden tilbage — og
+   * webhooken kan sagtens være et halvt sekund bagefter. En ubetalt,
+   * forladt bestilling efterlader et token på en virksomhed uden plan, og
+   * det giver ingen adgang til noget.
+   *
+   * 32 tilfældige bytes: det skal ikke kunne gættes, for den der har det,
+   * kan overtage virksomheden.
+   */
+  const aktiveringToken = abonnement
+    ? randomBytes(32).toString("hex")
+    : null;
+  const aktiveringFelter = aktiveringToken
+    ? {
+        aktivering_token: aktiveringToken,
+        aktivering_udloeber: aktiveringUdloeber().toISOString(),
+      }
+    : {};
+
   const { data: fundet } = v.cvr
     ? await admin
         .from("companies")
@@ -213,6 +257,7 @@ export async function bestilUdenKonto(
         plan: "basic",
         terms_accepted_at: new Date().toISOString(),
         terms_version: TERMS_VERSION,
+        ...aktiveringFelter,
       })
       .select("id")
       .single();
@@ -232,6 +277,9 @@ export async function bestilUdenKonto(
         terms_accepted_at: new Date().toISOString(),
         terms_version: TERMS_VERSION,
         ...(logoUrl ? { logo_url: logoUrl } : {}),
+        // Genbestilling: et nyt token afløser et gammelt, så det seneste køb
+        // er det, der giver adgang.
+        ...aktiveringFelter,
       })
       .eq("id", companyId);
   }
@@ -270,10 +318,26 @@ export async function bestilUdenKonto(
       company_id: companyId,
       name: v.firmanavn,
       slug: generateSlug(),
-      destination_type: v.destinationType,
-      // Ingen LoyalSum-side: QR'en viderestiller. Se /r/[slug].
-      kun_viderestilling: true,
-      ...destinationKolonne(v.destinationType, v.destinationUrl),
+      /*
+       * MED ABONNEMENT PEGER QR'EN PÅ OS, uden gør den ikke.
+       *
+       * `kun_viderestilling: true` betyder, at koden trykkes direkte til
+       * butikkens eget link — det er Basic, og målet kan aldrig ændres. Et
+       * abonnement får derimod vores egen /r/<slug>, og dét er hele grunden
+       * til, at destinationen ikke skal oplyses ved bestillingen: den sættes
+       * i dashboardet, når kontoen er aktiveret.
+       *
+       * Destinationen skrives kun, hvis den faktisk kom med. Uden linjen ville
+       * en abonnementsstander få `destination_type: "custom"` og et tomt link,
+       * altså et valg kunden aldrig har truffet.
+       */
+      kun_viderestilling: !abonnement,
+      ...(v.destinationUrl
+        ? {
+            destination_type: v.destinationType,
+            ...destinationKolonne(v.destinationType, v.destinationUrl),
+          }
+        : {}),
     })
     .select("id, slug")
     .single();
@@ -318,10 +382,25 @@ export async function bestilUdenKonto(
     });
   }
 
+  /*
+   * MÅNEDSPRISEN ER SIN EGEN LINJE, ligesom i /api/checkout. Uden den ville
+   * købet blive et ENGANGSKØB: kunden betalte for standeren, fik adgang via
+   * webhooken og blev aldrig trukket igen. `canSell()` spærrer for varen, hvis
+   * månedsprisen mangler i den aktuelle Stripe-tilstand, netop fordi fejlen
+   * ellers er tavs.
+   */
+  if (abonnement) {
+    lineItems.push({
+      price: ids.monthlyPriceId,
+      quantity: 1,
+      tax_rates: [taxRate],
+    });
+  }
+
   let session;
   try {
     session = await stripe().checkout.sessions.create({
-      mode: "payment",
+      mode: abonnement ? ("subscription" as const) : ("payment" as const),
       line_items: lineItems as never,
       integration_identifier: INTEGRATION_ID,
       client_reference_id: companyId,
@@ -355,6 +434,24 @@ export async function bestilUdenKonto(
         quantity: String(v.antal),
         design_id: design.id,
       },
+      /*
+       * ABONNEMENTETS EGEN METADATA. Webhooken finder virksomheden på
+       * `sub.metadata.company_id`, når Stripe siden melder om en ændret eller
+       * ophørt betaling — uden den ville en fejlet fornyelse ikke kunne
+       * knyttes til nogen. Trækdatoen er den 20., samme anker som den vej ind,
+       * der kræver login, så to kunder ikke får hver sin rytme.
+       */
+      ...(abonnement
+        ? {
+            subscription_data: {
+              billing_cycle_anchor: nextBillingAnchor(),
+              metadata: {
+                company_id: companyId,
+                product_slug: product.slug,
+              },
+            },
+          }
+        : {}),
       success_url: `${base}/bestil/tak?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${base}/bestil?produkt=${product.slug}`,
     });

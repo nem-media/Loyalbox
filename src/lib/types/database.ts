@@ -104,6 +104,13 @@ export interface Database {
           by: string | null;
           /** Hvem pakken stiles til. Personnavn — nulstilles ved sletning (0030). */
           kontaktperson: string | null;
+          /**
+           * Gør virksomheden til køberens EFTER betalingen (0031). Sættes ved
+           * en bestilling uden konto af et abonnement og ryddes ved
+           * aktiveringen. Se src/lib/aktivering.ts.
+           */
+          aktivering_token: string | null;
+          aktivering_udloeber: string | null;
           stand_text: string | null;
           created_at: string;
           offentlig_kundescore: boolean;
@@ -137,6 +144,8 @@ export interface Database {
           postnummer?: string | null;
           by?: string | null;
           kontaktperson?: string | null;
+          aktivering_token?: string | null;
+          aktivering_udloeber?: string | null;
           stand_text?: string | null;
           created_at?: string;
           offentlig_kundescore?: boolean;

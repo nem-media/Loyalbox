@@ -55,6 +55,17 @@ export interface Ordredetaljer {
    * beskeder — se `qrAdresseFor()` i qr-adresse.ts.
    */
   qrFast?: boolean;
+
+  /**
+   * Linket, der gør virksomheden til kundens — sat KUN når et abonnement er
+   * købt uden konto (0031).
+   *
+   * DET ER RESERVEN, ikke hovedvejen: tak-siden tilbyder aktiveringen med det
+   * samme, og mailen er der for den, der lukkede fanen eller betalte på
+   * telefonen og vil sætte det op på en computer. Uden den ville en enkelt
+   * lukket fane koste en betalende kunde adgangen til det, de lige har købt.
+   */
+  aktiveringUrl?: string | null;
 }
 
 const OVERSKRIFT: Record<Koebstype, string> = {

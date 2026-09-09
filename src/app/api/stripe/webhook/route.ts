@@ -14,6 +14,7 @@ import {
   sessionErBetalt,
 } from "@/lib/commerce";
 import { qrAdresseFor } from "@/lib/qr-adresse";
+import { getSiteUrl } from "@/lib/site";
 
 /**
  * Betalingens id, så en ordre kan spores tilbage til pengene i Stripe.
@@ -151,7 +152,13 @@ async function varslOmKoeb(
   session: Stripe.Checkout.Session,
   productSlug: string,
   type: Koebstype,
-  firma: { name?: string | null; cvr?: string | null } | null,
+  firma: {
+    name?: string | null;
+    cvr?: string | null;
+    /** Sat, når et abonnement er købt uden konto og venter på aktivering. */
+    user_id?: string | null;
+    aktivering_token?: string | null;
+  } | null,
   /**
    * Skal KUNDEN også have en bekræftelse?
    *
@@ -207,6 +214,15 @@ async function varslOmKoeb(
       sessionId: session.id,
       qrAdresse: qr.adresse,
       qrFast: qr.fast,
+      /*
+       * KUN NÅR DER FAKTISK ER NOGET AT AKTIVERE. En virksomhed med ejer har
+       * allerede et login, og et aktiveringslink til dem ville se ud som om
+       * deres konto var i fare.
+       */
+      aktiveringUrl:
+        firma?.aktivering_token && !firma?.user_id
+          ? `${getSiteUrl()}/aktiver/${firma.aktivering_token}`
+          : null,
     };
 
     const { emne, tekst } = ordrevarsel(detaljer);
@@ -342,7 +358,9 @@ export async function POST(request: NextRequest) {
         // er svaret altid "ja".
         const { data: bestaaende } = await admin
           .from("companies")
-          .select("name, cvr, product_slug, stripe_customer_id, contact_email")
+          .select(
+            "name, cvr, product_slug, stripe_customer_id, contact_email, user_id, aktivering_token",
+          )
           .eq("id", companyId)
           .maybeSingle();
 

@@ -88,9 +88,19 @@ export function erGyldigEmail(raw: string): boolean {
 
 const MAKS_ANTAL = 100;
 
+/**
+ * @param kraevDestination Skal QR-kodens mål oplyses NU?
+ *
+ * TRUE for Basic: koden trykkes direkte til butikkens eget link og kan aldrig
+ * ændres bagefter, så oplyses den ikke her, findes den aldrig. FALSE for et
+ * abonnement: koden peger på vores egen `/r/<slug>`, og målet sættes i
+ * dashboardet, når kontoen er aktiveret. Se `kraeverDestination()` i
+ * commerce.ts, som er den, der afgør det.
+ */
 export function laesBestilling(
   raw: Record<string, unknown>,
   maksAntal = MAKS_ANTAL,
+  kraevDestination = true,
 ): Laest {
   const fejl: Fejl = {};
   const tekst = (v: unknown) => (typeof v === "string" ? v.trim() : "");
@@ -138,17 +148,27 @@ export function laesBestilling(
   }
 
   const destinationType = raw.destinationType;
+  const destinationUrl = tekst(raw.destinationUrl);
   const kendtDestination = DESTINATIONER.some(
     (d) => d.vaerdi === destinationType,
   );
-  if (!kendtDestination) {
-    fejl.destinationType = "Vælg hvor QR-koden skal føre hen.";
-  }
 
-  const destinationUrl = tekst(raw.destinationUrl);
-  if (!destinationUrl) {
-    fejl.destinationUrl = "Indsæt linket, QR-koden skal føre til.";
-  } else if (!erGyldigUrl(destinationUrl)) {
+  if (kraevDestination) {
+    if (!kendtDestination) {
+      fejl.destinationType = "Vælg hvor QR-koden skal føre hen.";
+    }
+    if (!destinationUrl) {
+      fejl.destinationUrl = "Indsæt linket, QR-koden skal føre til.";
+    } else if (!erGyldigUrl(destinationUrl)) {
+      fejl.destinationUrl = "Linket skal begynde med http:// eller https://";
+    }
+  } else if (destinationUrl && !erGyldigUrl(destinationUrl)) {
+    /*
+     * FRIVILLIGT, MEN IKKE HVAD SOM HELST. Feltet vises ikke for et
+     * abonnement, men formularen er offentlig, og et felt, der ikke kræves,
+     * er stadig et felt, nogen kan sende noget i. En `javascript:`-adresse må
+     * ikke kunne nå en stander ad den vej.
+     */
     fejl.destinationUrl = "Linket skal begynde med http:// eller https://";
   }
 
@@ -170,7 +190,11 @@ export function laesBestilling(
       egenFrontfarve,
       frontHex,
       accentHex,
-      destinationType: destinationType as DestinationType,
+      // Uden krav kan de være tomme; kalderen sætter kun destinationen på
+      // standeren, hvis der faktisk kom et link med.
+      destinationType: (kendtDestination
+        ? destinationType
+        : "custom") as DestinationType,
       destinationUrl,
       accepterVilkaar: true,
     },

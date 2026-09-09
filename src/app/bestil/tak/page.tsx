@@ -5,6 +5,9 @@ import { ButtonLink } from "@/components/ui/button";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
 import { COMPANY } from "@/lib/constants";
+import { aktiveringSpaerre } from "@/lib/aktivering";
+import { aktiverFraSession } from "@/app/aktiver/actions";
+import { AktiverForm, AktiveringSpaerret } from "@/components/aktiver-form";
 
 export const metadata = {
   title: "Tak for din bestilling",
@@ -32,7 +35,16 @@ export default async function OrderThanksPage({
   searchParams: Promise<{ session_id?: string }>;
 }) {
   const { session_id } = await searchParams;
-  const medKonto = await koebtMedKonto(session_id);
+  const { medKonto, firma } = await koebsTilstand(session_id);
+
+  /*
+   * ET ABONNEMENT KØBT UDEN KONTO er den nye, tredje slags køber, og den skal
+   * hverken have "gå til dashboardet" (der er intet login endnu) eller "du
+   * skal ikke gøre mere" (det skal de). De skal vælge en adgangskode, og de
+   * skal kunne gøre det HER — ikke i en mail, der kan lande forkert.
+   */
+  const spaerre = firma ? aktiveringSpaerre(firma) : null;
+  const kanAktivere = Boolean(firma && !spaerre && session_id);
 
   return (
     <>
@@ -51,7 +63,12 @@ export default async function OrderThanksPage({
         <div className="mt-8">
           <h2 className="font-bold tracking-tight">Hvad sker der nu?</h2>
           <ol className="mt-3 space-y-2 text-muted">
-            {(medKonto ? TRIN_MED_KONTO : TRIN_UDEN_KONTO).map((trin, i) => (
+            {(kanAktivere
+              ? TRIN_AKTIVERING
+              : medKonto
+                ? TRIN_MED_KONTO
+                : TRIN_UDEN_KONTO
+            ).map((trin, i) => (
               <li key={trin}>
                 {i + 1}. {trin}
               </li>
@@ -59,7 +76,14 @@ export default async function OrderThanksPage({
           </ol>
         </div>
 
-        {medKonto ? (
+        {kanAktivere ? (
+          <AktiverForm
+            action={aktiverFraSession}
+            skjultFelt={{ navn: "session_id", vaerdi: session_id! }}
+          />
+        ) : firma && spaerre ? (
+          <AktiveringSpaerret grund={spaerre} />
+        ) : medKonto ? (
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <ButtonLink href="/dashboard" size="lg">
               Gå til dashboardet
@@ -106,6 +130,17 @@ const TRIN_MED_KONTO = [
   "Sæt standeren på disken, og du er i gang.",
 ];
 
+/**
+ * Abonnement købt uden konto. Standeren ER oprettet af betalingen — den
+ * mangler kun at vide, hvor QR-koden skal føre hen, og dét er første skridt
+ * i dashboardet.
+ */
+const TRIN_AKTIVERING = [
+  "Vælg en adgangskode nedenfor, så åbner dit dashboard.",
+  "Fortæl hvor QR-koden skal føre hen — det kan ændres når som helst.",
+  `Vi trykker og sender skiltet — typisk ${COMPANY.deliveryDays}.`,
+];
+
 const TRIN_UDEN_KONTO = [
   "Vi trykker skiltet med dit logo og det link, du valgte.",
   `Vi sender det til adressen fra betalingen — typisk ${COMPANY.deliveryDays}.`,
@@ -126,17 +161,46 @@ const TRIN_UDEN_KONTO = [
  * sit eget dashboard og er logget ind, mens en køber uden konto aldrig har
  * haft et login at være logget ind med.
  */
-async function koebtMedKonto(sessionId: string | undefined): Promise<boolean> {
+async function koebsTilstand(sessionId: string | undefined): Promise<{
+  medKonto: boolean;
+  /** Sat KUN når købet venter på en aktivering — ellers null. */
+  firma: {
+    user_id: string | null;
+    aktivering_token: string | null;
+    aktivering_udloeber: string | null;
+  } | null;
+}> {
   if (sessionId) {
     const admin = createAdminClient();
     const { data } = await admin
       .from("orders")
-      .select("uden_konto")
+      .select("uden_konto, company_id")
       .eq("stripe_session_id", sessionId)
       .maybeSingle();
 
-    if (data) return !data.uden_konto;
+    if (data) {
+      /*
+       * Kun en ordre UDEN konto kan have noget at aktivere. Et abonnement
+       * købt fra et dashboard har allerede en ejer, og at slå op på den ville
+       * kun kunne give det forkerte svar.
+       */
+      if (!data.uden_konto) return { medKonto: true, firma: null };
+      // En ordre uden virksomhed kan ikke aktiveres — og bør ikke findes.
+      if (!data.company_id) return { medKonto: false, firma: null };
+
+      const { data: firma } = await admin
+        .from("companies")
+        .select("user_id, aktivering_token, aktivering_udloeber")
+        .eq("id", data.company_id)
+        .maybeSingle();
+
+      // Uden token er det et Basic-køb: der er ingen konto, og det er meningen.
+      return {
+        medKonto: false,
+        firma: firma?.aktivering_token || firma?.user_id ? firma : null,
+      };
+    }
   }
 
-  return Boolean(await getCurrentUser());
+  return { medKonto: Boolean(await getCurrentUser()), firma: null };
 }

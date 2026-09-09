@@ -108,6 +108,21 @@ export function ordrebekraeftelse(d: Ordredetaljer): {
     );
   }
 
+  /*
+   * AKTIVERINGEN STÅR FØR ALT ANDET "hvad nu". Det er det eneste i mailen,
+   * kunden SKAL gøre — resten sker af sig selv — og en handling begravet
+   * under leveringstider bliver ikke set.
+   */
+  if (d.aktiveringUrl) {
+    linjer.push(
+      "",
+      "Opret din adgang:",
+      `  ${d.aktiveringUrl}`,
+      "",
+      "Vælg en adgangskode, så åbner dit dashboard. Har du allerede gjort det på kvitteringssiden, kan du se bort fra linket.",
+    );
+  }
+
   const naeste = hvadSkerDerNu(d);
   if (naeste.length > 1) linjer.push("", ...naeste);
 
