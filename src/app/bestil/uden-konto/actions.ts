@@ -427,7 +427,17 @@ export async function bestilUdenKonto(
       billing_address_collection: "required",
       shipping_address_collection: { allowed_countries: [...LEVERINGSLANDE] },
       tax_id_collection: { enabled: true },
-      invoice_creation: { enabled: true },
+      /*
+       * KUN VED ENGANGSKØB. Stripe afviser sessionen med
+       * "You can only enable invoice creation when `mode` is set to
+       * `payment`" — et abonnement laver sine fakturaer selv, én pr. periode.
+       *
+       * Fejlen ramte hele bestillingen, ikke bare fakturaen: sessionen blev
+       * aldrig oprettet, og kunden fik "Betalingen kunne ikke startes" efter
+       * at have udfyldt det hele. Fundet ved det første rigtige køb gennem det
+       * nye flow — tests og build så intet, fordi de ikke taler med Stripe.
+       */
+      ...(abonnement ? {} : { invoice_creation: { enabled: true } }),
       metadata: {
         company_id: companyId,
         product_slug: product.slug,
