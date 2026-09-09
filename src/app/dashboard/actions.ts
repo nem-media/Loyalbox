@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { generateSlug } from "@/lib/utils";
 import { tierCan, TIER_ORDER, type Tier } from "@/lib/constants";
 import { erGyldigtCvr, normaliserCvr, CVR_FEJL } from "@/lib/cvr";
+import { erGyldigtPostnummer, POSTNUMMER_FEJL } from "@/lib/adresse";
 import { harAbonnement } from "@/lib/abonnement";
 import type { CompanyPlan, DestinationType } from "@/lib/types/database";
 
@@ -50,6 +51,19 @@ export async function updateCompany(
   const cvrRaw = String(formData.get("cvr") ?? "").trim();
   if (cvrRaw && !erGyldigtCvr(cvrRaw)) return { error: CVR_FEJL };
 
+  /**
+   * ADRESSEN STYRER NU LEVERINGEN, og derfor valideres postnummeret.
+   *
+   * Samme regel som CVR ovenfor: et TOMT felt låser ingen ude — adressen er
+   * frivillig, indtil der bestilles — men står der noget, skal det være
+   * rigtigt. Et forkert postnummer ville blive forudfyldt i checkouten, og
+   * kunden ville tro, skiltet var på vej det rigtige sted hen.
+   */
+  const postnummerRaw = String(formData.get("postnummer") ?? "").trim();
+  if (postnummerRaw && !erGyldigtPostnummer(postnummerRaw)) {
+    return { error: POSTNUMMER_FEJL };
+  }
+
   const plan = (user.company.plan ?? "basic") as Tier;
   const canBrand = tierCan(plan, "customBranding");
 
@@ -62,6 +76,8 @@ export async function updateCompany(
       contact_email: String(formData.get("contact_email") ?? "").trim() || null,
       phone: String(formData.get("phone") ?? "").trim() || null,
       address: String(formData.get("address") ?? "").trim() || null,
+      postnummer: postnummerRaw || null,
+      by: String(formData.get("by") ?? "").trim() || null,
       // `stand_text` skrives IKKE længere. Feltet "Ønsket tekst på
       // standeren" var write-only: det blev gemt her og læst af ingenting.
       // Standerens udseende afgøres i designflowet (`designs`: farve, front,

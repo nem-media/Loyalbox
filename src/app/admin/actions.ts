@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { generateSlug } from "@/lib/utils";
 import { KATALOG, planForProduct } from "@/lib/constants";
 import { stripe } from "@/lib/stripe";
+import { erGyldigtPostnummer, POSTNUMMER_FEJL } from "@/lib/adresse";
 import { isStripeConfigured } from "@/lib/commerce";
 import { noterAdminHandling } from "@/lib/admin-log";
 import { SUPPORT_COOKIE } from "@/lib/support-adgang";
@@ -113,6 +114,12 @@ export async function updateCompanyAdmin(
   const id = String(formData.get("company_id") ?? "");
   if (!id) return { error: "Ugyldig virksomhed." };
 
+  // Samme regel som i kundens egen profil: tomt er tilladt, forkert er ikke.
+  const postnummerRaw = String(formData.get("postnummer") ?? "").trim();
+  if (postnummerRaw && !erGyldigtPostnummer(postnummerRaw)) {
+    return { error: POSTNUMMER_FEJL };
+  }
+
   const supabase = await createClient();
   const { error } = await supabase
     .from("companies")
@@ -121,6 +128,8 @@ export async function updateCompanyAdmin(
       contact_email: String(formData.get("contact_email") ?? "").trim() || null,
       phone: String(formData.get("phone") ?? "").trim() || null,
       address: String(formData.get("address") ?? "").trim() || null,
+      postnummer: postnummerRaw || null,
+      by: String(formData.get("by") ?? "").trim() || null,
     })
     .eq("id", id);
 

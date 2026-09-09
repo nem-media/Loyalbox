@@ -28,9 +28,26 @@ export function CompanyInfo({ company }: { company: Company }) {
           <Input name="phone" defaultValue={company.phone ?? ""} />
         </Field>
       </div>
-      <Field label="Adresse">
+      {/* SAMME TRE FELTER SOM I KUNDENS EGEN PROFIL (0029). Stod her kun
+          vejnavnet, ville admin gemme en halv adresse — og en halv adresse
+          forudfylder checkouten forkert, fordi `harKompletAdresse()` kræver
+          alle tre. Ordrens egen `leveringsadresse` vises længere nede og er
+          fortsat dét, der pakkes efter. */}
+      <Field label="Vejnavn og nummer">
         <Input name="address" defaultValue={company.address ?? ""} />
       </Field>
+      <div className="grid gap-4 sm:grid-cols-[8rem_1fr]">
+        <Field label="Postnummer">
+          <Input
+            name="postnummer"
+            defaultValue={company.postnummer ?? ""}
+            inputMode="numeric"
+          />
+        </Field>
+        <Field label="By">
+          <Input name="by" defaultValue={company.by ?? ""} />
+        </Field>
+      </div>
       <div className="flex items-center gap-3">
         <Button type="submit" size="sm" disabled={pending}>
           {pending ? "Gemmer…" : "Gem"}
