@@ -156,6 +156,24 @@ export const FAERDIG_CM = {
 } as const;
 
 /**
+ * Logofeltet i centimeter — det, kunden skal kunne forholde sig til.
+ *
+ * UDLEDT AF `MAAL.logo` OG ARKETS BREDDE, aldrig skrevet af. Feltet er
+ * betydeligt bredere end højt, og det er hele pointen med at oplyse det:
+ * `preserveAspectRatio="xMidYMid meet"` skalerer logoet så stort, det kan
+ * blive UDEN at beskære, så et kvadratisk logo begrænses af HØJDEN og står
+ * lille med luft i begge sider. Et bredt logo fylder feltet ud.
+ *
+ * Skalaen er uniform, så begge mål omregnes med arkets bredde. Flytter en ny
+ * Canva-eksport feltet, følger tallet med af sig selv — og det er netop
+ * derfor, det ikke må skrives af i en hjælpetekst.
+ */
+export const LOGOFELT_CM = {
+  bredde: Math.round((MAAL.logo.bredde / SKILT_BREDDE) * SKILT_CM.bredde * 10) / 10,
+  hoejde: Math.round((MAAL.logo.hoejde / SKILT_BREDDE) * SKILT_CM.bredde * 10) / 10,
+} as const;
+
+/**
  * Det, foden dækker. Udledt, aldrig skrevet af.
  *
  * AFRUNDET, fordi et fradrag som 19,5 − 15 giver et flydende tal med hale, og

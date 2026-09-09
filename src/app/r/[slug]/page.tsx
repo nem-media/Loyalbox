@@ -135,15 +135,26 @@ export default async function ReviewPage({
       <div className="box-shape w-full max-w-md border border-border bg-card p-6 shadow-[0_30px_60px_-25px_rgba(0,0,0,0.5)] sm:p-8">
         {/* Company identity */}
         <div className="mb-6 flex flex-col items-center text-center">
+          {/*
+            LOGOET ER 96 PX OG IKKE 64. Det er butikkens egen side, og det er
+            det eneste sted, kunden ser, hvem de er landet hos — feltet var
+            mindre end favicon-rækken i en browser. `object-contain` gør
+            målet til en RAMME og ikke en beskæring: et bredt logo bliver
+            bredt og lavt, aldrig strakt.
+
+            Pladsholderen følger med i størrelse. Var kun billedet vokset,
+            ville en butik uden logo få en anden sidehøjde end en med, og
+            forskellen ses først, når man har begge dele foran sig.
+          */}
           {company.logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={company.logo_url}
               alt={company.name}
-              className="mb-3 h-16 w-16 rounded-xl object-contain"
+              className="mb-3 h-24 w-24 rounded-xl object-contain"
             />
           ) : (
-            <div className="mb-3 grid h-16 w-16 place-items-center rounded-xl bg-accent text-2xl font-bold text-accent-fg">
+            <div className="mb-3 grid h-24 w-24 place-items-center rounded-xl bg-accent text-3xl font-bold text-accent-fg">
               {company.name.charAt(0).toUpperCase()}
             </div>
           )}

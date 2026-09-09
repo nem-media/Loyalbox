@@ -15,6 +15,7 @@ import {
   FOD_CM,
   cmTekst,
   FAERDIG_CM,
+  LOGOFELT_CM,
   KLIP_CM,
   FRONT_MAAL,
   SKILT_BREDDE,
@@ -108,6 +109,26 @@ describe("felterne i skabelonen", () => {
     expect(f.x + f.bredde).toBeLessThan(SKILT_BREDDE);
     // Overskriften "Din oplevelse betyder meget for os" står lige under.
     expect(f.y + f.hoejde).toBeLessThan(150);
+  });
+
+  /**
+   * LOGOFELTET I CENTIMETER er ikke bare til pynt: profilsiden viser tallene
+   * som råd om, hvad kunden skal uploade, og skriver samtidig, at feltet er
+   * "bredere end højt". Flytter en ny Canva-eksport feltet, retter tallene
+   * sig selv — men PÅSTANDEN om formen gør ikke, og et kvadratisk felt ville
+   * gøre rådet direkte forkert. Derfor prøves den her.
+   */
+  it("har et logofelt, der er bredere end højt", () => {
+    expect(LOGOFELT_CM.bredde).toBeGreaterThan(LOGOFELT_CM.hoejde);
+  });
+
+  /** Omregningen skal passe med feltets egne enheder — samme skala begge veje. */
+  it("omregner logofeltet til centimeter med arkets egen skala", () => {
+    const prCm = SKILT_BREDDE / SKILT_CM.bredde;
+    expect(LOGOFELT_CM.bredde).toBeCloseTo(MAAL.logo.bredde / prCm, 1);
+    expect(LOGOFELT_CM.hoejde).toBeCloseTo(MAAL.logo.hoejde / prCm, 1);
+    // Og feltet kan ikke være bredere end det ark, det ligger på.
+    expect(LOGOFELT_CM.bredde).toBeLessThan(SKILT_CM.bredde);
   });
 
   /**

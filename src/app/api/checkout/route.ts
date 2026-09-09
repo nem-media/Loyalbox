@@ -34,6 +34,7 @@ import {
 import { getSiteUrl } from "@/lib/site";
 import { DPA_VERSION, requiresDpa } from "@/lib/dpa";
 import { noterFejl } from "@/lib/drift";
+import { tilStripeShipping } from "@/lib/adresse";
 
 /**
  * Læser og renser et design fra klienten.
@@ -420,6 +421,42 @@ export async function POST(request: NextRequest) {
       await noterFejl(
         "dpa-accept",
         `Kunne ikke registrere accept for virksomhed ${company.id}: ${dpaError.message}`,
+      );
+    }
+  }
+
+  /**
+   * PROFILENS ADRESSE FORUDFYLDER CHECKOUTEN.
+   *
+   * Checkout kan ikke få en leveringsadresse med som parameter — den henter
+   * den fra STRIPE-KUNDEN. Derfor sættes kundens `shipping` her, lige inden
+   * sessionen oprettes, ud fra det kunden selv har skrevet i sin profil.
+   * `customer_update.shipping: "auto"` skriver bagefter tilbage, hvad de
+   * faktisk bekræftede, så en enkelt levering til en anden adresse stadig er
+   * mulig uden at ændre profilen.
+   *
+   * PROFILEN VINDER. Skriver vi den hver gang, er reglen til at forklare:
+   * det, der står i profilen, er det, der bliver foreslået. Det var hele
+   * pointen — en kunde, der er flyttet, skal have sit næste skilt sendt det
+   * nye sted hen uden at skulle huske det midt i en betaling.
+   *
+   * MÅ ALDRIG SPÆRRE ET SALG. En forudfyldning er en bekvemmelighed; fejler
+   * den, skal kunden stadig kunne betale og bare selv skrive adressen. Derfor
+   * noteres fejlen og kastes ikke.
+   *
+   * Springes over ved `genoptag`: dér indsamles ingen leveringsadresse, fordi
+   * der ikke sendes noget — standeren står allerede på disken.
+   */
+  const shipping = tilStripeShipping(company, company.name);
+  if (!genoptag && company.stripe_customer_id && shipping) {
+    try {
+      await stripe().customers.update(company.stripe_customer_id, { shipping });
+    } catch (err) {
+      await noterFejl(
+        "checkout",
+        `Kunne ikke forudfylde leveringsadressen for ${company.id}: ${
+          err instanceof Error ? err.message : "ukendt fejl"
+        }`,
       );
     }
   }

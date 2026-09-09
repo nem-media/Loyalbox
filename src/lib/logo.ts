@@ -47,6 +47,24 @@ export const LOGO_KRAV = {
 export const LOGO_TEKSTER = {
   overskrift: "Upload dit logo",
   hjaelp: "PNG med transparent baggrund anbefales. Maks. 5 MB.",
+  /**
+   * DE KONKRETE RÅD, sagt som tal frem for som "god kvalitet".
+   *
+   * Kunden spurgte efter noget i retning af "512 × 512 px", og dét ville
+   * være dårligt råd HER: `anbefaletBredde` er 1000, så en 512 px fil ville
+   * udløse vores egen advarsel om lav opløsning — og logofeltet på standeren
+   * er langt bredere end højt, så et kvadratisk logo begrænses af højden og
+   * står lille med luft i begge sider.
+   *
+   * Bredden UDLEDES af `LOGO_KRAV`, så et ændret krav ikke efterlader en
+   * hjælpetekst, der lover noget andet end det, kontrollen håndhæver. Målet
+   * på selve feltet står i `LOGOFELT_CM` (skilt-format.ts) og hentes af den
+   * side, der viser rådet — geometrien hører hjemme hos geometrien.
+   */
+  raadFormat: `Brug ${LOGO_KRAV.typenavne}. SVG er bedst — det trykkes skarpt i enhver størrelse.`,
+  raadBredde: `Uploader du en PNG, så gør den mindst ${LOGO_KRAV.anbefaletBredde} px bred og med transparent baggrund.`,
+  raadFormaal:
+    "Samme fil bruges både på din side og på det trykte skilt, så den skal kunne holde til tryk.",
   anbefaling:
     "For det bedste resultat anbefaler vi et PNG-logo med transparent baggrund.",
   somUploadet: "Logoet printes som udgangspunkt, som du uploader det.",

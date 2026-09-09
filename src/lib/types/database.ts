@@ -94,7 +94,14 @@ export interface Database {
           logo_url: string | null;
           contact_email: string | null;
           phone: string | null;
+          /**
+           * Kundens egen leveringsadresse, struktureret (0029). `address` er
+           * vejnavn og nummer. IKKE det samme som `orders.leveringsadresse`,
+           * der er bilaget for en bestemt ordre.
+           */
           address: string | null;
+          postnummer: string | null;
+          by: string | null;
           stand_text: string | null;
           created_at: string;
           offentlig_kundescore: boolean;
@@ -125,6 +132,8 @@ export interface Database {
           contact_email?: string | null;
           phone?: string | null;
           address?: string | null;
+          postnummer?: string | null;
+          by?: string | null;
           stand_text?: string | null;
           created_at?: string;
           offentlig_kundescore?: boolean;
