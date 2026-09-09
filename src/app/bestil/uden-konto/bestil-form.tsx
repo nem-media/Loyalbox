@@ -11,6 +11,7 @@ import { StoreIcon, StandIcon, LinkIcon } from "@/components/nav-icons";
 import { FRONT_MAAL } from "@/lib/skilt-format";
 import {
   MAX_QTY,
+  PRORATA_FORKLARING,
   TERMS_VERSION,
   VOLUME_DISCOUNTS,
   priceFor,
@@ -32,6 +33,7 @@ import { LOGO_TEKSTER, laesPngHoved, validerLogo } from "@/lib/logo";
 import { LogoFelt } from "@/components/logo-felt";
 import { DESTINATIONER } from "@/lib/bestilling-uden-konto";
 import { kraeverDestination } from "@/lib/commerce";
+import { requiresDpa } from "@/lib/dpa";
 import { DESTINATION_INTRO } from "@/components/destination-felt";
 import { formatCurrency } from "@/lib/utils";
 
@@ -162,6 +164,9 @@ export function BestilUdenKontoForm({
    * et felt, der er skjult og påkrævet på én gang.
    */
   const kraevDestination = kraeverDestination(product, null);
+
+  /* Samme regel som `/api/checkout` bruger — se `requiresDpa()`. */
+  const kraeverDpa = requiresDpa(product);
 
   const pris = priceFor(product, qty, {
     egenFrontfarve: front.egen,
@@ -643,6 +648,15 @@ export function BestilUdenKontoForm({
                   </dd>
                 </div>
               ) : null}
+              {/* HVORFOR FØRSTE BETALING IKKE ER MÅNEDSPRISEN. Stripe
+                  fakturerer dagene frem til trækdatoen med det samme, så
+                  beløbet i checkouten er hverken 499 eller 399 — og et beløb,
+                  kunden ikke kan genkende, er dét, indsigelser er lavet af. */}
+              {product.monthlyPrice ? (
+                <p className="pt-1 text-xs leading-relaxed text-muted">
+                  {PRORATA_FORKLARING}
+                </p>
+              ) : null}
             </dl>
           </div>
         </div>
@@ -668,7 +682,27 @@ export function BestilUdenKontoForm({
               >
                 handelsbetingelserne
               </Link>{" "}
-              (version {TERMS_VERSION}), og at jeg køber som virksomhed.
+              (version {TERMS_VERSION})
+              {/* DATABEHANDLERAFTALEN VISES NU OGSÅ HER, når varen kræver den.
+                  Den blev bevidst udeladt, dengang flowet kun var Basic:
+                  Basic-standeren viderestiller og indsamler ingenting, så der
+                  er ingen databehandlerrolle at aftale. Med et abonnement er
+                  det omvendt — kunden indsamler feedback og medlemsdata om
+                  SINE kunder, og vi behandler dem. At registrere en accept,
+                  kunden aldrig havde set, ville være værre end ingen. */}
+              {kraeverDpa ? (
+                <>
+                  {" "}
+                  og{" "}
+                  <Link
+                    href="/databehandleraftale"
+                    className="font-medium text-accent hover:underline"
+                  >
+                    databehandleraftalen
+                  </Link>
+                </>
+              ) : null}
+              , og at jeg køber som virksomhed.
             </label>
           </div>
           {/* EN AFVISNING MÅ ALDRIG VÆRE TAVS DÉR, MAN TRYKKER. Fejlene står

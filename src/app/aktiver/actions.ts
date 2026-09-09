@@ -181,8 +181,29 @@ async function aktiver(
     await supabase.auth.signInWithPassword({ email, password: kode });
   }
 
+  /*
+   * IND PÅ DEN STANDER, DE LIGE HAR KØBT — ikke på listen.
+   *
+   * Standeren er oprettet af købet og mangler kun ét: hvor QR-koden skal føre
+   * hen. Det er hele grunden til, at de er her, og en liste med præcis ét
+   * element er et ekstra klik, der kun kan gøre skade. Har de mod forventning
+   * ingen eller flere standere, falder vi tilbage på listen — dér kan de selv
+   * vælge, og en ødelagt adresse ville være værre end et klik.
+   */
+  const { data: standere } = await admin
+    .from("stands")
+    .select("id")
+    .eq("company_id", firma!.id)
+    .order("created_at", { ascending: true })
+    .limit(2);
+
+  const maal =
+    standere?.length === 1
+      ? `/dashboard/standere/${standere[0].id}`
+      : "/dashboard/standere";
+
   revalidatePath("/", "layout");
-  redirect(oprettet?.user ? "/dashboard/standere" : "/login");
+  redirect(oprettet?.user ? maal : "/login");
 }
 
 /** Tak-siden: aktiverer med Stripes `session_id`. */

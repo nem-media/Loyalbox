@@ -1,4 +1,4 @@
-import { COMPANY } from "./constants";
+import { PRORATA_FORKLARING, COMPANY } from "./constants";
 import type { Ordredetaljer } from "./ordrevarsel";
 
 /**
@@ -64,6 +64,14 @@ export function ordrebekraeftelse(d: Ordredetaljer): {
 
   if (d.maanedligt) {
     linjer.push(`Herefter:  ${kroner(d.maanedligt)} ex moms pr. måned`);
+    /*
+     * HVORFOR DET TRUKNE BELØB IKKE ER MÅNEDSPRISEN. Første betaling dækker
+     * dagene frem til trækdatoen, så beløbet på kontoudskriften er hverken
+     * standerens pris eller abonnementets. Står forklaringen ikke her, er
+     * mailen det eneste sted, kunden kunne have fået den — og et beløb, man
+     * ikke kan genkende, ender som et opkald eller en indsigelse.
+     */
+    linjer.push("", PRORATA_FORKLARING);
   }
 
   /*

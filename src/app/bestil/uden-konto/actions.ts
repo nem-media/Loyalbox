@@ -25,6 +25,7 @@ import {
   type Fejl,
 } from "@/lib/bestilling-uden-konto";
 import { getSiteUrl } from "@/lib/site";
+import { requiresDpa, DPA_VERSION } from "@/lib/dpa";
 import { generateSlug } from "@/lib/utils";
 import { aktiveringUdloeber } from "@/lib/aktivering";
 import { randomBytes } from "node:crypto";
@@ -225,6 +226,26 @@ export async function bestilUdenKonto(
   const aktiveringToken = abonnement
     ? randomBytes(32).toString("hex")
     : null;
+  /*
+   * DATABEHANDLERAFTALEN INDGÅS VED KØBET — også her.
+   *
+   * Den blev ikke registreret i dette flow, dengang det kun var Basic, og det
+   * var rigtigt: Basic-standeren viderestiller og indsamler ingenting, så der
+   * er ingen databehandlerrolle at aftale. Med et abonnement er det omvendt —
+   * kunden indsamler feedback og medlemsdata om SINE kunder, og vi behandler
+   * dem for dem. Uden dette ville en betalende Komplet-kunde stå uden aftale.
+   *
+   * Accepten stemples FØR betalingen, samme rækkefølge som `/api/checkout`:
+   * fejler betalingen, har kunden ikke fået noget, og en accept uden køb er
+   * harmløs — modsat et køb uden accept.
+   */
+  const dpaFelter = requiresDpa(product)
+    ? {
+        dpa_accepted_at: new Date().toISOString(),
+        dpa_version: DPA_VERSION,
+      }
+    : {};
+
   const aktiveringFelter = aktiveringToken
     ? {
         aktivering_token: aktiveringToken,
@@ -257,6 +278,7 @@ export async function bestilUdenKonto(
         plan: "basic",
         terms_accepted_at: new Date().toISOString(),
         terms_version: TERMS_VERSION,
+        ...dpaFelter,
         ...aktiveringFelter,
       })
       .select("id")
@@ -277,6 +299,7 @@ export async function bestilUdenKonto(
         terms_accepted_at: new Date().toISOString(),
         terms_version: TERMS_VERSION,
         ...(logoUrl ? { logo_url: logoUrl } : {}),
+        ...dpaFelter,
         // Genbestilling: et nyt token afløser et gammelt, så det seneste køb
         // er det, der giver adgang.
         ...aktiveringFelter,

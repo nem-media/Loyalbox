@@ -145,3 +145,27 @@ describe("sletterutinen rydder aktiveringen", () => {
     }
   });
 });
+
+/**
+ * EFTER AKTIVERINGEN SKAL DE STÅ VED STANDEREN — ikke ved en liste.
+ *
+ * Standeren er oprettet af købet og mangler kun ét: hvor QR-koden skal føre
+ * hen. Det er hele grunden til, at kunden er der, og en liste med præcis ét
+ * element er et ekstra klik, der kun kan gøre skade.
+ */
+describe("hvor aktiveringen lander", () => {
+  const KILDE = readFileSync(
+    join(process.cwd(), "src/app/aktiver/actions.ts"),
+    "utf8",
+  );
+
+  it("sender kunden til standerens egen side", () => {
+    expect(KILDE).toMatch(/\/dashboard\/standere\/\$\{/);
+  });
+
+  /** Med nul eller flere standere skal der falles tilbage på listen. */
+  it("falder tilbage på listen, når der ikke er præcis én", () => {
+    expect(KILDE).toMatch(/standere\?\.length === 1/);
+    expect(KILDE).toMatch(/"\/dashboard\/standere"/);
+  });
+});
