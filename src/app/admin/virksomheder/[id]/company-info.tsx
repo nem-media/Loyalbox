@@ -33,6 +33,9 @@ export function CompanyInfo({ company }: { company: Company }) {
           forudfylder checkouten forkert, fordi `harKompletAdresse()` kræver
           alle tre. Ordrens egen `leveringsadresse` vises længere nede og er
           fortsat dét, der pakkes efter. */}
+      <Field label="Att.">
+        <Input name="kontaktperson" defaultValue={company.kontaktperson ?? ""} />
+      </Field>
       <Field label="Vejnavn og nummer">
         <Input name="address" defaultValue={company.address ?? ""} />
       </Field>

@@ -295,6 +295,24 @@ export function ProfileForm({
                 til en anden adresse stadig er mulig uden at ændre profilen.
               */}
               <div className="space-y-5">
+                {/*
+                  ATT.-LINJEN. Stripe har kun ÉT navnefelt på leveringen, så
+                  firmanavn og person sættes sammen af `modtagerNavn()` — se
+                  src/lib/adresse.ts. Uden feltet blev pakken stilet til
+                  virksomheden alene, og i en butik med tyve ansatte er den
+                  dermed ikke stilet til nogen.
+                */}
+                <Field
+                  label="Att. (valgfri)"
+                  hint="Hvem pakken skal stiles til. Står tomt, sendes den til firmanavnet."
+                >
+                  <Input
+                    name="kontaktperson"
+                    defaultValue={company.kontaktperson ?? ""}
+                    autoComplete="name"
+                  />
+                </Field>
+
                 <Field
                   label="Vejnavn og nummer"
                   hint="Herfra forudfyldes leveringen, næste gang du bestiller. Du kan altid ændre den undervejs i betalingen."

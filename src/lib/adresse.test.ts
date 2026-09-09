@@ -6,6 +6,7 @@ import {
   harKompletAdresse,
   tilStripeShipping,
   adresseFraOrdre,
+  modtagerNavn,
 } from "./adresse";
 import { LEVERINGSLANDE } from "./constants";
 
@@ -51,6 +52,31 @@ describe("harKompletAdresse", () => {
   /** Et ugyldigt postnummer gør ikke adressen komplet, selv om feltet er udfyldt. */
   it("accepterer ikke et forkert postnummer", () => {
     expect(harKompletAdresse({ ...hel, postnummer: "26300" })).toBe(false);
+  });
+});
+
+describe("modtagerNavn", () => {
+  /**
+   * STRIPE HAR KUN ÉT NAVNEFELT. Firmanavn og person skal derfor stå på
+   * samme linje, som en dansk pakkelabel skrives.
+   */
+  it("sætter firma og person sammen", () => {
+    expect(modtagerNavn("Nem Media ApS", "Mohammed Wachah")).toBe(
+      "Nem Media ApS att. Mohammed Wachah",
+    );
+  });
+
+  /** Uden kontaktperson er det bare firmanavnet — opførslen før 0030. */
+  it("er bare firmanavnet uden kontaktperson", () => {
+    for (const p of [null, undefined, "", "   "]) {
+      expect(modtagerNavn("Nem Media ApS", p), String(p)).toBe("Nem Media ApS");
+    }
+  });
+
+  it("trimmer begge dele", () => {
+    expect(modtagerNavn("  Nem Media ApS ", " Mohammed Wachah ")).toBe(
+      "Nem Media ApS att. Mohammed Wachah",
+    );
   });
 });
 
@@ -143,17 +169,25 @@ describe("sletterutinen", () => {
     return nyeste!;
   }
 
-  it("nulstiller adressens tre felter", () => {
+  it("nulstiller adressens felter og kontaktpersonen", () => {
     const sql = senesteSletterutine();
-    for (const kolonne of ["address", "postnummer", "by"]) {
+    // `kontaktperson` er et PERSONNAVN og dermed det mest entydigt
+    // personhenførbare felt på virksomheden — den skal væk med resten.
+    for (const kolonne of ["address", "postnummer", "by", "kontaktperson"]) {
       expect(sql, `${kolonne} nulstilles ikke ved sletning`).toMatch(
         new RegExp(`\\b${kolonne}\\s+=\\s*null`),
       );
     }
   });
 
-  /** Ordren må derimod IKKE tømmes — den er bilaget. */
-  it("rører ikke ordrens leveringsadresse", () => {
-    expect(senesteSletterutine()).not.toMatch(/leveringsadresse\s*=\s*null/);
+  /**
+   * Ordren må derimod IKKE tømmes — den er bilaget, og § 13 undtager det,
+   * lovgivningen kræver gemt. Det gælder både adressen og modtageren: et
+   * bilag uden modtager er ikke et bilag.
+   */
+  it("rører ikke ordrens leveringsadresse eller modtager", () => {
+    const sql = senesteSletterutine();
+    expect(sql).not.toMatch(/leveringsadresse\s*=\s*null/);
+    expect(sql).not.toMatch(/leveringsnavn\s*=\s*null/);
   });
 });

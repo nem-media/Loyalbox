@@ -49,6 +49,7 @@ import { standerFarveNavn } from "@/lib/stander-tilvalg";
 import { SkiltPreview } from "@/components/skilt-preview";
 import { qrAdresseFor, type StandDestination } from "@/lib/qr-adresse";
 import { Leveringsadresse } from "@/components/leveringsadresse";
+import { modtagerNavn } from "@/lib/adresse";
 import { visCvr } from "@/lib/cvr";
 import { formatDate, formatCurrency } from "@/lib/utils";
 import type { Database } from "@/lib/types/database";
@@ -78,7 +79,7 @@ export default async function AdminOrderPage({
   const { data: order } = await admin
     .from("orders")
     .select(
-      `*, company:companies(name, cvr, contact_email, phone), design:designs(*),
+      `*, company:companies(name, cvr, contact_email, phone, kontaktperson), design:designs(*),
          stand:stands(id, name, slug, kun_viderestilling, destination_type,
                       google_review_url, trustpilot_url, facebook_url, custom_url)`,
     )
@@ -93,6 +94,7 @@ export default async function AdminOrderPage({
       cvr: string | null;
       contact_email: string | null;
       phone: string | null;
+      kontaktperson: string | null;
     } | null;
     design: Database["public"]["Tables"]["designs"]["Row"] | null;
     stand:
@@ -297,8 +299,18 @@ export default async function AdminOrderPage({
           <CardBody className="space-y-4">
             <h2 className="font-bold tracking-tight">Hvor den skal sendes</h2>
 
+            {/* ORDRENS EGET NAVN VINDER. Det er dét, kunden bekræftede ved
+                betalingen; profilens kontaktperson kan være ændret siden, og
+                pakkelabelen skal vise det godkendte. Ordrer fra før 0030 har
+                intet navn og falder tilbage på firmaet. */}
             {adresse ? (
-              <Leveringsadresse navn={firma?.name} adresse={adresse} />
+              <Leveringsadresse
+                navn={
+                  o.leveringsnavn ??
+                  modtagerNavn(firma?.name ?? "", firma?.kontaktperson)
+                }
+                adresse={adresse}
+              />
             ) : (
               /* EN UBETALT ORDRE HAR INGEN. Stripe indsamler først adressen i
                  betalingsvinduet, så en ordre, kunden gik fra, kan ikke have

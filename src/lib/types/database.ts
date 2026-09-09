@@ -102,6 +102,8 @@ export interface Database {
           address: string | null;
           postnummer: string | null;
           by: string | null;
+          /** Hvem pakken stiles til. Personnavn — nulstilles ved sletning (0030). */
+          kontaktperson: string | null;
           stand_text: string | null;
           created_at: string;
           offentlig_kundescore: boolean;
@@ -134,6 +136,7 @@ export interface Database {
           address?: string | null;
           postnummer?: string | null;
           by?: string | null;
+          kontaktperson?: string | null;
           stand_text?: string | null;
           created_at?: string;
           offentlig_kundescore?: boolean;
@@ -395,6 +398,12 @@ export interface Database {
            * saa ordren kan ekspederes uden at slaa op i Stripe.
            */
           leveringsadresse: Record<string, string | null> | null;
+          /**
+           * Hvem pakken blev stilet til, som kunden bekræftede det ved
+           * betalingen (0030). Bilaget — modsat `companies.kontaktperson`,
+           * der er kartoteket og kan være ændret siden.
+           */
+          leveringsnavn: string | null;
           /** Kom ordren fra bestillingen uden konto? (0019) */
           uden_konto: boolean;
           /** Tillaeg for egen frontfarve paa netop denne ordre (0018). */
@@ -416,6 +425,7 @@ export interface Database {
           destination_type?: DestinationType | null;
           destination_url?: string | null;
           kontakt_email?: string | null;
+          leveringsnavn?: string | null;
           leveringsadresse?: Record<string, string | null> | null;
           uden_konto?: boolean;
           frontfarve_beloeb?: number;

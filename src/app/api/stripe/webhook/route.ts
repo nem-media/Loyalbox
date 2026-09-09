@@ -92,6 +92,30 @@ function leveringsadresse(
 }
 
 /**
+ * Hvem pakken skal stiles til — som kunden BEKRÆFTEDE det ved betalingen.
+ *
+ * Gemmes på ordren og ikke bare læst fra virksomheden, af samme grund som
+ * adressen: profilen kan være ændret siden, og admin ville så skrive et andet
+ * navn på pakkelabelen, end kunden godkendte. Ordren er bilaget.
+ *
+ * Samme to steder som adressen — feltet har flyttet sig mellem Stripes
+ * API-versioner, og `collected_information` er det nye.
+ */
+function leveringsnavn(session: Stripe.Checkout.Session): string | null {
+  const s = session as unknown as {
+    shipping_details?: { name?: string | null } | null;
+    collected_information?: {
+      shipping_details?: { name?: string | null } | null;
+    } | null;
+  };
+  return (
+    s.collected_information?.shipping_details?.name ??
+    s.shipping_details?.name ??
+    null
+  );
+}
+
+/**
  * Hvad kommer der til at stå i QR-koden på det skilt, vi lige har solgt?
  *
  * LÆSES TIL SIDST OG IKKE UNDERVEJS. Standeren kan være oprettet af dette
@@ -143,7 +167,14 @@ async function varslOmKoeb(
 
     const leveringslinjer = adresse
       ? [
-          session.customer_details?.name ?? firma?.name ?? "",
+          /*
+           * MODTAGEREN OG IKKE BETALEREN. Linjen stod med
+           * `customer_details.name`, som er navnet på FAKTURAEN — den, der
+           * betalte. Skal pakken stiles til en anden end den, der har kortet
+           * (0030's att.-felt gør netop det muligt), skrev varslet det
+           * forkerte navn på pakkelabelen.
+           */
+          leveringsnavn(session) ?? session.customer_details?.name ?? firma?.name ?? "",
           adresse.line1 ?? "",
           adresse.line2 ?? "",
           [adresse.postal_code, adresse.city].filter(Boolean).join(" "),
@@ -539,6 +570,10 @@ export async function POST(request: NextRequest) {
             // Adressen gemmes HER og ikke ved bestillingen: den indsamles først
             // hos Stripe. Uden den kan ordren ses i admin, men ikke pakkes.
             leveringsadresse: leveringsadresse(session),
+            // Modtageren hører til adressen og gemmes samme sted og samme
+            // gang — ellers ville halvdelen af pakkelabelen være et bilag og
+            // den anden halvdel et opslag i profilen.
+            leveringsnavn: leveringsnavn(session),
             kontakt_email: session.customer_details?.email ?? undefined,
           })
           .eq("stripe_session_id", session.id)
