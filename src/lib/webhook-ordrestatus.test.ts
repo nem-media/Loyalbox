@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { BETALTE_ORDRE_STATUSSER } from "./commerce";
+import { BETALTE_ORDRE_STATUSSER, sessionErBetalt } from "./commerce";
 
 /**
  * ORDREN SKAL MARKERES BETALT AD ALLE VEJE.
@@ -34,14 +34,43 @@ const KILDE = readFileSync(
   "utf8",
 );
 
-/** Kroppen af `case "checkout.session.completed"` — frem til næste `case`. */
-function betalingsGrenen(): string {
-  const start = KILDE.indexOf('case "checkout.session.completed"');
-  expect(start, "case'en for gennemført betaling findes ikke længere").toBeGreaterThan(-1);
+/**
+ * Kroppen af betalingsgrenen — frem til næste `case`.
+ *
+ * ANKRET PÅ DEN SIDSTE ETIKET I GRUPPEN. `completed` og
+ * `async_payment_succeeded` deler én krop, så et snit fra den FØRSTE etiket
+ * til "næste `case`" ville ramme den anden etiket og give en tom streng —
+ * hvorefter hver eneste prøve herunder ville bestå på ingenting. Det skete,
+ * da den anden etiket blev tilføjet.
+ */
+const SIDSTE_ETIKET = 'case "checkout.session.async_payment_succeeded"';
 
-  const næste = KILDE.indexOf('case "', start + 10);
-  return KILDE.slice(start, næste === -1 ? undefined : næste);
+function betalingsGrenen(): string {
+  const start = KILDE.indexOf(SIDSTE_ETIKET);
+  expect(start, "betalingsgrenens case-etiketter findes ikke længere").toBeGreaterThan(-1);
+
+  const næste = KILDE.indexOf('case "', start + SIDSTE_ETIKET.length);
+  const krop = KILDE.slice(start, næste === -1 ? undefined : næste);
+
+  // Selve fælden ovenfor: en tom krop må aldrig kunne se ud som en bestået prøve.
+  expect(krop.length, "betalingsgrenens krop er tom").toBeGreaterThan(500);
+  return krop;
 }
+
+describe("sessionErBetalt", () => {
+  it("tager de to statusser, hvor der ikke er noget at vente på", () => {
+    expect(sessionErBetalt("paid")).toBe(true);
+    // Nul kroner — fx en fuld rabat. Der kommer ingen betaling.
+    expect(sessionErBetalt("no_payment_required")).toBe(true);
+  });
+
+  /** `unpaid` er Klarna og de forsinkede bankmetoder. Svaret kommer senere. */
+  it("afviser alt andet", () => {
+    for (const s of ["unpaid", "", null, undefined, "PAID"]) {
+      expect(sessionErBetalt(s as string), String(s)).toBe(false);
+    }
+  });
+});
 
 describe("webhooken markerer ordren betalt ad alle veje", () => {
   const gren = betalingsGrenen();
@@ -87,6 +116,55 @@ describe("webhooken markerer ordren betalt ad alle veje", () => {
     const efter = gren.slice(ordreOpdatering);
     expect(efter).toMatch(/\.select\("id"\)/);
     expect(efter).toMatch(/noterFejl\(/);
+  });
+
+  /**
+   * PENGENE SKAL VÆRE FALDET, FØR DER GIVES NOGET.
+   *
+   * `checkout.session.completed` betyder kun, at kunden nåede igennem
+   * formularen. Med en betalingsmetode med forsinket svar — Klarna er slået
+   * til på kontoen — afsluttes sessionen `unpaid`, og svaret kommer først
+   * bagefter. Uden kontrollen gav webhooken adgang, oprettede standeren,
+   * markerede ordren betalt og sendte begge mails for en betaling, der endnu
+   * ikke var faldet.
+   *
+   * Usynlig i testtilstand: testkortet svarer `paid` med det samme.
+   */
+  it("kontrollerer betalingen FØR der gives adgang", () => {
+    const kontrol = gren.indexOf("sessionErBetalt(");
+    expect(kontrol, "kontrollen af payment_status er væk").toBeGreaterThan(-1);
+
+    // Før ALT, der giver noget: designet, kundeforholdet og ordren.
+    expect(kontrol).toBeLessThan(gren.indexOf("frontfarve_betalt"));
+    expect(kontrol).toBeLessThan(kædeStart);
+    expect(kontrol).toBeLessThan(ordreOpdatering);
+  });
+
+  /** Den forsinkede bekræftelse skal kunne gøre præcis det samme arbejde. */
+  it("behandler den forsinkede betaling som en betaling", () => {
+    expect(KILDE).toMatch(/case "checkout\.session\.async_payment_succeeded":/);
+    // Samme krop — altså ingen `break` mellem de to etiketter.
+    const a = KILDE.indexOf('case "checkout.session.completed":');
+    const b = KILDE.indexOf(SIDSTE_ETIKET);
+    expect(b).toBeGreaterThan(a);
+    expect(KILDE.slice(a, b)).not.toMatch(/\bbreak\s*;/);
+  });
+
+  /**
+   * ALARMÉR ALDRIG FRA EN STI, EN UDEFRAKOMMENDE KAN UDLØSE FRIT.
+   * En ubetalt session er ikke en fejl — det er den normale vej for en
+   * forsinket betaling — og `noterFejl` sender mail. Enhver besøgende kunne
+   * ellers udløse en mailbombe ved at vælge Klarna.
+   */
+  it("alarmerer ikke på en ubetalt session", () => {
+    // KUN selve spærren, som slutter med sit eget `break`. Længere nede
+    // ligger der legitime `noterFejl` — en fejlet standeroprettelse er en
+    // rigtig fejl og skal alarmere. Prøven må ikke ramme dem.
+    const fra = gren.indexOf("sessionErBetalt(");
+    const spaerren = gren.slice(fra, gren.indexOf("break;", fra) + "break;".length);
+
+    expect(spaerren).toMatch(/noterKoersel\(/);
+    expect(spaerren).not.toMatch(/noterFejl\(/);
   });
 
   it("sætter ordren i en status, der tæller som betalt", () => {
