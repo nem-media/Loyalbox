@@ -1,8 +1,6 @@
 import "server-only";
 import { SKABELON_SORT } from "./print/skabelon-sort";
 import { SKABELON_HVID } from "./print/skabelon-hvid";
-import { SKABELON_KOMPLET_SORT } from "./print/skabelon-komplet-sort";
-import { SKABELON_KOMPLET_HVID } from "./print/skabelon-komplet-hvid";
 import { normaliserHex } from "./stander-tilvalg";
 import QRCode from "qrcode";
 import {
@@ -71,21 +69,6 @@ export interface SkiltValg {
    * sat (SVG, eller en fil uden luft), bruges hele feltet som før.
    */
   logoUdsnit?: LogoUdsnit | null;
-  /**
-   * Har kunden koebt stempelkortet?
-   *
-   * SKILTET SIGER NOGET ANDET, NAAR DE HAR. Standarden skriver "Scan eller
-   * tap"; Komplet-udgaven skriver "Scan eller tap for anmeldelse eller
-   * stempelkort". Det er en anden Canva-eksport og dermed en anden skabelon —
-   * teksten er kurver, ikke tekst, saa den kan ikke skiftes i koden.
-   *
-   * FALSK ER DET SIKRE STANDARDVALG. Traeder det forkerte skilt ud af
-   * trykken, er den ene fejl til at leve med (en Komplet-kunde faar et skilt,
-   * der ikke naevner stempelkortet) og den anden ikke: en kunde uden
-   * stempelkort ville staa med et skilt, der lover deres kunder noget, de
-   * ikke kan levere.
-   */
-  medStempelkort?: boolean;
 }
 
 /**
@@ -130,22 +113,7 @@ export async function byggSkilt(valg: SkiltValg): Promise<string> {
   const accent = normaliserHex(valg.accent) ?? "#4ea4ad";
 
   const variant = skabelonTil(baggrund);
-
-  /*
-   * FIRE SKABELONER: to farver gange to varer.
-   *
-   * Farven vaelges af baggrundens lyshed (se `skabelonTil`) — det er dét, der
-   * holder QR-koden skanbar. Varen vaelger, om linjen naevner stempelkortet.
-   * De fire filer har NOEJAGTIG samme geometri; alle otte ankre i
-   * `lav-print-skabelon.mjs` findes i dem alle, saa `MAAL` gaelder uaendret.
-   */
-  const skabelon = valg.medStempelkort
-    ? variant === "sort"
-      ? SKABELON_KOMPLET_SORT
-      : SKABELON_KOMPLET_HVID
-    : variant === "sort"
-      ? SKABELON_SORT
-      : SKABELON_HVID;
+  const skabelon = variant === "sort" ? SKABELON_SORT : SKABELON_HVID;
 
   let svg = skabelon
     .replaceAll("{{BG}}", baggrund)
