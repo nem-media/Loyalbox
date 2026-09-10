@@ -13,6 +13,8 @@ import {
   skiveFarve,
   ringFarve,
   kontrast,
+  logoPlacering,
+  type LogoUdsnit,
   type Variant,
 } from "./skilt-format";
 
@@ -61,6 +63,14 @@ export interface SkiltValg {
    * afhænge af, at et lager svarer.
    */
   logoDataUri?: string | null;
+  /**
+   * Hvad `laegLogoPaaFront()` skar af luft omkring logoet.
+   *
+   * SKAL FØLGE MED LOGOET. Uden den skaleres det beskårne billede op til hele
+   * feltet, og logoet vokser på skiltet — se `logoPlacering()`. Er den ikke
+   * sat (SVG, eller en fil uden luft), bruges hele feltet som før.
+   */
+  logoUdsnit?: LogoUdsnit | null;
   /**
    * Har kunden koebt stempelkortet?
    *
@@ -156,7 +166,7 @@ export async function byggSkilt(valg: SkiltValg): Promise<string> {
   if (valg.logoDataUri) {
     svg = fjernAttrap(svg, "LOGOFELT").replace(
       "</svg>",
-      `${logoLag(valg.logoDataUri)}</svg>`,
+      `${logoLag(valg.logoDataUri, valg.logoUdsnit)}</svg>`,
     );
   }
 
@@ -178,12 +188,17 @@ export async function byggSkilt(valg: SkiltValg): Promise<string> {
  * fylde feltet men skære kanterne af logoet, og det er dét, ingen opdager
  * før skiltet er trykt.
  *
+ * ER LUFTEN SKÅRET AF FILEN, er feltet ikke længere svaret: `logoPlacering()`
+ * regner den plads ud, udsnittet havde inde i feltet, så logoet står præcis
+ * hvor det stod. `meet` bliver dermed en nulhandling — målene passer allerede
+ * — og bliver stående, så en afrunding aldrig kan komme til at strække logoet.
+ *
  * Der maskeres ikke: har logoet en hvid baggrund, ses den — præcis som den
  * bliver trykt. Skjulte vi den, ville kunden først opdage det på skiltet, og
  * et skilt kan ikke kaldes tilbage.
  */
-function logoLag(dataUri: string): string {
-  const felt = MAAL.logo;
+function logoLag(dataUri: string, udsnit?: LogoUdsnit | null): string {
+  const felt = logoPlacering(udsnit);
   return (
     `<image href="${escapeXml(dataUri)}" x="${felt.x}" y="${felt.y}" ` +
     `width="${felt.bredde}" height="${felt.hoejde}" ` +

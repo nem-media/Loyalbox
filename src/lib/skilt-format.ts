@@ -110,6 +110,59 @@ export function daek(f: Felt): Felt {
 }
 
 /**
+ * Hvad der er skåret væk af logoet, målt i KILDEBILLEDETS egne pixels.
+ *
+ * `laegLogoPaaFront()` beskærer den gennemsigtige luft af en PNG, før den
+ * flades ned på baggrundsfarven — se `logo-flade.ts` for hvorfor. Her er
+ * regnskabet over det, så `logoPlacering()` kan sætte resten præcis dér, hvor
+ * den ubeskårne fil ville have ligget.
+ */
+export interface LogoUdsnit {
+  /** Hele filens mål, FØR beskæringen. */
+  kildeBredde: number;
+  kildeHoejde: number;
+  /** Det synlige udsnits øverste venstre hjørne i kildens koordinater. */
+  x: number;
+  y: number;
+  /** Udsnittets mål. */
+  bredde: number;
+  hoejde: number;
+}
+
+/**
+ * Hvor logoets `<image>` skal ligge — og hvorfor det ikke bare er `MAAL.logo`.
+ *
+ * BESKÆRINGEN MÅ IKKE KUNNE SES. Beskæres filen uden at flytte elementet med,
+ * ville `preserveAspectRatio="xMidYMid meet"` skalere det beskårne op til
+ * feltet, og logoet ville pludselig blive større på skiltet — en synlig
+ * ændring for enhver kunde, der allerede har godkendt sit design. Derfor
+ * regnes den skalering, det UBESKÅRNE billede ville have fået, og udsnittet
+ * lægges på sin egen plads inden i den. Resultatet er pixel for pixel det
+ * samme som før; kun det inkede rektangel er skrumpet.
+ *
+ * Uden udsnit (SVG, eller en fil uden luft at skære) er svaret hele feltet,
+ * altså nøjagtig som det var.
+ */
+export function logoPlacering(udsnit?: LogoUdsnit | null): Felt {
+  const felt = MAAL.logo;
+  if (!udsnit || udsnit.kildeBredde <= 0 || udsnit.kildeHoejde <= 0) return felt;
+
+  // Præcis dét `meet` gør: skalér uniformt til det korteste led rører, og
+  // centrér resten.
+  const s = Math.min(
+    felt.bredde / udsnit.kildeBredde,
+    felt.hoejde / udsnit.kildeHoejde,
+  );
+
+  return {
+    x: felt.x + (felt.bredde - udsnit.kildeBredde * s) / 2 + udsnit.x * s,
+    y: felt.y + (felt.hoejde - udsnit.kildeHoejde * s) / 2 + udsnit.y * s,
+    bredde: udsnit.bredde * s,
+    hoejde: udsnit.hoejde * s,
+  };
+}
+
+/**
  * Skiltets fysiske mål.
  *
  * DET TRYKTE ARK ER 12 × 19,2 cm, men kun de øverste 15 cm kan ses: resten
