@@ -122,10 +122,20 @@ export async function GET(request: NextRequest) {
     qrAdresse = stand ? qrAdresseFor(stand) : null;
   }
 
+  /*
+   * STEMPELKORT-UDGAVEN VAELGES EKSPLICIT OG UDLEDES IKKE.
+   *
+   * Ruten kender hverken ordren eller kunden — den faar farve, logo og en
+   * eventuel stander. Kalderen ved, hvilken vare der er koebt, og maa sige
+   * det. Uden parameteren trykkes standarden, hvilket er det sikre valg:
+   * et skilt, der lover et stempelkort, kunden ikke har, er vaerre end et,
+   * der lader vaere med at naevne det.
+   */
   const svg = await byggSkilt({
     baggrund,
     accent,
     qrAdresse,
+    medStempelkort: p.get("komplet") === "1",
     logoDataUri: await hentLogo(logoUrl, baggrund),
   });
 

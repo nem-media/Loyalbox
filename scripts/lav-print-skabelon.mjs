@@ -50,12 +50,53 @@
  */
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { EOL } from "node:os";
 
 const kilde = process.argv[2];
-if (!kilde) {
-  console.error('Brug: node scripts/lav-print-skabelon.mjs "C:/sti/til/mappe"');
+const saet = process.argv[3] ?? "standard";
+if (!kilde || !["standard", "komplet"].includes(saet)) {
+  console.error(
+    'Brug: node scripts/lav-print-skabelon.mjs "C:/sti/til/mappe" [standard|komplet]',
+  );
   process.exit(1);
 }
+
+/**
+ * TO SAET SKABELONER, fordi LoyalSum Komplet ogsaa har stempelkort.
+ *
+ * Skiltene er ens paa naer EN linje: standarden siger "Scan eller tap",
+ * Komplet siger "Scan eller tap for anmeldelse eller stempelkort". Alt det,
+ * koden roerer - logofeltet, NFC-feltet, QR-pladsholderen - staar noejagtig
+ * samme sted i begge. Det er efterproevet: alle otte geometriankre findes i
+ * begge saet, saa MAAL i skilt-format.ts gaelder for dem alle fire.
+ *
+ * ANKRET ER TOVEJS, OG DET ER HELE POINTEN. Saettene kan ikke skelnes paa
+ * filnavn - Canva har leveret dem under fire forskellige navnesaet - og de
+ * har samme skivefarve, samme laerred og samme viewBox. Uden en kontrol ville
+ * en forkert kommandolinje overskrive STANDARDSKABELONEN med Komplet-indhold,
+ * tavst, og det ville foerst kunne ses paa et trykt skilt hos en kunde, der
+ * ikke har koebt stempelkort.
+ *
+ * Kendetegnet er gruppen ved (126, 196): den korte linje "Scan eller tap".
+ * Komplet har den ikke, fordi dens laengere linje er sat anderledes op.
+ * Derfor: standarden SKAL have den, Komplet maa IKKE have den.
+ */
+const KORT_LINJE = 'transform="matrix(1, 0, 0, 1, 126, 196)"';
+
+const SAET = {
+  standard: {
+    navn: "standard",
+    forventerKortLinje: true,
+    filnavn: (farve) => `skabelon-${farve}.ts`,
+    konstant: (farve) => `SKABELON_${farve.toUpperCase()}`,
+  },
+  komplet: {
+    navn: "komplet",
+    forventerKortLinje: false,
+    filnavn: (farve) => `skabelon-komplet-${farve}.ts`,
+    konstant: (farve) => `SKABELON_KOMPLET_${farve.toUpperCase()}`,
+  },
+}[saet];
 
 /**
  * Bagpladen og lærredet deler `d` og skelnes kun på farven; standeren har sin
@@ -211,16 +252,12 @@ function omslut(svg, { navn, anker, slags, hvad }, fil) {
 const FILER = [
   {
     navnetPaaVarianten: "sort",
-    til: "skabelon-sort.ts",
-    navn: "SKABELON_SORT",
     bg: "#000000",
     skive: "#171717",
     ring: "#545454",
   },
   {
     navnetPaaVarianten: "hvid",
-    til: "skabelon-hvid.ts",
-    navn: "SKABELON_HVID",
     bg: "#ffffff",
     skive: "#f6f6f6",
     /*
@@ -291,6 +328,26 @@ for (const f of FILER) {
     }
   }
 
+  /*
+   * ER DET OVERHOVEDET DET SAET, DER BLEV BEDT OM?
+   *
+   * Kontrollen gaar begge veje med vilje. "Mangler den korte linje" alene
+   * ville ogsaa vaere sandt for en tom fil; "har den korte linje" alene ville
+   * lade Komplet-filen passere som standard. Begge fejl ville skrive en
+   * skabelon, der ser rigtig ud og trykker det forkerte skilt.
+   */
+  const harKortLinje = s.includes(KORT_LINJE);
+  if (harKortLinje !== SAET.forventerKortLinje) {
+    throw new Error(
+      [
+        `${fra}: ligner IKKE saettet "${SAET.navn}".`,
+        `  Den korte linje "Scan eller tap" (${KORT_LINJE})`,
+        `  ${harKortLinje ? "STAAR i filen" : "mangler i filen"}, og ${SAET.navn} ${SAET.forventerKortLinje ? "skal have den" : "maa ikke have den"}.`,
+        `  Peger du paa den rigtige mappe? Standarden er skiltet uden stempelkort.`,
+      ].join(EOL),
+    );
+  }
+
   // 0) Attrapperne mærkes op, før farverne skiftes: ankrene er `transform`-
   //    strenge og påvirkes ikke af erstatningerne, men mærkerne skal sidde
   //    om det RÅ element, så det kan skæres ud i ét stykke.
@@ -346,8 +403,9 @@ for (const f of FILER) {
  * Geometrien er kontrolleret mod MAAL i src/lib/skilt-format.ts.
  * Attrapperne er mærket <!--LOGOFELT--> og <!--QRFELT--> og skæres ud af
  * byggSkilt(), når kunden har et logo og en adresse. */
-export const ${f.navn} = ${JSON.stringify(s)};
+export const ${SAET.konstant(f.navnetPaaVarianten)} = ${JSON.stringify(s)};
 `;
-  writeFileSync(join("src/lib/print", f.til), ud);
-  console.log(f.til, "←", fra, "·", antalAccent, "accent, geometri OK");
+  const udfil = SAET.filnavn(f.navnetPaaVarianten);
+  writeFileSync(join("src/lib/print", udfil), ud);
+  console.log(udfil, "←", fra, "·", antalAccent, "accent, geometri OK");
 }

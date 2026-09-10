@@ -67,6 +67,7 @@ export function SkiltPreview({
   accent,
   logoUrl,
   standSlug,
+  medStempelkort = false,
   loading,
   className,
 }: {
@@ -84,6 +85,8 @@ export function SkiltPreview({
    * måde at afprøve, hvilke der er i brug.
    */
   standSlug?: string | null;
+  /** Naevner skiltet stempelkortet? Foelger varen, ikke kunden. */
+  medStempelkort?: boolean;
   /**
    * `lazy` på en salgsside: skabelonen er 160 KB, og skilte langt nede på
    * siden må ikke koste noget, før nogen ruller ned til dem. I en bestilling
@@ -96,6 +99,12 @@ export function SkiltPreview({
   const q = new URLSearchParams({ farve: standerFarve, accent: brugtAccent });
   if (baggrund) q.set("bg", baggrund);
   if (standSlug) q.set("stand", standSlug);
+  /*
+   * PREVIEWET SKAL VISE DET SKILT, DER TRYKKES. Komplet-udgaven naevner
+   * stempelkortet i sin linje, og uden dette ville kunden godkende et skilt,
+   * de ikke faar. Samme parameter som trykfilen bruger.
+   */
+  if (medStempelkort) q.set("komplet", "1");
 
   /*
    * Fladen, der skjuler logofeltet, skal have SAMME farve som skiltet omkring
