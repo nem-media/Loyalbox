@@ -26,15 +26,6 @@ function skiltAdresse(
     logo_url: string | null;
   },
   standSlug?: string | null,
-  /**
-   * Naevner skiltet stempelkortet?
-   *
-   * FOELGER ORDRENS VARE og ikke virksomhedens plan: baade Reviewstander Pro
-   * og LoyalSum Komplet er niveau `pro`, og forskellen ER stempelkortet. En
-   * aeldre ordre paa Pro skal trykkes som Pro, ogsaa hvis kunden siden er
-   * skiftet til Komplet — trykfilen er bilaget for dét, der blev koebt.
-   */
-  medStempelkort = false,
 ): string {
   const q = new URLSearchParams({
     farve: STANDER_FARVER.some((f) => f.vaerdi === d.stander_farve)
@@ -52,7 +43,6 @@ function skiltAdresse(
    * står og scanner.
    */
   if (standSlug) q.set("stand", standSlug);
-  if (medStempelkort) q.set("komplet", "1");
   return `/api/skilt?${q.toString()}`;
 }
 import { standerFarveNavn } from "@/lib/stander-tilvalg";
@@ -60,7 +50,6 @@ import { SkiltPreview } from "@/components/skilt-preview";
 import { qrAdresseFor, type StandDestination } from "@/lib/qr-adresse";
 import { Leveringsadresse } from "@/components/leveringsadresse";
 import { modtagerNavn } from "@/lib/adresse";
-import { hasLoyaltyAccess } from "@/lib/constants";
 import { visCvr } from "@/lib/cvr";
 import { formatDate, formatCurrency } from "@/lib/utils";
 import type { Database } from "@/lib/types/database";
@@ -194,7 +183,6 @@ export default async function AdminOrderPage({
                     skal kunne se, at koden er der, uden at åbne filen.
                   */}
                   <SkiltPreview
-                    medStempelkort={hasLoyaltyAccess(o.product_slug)}
                     standerFarve={
                       design.stander_farve === "hvid" ? "hvid" : "sort"
                     }
@@ -250,11 +238,7 @@ export default async function AdminOrderPage({
                       : "QR-feltet står med pladsholderen, indtil adressen er kendt."}
                   </p>
                   <a
-                    href={skiltAdresse(
-                      design,
-                      o.stand?.slug,
-                      hasLoyaltyAccess(o.product_slug),
-                    )}
+                    href={skiltAdresse(design, o.stand?.slug)}
                     target="_blank"
                     rel="noreferrer"
                     className="mt-2 inline-block font-medium text-accent hover:underline"

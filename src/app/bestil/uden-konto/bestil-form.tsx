@@ -11,7 +11,6 @@ import { StoreIcon, StandIcon, LinkIcon } from "@/components/nav-icons";
 import { FRONT_MAAL } from "@/lib/skilt-format";
 import {
   MAX_QTY,
-  hasLoyaltyAccess,
   PRORATA_FORKLARING,
   TERMS_VERSION,
   VOLUME_DISCOUNTS,
@@ -535,7 +534,6 @@ export function BestilUdenKontoForm({
             </p>
             <div className="mt-3 flex justify-center">
               <SkiltPreview
-                medStempelkort={hasLoyaltyAccess(product.slug)}
                 standerFarve={standerFarve}
                 baggrund={front.egen ? front.hex : null}
                 accent={visAccent}
