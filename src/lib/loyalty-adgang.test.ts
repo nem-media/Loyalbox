@@ -120,3 +120,71 @@ describe("getCompanyAccess giver kun adgang til ejer eller aktiv ansat", () => {
     expect(ACCESS).toMatch(/return null;/);
   });
 });
+
+/**
+ * MEDARBEJDERENS EGNE STEMPELKORT-HANDLINGER (`/personale/stempelkort`).
+ *
+ * De findes, fordi dashboardets `createProgram` skriver med brugerens EGEN
+ * klient (RLS, ejer-only) — en medarbejder ville få sit write afvist uden en
+ * tydelig fejl. Derfor valideres `canManage` og skrives med SERVICE-ROLE
+ * bagefter. Prøven holder BEGGE dele fast: spærren OG at det er service-role,
+ * der skriver (ellers ville funktionen se rigtig ud og ramme RLS).
+ */
+const PERSONALE_KORT = L("src/app/personale/stempelkort/actions.ts");
+
+describe("medarbejderens stempelkort-handlinger kræver canManage", () => {
+  for (const navn of ["opretStempelkort", "saetStempelkortStatus"] as const) {
+    it(`${navn} spærrer uden canManage og skriver med service-role`, () => {
+      const k = krop(PERSONALE_KORT, navn);
+      const iAccess = k.indexOf("await getCompanyAccess()");
+      const iManage = k.indexOf("permissions.canManage");
+      const iAdmin = k.indexOf("createAdminClient()");
+      expect(iAccess, "skal hente adgangen").toBeGreaterThan(-1);
+      expect(iManage, "skal kræve canManage").toBeGreaterThan(-1);
+      // Spærren FØR basen røres.
+      expect(iManage).toBeLessThan(iAdmin);
+      // Service-role og ikke brugerens egen (RLS ville afvise en medarbejder).
+      expect(k).toContain("createAdminClient()");
+      expect(k).not.toContain("createClient(");
+    });
+  }
+
+  /**
+   * Org-isolering: en status-ændring SKAL binde sig til egen virksomhed, så et
+   * gættet program-id ikke kan ramme en anden butiks kort.
+   */
+  it("saetStempelkortStatus binder sig til egen virksomhed", () => {
+    const k = krop(PERSONALE_KORT, "saetStempelkortStatus");
+    expect(k).toMatch(/\.eq\("company_id", access\.companyId\)/);
+    expect(k).toContain("Stempelkortet blev ikke fundet.");
+  });
+
+  /**
+   * En medarbejder må ALDRIG arkivere — kun kladde/aktiv/pause. `archived` er
+   * en irreversibel oprydning, der hører til ejeren.
+   */
+  it("tillader kun kladde, aktiv og pause — aldrig arkivering", () => {
+    expect(PERSONALE_KORT).toMatch(
+      /MEDARBEJDER_STATUS[^=]*=\s*\[\s*"active",\s*"paused",\s*"draft"\s*\]/,
+    );
+    expect(PERSONALE_KORT).not.toMatch(/"archived"/);
+  });
+});
+
+/**
+ * At styre stempelkort er IKKE at styre medarbejdere. can_manage er nu en
+ * rettighed, ejeren kan give — men medarbejder-administrationen er stadig
+ * bundet til `requireOwner`, så en medarbejder med canManage ikke kan invitere
+ * kolleger ind eller hæve sine egne rettigheder.
+ */
+describe("medarbejder-administration er stadig ejer-only", () => {
+  const PERSONALE_ACT = L("src/app/dashboard/personale/actions.ts");
+  for (const navn of ["addEmployee", "updateEmployee", "removeEmployee", "setEmployeeActive"] as const) {
+    it(`${navn} kræver ejer, ikke bare canManage`, () => {
+      expect(krop(PERSONALE_ACT, navn)).toContain("await requireOwner()");
+    });
+  }
+  it("requireOwner kræver rollen owner", () => {
+    expect(PERSONALE_ACT).toMatch(/role !== "owner"/);
+  });
+});

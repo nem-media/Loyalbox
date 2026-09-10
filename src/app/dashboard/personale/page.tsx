@@ -32,7 +32,7 @@ export default async function StaffAdminPage() {
 
   const { data: employees } = await admin
     .from("employees")
-    .select("id, name, email, is_active, can_stamp, can_discount, can_redeem, user_id")
+    .select("id, name, email, is_active, can_stamp, can_discount, can_redeem, can_manage, user_id")
     .eq("company_id", access.companyId)
     .order("created_at", { ascending: true });
 
@@ -61,6 +61,7 @@ export default async function StaffAdminPage() {
     can_stamp: e.can_stamp,
     can_discount: e.can_discount,
     can_redeem: e.can_redeem,
+    can_manage: e.can_manage,
     hasSignedIn: Boolean(e.user_id && signedIn.has(e.user_id)),
   }));
 

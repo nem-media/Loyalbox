@@ -16,6 +16,7 @@ describe("readPermissions", () => {
       can_stamp: true,
       can_redeem: true,
       can_discount: false,
+      can_manage: false,
     });
   });
 
@@ -28,16 +29,22 @@ describe("readPermissions", () => {
       can_stamp: false,
       can_redeem: false,
       can_discount: false,
+      can_manage: false,
     });
     for (const f of PERMISSION_FIELDS) {
       expect(Object.keys(tom)).toContain(f.name);
     }
   });
 
-  it("giver aldrig can_manage — medarbejdere må ikke tilføje andre", () => {
-    const form = new FormData();
-    form.set("can_manage", "on");
-    expect(Object.keys(readPermissions(form))).not.toContain("can_manage");
+  it("læser can_manage — retten til at styre stempelkort", () => {
+    // can_manage dækker STEMPELKORT (opret/aktivér/deaktivér), ikke
+    // medarbejder-administration. Det er stadig ejer-only (requireOwner i
+    // personale-handlingerne), så flaget kan ikke bruges til at invitere
+    // kolleger ind.
+    const til = new FormData();
+    til.set("can_manage", "on");
+    expect(readPermissions(til).can_manage).toBe(true);
+    expect(readPermissions(new FormData()).can_manage).toBe(false);
   });
 });
 
@@ -64,16 +71,16 @@ describe("isEmail", () => {
 describe("permissionSummary", () => {
   it("skriver rettighederne i et læseligt sprog", () => {
     expect(
-      permissionSummary({ can_stamp: true, can_redeem: true, can_discount: false }),
+      permissionSummary({ can_stamp: true, can_redeem: true, can_discount: false, can_manage: false }),
     ).toBe("Må give stempler og indløse belønninger");
     expect(
-      permissionSummary({ can_stamp: true, can_redeem: false, can_discount: false }),
+      permissionSummary({ can_stamp: true, can_redeem: false, can_discount: false, can_manage: false }),
     ).toBe("Må give stempler");
   });
 
   it("siger det ligeud, når der ingen rettigheder er", () => {
     expect(
-      permissionSummary({ can_stamp: false, can_redeem: false, can_discount: false }),
+      permissionSummary({ can_stamp: false, can_redeem: false, can_discount: false, can_manage: false }),
     ).toBe("Ingen rettigheder");
   });
 });
