@@ -21,6 +21,7 @@ export interface EmployeeRow {
   can_stamp: boolean;
   can_discount: boolean;
   can_redeem: boolean;
+  can_manage: boolean;
   /** Har medarbejderen logget ind mindst én gang? */
   hasSignedIn: boolean;
 }

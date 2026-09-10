@@ -5,8 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCompanyAccess } from "@/lib/loyalty/access";
-import { hasLoyaltyAccess } from "@/lib/constants";
-import { abonnementTilstand } from "@/lib/abonnement";
+import { stempelkortIPlan } from "@/lib/loyalty/plan";
 import {
   giveStamp,
   redeemReward,
@@ -41,31 +40,9 @@ function numOrNull(v: FormDataEntryValue | null): number | null {
 }
 
 
-/**
- * Er stempelkortet med i virksomhedens abonnement?
- *
- * Layoutet spærrer allerede dashboardet, men UI er ikke sikkerhed: uden dette
- * tjek kunne en POST direkte mod en server-action oprette et program alligevel.
- *
- * Bevidst kun på ADMINISTRATION (opret/redigér program og rabatter). Stempling
- * og indløsning af eksisterende kort er ikke spærret — en kunde med et halvt
- * fyldt kort skal ikke stå med et dødt kort, hvis abonnementet falder.
- */
-async function loyaltyInPlan(companyId: string): Promise<boolean> {
-  const { data } = await createAdminClient()
-    .from("companies")
-    .select(
-      "product_slug, stripe_subscription_id, stripe_status, suspenderet_siden, ophoert_den, sletning_udfoeres_den",
-    )
-    .eq("id", companyId)
-    .maybeSingle();
-
-  if (!data) return false;
-  // En suspenderet aftale spærrer administrationen på samme måde som en plan
-  // uden stempelkort. Kortene selv røres ikke — se src/lib/abonnement.ts.
-  if (abonnementTilstand(data) !== "aktiv") return false;
-  return hasLoyaltyAccess(data.product_slug);
-}
+/** Er stempelkortet med i abonnementet? Delt med medarbejdernes egne
+ * handlinger — se `stempelkortIPlan` i src/lib/loyalty/plan.ts. */
+const loyaltyInPlan = stempelkortIPlan;
 
 /**
  * Opretter et stempelkort (program + primær belønning). Config skrives af ejer

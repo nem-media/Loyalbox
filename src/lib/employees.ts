@@ -10,9 +10,19 @@ export interface EmployeePermissions {
   can_stamp: boolean;
   can_discount: boolean;
   can_redeem: boolean;
+  can_manage: boolean;
 }
 
-/** Rettigheder en medarbejder kan få. `can_manage` er bevidst ikke iblandt. */
+/**
+ * Rettigheder en medarbejder kan få.
+ *
+ * `can_manage` dækker at ADMINISTRERE STEMPELKORT — oprette, aktivere og
+ * deaktivere. De tre følges bevidst ad: kan man lave et nyt kort, kan man også
+ * tænde og slukke det. Det giver IKKE adgang til at tilføje andre
+ * medarbejdere (det er ejer-only, se `requireOwner` i personale-handlingerne)
+ * eller til rabatter, statistik og resten af dashboardet — kun til
+ * stempelkortene, fra medarbejderens egen side `/personale/stempelkort`.
+ */
 export const PERMISSION_FIELDS = [
   {
     name: "can_stamp",
@@ -28,6 +38,11 @@ export const PERMISSION_FIELDS = [
     name: "can_discount",
     label: "Give rabatter",
     help: "Kan give en kunde en rabat — også som kompensation.",
+  },
+  {
+    name: "can_manage",
+    label: "Oprette og styre stempelkort",
+    help: "Kan oprette nye stempelkort og sætte dem aktive eller på pause. Giver ikke adgang til resten af dashboardet.",
   },
 ] as const;
 
@@ -45,6 +60,7 @@ export function readPermissions(form: {
     can_stamp: form.get("can_stamp") !== null,
     can_redeem: form.get("can_redeem") !== null,
     can_discount: form.get("can_discount") !== null,
+    can_manage: form.get("can_manage") !== null,
   };
 }
 

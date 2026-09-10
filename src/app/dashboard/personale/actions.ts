@@ -120,9 +120,9 @@ export async function addEmployee(
     name,
     email,
     is_active: true,
+    // can_manage kommer fra readPermissions og dækker STEMPELKORT, ikke
+    // medarbejder-administration — dét er stadig ejer-only (requireOwner).
     ...readPermissions(formData),
-    // Medarbejdere må ikke administrere andre medarbejdere.
-    can_manage: false,
   });
 
   if (error) return { error: error.message };

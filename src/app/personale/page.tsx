@@ -100,6 +100,23 @@ export default async function StaffPage({
           stempelkort.
         </p>
 
+        {/* Kun for medarbejdere, ejeren har givet lov til at styre kortene.
+            Selve siden og handlingerne tjekker canManage igen. */}
+        {access.permissions.canManage ? (
+          <Link
+            href="/personale/stempelkort"
+            className="mt-6 flex items-center justify-between gap-4 box-shape border border-border bg-background p-5 transition-colors hover:border-accent"
+          >
+            <span>
+              <span className="block font-bold tracking-tight">Stempelkort</span>
+              <span className="block text-sm text-muted">
+                Opret et nyt kort, eller sæt et på pause.
+              </span>
+            </span>
+            <span className="text-sm font-medium text-accent">Åbn →</span>
+          </Link>
+        ) : null}
+
         {/* Den hurtigste vej: kunden har kortet fremme */}
         <div className="mt-6 box-shape border border-accent/30 bg-accent/5 p-5">
           <h2 className="font-bold tracking-tight">Sådan stempler du</h2>
