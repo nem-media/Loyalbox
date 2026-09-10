@@ -116,7 +116,7 @@ export const GUIDES: Guide[] = [
     steps: [
       "Opret en stander pr. sted, du vil måle på. Har du to butikker eller både disk og bord, så lav én til hver — så kan du se, hvor anmeldelserne kommer fra.",
       "Indsæt de links, kunden skal kunne vælge imellem. Har du kun ét, står det alene.",
-      "Vil du sende kunden et helt andet sted hen — fx menukort eller booking — så brug feltet Eget link. Det står på hovedsiden ved siden af “Del din oplevelse” og tæller ikke som en anmeldelse. Giv det en tekst, der svarer på “Hvad vil du gerne?” — fx “Se menukort”.",
+      "Vil du sende kunden et helt andet sted hen — fx menukort eller booking — så brug feltet Eget link. Det står på hovedsiden ved siden af “Anmeld os” og tæller ikke som en anmeldelse. Giv det en tekst, der svarer på “Hvad vil du gerne?” — fx “Se menukort”.",
       "Sæt standeren inaktiv, hvis den midlertidigt ikke er i brug. QR-koden holder op med at føre videre, indtil du sætter den aktiv igen.",
     ],
     notes: [

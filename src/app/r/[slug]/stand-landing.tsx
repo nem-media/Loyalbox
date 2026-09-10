@@ -8,7 +8,7 @@ import { Button, ButtonLink } from "@/components/ui/button";
 /**
  * Standerens "Hvad vil du?"-landing.
  *
- * TRE FRIE VALG, side om side og med samme vægt: del din oplevelse, åbn dit
+ * TRE FRIE VALG, side om side og med samme vægt: anmeld os, åbn dit
  * stempelkort, og forretningens eget link. Review-flowet og loyalitets-flowet
  * er adskilte og uafhængige handlinger — en belønning må aldrig betinges af en
  * offentlig anmeldelse — og det egne link er slet ikke en anmeldelse.
@@ -63,7 +63,7 @@ export function StandLanding({
       <p className="text-center text-sm font-medium">Hvad vil du gerne?</p>
 
       <Button className="w-full" size="lg" onClick={() => setMode("review")}>
-        Del din oplevelse
+        Anmeld os
       </Button>
 
       {enrollHref ? (
