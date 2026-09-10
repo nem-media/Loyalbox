@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { koebSpaerre } from "@/lib/commerce";
-import { getProduct, VOLUME_DISCOUNTS } from "@/lib/constants";
+import { COMPANY, getProduct, VOLUME_DISCOUNTS } from "@/lib/constants";
 import { designFrontfarve } from "@/lib/design";
 import { formatCurrency } from "@/lib/utils";
 import { EKSTRA_STANDER_SLUG } from "@/components/bestil-stander";
@@ -25,8 +25,27 @@ import { EKSTRA_STANDER_SLUG } from "@/components/bestil-stander";
  *    Betaler IKKE for frontfarven igen; det sidder på designet og ikke på
  *    ordren (se `frontfarve_betalt` i design.ts).
  *
- * Spærren er den samme som overalt ellers: `koebSpaerre()` afgør både om der
- * vises noget, og hvad der står i stedet.
+ * SPÆRREN SKJULER IKKE LÆNGERE BOKSEN. Den returnerede `null` ved
+ * `ikke-aabnet`, og så fordampede hele afsnittet: en kunde stod på sin egen
+ * standerside uden nogen vej til et skilt og uden en forklaring. Det er stik
+ * imod grunden til, at `koebSpaerre()` svarer med en GRUND frem for et
+ * boolean — så siden kan skrive noget brugbart i stedet for bare at skjule
+ * knappen.
+ *
+ * TO VIDT FORSKELLIGE ÅRSAGER GIVER SAMME SVAR, og beskeden skal passe på
+ * begge: i dag kører produktionen med en TESTnøgle, så ingen uden for
+ * `@loyalbox.test` kan købe; den dag live åbnes, er det tilkøbet selv, der
+ * mangler sine live-id'er hos Stripe (se `canSell()`). Ordlyden nævner derfor
+ * ikke ÅRSAGEN, kun at selvbetjeningen ikke er åben — og den henviser til en
+ * mail, så et salg ikke går tabt imens.
+ *
+ * IKKE `PurchaseNotice`: den er skrevet til en BESØGENDE og tilbyder en
+ * venteliste. Her står en betalende kunde, der allerede har produktet og bare
+ * vil have et skilt mere — dem sætter vi ordren op for i hånden.
+ *
+ * `ingen-virksomhed` skjuler stadig boksen, og det er med vilje: det svar
+ * kommer, når en ADMIN kigger på en kundes side, og admin skal ikke kunne
+ * bestille på kundens vegne.
  */
 export async function BestilTilStander({
   standId,
@@ -42,11 +61,15 @@ export async function BestilTilStander({
   const spaerre = koebSpaerre(user, vare);
   const company = user?.company;
 
-  if (spaerre === "ikke-aabnet" || spaerre === "ingen-virksomhed" || !vare) {
+  if (spaerre === "ingen-virksomhed" || !vare) {
     return null;
   }
 
-  const { data: designs } = company
+  const kanBestille = spaerre === null;
+
+  // Designene hentes kun, når de kan bruges til noget. Er købet spærret, er
+  // listen et katalog over knapper, der ikke virker.
+  const { data: designs } = company && kanBestille
     ? await createAdminClient()
         .from("designs")
         .select(
@@ -74,14 +97,33 @@ export async function BestilTilStander({
         Det ændrer ikke dit abonnement.
       </p>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        <Link
-          href={grund}
-          className="btn-shape bg-accent px-4 py-2 text-sm font-medium text-accent-fg transition-colors hover:bg-accent-hover"
-        >
-          Design et nyt skilt
-        </Link>
-      </div>
+      {kanBestille ? (
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link
+            href={grund}
+            className="btn-shape bg-accent px-4 py-2 text-sm font-medium text-accent-fg transition-colors hover:bg-accent-hover"
+          >
+            Design et nyt skilt
+          </Link>
+        </div>
+      ) : (
+        <div className="box-shape mt-4 border border-secondary/40 bg-secondary/10 p-4 text-sm">
+          <p className="font-bold tracking-tight">
+            Selvbetjent bestilling er ikke åbnet endnu
+          </p>
+          <p className="mt-1 text-muted">
+            Skriv til{" "}
+            <a
+              href={`mailto:${COMPANY.email}?subject=Skilt til ${standNavn}`}
+              className="font-medium text-accent"
+            >
+              {COMPANY.email}
+            </a>
+            , så sætter vi ordren op i hånden — skiltet trykkes stadig med
+            denne standers QR-kode.
+          </p>
+        </div>
+      )}
 
       {designs && designs.length ? (
         <div className="mt-6">
