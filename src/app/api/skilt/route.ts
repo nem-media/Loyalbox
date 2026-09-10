@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { STANDER_FARVER, normaliserHex } from "@/lib/stander-tilvalg";
 import { laegLogoPaaFront } from "@/lib/logo-flade";
+import type { LogoUdsnit } from "@/lib/skilt-format";
 
 /**
  * Skiltet som billede — til previewet i bestillingen og til trykfilen.
@@ -32,17 +33,17 @@ const MAKS_LOGO = 3 * 1024 * 1024;
  * Fejler hentningen, returneres null, og skiltet tegnes med pladsholderen.
  * Et skilt uden logo er bedre end intet skilt.
  *
- * LOGOET LÆGGES PÅ FRONTFARVEN undervejs — se `laegLogoPaaFront()`. Det er
- * ikke pynt: en PNG med transparens gemmer stadig en farve i de
- * gennemsigtige pixels, og den er som regel SORT. Respekterer trykkeriets RIP
- * ikke alfakanalen, bliver de til sort blæk over hele logoets rektangel, dér
- * hvor arket ellers ikke får blæk — en firkant bag logoet, som ikke kan ses
- * på en skærm. Derfor sker det HER, hvor baggrunden er kendt.
+ * LUFTEN SKÆRES AF, OG RESTEN LÆGGES PÅ FRONTFARVEN undervejs — se
+ * `laegLogoPaaFront()`. Det er ikke pynt: et `<image>` er ét objekt for en
+ * printer, og hele dets rektangel får farve, også de tomme hjørner. Skæres
+ * luften væk, er der ikke længere en flade at farve; flatningen tager de
+ * huller, der er tilbage inde i selve logoet. Begge dele sker HER, hvor
+ * baggrunden er kendt.
  */
 async function hentLogo(
   url: string | null,
   baggrund: string,
-): Promise<string | null> {
+): Promise<{ dataUri: string; udsnit?: LogoUdsnit } | null> {
   if (!url) return null;
   try {
     const svar = await fetch(url);
@@ -52,13 +53,18 @@ async function hentLogo(
     const buf = await svar.arrayBuffer();
     if (buf.byteLength > MAKS_LOGO) return null;
 
-    const { buffer, type } = await laegLogoPaaFront(
+    const { buffer, type, udsnit } = await laegLogoPaaFront(
       Buffer.from(buf),
       // Content-type kan komme med "; charset=..." på slutningen.
       raaType.split(";")[0].trim(),
       baggrund,
     );
-    return `data:${type};base64,${buffer.toString("base64")}`;
+    return {
+      dataUri: `data:${type};base64,${buffer.toString("base64")}`,
+      // UDSNITTET SKAL FØLGE MED. Beskæringen flytter logoets plads i feltet,
+      // og bliver den hjemme, vokser logoet på skiltet.
+      ...(udsnit ? { udsnit } : {}),
+    };
   } catch {
     return null;
   }
@@ -131,12 +137,15 @@ export async function GET(request: NextRequest) {
    * et skilt, der lover et stempelkort, kunden ikke har, er vaerre end et,
    * der lader vaere med at naevne det.
    */
+  const logo = await hentLogo(logoUrl, baggrund);
+
   const svg = await byggSkilt({
     baggrund,
     accent,
     qrAdresse,
     medStempelkort: p.get("komplet") === "1",
-    logoDataUri: await hentLogo(logoUrl, baggrund),
+    logoDataUri: logo?.dataUri ?? null,
+    logoUdsnit: logo?.udsnit ?? null,
   });
 
   return new NextResponse(svg, {
