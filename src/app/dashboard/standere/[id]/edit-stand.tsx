@@ -83,7 +83,7 @@ export function EditStand({
             </Field>
             <Field
               label="Eget link (fx menukort)"
-              hint="Vises som et ekstra link på din review-side — ikke en anmeldelse."
+              hint="Står på hovedsiden ved siden af “Del din oplevelse” — ikke blandt anmeldelsesknapperne."
             >
               <Input
                 name="custom_url"
@@ -93,12 +93,12 @@ export function EditStand({
             </Field>
             <Field
               label="Tekst på eget link"
-              hint="Fx “Menukort” eller “Book bord”."
+              hint="Fx “Se menukort” eller “Booke bord”. Hovedsiden spørger “Hvad vil du gerne?”, så teksten skal kunne svare på det."
             >
               <Input
                 name="custom_label"
                 defaultValue={stand.custom_label ?? ""}
-                placeholder="Menukort"
+                placeholder="Se menukort"
               />
             </Field>
           </div>
@@ -117,7 +117,9 @@ export function EditStand({
             <p className="etiket">Dine egne anmeldelsesplatforme</p>
             <p className="mt-1 text-sm leading-relaxed text-muted">
               Bruger dine kunder en anden portal end Google, Trustpilot og
-              Facebook? Skriv den her. Der kan stå{" "}
+              Facebook? Skriv den her. De står som “Anmeld os på …” på den
+              side, kunden kommer til efter “Del din oplevelse” — ikke på
+              hovedsiden. Der kan stå{" "}
               <strong>højst {MAKS_ANMELDELSESLINKS} anmeldelsesknapper</strong>{" "}
               på siden ad gangen — ryd et link, hvis du vil bytte. Alle knapper
               vejer det samme, og en lang liste vælger reelt for kunden.
