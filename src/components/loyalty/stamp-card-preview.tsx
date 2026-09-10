@@ -1,4 +1,5 @@
 import { stampProgress } from "@/lib/loyalty/balance";
+import { stempelKolonner } from "@/lib/loyalty/stamp-layout";
 
 /**
  * Visuel stempelkort-forhåndsvisning. Bruges i program-wizarden og på kundens
@@ -30,6 +31,9 @@ export function StampCardPreview({
 }) {
   const total = Math.max(1, Math.min(requiredStamps, 30));
   const p = stampProgress(filled, requiredStamps);
+  // Kolonner efter antal, så et kort med fx 7 eller 9 stempler står flot
+  // fordelt frem for en fyldt række med en stump under. Se stempelKolonner.
+  const kolonner = stempelKolonner(total);
 
   return (
     <div
@@ -47,7 +51,10 @@ export function StampCardPreview({
           <p className="mt-1 text-sm text-white/70">{cardText}</p>
         ) : null}
 
-        <div className="mt-4 grid grid-cols-5 gap-2">
+        <div
+          className="mt-4 grid gap-2"
+          style={{ gridTemplateColumns: `repeat(${kolonner}, minmax(0, 1fr))` }}
+        >
           {Array.from({ length: total }).map((_, i) => {
             const isFilled = i < p.have;
             return (
