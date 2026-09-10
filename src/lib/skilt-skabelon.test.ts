@@ -1,7 +1,11 @@
 import { describe, it, expect } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { SKABELON_SORT } from "./print/skabelon-sort";
 import { SKABELON_HVID } from "./print/skabelon-hvid";
-import { MAAL, SKILT_BREDDE, SKILT_HOEJDE, type Variant } from "./skilt-format";
+import { SKABELON_KOMPLET_SORT } from "./print/skabelon-komplet-sort";
+import { SKABELON_KOMPLET_HVID } from "./print/skabelon-komplet-hvid";
+import { MAAL, SKILT_BREDDE, SKILT_HOEJDE } from "./skilt-format";
 
 /**
  * MÅLENE MOD SKABELONEN.
@@ -23,11 +27,27 @@ import { MAAL, SKILT_BREDDE, SKILT_HOEJDE, type Variant } from "./skilt-format";
  * de samme, `lav-print-skabelon.mjs` afviser en kørsel på.
  */
 
-const SKABELONER: Record<Variant, string> = {
+/**
+ * FIRE SKABELONER, IKKE TO. LoyalSum Komplet har sin egen Canva-eksport,
+ * fordi linjen naevner stempelkortet — teksten er kurver og kan ikke skiftes
+ * i koden.
+ *
+ * DE FIRE SKAL VAERE ENIGE OM GEOMETRIEN. `MAAL` i skilt-format.ts er ET
+ * saet tal, og bruges de mod en skabelon, hvor logofeltet er flyttet, tegnes
+ * logoet og QR-koden ved siden af, hvor de hoerer hjemme. Derfor koeres hver
+ * eneste proeve herunder mod alle fire — en ny eksport, der har rykket noget,
+ * skal falde her og ikke paa et trykt skilt.
+ *
+ * Noeglen er farven, fordi proeverne skelner paa skivefarven; `medStempelkort`
+ * siger hvilket saet.
+ */
+const SKABELONER: Record<string, string> = {
   sort: SKABELON_SORT,
   hvid: SKABELON_HVID,
+  "komplet sort": SKABELON_KOMPLET_SORT,
+  "komplet hvid": SKABELON_KOMPLET_HVID,
 };
-const VARIANTER: Variant[] = ["sort", "hvid"];
+const VARIANTER = Object.keys(SKABELONER);
 
 /** Udsnittet, generatoren har skåret ind til standeren. */
 function udsnit(s: string) {
@@ -241,5 +261,66 @@ describe("skabelonens farver", () => {
    */
   it.each(VARIANTER)("har ingen rå accentfarve tilbage (%s)", (v) => {
     expect(SKABELONER[v].toLowerCase()).not.toContain("#4ea4ad");
+  });
+});
+
+/**
+ * DE TO SAET MAA IKKE KUNNE BYTTE PLADS.
+ *
+ * Skabelonerne er genereret af det samme script mod fire filer, der ligner
+ * hinanden til forveksling: samme skivefarve, samme laerred, samme viewBox og
+ * samme otte geometriankre. Skrives det forkerte saet i den forkerte fil,
+ * bestaar hver eneste proeve ovenfor — og en kunde uden stempelkort faar et
+ * skilt, der lover deres kunder et.
+ *
+ * Kendetegnet er den korte linje "Scan eller tap" ved (126, 196). Standarden
+ * har den; Komplet har den ikke, fordi dens laengere linje er sat anderledes
+ * op. Det er det samme anker, generatoren afviser en forkert kommandolinje
+ * paa.
+ */
+describe("standard mod komplet", () => {
+  const KORT_LINJE = 'transform="matrix(1, 0, 0, 1, 126, 196)"';
+
+  it("standardskabelonerne har den korte linje", () => {
+    expect(SKABELONER.sort).toContain(KORT_LINJE);
+    expect(SKABELONER.hvid).toContain(KORT_LINJE);
+  });
+
+  it("komplet-skabelonerne har den IKKE", () => {
+    expect(SKABELONER["komplet sort"]).not.toContain(KORT_LINJE);
+    expect(SKABELONER["komplet hvid"]).not.toContain(KORT_LINJE);
+  });
+
+  /** Fire forskellige filer — ikke den samme skrevet fire gange. */
+  it("er fire forskellige skabeloner", () => {
+    const unikke = new Set(Object.values(SKABELONER));
+    expect(unikke.size).toBe(4);
+  });
+
+  /**
+   * Komplet-linjen er laengere og koster flere kurver. Tallet er ikke haardt
+   * fastlaast — det maa gerne aendre sig med en ny eksport — men Komplet skal
+   * blive ved med at have MERE indhold end standarden. Er de lige store, er
+   * der noget galt med generatoren.
+   */
+  it("komplet fylder mere end standarden", () => {
+    expect(SKABELONER["komplet sort"].length).toBeGreaterThan(
+      SKABELONER.sort.length,
+    );
+    expect(SKABELONER["komplet hvid"].length).toBeGreaterThan(
+      SKABELONER.hvid.length,
+    );
+  });
+
+  /**
+   * OG VALGET SKAL FOELGE VAREN. Proeves i kilden: `byggSkilt` er
+   * `server-only` og traekker alle fire skabeloner ind, og det, der skal
+   * fanges, er ikke en beregning men at grenen bliver slettet.
+   */
+  it("byggSkilt vaelger paa medStempelkort", () => {
+    const kilde = readFileSync(join(process.cwd(), "src/lib/skilt.ts"), "utf8");
+    expect(kilde).toMatch(/valg\.medStempelkort/);
+    expect(kilde).toMatch(/SKABELON_KOMPLET_SORT/);
+    expect(kilde).toMatch(/SKABELON_KOMPLET_HVID/);
   });
 });
