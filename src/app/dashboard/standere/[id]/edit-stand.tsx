@@ -83,7 +83,7 @@ export function EditStand({
             </Field>
             <Field
               label="Eget link (fx menukort)"
-              hint="Står på hovedsiden ved siden af “Del din oplevelse” — ikke blandt anmeldelsesknapperne."
+              hint="Står på hovedsiden ved siden af “Anmeld os” — ikke blandt anmeldelsesknapperne."
             >
               <Input
                 name="custom_url"
@@ -118,7 +118,7 @@ export function EditStand({
             <p className="mt-1 text-sm leading-relaxed text-muted">
               Bruger dine kunder en anden portal end Google, Trustpilot og
               Facebook? Skriv den her. De står som “Anmeld os på …” på den
-              side, kunden kommer til efter “Del din oplevelse” — ikke på
+              side, kunden kommer til efter “Anmeld os” — ikke på
               hovedsiden. Der kan stå{" "}
               <strong>højst {MAKS_ANMELDELSESLINKS} anmeldelsesknapper</strong>{" "}
               på siden ad gangen — ryd et link, hvis du vil bytte. Alle knapper
