@@ -12,8 +12,18 @@ import { Button } from "@/components/ui/button";
 import { formatDate, formatCurrency } from "@/lib/utils";
 import { qrAdresseFor, type StandDestination } from "@/lib/qr-adresse";
 import { OrderStatusSelect } from "./order-status";
+import { ORDER_STATUS_LABELS } from "@/lib/constants";
 
 export const metadata = { title: "Admin — Ordrer" };
+
+/** Statusserne der kan filtreres på — samme rækkefølge som produktionsflowet. */
+const STATUS_FILTRE = [
+  "new",
+  "needs_onboarding",
+  "ready_for_production",
+  "shipped",
+  "cancelled",
+] as const;
 
 /** Ordren med de sammenkoblede felter, forespørgslen henter. */
 type Ordrelinje = Database["public"]["Tables"]["orders"]["Row"] & {
@@ -54,12 +64,14 @@ const MAKS_RAEKKER = 200;
 export default async function AdminOrdersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; status?: string }>;
 }) {
-  const { q } = await searchParams;
+  const { q, status } = await searchParams;
   const supabase = await createClient();
 
   const term = (q ?? "").replace(/[,%]/g, "").trim();
+  // Kun en kendt status filtrerer; alt andet (og fraværet) betyder "alle".
+  const statusFilter = STATUS_FILTRE.find((s) => s === status) ?? null;
 
   /*
    * SØGNINGEN GÅR PÅ VIRKSOMHEDEN og ikke på varenavnet. Der er tre varer i
@@ -79,6 +91,7 @@ export default async function AdminOrdersPage({
     .limit(MAKS_RAEKKER);
 
   if (term) query = query.ilike("companies.name", `%${term}%`);
+  if (statusFilter) query = query.eq("status", statusFilter);
 
   const { data: orders, error } = await query;
 
@@ -97,16 +110,47 @@ export default async function AdminOrdersPage({
         description="Alle ordrer og deres status i produktionsflowet."
       />
 
-      <form className="mb-6 flex gap-2" action="/admin/ordrer">
+      <form className="mb-4 flex gap-2" action="/admin/ordrer">
         <Input
           name="q"
           defaultValue={q ?? ""}
           placeholder="Søg på virksomhed"
         />
+        {/* Søgningen bevarer det valgte statusfilter. */}
+        {statusFilter ? (
+          <input type="hidden" name="status" value={statusFilter} />
+        ) : null}
         <Button type="submit" variant="outline">
           Søg
         </Button>
       </form>
+
+      {/* Statusfilter. Hvert link bevarer søgningen, så de to kan kombineres. */}
+      <div className="mb-6 flex flex-wrap gap-2">
+        {[{ v: null, navn: "Alle" }, ...STATUS_FILTRE.map((v) => ({ v, navn: ORDER_STATUS_LABELS[v] }))].map(
+          ({ v, navn }) => {
+            const aktiv = statusFilter === v || (v === null && !statusFilter);
+            const params = new URLSearchParams();
+            if (term) params.set("q", term);
+            if (v) params.set("status", v);
+            const href = params.toString() ? `/admin/ordrer?${params}` : "/admin/ordrer";
+            return (
+              <Link
+                key={navn}
+                href={href}
+                className={
+                  "box-shape border px-3 py-1.5 text-sm transition-colors " +
+                  (aktiv
+                    ? "border-accent bg-accent text-accent-fg"
+                    : "border-border hover:border-accent")
+                }
+              >
+                {navn}
+              </Link>
+            );
+          },
+        )}
+      </div>
 
       {raekker.length ? (
         <Card>
@@ -238,6 +282,12 @@ export default async function AdminOrdersPage({
           icon={SearchIcon}
           title="Ingen ordrer fra den virksomhed"
           description="Søgningen går på virksomhedens navn. Prøv en del af navnet."
+        />
+      ) : statusFilter ? (
+        <EmptyState
+          icon={BillingIcon}
+          title={`Ingen ordrer med status "${ORDER_STATUS_LABELS[statusFilter]}"`}
+          description="Vælg et andet filter, eller tryk Alle for at se dem alle."
         />
       ) : (
         /* Stod før som en løs sætning med "Stripe — Sprint 2" i. Intern

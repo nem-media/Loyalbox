@@ -5,6 +5,7 @@ import { useActionState, useId, useRef, useState } from "react";
 import { bestilUdenKonto, type BestillingResultat } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input, Field } from "@/components/ui/input";
+import { COMPANY } from "@/lib/constants";
 import { SkiltPreview } from "@/components/skilt-preview";
 import { FormSektion, TilvalgRaekke } from "@/components/ui/form-sektion";
 import { StoreIcon, StandIcon, LinkIcon } from "@/components/nav-icons";
@@ -278,7 +279,7 @@ export function BestilUdenKontoForm({
             <Field
               label="E-mail"
               fejl={fejl.email}
-              hint="Hertil sender vi kvittering og besked, når skiltet er afsendt."
+              hint={`Hertil sender vi din kvittering. Skiltet leveres inden for ${COMPANY.deliveryDays}.`}
             >
               <Input
                 name="email"
