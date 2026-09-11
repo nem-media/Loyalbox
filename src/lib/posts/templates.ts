@@ -154,10 +154,124 @@ export const POST_BACKGROUNDS: PostBackground[] = [
     logoInk: "#163150",
     quoteStyle: "normal",
   },
+  {
+    id: "rose",
+    name: "Rosa pastel",
+    description: "Blød rosa — venlig og let, god til hilsner.",
+    bgImage: "linear-gradient(155deg, #ffd9e0 0%, #ffc1cf 55%, #f7a8c4 100%)",
+    ink: "#7a2942",
+    subInk: "rgba(122,41,66,0.72)",
+    starColor: "#d63e6a",
+    logoBg: "#7a2942",
+    logoInk: "#ffffff",
+    quoteStyle: "quoted",
+  },
+  {
+    id: "ocean",
+    name: "Havblå",
+    description: "Frisk blå forløb — roligt og troværdigt.",
+    bgImage: "linear-gradient(155deg, #2bb0e6 0%, #2477b8 55%, #1c4f8f 100%)",
+    ink: "#f2f9ff",
+    subInk: "rgba(242,249,255,0.85)",
+    starColor: "#ffe08a",
+    logoBg: "rgba(255,255,255,0.92)",
+    logoInk: "#1c4f8f",
+    quoteStyle: "normal",
+  },
+  {
+    id: "terracotta",
+    name: "Terracotta",
+    description: "Varm jordtone — jordnær og indbydende.",
+    bgImage: "linear-gradient(155deg, #e0784f 0%, #c85a3c 55%, #9c3f2e 100%)",
+    ink: "#fff4ee",
+    subInk: "rgba(255,244,238,0.85)",
+    starColor: "#ffd9a0",
+    logoBg: "rgba(255,255,255,0.92)",
+    logoInk: "#9c3f2e",
+    quoteStyle: "normal",
+  },
+  {
+    id: "charcoal",
+    name: "Sort elegant",
+    description: "Dyb kul med guld — enkelt og eksklusivt.",
+    bgImage: "linear-gradient(160deg, #2b2b2f 0%, #1a1a1d 100%)",
+    ink: "#f4f2ee",
+    subInk: "rgba(244,242,238,0.75)",
+    starColor: "#e8b64a",
+    logoBg: "#e8b64a",
+    logoInk: "#1a1a1d",
+    accentLine: "#e8b64a",
+    quoteStyle: "normal",
+  },
+  {
+    id: "mint",
+    name: "Mint minimal",
+    description: "Lys mint med mørk tekst — ren og moderne.",
+    bgColor: "#dff5ec",
+    ink: "#0f5137",
+    subInk: "#4e7d69",
+    starColor: "#0f9d63",
+    logoBg: "#0f5137",
+    logoInk: "#ffffff",
+    quoteStyle: "quoted",
+  },
 ];
 
 export function backgroundById(id: string): PostBackground {
   return POST_BACKGROUNDS.find((b) => b.id === id) ?? POST_BACKGROUNDS[1];
+}
+
+// ---------------------------------------------------------------------------
+// Egen farve — kunden vælger ÉN baggrundsfarve, og resten udledes så teksten
+// altid kan læses. Ren funktion (ingen server-only), så composeren og
+// billed-ruten bygger den ens.
+// ---------------------------------------------------------------------------
+
+/** #rrggbb → {r,g,b}. Ugyldigt input falder tilbage på navy. */
+function parseHex(hex: string): { r: number; g: number; b: number } {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return { r: 0x19, g: 0x37, b: 0x5c };
+  const n = parseInt(m[1], 16);
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+}
+
+/** Relativ lyshed 0–1 (WCAG). Bruges til at vælge lys eller mørk tekst. */
+export function farveLyshed(hex: string): number {
+  const { r, g, b } = parseHex(hex);
+  const lin = (c: number) => {
+    const s = c / 255;
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+
+/** Normaliser til #rrggbb (så både billede og swatch bruger samme værdi). */
+export function normaliserPostFarve(hex: string): string {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  return m ? `#${m[1].toLowerCase()}` : "#19375c";
+}
+
+export const EGEN_FARVE_ID = "egen";
+
+/**
+ * Bygger et baggrundstema ud af én valgt farve. Er farven mørk, skrives der
+ * med hvidt; er den lys, med navy — så teksten altid kan læses.
+ */
+export function customBackground(hex: string): PostBackground {
+  const farve = normaliserPostFarve(hex);
+  const moerk = farveLyshed(farve) < 0.5;
+  return {
+    id: EGEN_FARVE_ID,
+    name: "Egen farve",
+    description: "Din egen baggrundsfarve.",
+    bgColor: farve,
+    ink: moerk ? "#ffffff" : "#19375c",
+    subInk: moerk ? "rgba(255,255,255,0.85)" : "#5a6b7d",
+    starColor: moerk ? "#ffc021" : "#e0a008",
+    logoBg: moerk ? "rgba(255,255,255,0.92)" : "#19375c",
+    logoInk: moerk ? farve : "#ffffff",
+    quoteStyle: "normal",
+  };
 }
 
 // ---------------------------------------------------------------------------
