@@ -13,6 +13,7 @@ const SECTIONS: NavSection[] = [
         icon: "subscription",
       },
       { href: "/admin/ordrer", label: "Ordrer", icon: "billing" },
+      { href: "/admin/lager", label: "Lager", icon: "stand" },
       { href: "/admin/feedback", label: "Feedback", icon: "feedback" },
     ],
   },
