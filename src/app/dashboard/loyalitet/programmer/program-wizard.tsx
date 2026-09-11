@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { createProgram, type FormResult } from "../actions";
+import { createProgram, updateProgram, type FormResult } from "../actions";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea, Field, Label } from "@/components/ui/input";
 import { StampCardPreview } from "@/components/loyalty/stamp-card-preview";
@@ -26,35 +26,75 @@ const STEPS = [
 const selectClass =
   "box-shape h-11 w-full border border-border bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent";
 
-export function ProgramWizard({ companyName }: { companyName?: string | null }) {
+/** Alle feltværdier til at forudfylde wizarden, når et kort REDIGERES. */
+export interface ProgramInitial {
+  id: string;
+  name: string;
+  internalName: string;
+  cardText: string;
+  startDate: string;
+  endDate: string;
+  earnModel: EarnModel;
+  stampsPerEarn: string;
+  amountPerStamp: string;
+  rewardType: RewardType;
+  rewardName: string;
+  requiredStamps: string;
+  rewardDescription: string;
+  rewardValue: string;
+  color: string;
+  icon: string;
+  resetOnRedeem: boolean;
+  keepOverflow: boolean;
+  maxPerTxn: string;
+  maxPerDay: string;
+  minMinutes: string;
+  requireStaffConfirm: boolean;
+  stampsExpire: boolean;
+  stampExpiryDays: string;
+}
+
+export function ProgramWizard({
+  companyName,
+  mode = "create",
+  initial,
+}: {
+  companyName?: string | null;
+  mode?: "create" | "edit";
+  initial?: ProgramInitial;
+}) {
+  const redigerer = mode === "edit";
   const [state, action, pending] = useActionState<FormResult, FormData>(
-    createProgram,
+    redigerer ? updateProgram : createProgram,
     {},
   );
   const [step, setStep] = useState(0);
 
-  // Felt-state (styrer live forhåndsvisning; alle inputs er altid monteret)
-  const [name, setName] = useState("");
-  const [internalName, setInternalName] = useState("");
-  const [earnModel, setEarnModel] = useState<EarnModel>("per_purchase");
-  const [stampsPerEarn, setStampsPerEarn] = useState("1");
-  const [amountPerStamp, setAmountPerStamp] = useState("");
-  const [rewardType, setRewardType] = useState<RewardType>("free_product");
-  const [rewardName, setRewardName] = useState("");
-  const [requiredStamps, setRequiredStamps] = useState("10");
-  const [rewardDescription, setRewardDescription] = useState("");
-  const [rewardValue, setRewardValue] = useState("");
-  const [color, setColor] = useState("#1e1c1a");
-  const [icon, setIcon] = useState("star");
-  const [cardText, setCardText] = useState("");
-  const [resetOnRedeem, setResetOnRedeem] = useState(true);
-  const [keepOverflow, setKeepOverflow] = useState(false);
-  const [maxPerTxn, setMaxPerTxn] = useState("1");
-  const [maxPerDay, setMaxPerDay] = useState("");
-  const [minMinutes, setMinMinutes] = useState("0");
-  const [requireStaffConfirm, setRequireStaffConfirm] = useState(true);
-  const [stampsExpire, setStampsExpire] = useState(false);
-  const [stampExpiryDays, setStampExpiryDays] = useState("");
+  // Felt-state (styrer live forhåndsvisning; alle inputs er altid monteret).
+  // Ved redigering forudfyldes de fra det eksisterende kort.
+  const [name, setName] = useState(initial?.name ?? "");
+  const [internalName, setInternalName] = useState(initial?.internalName ?? "");
+  const [startDate, setStartDate] = useState(initial?.startDate ?? "");
+  const [endDate, setEndDate] = useState(initial?.endDate ?? "");
+  const [earnModel, setEarnModel] = useState<EarnModel>(initial?.earnModel ?? "per_purchase");
+  const [stampsPerEarn, setStampsPerEarn] = useState(initial?.stampsPerEarn ?? "1");
+  const [amountPerStamp, setAmountPerStamp] = useState(initial?.amountPerStamp ?? "");
+  const [rewardType, setRewardType] = useState<RewardType>(initial?.rewardType ?? "free_product");
+  const [rewardName, setRewardName] = useState(initial?.rewardName ?? "");
+  const [requiredStamps, setRequiredStamps] = useState(initial?.requiredStamps ?? "10");
+  const [rewardDescription, setRewardDescription] = useState(initial?.rewardDescription ?? "");
+  const [rewardValue, setRewardValue] = useState(initial?.rewardValue ?? "");
+  const [color, setColor] = useState(initial?.color ?? "#1e1c1a");
+  const [icon, setIcon] = useState(initial?.icon ?? "star");
+  const [cardText, setCardText] = useState(initial?.cardText ?? "");
+  const [resetOnRedeem, setResetOnRedeem] = useState(initial?.resetOnRedeem ?? true);
+  const [keepOverflow, setKeepOverflow] = useState(initial?.keepOverflow ?? false);
+  const [maxPerTxn, setMaxPerTxn] = useState(initial?.maxPerTxn ?? "1");
+  const [maxPerDay, setMaxPerDay] = useState(initial?.maxPerDay ?? "");
+  const [minMinutes, setMinMinutes] = useState(initial?.minMinutes ?? "0");
+  const [requireStaffConfirm, setRequireStaffConfirm] = useState(initial?.requireStaffConfirm ?? true);
+  const [stampsExpire, setStampsExpire] = useState(initial?.stampsExpire ?? false);
+  const [stampExpiryDays, setStampExpiryDays] = useState(initial?.stampExpiryDays ?? "");
   const [publishNow, setPublishNow] = useState(false);
 
   function applyTemplate(key: string) {
@@ -97,11 +137,16 @@ export function ProgramWizard({ companyName }: { companyName?: string | null }) 
         </ol>
 
         {/* Skjulte felter, der altid indgår i indsendelsen */}
+        {redigerer ? <input type="hidden" name="id" value={initial!.id} /> : null}
         <input type="hidden" name="earn_model" value={earnModel} />
         <input type="hidden" name="reward_type" value={rewardType} />
         <input type="hidden" name="color" value={color} />
         <input type="hidden" name="icon" value={icon} />
-        <input type="hidden" name="status" value={publishNow ? "active" : "draft"} />
+        {/* Status sættes kun ved OPRETTELSE. Ved redigering styres aktiv/pause
+            fra detaljesidens egen knap, så de to ikke overskriver hinanden. */}
+        {redigerer ? null : (
+          <input type="hidden" name="status" value={publishNow ? "active" : "draft"} />
+        )}
 
         {/* Trin 1 — Grundlæggende */}
         <div hidden={step !== 0} className="space-y-5">
@@ -138,11 +183,11 @@ export function ProgramWizard({ companyName }: { companyName?: string | null }) 
             <Input name="internal_name" value={internalName} onChange={(e) => setInternalName(e.target.value)} />
           </Field>
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Startdato (valgfri)">
-              <Input type="date" name="start_date" />
+            <Field label="Startdato (valgfri)" hint="Kortet kan først stemples fra denne dag.">
+              <Input type="date" name="start_date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
             </Field>
-            <Field label="Slutdato (valgfri)">
-              <Input type="date" name="end_date" />
+            <Field label="Slutdato (valgfri)" hint="Kortet stopper efter denne dag — dagen selv tæller med.">
+              <Input type="date" name="end_date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
             </Field>
           </div>
         </div>
@@ -270,10 +315,17 @@ export function ProgramWizard({ companyName }: { companyName?: string | null }) 
               <div><dt className="text-muted">Min. tid mellem</dt><dd className="font-medium">{minMinutes} min</dd></div>
             </dl>
           </div>
-          <label className="box-shape flex items-start gap-2 border border-accent/30 bg-accent/5 p-4 text-sm">
-            <input type="checkbox" checked={publishNow} onChange={(e) => setPublishNow(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[var(--accent)]" />
-            <span>Aktivér stempelkortet med det samme. Lad være markeret for at gemme som kladde.</span>
-          </label>
+          {redigerer ? (
+            <p className="box-shape border border-border bg-muted-bg/40 p-4 text-sm text-muted">
+              Ændringerne gemmes på kortet. Om kortet er aktivt eller på pause
+              styrer du med knappen øverst på kortets side.
+            </p>
+          ) : (
+            <label className="box-shape flex items-start gap-2 border border-accent/30 bg-accent/5 p-4 text-sm">
+              <input type="checkbox" checked={publishNow} onChange={(e) => setPublishNow(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[var(--accent)]" />
+              <span>Aktivér stempelkortet med det samme. Lad være markeret for at gemme som kladde.</span>
+            </label>
+          )}
         </div>
 
         {state.error ? (
@@ -287,7 +339,15 @@ export function ProgramWizard({ companyName }: { companyName?: string | null }) 
           </Button>
           {last ? (
             <Button type="submit" disabled={pending}>
-              {pending ? "Opretter…" : publishNow ? "Opret og aktivér" : "Gem som kladde"}
+              {redigerer
+                ? pending
+                  ? "Gemmer…"
+                  : "Gem ændringer"
+                : pending
+                  ? "Opretter…"
+                  : publishNow
+                    ? "Opret og aktivér"
+                    : "Gem som kladde"}
             </Button>
           ) : (
             <Button type="button" onClick={() => canNext && setStep((s) => s + 1)} disabled={!canNext}>

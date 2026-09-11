@@ -7,19 +7,24 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { StampCardIcon } from "@/components/nav-icons";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
+import { EARN_MODEL_LABELS } from "@/lib/loyalty/constants";
 import {
-  PROGRAM_STATUS_LABELS,
-  EARN_MODEL_LABELS,
-  type ProgramStatus,
-} from "@/lib/loyalty/constants";
+  programEffektivStatus,
+  EFFEKTIV_STATUS_LABELS,
+  type EffektivStatus,
+} from "@/lib/loyalty/program-status";
 
 export const metadata = { title: "Programmer" };
 
-const statusTone: Record<ProgramStatus, "success" | "neutral" | "warning"> = {
-  active: "success",
-  draft: "neutral",
-  paused: "warning",
-  archived: "neutral",
+// Planlagt og udløbet får deres egen tone, så et kort, der ikke stempler lige
+// nu, ikke ligner et aktivt med et grønt mærke.
+const statusTone: Record<EffektivStatus, "success" | "neutral" | "warning"> = {
+  aktiv: "success",
+  planlagt: "warning",
+  udloebet: "neutral",
+  pauset: "warning",
+  kladde: "neutral",
+  arkiveret: "neutral",
 };
 
 export default async function ProgramsPage() {
@@ -74,6 +79,7 @@ export default async function ProgramsPage() {
         <div className="divide-y divide-border border-y border-border">
           {programs.map((p) => {
             const reward = rewardByProgram.get(p.id);
+            const effektiv = programEffektivStatus(p);
             return (
               <Link
                 key={p.id}
@@ -83,8 +89,8 @@ export default async function ProgramsPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{p.name}</span>
-                    <Badge tone={statusTone[p.status]}>
-                      {PROGRAM_STATUS_LABELS[p.status]}
+                    <Badge tone={statusTone[effektiv]}>
+                      {EFFEKTIV_STATUS_LABELS[effektiv]}
                     </Badge>
                   </div>
                   <p className="mt-1 text-sm text-muted">

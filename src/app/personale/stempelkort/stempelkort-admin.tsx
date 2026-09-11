@@ -6,13 +6,14 @@ import {
   saetStempelkortStatus,
   type StempelkortResultat,
 } from "./actions";
-import { PROGRAM_STATUS_LABELS } from "@/lib/loyalty/constants";
 import type { ProgramStatus } from "@/lib/loyalty/constants";
 
 export interface ProgramRaekke {
   id: string;
   name: string;
   status: ProgramStatus;
+  /** Tilstanden til visning, med datovinduet lagt oveni (fx "Planlagt"). */
+  tilstand: string;
   required_stamps: number | null;
 }
 
@@ -164,7 +165,7 @@ function StatusRaekke({ program }: { program: ProgramRaekke }) {
       <div>
         <p className="font-medium">{program.name}</p>
         <p className="text-sm text-muted">
-          {PROGRAM_STATUS_LABELS[program.status]}
+          {program.tilstand}
           {program.required_stamps
             ? ` · ${program.required_stamps} stempler til en belønning`
             : ""}
