@@ -43,6 +43,8 @@ export interface PostImageProps {
   showLogo: boolean;
   showName: boolean;
   customerName?: string | null;
+  /** Kundens rigtige logo som data-URI. Mangler det, vises et bogstav-mærke. */
+  logoDataUri?: string | null;
 }
 
 export function buildPostElement({
@@ -53,6 +55,7 @@ export function buildPostElement({
   showLogo,
   showName,
   customerName,
+  logoDataUri,
 }: PostImageProps) {
   const initial = (firmanavn.trim()[0] ?? "•").toUpperCase();
 
@@ -102,23 +105,51 @@ export function buildPostElement({
         ) : null}
         <div style={{ display: "flex", alignItems: "center" }}>
           {showLogo ? (
-            <div
-              style={{
-                display: "flex",
-                width: 72,
-                height: 72,
-                borderRadius: 18,
-                marginRight: 20,
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: bg.logoBg,
-                color: bg.logoInk,
-                fontSize: 34,
-                fontWeight: 700,
-              }}
-            >
-              {initial}
-            </div>
+            logoDataUri ? (
+              // Kundens RIGTIGE logo. Hvid pude bagved, så et logo med
+              // gennemsigtig eller mørk kant også står rent på en mørk baggrund.
+              <div
+                style={{
+                  display: "flex",
+                  width: 72,
+                  height: 72,
+                  borderRadius: 18,
+                  marginRight: 20,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "#ffffff",
+                  overflow: "hidden",
+                }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={logoDataUri}
+                  width={60}
+                  height={60}
+                  style={{ objectFit: "contain" }}
+                  alt=""
+                />
+              </div>
+            ) : (
+              // Intet logo uploadet (eller kunne ikke hentes): bogstav-mærke.
+              <div
+                style={{
+                  display: "flex",
+                  width: 72,
+                  height: 72,
+                  borderRadius: 18,
+                  marginRight: 20,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: bg.logoBg,
+                  color: bg.logoInk,
+                  fontSize: 34,
+                  fontWeight: 700,
+                }}
+              >
+                {initial}
+              </div>
+            )
           ) : null}
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ display: "flex", fontSize: 32, fontWeight: 700 }}>{firmanavn}</div>

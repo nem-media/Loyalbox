@@ -5,9 +5,12 @@ import { Button } from "@/components/ui/button";
 import {
   CATEGORY_LABELS,
   POST_BACKGROUNDS,
+  EGEN_FARVE_ID,
+  customBackground,
   renderCaption,
   templatesFor,
   type PostCategory,
+  type PostTemplate,
 } from "@/lib/posts/templates";
 import type { OpslagReview } from "./page";
 
@@ -47,12 +50,37 @@ export function Composer({
   const templates = templatesFor(category);
   const [templateId, setTemplateId] = useState<number>(templates[0].id);
   const [bgId, setBgId] = useState<string>("navy");
+  const [egenFarve, setEgenFarve] = useState<string>("#1b916a");
   const [showStars, setShowStars] = useState(true);
   const [showLogo, setShowLogo] = useState(true);
   const [emojis, setEmojis] = useState(true);
   const [showName, setShowName] = useState(false);
   const [copied, setCopied] = useState(false);
   const [sharing, setSharing] = useState(false);
+
+  // Firmanavn + antal er faste her; kun anmeldelsen skifter med valget.
+  function seedCaption(
+    t: PostTemplate,
+    review: OpslagReview | null,
+    cat: PostCategory,
+  ): string {
+    return renderCaption(
+      t.text,
+      {
+        firmanavn: companyName,
+        anmeldelse: cat === "testimonial" ? (review?.comment ?? null) : null,
+        antal: fiveStarCount,
+      },
+      { emojis: true },
+    );
+  }
+
+  // Den redigerbare tekst. Skabelonerne er kun et udgangspunkt — det, der står
+  // her, er det, der havner på billedet og bliver kopieret. Seedes fra den
+  // første skabelon og skiftes, når man vælger en anden skabelon/anmeldelse.
+  const [draft, setDraft] = useState<string>(() =>
+    seedCaption(templates[0], reviews[0] ?? null, category),
+  );
   // Web Share med filer virker primært på mobil — vis kun knappen hvor det kan.
   const canShare = useSyncExternalStore(subscribeNoop, canShareFiles, () => false);
 
@@ -66,8 +94,9 @@ export function Composer({
     antal: fiveStarCount,
   };
 
-  // Kopi-tekst: behold emoji-stjerner (der er ingen SVG-række i ren tekst).
-  const caption = renderCaption(template.text, captionVars, { emojis });
+  // Kopi-tekst = den redigerede tekst, med emoji-valget anvendt (stjernerne
+  // beholdes her — der er ingen SVG-række i ren tekst).
+  const caption = renderCaption(draft, captionVars, { emojis });
 
   const canName = category === "testimonial" && Boolean(selectedReview?.customerName);
 
@@ -78,14 +107,31 @@ export function Composer({
     stars: showStars ? "1" : "0",
     emojis: emojis ? "1" : "0",
     name: showName && canName ? "1" : "0",
+    // Den redigerede tekst styrer billedet; skabelon-id'et er kun en reserve.
+    text: draft,
   });
+  if (bgId === EGEN_FARVE_ID) imageParams.set("c", egenFarve);
   if (category === "testimonial" && selectedReview) imageParams.set("feedback", selectedReview.id);
   const imageUrl = `/dashboard/opslag/image?${imageParams.toString()}`;
 
   function pickCategory(c: PostCategory) {
+    const t = templatesFor(c)[0];
+    const review = c === "testimonial" ? (selectedReview ?? reviews[0] ?? null) : null;
     setCategory(c);
-    setTemplateId(templatesFor(c)[0].id);
+    setTemplateId(t.id);
+    if (c === "testimonial" && !reviewId) setReviewId(reviews[0]?.id ?? null);
     if (c !== "testimonial") setShowName(false);
+    setDraft(seedCaption(t, review, c));
+  }
+
+  function pickTemplate(t: PostTemplate) {
+    setTemplateId(t.id);
+    setDraft(seedCaption(t, selectedReview, category));
+  }
+
+  function pickReview(r: OpslagReview) {
+    setReviewId(r.id);
+    setDraft(seedCaption(template, r, category));
   }
 
   async function copyText() {
@@ -163,7 +209,7 @@ export function Composer({
                   <button
                     key={r.id}
                     type="button"
-                    onClick={() => setReviewId(r.id)}
+                    onClick={() => pickReview(r)}
                     className={`box-shape block w-full border p-3 text-left text-sm transition-colors ${
                       reviewId === r.id ? "border-accent bg-accent/5" : "border-border bg-card hover:bg-muted-bg"
                     }`}
@@ -180,18 +226,18 @@ export function Composer({
           </section>
         ) : null}
 
-        {/* Skabelon */}
+        {/* Skabelon — hurtige udgangspunkter, man kan redigere bagefter */}
         {!noTestimonials ? (
           <section>
-            <h2 className="mb-2 text-sm font-semibold">Tekst</h2>
+            <h2 className="mb-2 text-sm font-semibold">Forslag</h2>
             <div className="space-y-2">
               {templates.map((t) => {
-                const preview = renderCaption(t.text, captionVars, { emojis });
+                const preview = renderCaption(t.text, captionVars, { emojis: true });
                 return (
                   <button
                     key={t.id}
                     type="button"
-                    onClick={() => setTemplateId(t.id)}
+                    onClick={() => pickTemplate(t)}
                     className={`box-shape block w-full border p-3 text-left text-sm transition-colors ${
                       templateId === t.id ? "border-accent bg-accent/5" : "border-border bg-card hover:bg-muted-bg"
                     }`}
@@ -200,6 +246,30 @@ export function Composer({
                   </button>
                 );
               })}
+            </div>
+          </section>
+        ) : null}
+
+        {/* Redigér teksten — det, der står her, er det, der udgives */}
+        {!noTestimonials ? (
+          <section>
+            <h2 className="mb-2 text-sm font-semibold">Redigér teksten</h2>
+            <textarea
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              rows={4}
+              maxLength={400}
+              className="box-shape w-full resize-y border border-border bg-background p-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            />
+            <div className="mt-1 flex items-center justify-between text-xs text-muted">
+              <span>Skriv frit — vælg et forslag ovenfor for at starte forfra.</span>
+              <button
+                type="button"
+                onClick={() => setDraft(seedCaption(template, selectedReview, category))}
+                className="font-medium text-accent hover:underline"
+              >
+                Nulstil
+              </button>
             </div>
           </section>
         ) : null}
@@ -226,6 +296,41 @@ export function Composer({
                   <span className="block px-2 py-1.5 text-xs font-medium">{b.name}</span>
                 </button>
               ))}
+
+              {/* Egen farve — vælg én farve, teksten tilpasser sig automatisk. */}
+              <div
+                className={`box-shape overflow-hidden border text-left transition-colors ${
+                  bgId === EGEN_FARVE_ID ? "border-accent ring-1 ring-accent" : "border-border"
+                }`}
+              >
+                <label className="block cursor-pointer">
+                  <span
+                    className="flex h-12 w-full items-center justify-center text-xs font-medium"
+                    style={{
+                      background: egenFarve,
+                      color: customBackground(egenFarve).ink,
+                    }}
+                  >
+                    Vælg farve
+                  </span>
+                  <input
+                    type="color"
+                    value={egenFarve}
+                    onChange={(e) => {
+                      setEgenFarve(e.target.value);
+                      setBgId(EGEN_FARVE_ID);
+                    }}
+                    className="sr-only"
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setBgId(EGEN_FARVE_ID)}
+                  className="block w-full px-2 py-1.5 text-left text-xs font-medium"
+                >
+                  Egen farve
+                </button>
+              </div>
             </div>
           </section>
         ) : null}

@@ -42,3 +42,46 @@ describe("renderCaption", () => {
     expect(out).toBe("Hej!");
   });
 });
+
+import {
+  customBackground,
+  farveLyshed,
+  normaliserPostFarve,
+  EGEN_FARVE_ID,
+  POST_BACKGROUNDS,
+} from "./templates";
+
+describe("egen farve", () => {
+  it("skriver med hvidt på en mørk farve og navy på en lys", () => {
+    const moerk = customBackground("#101820");
+    expect(moerk.ink).toBe("#ffffff");
+    const lys = customBackground("#f3f0e8");
+    expect(lys.ink).toBe("#19375c");
+  });
+
+  it("bruger den valgte farve som baggrund og har id 'egen'", () => {
+    const b = customBackground("#1B916A");
+    expect(b.bgColor).toBe("#1b916a");
+    expect(b.id).toBe(EGEN_FARVE_ID);
+  });
+
+  it("falder tilbage på navy ved ugyldig hex", () => {
+    expect(normaliserPostFarve("ikke-en-farve")).toBe("#19375c");
+    expect(customBackground("###").bgColor).toBe("#19375c");
+  });
+
+  it("farveLyshed: sort < hvid", () => {
+    expect(farveLyshed("#000000")).toBeLessThan(farveLyshed("#ffffff"));
+  });
+});
+
+describe("de faste baggrunde", () => {
+  it("har unikke id'er og hver sin ink/starColor", () => {
+    const ids = POST_BACKGROUNDS.map((b) => b.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const b of POST_BACKGROUNDS) {
+      expect(b.bgColor || b.bgImage, b.id).toBeTruthy();
+      expect(b.ink, b.id).toBeTruthy();
+    }
+  });
+});
