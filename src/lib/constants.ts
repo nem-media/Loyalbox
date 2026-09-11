@@ -166,11 +166,26 @@ export const CAPABILITY_LABELS: Record<Capability, string> = {
   dynamicLinks: "Skift links når som helst + flere platforme",
 };
 
+/** En sætning pr. funktion — så en kunde forstår, hvad den dækker. */
+export const CAPABILITY_HELP: Record<Capability, string> = {
+  customBranding:
+    "Dit eget logo og farver på den side, kunderne lander på, når de scanner.",
+  dynamicLinks:
+    "Skift hvor QR-koden fører hen når som helst — uden et nyt tryk — og brug flere anmeldelsesplatforme.",
+  feedbackInbox:
+    "Læs kundernes private feedback i dashboardet, også den der ikke bliver til en offentlig anmeldelse.",
+  statistics:
+    "Følg scanninger, klik til anmeldelse og gennemsnitlig bedømmelse i realtid.",
+  reputation:
+    "Reputation Score, eksterne profiler og udviklingen i dit omdømme over tid.",
+};
+
 export const CAPABILITY_ORDER: Capability[] = [
   "customBranding",
   "dynamicLinks",
   "feedbackInbox",
   "statistics",
+  "reputation",
 ];
 
 /**

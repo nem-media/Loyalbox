@@ -4,8 +4,10 @@ import { PageHeader } from "@/components/dashboard-shell";
 import { PurchaseNotice } from "@/components/purchase-notice";
 import {
   CAPABILITY_LABELS,
+  CAPABILITY_HELP,
   CAPABILITY_ORDER,
   getProduct,
+  hasLoyaltyAccess,
   PRODUCTS,
   TIER_LABELS,
   tierCan,
@@ -49,6 +51,8 @@ export default async function SubscriptionPage() {
     ? getProduct(company.product_slug)
     : undefined;
   const betalerAllerede = nuvaerende?.monthlyPrice ?? 0;
+  // Stempelkort følger PRODUKTET, ikke niveauet — Komplet og Pro er samme plan.
+  const harStempelkort = hasLoyaltyAccess(company?.product_slug);
 
   return (
     <>
@@ -59,28 +63,59 @@ export default async function SubscriptionPage() {
 
       {/* ------------------------------------------------------ din adgang */}
       <div className="box-shape border border-accent/30 bg-accent/5 p-6">
-        <p className="text-sm font-medium text-muted">Dit niveau</p>
+        {/*
+          PAKKENS NAVN, IKKE NIVEAUET. Nielsine købte "LoyalSum Komplet", men
+          hendes plan er `pro` (samme niveau som Reviewstander Pro), så siden
+          skrev "Pro" — det lignede en gammel plan, hun ikke genkendte. Vi
+          viser produktnavnet, hun faktisk købte, og falder tilbage på
+          niveaunavnet, hvis der ikke er et produkt.
+        */}
+        <p className="text-sm font-medium text-muted">Din pakke</p>
         <p className="mt-1 text-2xl font-bold tracking-tight">
-          {TIER_LABELS[plan]}
+          {nuvaerende?.name ?? TIER_LABELS[plan]}
         </p>
+        {nuvaerende?.monthlyPrice ? (
+          <p className="mt-0.5 text-sm text-muted">
+            {formatCurrency(nuvaerende.monthlyPrice)}/md
+          </p>
+        ) : null}
 
-        <ul className="mt-5 space-y-2 text-sm">
-          {CAPABILITY_ORDER.map((cap) => {
-            const has = tierCan(plan, cap);
-            return (
-              <li key={cap} className="flex items-start gap-2">
-                <span
-                  className={has ? "text-accent" : "text-muted"}
-                  aria-hidden="true"
-                >
-                  {has ? "✓" : "—"}
-                </span>
-                <span className={has ? "" : "text-muted"}>
-                  {CAPABILITY_LABELS[cap]}
-                </span>
-              </li>
-            );
-          })}
+        <ul className="mt-5 space-y-2.5 text-sm">
+          {/*
+            STEMPELKORTET FØRST — det er hele forskellen på Komplet og Pro, og
+            det er IKKE et niveau-flag, men følger produktet (hasLoyaltyAccess).
+            Derfor stod det slet ikke på listen før, og en Komplet-kunde så
+            aldrig sin vigtigste fordel nævnt.
+          */}
+          {(
+            [
+              {
+                key: "loyalty",
+                has: harStempelkort,
+                label: "Stempelkort og loyalitetsprogram",
+                help: "Opret stempelkort, giv stempler og belønninger, og få kunderne til at komme igen.",
+              },
+              ...CAPABILITY_ORDER.map((cap) => ({
+                key: cap,
+                has: tierCan(plan, cap),
+                label: CAPABILITY_LABELS[cap],
+                help: CAPABILITY_HELP[cap],
+              })),
+            ] as const
+          ).map((f) => (
+            <li key={f.key} className="flex items-start gap-2">
+              <span
+                className={f.has ? "text-accent" : "text-muted"}
+                aria-hidden="true"
+              >
+                {f.has ? "✓" : "—"}
+              </span>
+              <span className={f.has ? "" : "text-muted"}>
+                <span className="font-medium">{f.label}</span>
+                <span className="block text-xs text-muted">{f.help}</span>
+              </span>
+            </li>
+          ))}
         </ul>
 
         {/* Databehandleraftalen indgås ved købet. Den skal kunne findes igen
