@@ -34,9 +34,12 @@ function hvadSkerDerNu(d: Ordredetaljer): string[] {
   const linjer: string[] = ["Hvad sker der nu?"];
 
   if (d.leveringslinjer.length > 0) {
+    // INGEN "du hører fra os, når det er afsendt" — vi sender IKKE en
+    // forsendelsesmail (admin skifter blot ordrens status). Kun løftet om
+    // leveringstid, som vi faktisk holder, og som også står i
+    // handelsbetingelserne via COMPANY.deliveryDays.
     linjer.push(
       `Vi går i gang med at producere dit skilt og sender det inden for ${COMPANY.deliveryDays}.`,
-      "Du hører fra os, når det er afsendt.",
     );
   }
 
