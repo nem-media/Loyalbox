@@ -36,7 +36,6 @@ export function ProgramWizard({ companyName }: { companyName?: string | null }) 
   // Felt-state (styrer live forhåndsvisning; alle inputs er altid monteret)
   const [name, setName] = useState("");
   const [internalName, setInternalName] = useState("");
-  const [description, setDescription] = useState("");
   const [earnModel, setEarnModel] = useState<EarnModel>("per_purchase");
   const [stampsPerEarn, setStampsPerEarn] = useState("1");
   const [amountPerStamp, setAmountPerStamp] = useState("");
@@ -125,8 +124,15 @@ export function ProgramWizard({ companyName }: { companyName?: string | null }) 
           <Field label="Navn på stempelkort">
             <Input name="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Fx Kaffeklub" />
           </Field>
-          <Field label="Kort beskrivelse" hint="Vises til kunden på kortet.">
-            <Textarea name="description" value={description} onChange={(e) => setDescription(e.target.value)} />
+          {/*
+            TEKSTEN, DER RENT FAKTISK VISES. Feltet hed før "Kort beskrivelse"
+            og lovede at stå på kundens kort — men kortet viser card_text, ikke
+            description. Den fandtes kun som en undertitel i dit eget overblik.
+            Nu står den ENE tekst, kunden ser, her, og previewet til højre
+            opdaterer med det samme.
+          */}
+          <Field label="Tekst på kortet (valgfri)" hint="Den lille linje under navnet på kundens kort — fx “Tak for dit besøg!”.">
+            <Input name="card_text" value={cardText} onChange={(e) => setCardText(e.target.value)} placeholder="Fx Tak for dit besøg!" />
           </Field>
           <Field label="Internt navn" hint="Kun til dig — vises ikke for kunden.">
             <Input name="internal_name" value={internalName} onChange={(e) => setInternalName(e.target.value)} />
@@ -222,9 +228,6 @@ export function ProgramWizard({ companyName }: { companyName?: string | null }) 
               </select>
             </Field>
           </div>
-          <Field label="Tekst på kortet (valgfri)">
-            <Input name="card_text" value={cardText} onChange={(e) => setCardText(e.target.value)} placeholder="Fx Tak for dit besøg!" />
-          </Field>
         </div>
 
         {/* Trin 5 — Regler */}

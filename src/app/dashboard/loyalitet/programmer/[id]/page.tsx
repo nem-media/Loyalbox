@@ -48,7 +48,7 @@ export default async function ProgramDetailPage({
       </div>
       <PageHeader
         title={program.name}
-        description={program.description ?? undefined}
+        description={program.card_text ?? program.description ?? undefined}
         action={
           <ProgramStatusControl programId={program.id} status={program.status} />
         }
