@@ -188,3 +188,50 @@ describe("medarbejder-administration er stadig ejer-only", () => {
     expect(PERSONALE_ACT).toMatch(/role !== "owner"/);
   });
 });
+
+/**
+ * DATOVINDUET HÅNDHÆVES, HVOR STEMPLET SÆTTES.
+ *
+ * Start/slut-dato blev før gemt uden at nogen læste dem — et kort med en
+ * slutdato blev aldrig deaktiveret. `giveStamp` afviser nu et stempel uden for
+ * vinduet, så en gammel QR ikke kan stemple et udløbet kort. Kildeprøve, fordi
+ * grenen ligger i en service, der skriver i basen.
+ */
+const SERVICE_KILDE = L("src/lib/loyalty/service.ts");
+
+describe("stempling respekterer start- og slutdato", () => {
+  it("giveStamp spørger programVindue og afviser før start og efter slut", () => {
+    const k = krop(SERVICE_KILDE, "giveStamp");
+    expect(k).toContain("programVindue(program)");
+    expect(k).toContain("ikke startet endnu");
+    expect(k).toContain("udløbet");
+    // Vinduetjekket skal stå FØR selve stemplet skrives i ledgeren.
+    const iVindue = k.indexOf("programVindue(program)");
+    const iInsert = k.indexOf("loyalty_transactions");
+    expect(iVindue).toBeGreaterThan(-1);
+    expect(iInsert).toBeGreaterThan(-1);
+    expect(iVindue).toBeLessThan(iInsert);
+  });
+});
+
+/**
+ * REDIGERING KRÆVER canManage, og status ændres IKKE her (det har sin egen
+ * knap). Kildeprøve på updateProgram i dashboardets handlinger.
+ */
+const DASH_KILDE = L("src/app/dashboard/loyalitet/actions.ts");
+
+describe("updateProgram", () => {
+  it("kræver canManage før noget skrives", () => {
+    const k = krop(DASH_KILDE, "updateProgram");
+    const iManage = k.indexOf("permissions.canManage");
+    const iUpdate = k.indexOf('.from("loyalty_programs")');
+    expect(iManage).toBeGreaterThan(-1);
+    expect(iManage).toBeLessThan(iUpdate);
+  });
+  it("binder sig til egen virksomhed og retter datoerne", () => {
+    const k = krop(DASH_KILDE, "updateProgram");
+    expect(k).toMatch(/\.eq\("company_id", access\.companyId\)/);
+    expect(k).toContain("start_date");
+    expect(k).toContain("end_date");
+  });
+});

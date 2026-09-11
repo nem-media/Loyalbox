@@ -6,6 +6,7 @@ import { resolvePublicReviewLinks, resolveExtraLink } from "@/lib/stands";
 import { deviceTypeFromUA } from "@/lib/utils";
 import { StandLanding } from "./stand-landing";
 import { hentOffentligKundescore } from "@/lib/omdoemme-data";
+import { programErAktivtNu } from "@/lib/loyalty/program-status";
 import { Logo } from "@/components/brand";
 
 export const dynamic = "force-dynamic";
@@ -111,15 +112,20 @@ export default async function ReviewPage({
     redirect(maal);
   }
 
-  // Har virksomheden et aktivt stempelkort? Så vises "Hvad vil du?"-landingen.
-  const { data: loyaltyProgram } = await supabase
+  // Har virksomheden et stempelkort, der er aktivt LIGE NU? Så vises "Hvad
+  // vil du?"-landingen. Datovinduet tælles med: et planlagt eller udløbet kort
+  // må ikke tilbyde tilmelding — så ville kunden melde sig ind på noget, der
+  // ikke stempler. Derfor hentes vinduet og filtreres i JS (der kan være flere
+  // aktive rækker, hvoraf kun nogle er inde i deres vindue).
+  const { data: aktiveProgrammer } = await supabase
     .from("loyalty_programs")
-    .select("id")
+    .select("id, start_date, end_date")
     .eq("company_id", company.id)
     .eq("status", "active")
-    .limit(1)
-    .maybeSingle();
-  const hasLoyalty = Boolean(loyaltyProgram);
+    .limit(20);
+  const hasLoyalty = (aktiveProgrammer ?? []).some((p) =>
+    programErAktivtNu({ status: "active", start_date: p.start_date, end_date: p.end_date }),
+  );
 
   /*
    * Den offentlige kundescore — kun hvis virksomheden selv har slået den til.

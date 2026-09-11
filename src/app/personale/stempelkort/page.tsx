@@ -9,6 +9,10 @@ import { PRIVAT_SIDE } from "@/lib/site";
 import { signout } from "@/app/(auth)/actions";
 import { StempelkortAdmin, type ProgramRaekke } from "./stempelkort-admin";
 import type { ProgramStatus } from "@/lib/loyalty/constants";
+import {
+  programEffektivStatus,
+  EFFEKTIV_STATUS_LABELS,
+} from "@/lib/loyalty/program-status";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -51,7 +55,7 @@ export default async function StaffProgramsPage() {
   // Et typet PostgREST-embed kender ikke relationen her, så vi samler i JS.
   const { data: rows } = await admin
     .from("loyalty_programs")
-    .select("id, name, status")
+    .select("id, name, status, start_date, end_date")
     .eq("company_id", access.companyId)
     .neq("status", "archived")
     .order("created_at", { ascending: false });
@@ -73,6 +77,16 @@ export default async function StaffProgramsPage() {
     id: r.id as string,
     name: r.name as string,
     status: r.status as ProgramStatus,
+    // Tilstanden til visning tager datovinduet med, så et planlagt eller
+    // udløbet kort ikke står som "Aktivt".
+    tilstand:
+      EFFEKTIV_STATUS_LABELS[
+        programEffektivStatus({
+          status: r.status as string,
+          start_date: r.start_date,
+          end_date: r.end_date,
+        })
+      ],
     required_stamps: kraevPrProgram.get(r.id as string) ?? null,
   }));
 

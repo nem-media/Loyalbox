@@ -127,6 +127,115 @@ export async function createProgram(
   redirect(`/dashboard/loyalitet/programmer/${program.id}`);
 }
 
+/**
+ * Retter et EKSISTERENDE stempelkort — alle felter, inkl. datoerne.
+ *
+ * Samme felter som `createProgram`, og den primære belønning følges med:
+ * findes den, opdateres den; er der ingen (eller skiftes til "ingen
+ * belønning"), håndteres det. Status ændres IKKE her — den har sin egen knap
+ * på detaljesiden (`setProgramStatus`), så de to ikke kæmper om samme felt.
+ * Skrives via ejerens egen klient (RLS ejer-only), præcis som oprettelsen.
+ */
+export async function updateProgram(
+  _prev: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const access = await getCompanyAccess();
+  if (!access || !access.permissions.canManage) {
+    return { error: "Du har ikke adgang til at rette stempelkort." };
+  }
+  if (!(await loyaltyInPlan(access.companyId))) {
+    return { error: "Stempelkort er ikke med i dit abonnement." };
+  }
+
+  const id = str(formData.get("id"));
+  if (!id) return { error: "Ukendt stempelkort." };
+
+  const name = str(formData.get("name"));
+  if (!name) return { error: "Giv stempelkortet et navn." };
+
+  const requiredStamps = int(formData.get("required_stamps"), 10);
+  if (requiredStamps < 1) {
+    return { error: "Antal stempler til belønning skal være mindst 1." };
+  }
+  const earnModel = str(formData.get("earn_model")) as EarnModel;
+  const rewardType = str(formData.get("reward_type")) as RewardType;
+
+  const supabase = await createClient();
+  const { data: opdateret, error } = await supabase
+    .from("loyalty_programs")
+    .update({
+      name,
+      internal_name: str(formData.get("internal_name")) || null,
+      card_text: str(formData.get("card_text")) || null,
+      earn_model: earnModel,
+      stamps_per_earn: Math.max(1, int(formData.get("stamps_per_earn"), 1)),
+      amount_per_stamp:
+        earnModel === "per_amount" ? numOrNull(formData.get("amount_per_stamp")) : null,
+      start_date: str(formData.get("start_date")) || null,
+      end_date: str(formData.get("end_date")) || null,
+      reset_on_redeem: bool(formData.get("reset_on_redeem")),
+      keep_overflow: bool(formData.get("keep_overflow")),
+      color: str(formData.get("color")) || "#1e1c1a",
+      icon: str(formData.get("icon")) || "star",
+      max_stamps_per_txn: Math.max(1, int(formData.get("max_stamps_per_txn"), 1)),
+      max_stamps_per_day: numOrNull(formData.get("max_stamps_per_day")) ?? null,
+      min_minutes_between: Math.max(0, int(formData.get("min_minutes_between"), 0)),
+      require_staff_confirm: bool(formData.get("require_staff_confirm")),
+      stamps_expire: bool(formData.get("stamps_expire")),
+      stamp_expiry_days: numOrNull(formData.get("stamp_expiry_days")) ?? null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .eq("company_id", access.companyId)
+    .select("id")
+    .maybeSingle();
+
+  if (error) return { error: error.message };
+  if (!opdateret) return { error: "Stempelkortet blev ikke fundet." };
+
+  // Den primære belønning følger med. RLS er ejer-only, så vi kan skrive
+  // direkte; findes den, opdateres den, ellers oprettes den.
+  const { data: primaer } = await supabase
+    .from("loyalty_rewards")
+    .select("id")
+    .eq("program_id", id)
+    .eq("is_primary", true)
+    .maybeSingle();
+
+  if (rewardType === "none") {
+    // Ingen automatisk belønning længere — tag den primære ud af spil, men
+    // slet den ikke (den kan hænge på allerede udstedte belønninger).
+    if (primaer) {
+      await supabase
+        .from("loyalty_rewards")
+        .update({ status: "archived" })
+        .eq("id", primaer.id);
+    }
+  } else {
+    const rewardFelter = {
+      company_id: access.companyId,
+      program_id: id,
+      name: str(formData.get("reward_name")) || "Belønning",
+      description: str(formData.get("reward_description")) || null,
+      type: rewardType,
+      value: numOrNull(formData.get("reward_value")),
+      required_stamps: requiredStamps,
+      terms: str(formData.get("reward_terms")) || null,
+      is_primary: true,
+      status: "active" as const,
+    };
+    const { error: belErr } = primaer
+      ? await supabase.from("loyalty_rewards").update(rewardFelter).eq("id", primaer.id)
+      : await supabase.from("loyalty_rewards").insert(rewardFelter);
+    if (belErr) return { error: belErr.message };
+  }
+
+  revalidatePath("/dashboard/loyalitet/programmer");
+  revalidatePath(`/dashboard/loyalitet/programmer/${id}`);
+  redirect(`/dashboard/loyalitet/programmer/${id}`);
+}
+
 /** Ændrer et programs status (kladde/aktivt/pauset/arkiveret). */
 export async function setProgramStatus(formData: FormData): Promise<void> {
   const access = await getCompanyAccess();

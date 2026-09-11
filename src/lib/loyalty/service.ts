@@ -12,6 +12,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { CompanyAccess } from "@/lib/loyalty/access";
 import { stampProgress, redemptionStampDelta, type StampProgress } from "@/lib/loyalty/balance";
+import { programVindue } from "@/lib/loyalty/program-status";
 import type { TxnSource, TxnType } from "@/lib/loyalty/constants";
 
 type Admin = ReturnType<typeof createAdminClient>;
@@ -135,6 +136,16 @@ export async function giveStamp(params: GiveStampParams): Promise<StampResult> {
   }
   if (program.status !== "active") {
     return { ok: false, error: "Programmet er ikke aktivt." };
+  }
+  // Datovinduet håndhæves HER, hvor pengene reelt sættes på kortet — ikke kun
+  // i visningen. Et kort med en slutdato skal holde op med at kunne stemples,
+  // også selv om nogen står med den gamle QR i hånden.
+  const vindue = programVindue(program);
+  if (vindue === "foer") {
+    return { ok: false, error: "Stempelkortet er ikke startet endnu." };
+  }
+  if (vindue === "efter") {
+    return { ok: false, error: "Stempelkortet er udløbet." };
   }
   if (stamps > program.max_stamps_per_txn) {
     return {

@@ -11,6 +11,27 @@ import {
   type RewardType,
 } from "@/lib/loyalty/constants";
 import { ProgramStatusControl } from "./program-status";
+import { ButtonLink } from "@/components/ui/button";
+import {
+  programEffektivStatus,
+  EFFEKTIV_STATUS_LABELS,
+} from "@/lib/loyalty/program-status";
+
+/** 2026-09-30 → "30. sep. 2026". */
+function datoTekst(iso: string): string {
+  return new Date(iso + "T00:00:00").toLocaleDateString("da-DK", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function periodeTekst(start: string | null, slut: string | null): string {
+  if (start && slut) return `${datoTekst(start)} – ${datoTekst(slut)}`;
+  if (start) return `Fra ${datoTekst(start)}`;
+  if (slut) return `Til og med ${datoTekst(slut)}`;
+  return "Ingen datobegrænsning";
+}
 
 export const metadata = { title: "Stempelkort" };
 
@@ -50,7 +71,16 @@ export default async function ProgramDetailPage({
         title={program.name}
         description={program.card_text ?? program.description ?? undefined}
         action={
-          <ProgramStatusControl programId={program.id} status={program.status} />
+          <div className="flex flex-wrap items-center gap-2">
+            <ButtonLink
+              href={`/dashboard/loyalitet/programmer/${program.id}/rediger`}
+              variant="outline"
+              size="sm"
+            >
+              Rediger
+            </ButtonLink>
+            <ProgramStatusControl programId={program.id} status={program.status} />
+          </div>
         }
       />
 
@@ -75,6 +105,18 @@ export default async function ProgramDetailPage({
                     {reward
                       ? `${reward.name} (${REWARD_TYPE_LABELS[reward.type as RewardType]}) efter ${reward.required_stamps} stempler`
                       : "Ingen belønning"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-muted">Tilstand nu</dt>
+                  <dd className="font-medium">
+                    {EFFEKTIV_STATUS_LABELS[programEffektivStatus(program)]}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-muted">Periode</dt>
+                  <dd className="font-medium">
+                    {periodeTekst(program.start_date, program.end_date)}
                   </dd>
                 </div>
                 <div>
