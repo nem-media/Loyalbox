@@ -8,6 +8,7 @@ import { ordrevarsel, type Koebstype } from "@/lib/ordrevarsel";
 import { ordrebekraeftelse } from "@/lib/ordrebekraeftelse";
 import { erBetalende } from "@/lib/abonnement";
 import { noterFejl, noterKoersel } from "@/lib/drift";
+import { traekLagerForOrdre } from "@/lib/lager";
 import { generateSlug } from "@/lib/utils";
 import {
   skalOpretteFoersteStander,
@@ -397,7 +398,9 @@ export async function POST(request: NextRequest) {
          */
         const { data: ordreDest } = await admin
           .from("orders")
-          .select("stand_id, destination_type, destination_url, status")
+          .select(
+            "stand_id, destination_type, destination_url, status, quantity, design_id",
+          )
           .eq("stripe_session_id", session.id)
           .maybeSingle();
 
@@ -651,6 +654,32 @@ export async function POST(request: NextRequest) {
             "stripe-webhook",
             `Betalt ordre blev ikke markeret betalt (session ${session.id}): ${ordreFejl?.message ?? "ingen rækker ramt"}`,
           );
+        }
+
+        /*
+         * TRÆK STANDERNE FRA DET INTERNE LAGER — kun FØRSTE gang.
+         *
+         * `foersteGang` (ordren stod som `new`) er samme idempotens-signal som
+         * kundebekræftelsen: en gentaget webhook fra Stripe rammer en ordre,
+         * der allerede er `needs_onboarding`, og trækker derfor ikke igen.
+         *
+         * Lageret er kun vejledende: fejler trækket, LOGGES det og købet står
+         * ved magt — pengene er hjemme, og et skævt lagertal er en manuel
+         * rettelse værd, ikke en fejl til Stripe (der bare ville prøve igen).
+         * Antallet må gå i minus; vi sælger videre, selv når hylden er tom.
+         */
+        if (foersteGang && opdateretOrdre?.length) {
+          try {
+            await traekLagerForOrdre(admin, {
+              design_id: ordreDest?.design_id ?? null,
+              quantity: ordreDest?.quantity ?? 1,
+            });
+          } catch (e) {
+            await noterFejl(
+              "lager",
+              `Kunne ikke trække standere fra lageret (session ${session.id}): ${(e as Error).message}`,
+            );
+          }
         }
         break;
       }

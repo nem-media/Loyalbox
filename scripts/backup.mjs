@@ -50,6 +50,8 @@ const TABELLER = [
   "loyalty_audit_log",
   "consent_log",
   "drift_log",
+  // Står alene (kun farve+antal), ingen fremmednøgler — rækkefølgen er ligegyldig.
+  "stand_lager",
   // Herunder: peger kun på companies (og admin_log desuden på users), så de
   // kan lægges tilbage til sidst.
   "subscriptions",

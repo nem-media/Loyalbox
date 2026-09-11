@@ -933,6 +933,21 @@ export interface Database {
         >;
         Relationships: [];
       };
+      /** Se supabase/migrations/0033_stand_lager.sql. Internt lager, kun admin. */
+      stand_lager: {
+        Row: {
+          farve: "sort" | "hvid";
+          antal: number;
+          updated_at: string;
+        };
+        Insert: {
+          farve: "sort" | "hvid";
+          antal?: number;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["stand_lager"]["Insert"]>;
+        Relationships: [];
+      };
       /** Se supabase/migrations/0013_drift_log.sql. Kun service-role. */
       drift_log: {
         Row: {
@@ -1052,6 +1067,11 @@ export interface Database {
     };
     Views: Record<string, never>;
     Functions: {
+      /** Se supabase/migrations/0033_stand_lager.sql. Atomisk lagerjustering; ny beholdning. */
+      juster_lager: {
+        Args: { p_farve: string; p_delta: number };
+        Returns: number;
+      };
       /** Se supabase/migrations/0012_opbevaring.sql. Kun service-role. */
       ryd_op_efter_frister: {
         Args: { p_toerloeb: boolean };

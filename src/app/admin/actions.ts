@@ -11,6 +11,8 @@ import { stripe } from "@/lib/stripe";
 import { erGyldigtPostnummer, POSTNUMMER_FEJL } from "@/lib/adresse";
 import { isStripeConfigured } from "@/lib/commerce";
 import { noterAdminHandling } from "@/lib/admin-log";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { justerLager, saetLager, erLagerFarve } from "@/lib/lager";
 import { SUPPORT_COOKIE } from "@/lib/support-adgang";
 import type { DestinationType, OrderStatus } from "@/lib/types/database";
 
@@ -402,4 +404,52 @@ export async function setOrderStatus(formData: FormData): Promise<void> {
   await supabase.from("orders").update({ status }).eq("id", id);
   revalidatePath("/admin/ordrer");
   revalidatePath("/admin");
+}
+
+/* --------------------------------------------------------------- lager --- */
+
+/**
+ * Manuel justering af standerlageret (kun admin).
+ *
+ * Både "tilføj" og "fjern" går herigennem med `delta` (positiv/negativ).
+ * Service-role EFTER requireAdmin, som resten af lager-adgangen. Beholdningen
+ * må gå i minus — det er en restordre, ikke en fejl.
+ */
+export async function justerStanderLager(
+  _prev: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  await requireAdmin();
+  const farve = String(formData.get("farve") ?? "");
+  const delta = parseInt(String(formData.get("delta") ?? ""), 10);
+  if (!erLagerFarve(farve)) return { error: "Ukendt farve." };
+  if (!Number.isFinite(delta) || delta === 0) return { error: "Angiv et antal." };
+
+  try {
+    await justerLager(createAdminClient(), farve, delta);
+  } catch (e) {
+    return { error: (e as Error).message };
+  }
+  revalidatePath("/admin/lager");
+  return { ok: true };
+}
+
+/** Sætter en farves beholdning til et bestemt tal (manuel rettelse). */
+export async function saetStanderLager(
+  _prev: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  await requireAdmin();
+  const farve = String(formData.get("farve") ?? "");
+  const antal = parseInt(String(formData.get("antal") ?? ""), 10);
+  if (!erLagerFarve(farve)) return { error: "Ukendt farve." };
+  if (!Number.isFinite(antal)) return { error: "Angiv et tal." };
+
+  try {
+    await saetLager(createAdminClient(), farve, antal);
+  } catch (e) {
+    return { error: (e as Error).message };
+  }
+  revalidatePath("/admin/lager");
+  return { ok: true };
 }
