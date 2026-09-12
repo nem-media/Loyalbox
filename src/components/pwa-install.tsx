@@ -4,17 +4,24 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 
 /**
- * "Få kortet som app" — lægger stempelkortet på kundens hjemmeskærm.
+ * "Læg kortet på din telefon" — stempelkortet på hjemmeskærmen.
  *
- * Der er ingen app at hente i en app-butik; det er sitet selv der installeres.
- * Teksten siger derfor "læg på hjemmeskærmen" og ikke "download", så kunden
- * ikke leder forgæves i App Store.
+ * DER ER ALTID EN KNAP. Før viste komponenten en rigtig knap i Chrome og ren
+ * vejledningstekst i Safari — altså intet at trykke på for enhver iPhone, og
+ * det er præcis dér, kunderne er. Nu er der ét fast element i bunden af kortet:
+ * en knap, der enten installerer med browserens egen dialog eller folder de
+ * to skridt ud, browseren ikke vil gøre for os.
+ *
+ * TEKSTEN SIGER IKKE "DOWNLOAD". Der er ingen app i App Store eller Google
+ * Play, og et ord som "download" ville sende kunden hen for at lede efter en.
+ * "Læg kortet på din telefon" beskriver præcis det, der sker: sitet lægges på
+ * hjemmeskærmen med sit eget ikon.
  *
  * Tre tilstande, fordi browserne kan noget forskelligt:
- *   - Allerede installeret → intet vises.
- *   - Chrome/Edge (Android + desktop) → rigtig installationsknap via
- *     `beforeinstallprompt`.
- *   - iOS Safari → ingen API findes; kunden guides gennem Del-menuen.
+ *   - Allerede lagt på (kører i standalone) → intet vises; kortet ER appen.
+ *   - Chrome/Edge (Android + desktop) → browserens egen installationsdialog
+ *     via `beforeinstallprompt`.
+ *   - iOS Safari og alt andet → ingen API findes; knappen folder skridtene ud.
  */
 
 interface InstallPromptEvent extends Event {
@@ -56,7 +63,14 @@ function isIosSnapshot() {
 // Så matcher første klient-render serverens HTML, og hydreringen er ren.
 const falseSnapshot = () => false;
 
-export function PwaInstall({ className }: { className?: string }) {
+export function PwaInstall({
+  className,
+  /** "kortet" på ét kort, "kortene" på /mine-kort. */
+  hvad = "kortet",
+}: {
+  className?: string;
+  hvad?: string;
+}) {
   const isStandalone = useSyncExternalStore(
     subscribeDisplayMode,
     isStandaloneSnapshot,
@@ -72,9 +86,10 @@ export function PwaInstall({ className }: { className?: string }) {
     null,
   );
   const [installed, setInstalled] = useState(false);
+  const [visTrin, setVisTrin] = useState(false);
 
   useEffect(() => {
-    // Browseren fyrer eventet når siden opfylder installationskravene. Vi
+    // Browseren fyrer eventet, når siden opfylder installationskravene. Vi
     // gemmer det, så kunden kan installere på sit eget tidspunkt via knappen.
     const onBeforeInstall = (event: Event) => {
       event.preventDefault();
@@ -92,51 +107,70 @@ export function PwaInstall({ className }: { className?: string }) {
     };
   }, []);
 
-  // Kører kunden allerede appen, er der intet at tilbyde.
+  // Kører kunden allerede kortet fra hjemmeskærmen, er der intet at tilbyde.
   if (isStandalone || installed) return null;
 
-  const box = `box-shape border border-border bg-card p-4 text-center ${className ?? ""}`;
-
-  if (installEvent) {
-    return (
-      <div className={box}>
-        <p className="text-sm font-medium">Få kortet som app</p>
-        <p className="mt-1 text-xs text-muted">
-          Læg det på hjemmeskærmen, så er stemplerne ét tryk væk.
-        </p>
-        <Button
-          size="sm"
-          className="mt-3"
-          onClick={() => {
-            void installEvent.prompt();
-          }}
-        >
-          Installér app
-        </Button>
-      </div>
-    );
-  }
-
-  if (isIos) {
-    return (
-      <div className={box}>
-        <p className="text-sm font-medium">Få kortet som app</p>
-        <p className="mt-1 text-xs text-muted">
-          Tryk på Del-ikonet nederst i Safari, og vælg{" "}
-          <span className="font-medium">&laquo;Føj til hjemmeskærm&raquo;</span>
-          .
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className={box}>
-      <p className="text-sm font-medium">Få kortet som app</p>
-      <p className="mt-1 text-xs text-muted">
-        Åbn browserens menu, og vælg{" "}
-        <span className="font-medium">&laquo;Føj til startskærm&raquo;</span>.
+    <div
+      className={`box-shape border border-accent/30 bg-accent/5 p-5 text-center ${className ?? ""}`}
+    >
+      <p className="font-bold tracking-tight">Hav {hvad} på telefonen</p>
+      <p className="mx-auto mt-1 max-w-xs text-sm text-muted">
+        Læg {hvad} på hjemmeskærmen, så er stemplerne ét tryk væk — også uden at
+        finde linket frem igen.
       </p>
+
+      <Button
+        className="mt-4 w-full sm:w-auto"
+        onClick={() => {
+          // Har browseren givet os sin egen dialog, er den altid bedre end en
+          // vejledning: ét tryk, og ikonet ligger der.
+          if (installEvent) void installEvent.prompt();
+          else setVisTrin((v) => !v);
+        }}
+        aria-expanded={installEvent ? undefined : visTrin}
+      >
+        Læg {hvad} på min telefon
+      </Button>
+
+      {!installEvent && visTrin ? (
+        <div className="mt-4 border-t border-accent/20 pt-4 text-left text-sm text-muted">
+          {isIos ? (
+            <ol className="list-decimal space-y-1 pl-5">
+              <li>
+                Tryk på <span className="font-medium">Del</span>-ikonet nederst
+                i Safari (firkanten med pilen op).
+              </li>
+              <li>
+                Rul ned, og vælg{" "}
+                <span className="font-medium">&laquo;Føj til hjemmeskærm&raquo;</span>
+                .
+              </li>
+              <li>
+                Tryk <span className="font-medium">Tilføj</span> — så ligger{" "}
+                {hvad} som et ikon sammen med dine apps.
+              </li>
+            </ol>
+          ) : (
+            <ol className="list-decimal space-y-1 pl-5">
+              <li>Åbn browserens menu (de tre prikker).</li>
+              <li>
+                Vælg{" "}
+                <span className="font-medium">
+                  &laquo;Føj til startskærm&raquo;
+                </span>{" "}
+                eller <span className="font-medium">&laquo;Installér&raquo;</span>
+                .
+              </li>
+              <li>Bekræft — så ligger {hvad} sammen med dine apps.</li>
+            </ol>
+          )}
+          <p className="mt-3 text-xs">
+            Der er ingen app at hente i App Store eller Google Play. Ikonet åbner
+            den samme side, du står på nu.
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 }

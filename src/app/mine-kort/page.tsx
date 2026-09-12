@@ -78,7 +78,8 @@ export default async function MyCardsPage() {
           ))
         )}
 
-        <PwaInstall />
+        {/* Flertal her: siden viser alle kundens kort. */}
+        <PwaInstall hvad="kortene" />
 
         <form action={signout} className="pt-2 text-center">
           <button

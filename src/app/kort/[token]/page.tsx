@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCompanyAccess } from "@/lib/loyalty/access";
@@ -15,12 +16,27 @@ import { stampProgress, progressLabel } from "@/lib/loyalty/balance";
 import { TXN_TYPE_LABELS } from "@/lib/loyalty/constants";
 import { Logo } from "@/components/brand";
 import { PRIVAT_SIDE } from "@/lib/site";
+import { kortManifestSti } from "@/lib/kort-manifest";
 
 export const dynamic = "force-dynamic";
-export const metadata = {
-  title: "Mit stempelkort",
-  ...PRIVAT_SIDE,
-};
+
+/**
+ * MANIFESTET PEGES MOD KORTETS EGET, så "Læg kortet på min telefon" giver et
+ * ikon, der åbner netop dette kort. Det fælles manifest starter på
+ * /mine-kort, som kræver en konto — og kortet virker uden. Se
+ * ./manifest.webmanifest/route.ts.
+ */
+export function generateMetadata({
+  params,
+}: {
+  params: Promise<{ token: string }>;
+}): Promise<Metadata> {
+  return params.then(({ token }) => ({
+    title: "Mit stempelkort",
+    manifest: kortManifestSti(token),
+    ...PRIVAT_SIDE,
+  }));
+}
 
 export default async function CardPage({
   params,

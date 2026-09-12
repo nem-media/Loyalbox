@@ -15,6 +15,7 @@ const NAV_LINKS: NavLink[] = [
   { href: "/reviewstander", label: "Reviewstander" },
   { href: "/produkter", label: "Priser" },
   { href: "/blog", label: "Blog" },
+  { href: "/kontakt", label: "Kontakt" },
 ];
 
 export async function SiteHeader() {
