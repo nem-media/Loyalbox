@@ -548,6 +548,11 @@ export const KATALOG: Product[] = PRODUCTS.filter((p) => !p.addon);
  * på skiltet er hele pointen: selve skiltet er ens for alle tre varer, og
  * stempelkortet oprettes af kunden EFTER købet, så et trykt løfte ville stå
  * på et skilt hos en kunde, der aldrig kom i gang.
+ *
+ * MÆRKET MÅ VISES, MEN IKKE SKRIVES. Det ligger fysisk i kassen, og derfor er
+ * fotoet sandt — men det må ikke ind i `tagline`, `description`, `features`,
+ * KORT_PUNKTER eller nogen anden kundevendt tekst. `produktfoto.test.ts`
+ * håndhæver det, og begrundelsen står i AGENTS.md.
  */
 export const PRODUKT_FOTO: Record<string, string> = {
   reviewstander: "/reviewstander-boutique.jpg",
