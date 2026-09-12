@@ -3,7 +3,13 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
-import { KATALOG, PRODUKT_FOTO, UPCOMING_MERCH } from "@/lib/constants";
+import {
+  FOTO_FARVETEKST,
+  KATALOG,
+  PRODUKT_FOTO,
+  PRODUKT_FOTO_TEKST,
+  UPCOMING_MERCH,
+} from "@/lib/constants";
 import { ProductPrice } from "@/components/product-price";
 import { PurchaseNotice } from "@/components/purchase-notice";
 import {
@@ -97,7 +103,22 @@ export default function ProductsPage() {
                 <div className="flex flex-1 flex-col p-5">
                   <h3 className="font-bold tracking-tight">{p.name}</h3>
                   <p className="mt-1 text-sm text-muted">{p.tagline}</p>
-                  <div className="mt-4">
+                  {/* Billedtekst. Alle tre kort viser den SAMME stander, så
+                      fotoet kan ikke længere skille varerne ad — det gør de
+                      to linjer her: hvad man vælger på skiltet (fælles), og
+                      hvad QR-koden fører hen til (varens egen). */}
+                  {PRODUKT_FOTO_TEKST[p.slug] ? (
+                    <p className="mt-3 text-xs leading-relaxed text-muted">
+                      {PRODUKT_FOTO_TEKST[p.slug]}
+                    </p>
+                  ) : null}
+                  <p className="mt-2 text-xs leading-relaxed text-muted">
+                    {FOTO_FARVETEKST}
+                  </p>
+                  {/* mt-auto: billedteksterne er ikke lige lange, og uden den
+                      stod pris og "Se produkt" i tre forskellige højder på
+                      tværs af de tre kort. */}
+                  <div className="mt-auto pt-4">
                     <ProductPrice product={p} />
                   </div>
                   <span className="mt-4 text-sm font-medium text-accent">
