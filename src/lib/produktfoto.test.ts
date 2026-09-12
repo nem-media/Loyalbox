@@ -105,6 +105,34 @@ describe("produktfoto og billedtekst", () => {
     }
   });
 
+  it("ingen salgstekst nævner klistermærket", () => {
+    /*
+      Mærket "Indeholder stempelkort" FØLGER MED i kassen til Komplet, og
+      derfor må det gerne ses på produktfotoet. Men det må ikke skrives ind
+      som en funktion nogen steder.
+
+      Grunden er den samme som til, at Komplet ikke får sit eget TRYKTE skilt:
+      mærket kan sættes på og tages af igen, og butikken bestemmer selv, om og
+      hvornår stempelkortet kommer op at køre. Et løfte i en salgstekst står
+      derimod fast fra købsøjeblikket — også hos en kunde, der aldrig kommer i
+      gang. Se AGENTS.md.
+    */
+    const forbudt = /klisterm|mærkat|sticker/i;
+    for (const p of KATALOG) {
+      const tekster = [
+        p.tagline,
+        p.description,
+        ...p.features,
+        ...(KORT_PUNKTER[p.slug] ?? []),
+        PRODUKT_FOTO_TEKST[p.slug] ?? "",
+      ];
+      for (const t of tekster) {
+        expect(t, `nævner klistermærket: "${t}"`).not.toMatch(forbudt);
+      }
+    }
+    expect(FOTO_FARVETEKST).not.toMatch(forbudt);
+  });
+
   it("farveteksten lover kun stjernerne — ikke rammen om logoet", () => {
     // Samme regel som ACCENT_TEKSTER: rammen skæres væk sammen med
     // logofeltet, så snart der ligger et logo, og når derfor aldrig trykket.
