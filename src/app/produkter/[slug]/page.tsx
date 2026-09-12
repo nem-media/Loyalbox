@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Badge } from "@/components/ui/badge";
-import { KATALOG, getProduct } from "@/lib/constants";
+import { KATALOG, PRODUKT_FOTO, getProduct } from "@/lib/constants";
 import { toProductJsonLd } from "@/lib/commerce";
 import { formatCurrency } from "@/lib/utils";
 import { QuantityOrder } from "@/components/quantity-order";
@@ -86,10 +86,21 @@ export default async function ProductPage({
 
         <div className="grid gap-10 lg:grid-cols-2">
           {/* Billede */}
-          <StanderPlaceholder
-            className="box-shape aspect-[2/3] overflow-hidden border border-border"
-            iconClassName="h-32 w-32"
-          />
+          {PRODUKT_FOTO[product.slug] ? (
+            <div className="box-shape aspect-[4/5] overflow-hidden border border-border">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={PRODUKT_FOTO[product.slug]}
+                alt={`${product.name} — reviewstander i brug`}
+                className="h-full w-full object-cover"
+              />
+            </div>
+          ) : (
+            <StanderPlaceholder
+              className="box-shape aspect-[2/3] overflow-hidden border border-border"
+              iconClassName="h-32 w-32"
+            />
+          )}
 
           {/* Detaljer */}
           <div className="flex flex-col">

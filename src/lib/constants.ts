@@ -532,6 +532,17 @@ export const PRODUCTS: Product[] = [
 export const KATALOG: Product[] = PRODUCTS.filter((p) => !p.addon);
 
 /**
+ * Produktfoto pr. vare (i /public). Samme fysiske stander i tre miljøer, så
+ * kataloget og produktsiderne viser et rigtigt billede frem for en pladsholder.
+ * Slår en vare ikke op her, falder siderne tilbage på pladsholderen.
+ */
+export const PRODUKT_FOTO: Record<string, string> = {
+  reviewstander: "/reviewstander-cafe.jpg",
+  "reviewstander-pro": "/reviewstander-boutique.jpg",
+  "loyalsum-komplet": "/reviewstander-salon.jpg",
+};
+
+/**
  * Har virksomheden købt et produkt, der indeholder stempelkortet?
  *
  * `plan` kan ikke svare på det: både Reviewstander Pro og LoyalSum Komplet er
