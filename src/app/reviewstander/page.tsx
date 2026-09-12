@@ -261,17 +261,17 @@ export default function ReviewstanderPage() {
         <section className="relative isolate overflow-hidden border-b border-border bg-dark text-dark-fg">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/hero-cafe.jpg"
+            src="/hero-reviewstander.jpg"
             alt=""
             aria-hidden="true"
-            className="absolute inset-0 -z-10 h-full w-full object-cover object-right"
+            className="absolute inset-0 -z-10 h-full w-full object-cover object-center"
           />
-          {/* Gradienten slutter på /80 og ikke /40. Fotoet viser en fysisk
-              stander i højre side — præcis dér hvor kortet nu ligger — og to
-              produkter oven i hinanden kæmper om at være motivet. Dæmpet
-              bliver fotoet stemning, og kortet bliver det, man ser. Det
-              gjorde samtidig billedteksten læselig; hvid på 50 % over det
-              lyse foto kunne ikke læses. */}
+          {/* Fotoet er nu REN café-stemning UDEN en stander. Det gamle
+              hero-foto viste en fysisk stander af den GAMLE model (sort akryl,
+              gammelt logo) — forkert brand. Kortet (AnmeldelseVisual) er
+              motivet; baggrunden er stemning, derfor dæmpes den kraftigt.
+              Gradienten slutter på /80 og ikke /40, så den hvide billedtekst
+              kan læses over det lyse foto. */}
           <div
             aria-hidden="true"
             className="absolute inset-0 -z-10 bg-gradient-to-r from-dark from-25% via-dark/95 to-dark/80"

@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
-import { KATALOG, UPCOMING_MERCH } from "@/lib/constants";
+import { KATALOG, PRODUKT_FOTO, UPCOMING_MERCH } from "@/lib/constants";
 import { ProductPrice } from "@/components/product-price";
 import { PurchaseNotice } from "@/components/purchase-notice";
 import {
@@ -57,20 +57,43 @@ export default function ProductsPage() {
                 href={`/produkter/${p.slug}`}
                 className="group box-shape flex flex-col overflow-hidden border border-border bg-card transition-shadow hover:shadow-[0_20px_40px_-24px_rgba(0,0,0,0.4)]"
               >
-                <StanderPlaceholder
-                  className="aspect-[4/5]"
-                  iconClassName="h-24 w-24 transition-transform duration-300 group-hover:scale-110"
-                >
-                  {p.featured ? (
-                    <div className="absolute left-3 top-3">
-                      <Badge tone="accent">Mest populær</Badge>
-                    </div>
-                  ) : p.includesLoyalSum ? (
-                    <div className="absolute left-3 top-3">
-                      <Badge tone="neutral">Komplet</Badge>
-                    </div>
-                  ) : null}
-                </StanderPlaceholder>
+                {PRODUKT_FOTO[p.slug] ? (
+                  <div className="relative aspect-[4/5] overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={PRODUKT_FOTO[p.slug]}
+                      alt={`${p.name} — reviewstander i brug`}
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    {/* SOLIDT mærke, ikke <Badge>: den er bg-accent/10
+                        (næsten gennemsigtig) og forsvinder over et foto. Her
+                        skal det kunne læses over et hvilket som helst billede. */}
+                    {p.featured ? (
+                      <span className="box-shape absolute left-3 top-3 bg-accent px-2.5 py-1 text-xs font-semibold text-accent-fg shadow-[0_4px_12px_-4px_rgba(0,0,0,0.5)]">
+                        Mest populær
+                      </span>
+                    ) : p.includesLoyalSum ? (
+                      <span className="box-shape absolute left-3 top-3 bg-dark px-2.5 py-1 text-xs font-semibold text-white shadow-[0_4px_12px_-4px_rgba(0,0,0,0.5)]">
+                        Komplet
+                      </span>
+                    ) : null}
+                  </div>
+                ) : (
+                  <StanderPlaceholder
+                    className="aspect-[4/5]"
+                    iconClassName="h-24 w-24 transition-transform duration-300 group-hover:scale-110"
+                  >
+                    {p.featured ? (
+                      <div className="absolute left-3 top-3">
+                        <Badge tone="accent">Mest populær</Badge>
+                      </div>
+                    ) : p.includesLoyalSum ? (
+                      <div className="absolute left-3 top-3">
+                        <Badge tone="neutral">Komplet</Badge>
+                      </div>
+                    ) : null}
+                  </StanderPlaceholder>
+                )}
                 <div className="flex flex-1 flex-col p-5">
                   <h3 className="font-bold tracking-tight">{p.name}</h3>
                   <p className="mt-1 text-sm text-muted">{p.tagline}</p>
