@@ -16,6 +16,7 @@ import { formatCurrency } from "@/lib/utils";
 import { QuantityOrder } from "@/components/quantity-order";
 import { PurchaseNotice } from "@/components/purchase-notice";
 import { StanderPlaceholder } from "@/components/product-placeholder";
+import { FluebenListe } from "@/components/ui/flueben-liste";
 
 export function generateStaticParams() {
   return KATALOG.map((p) => ({ slug: p.slug }));
@@ -41,23 +42,6 @@ export async function generateMetadata({
       images: [{ url: product.image }],
     },
   };
-}
-
-function CheckIcon() {
-  return (
-    <svg
-      viewBox="0 0 20 20"
-      fill="currentColor"
-      className="mt-0.5 h-4 w-4 shrink-0 text-accent"
-      aria-hidden="true"
-    >
-      <path
-        fillRule="evenodd"
-        d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0L3.3 9.7a1 1 0 1 1 1.4-1.4l3.3 3.3 6.8-6.8a1 1 0 0 1 1.4 0Z"
-        clipRule="evenodd"
-      />
-    </svg>
-  );
 }
 
 export default async function ProductPage({
@@ -133,14 +117,7 @@ export default async function ProductPage({
 
             <p className="mt-6 text-muted">{product.description}</p>
 
-            <ul className="mt-6 space-y-2 text-sm">
-              {product.features.map((f) => (
-                <li key={f} className="flex gap-2">
-                  <CheckIcon />
-                  <span>{f}</span>
-                </li>
-              ))}
-            </ul>
+            <FluebenListe punkter={product.features} className="mt-6" />
 
             <PurchaseNotice className="mt-8" />
 

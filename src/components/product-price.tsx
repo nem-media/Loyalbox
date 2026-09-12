@@ -25,7 +25,17 @@ export function ProductPrice({
         <p className="mt-1 text-sm text-muted">
           + {formatCurrency(product.monthlyPrice)}/md i abonnement
         </p>
-      ) : null}
+      ) : (
+        /*
+          LINJEN STÅR ALTID — også på varen uden abonnement.
+          Kortene ligger side om side, og uden den sad engangsvarens pris én
+          linje lavere end de to andres, så beløbene ikke kunne sammenlignes
+          på tværs. Pladsholderen er ikke tom: "Ingen abonnement" er dét, der
+          ER forskellen, og en usynlig afstandsklods ville sige det samme med
+          ingenting.
+        */
+        <p className="mt-1 text-sm text-muted">Ingen abonnement</p>
+      )}
       {product.setupPrice ? (
         <p className="text-sm text-muted">
           + {formatCurrency(product.setupPrice)} i opsætning (engangs)

@@ -535,16 +535,24 @@ export const KATALOG: Product[] = PRODUCTS.filter((p) => !p.addon);
  * Produktfoto pr. vare (i /public). Slår en vare ikke op her, falder
  * kataloget og produktsiderne tilbage på pladsholderen.
  *
- * ALLE TRE VARER VISER DET SAMME FOTO, og det er med vilje: det ER den samme
- * fysiske stander. Tre forskellige miljøer (café/boutique/salon) fik varerne
- * til at se ud som tre forskellige produkter, og forskellen mellem dem ligger
- * ikke i akrylen — den ligger i, hvad QR-koden fører hen til. Det er dét,
- * PRODUKT_FOTO_TEKST siger under billedet.
+ * ALLE TRE VARER VISER DEN SAMME STANDER, og det er med vilje: det ER det
+ * samme fysiske emne. Tre forskellige miljøer (café/boutique/salon) fik
+ * varerne til at se ud som tre forskellige produkter, og forskellen mellem
+ * dem ligger ikke i akrylen — den ligger i, hvad QR-koden fører hen til. Det
+ * er dét, PRODUKT_FOTO_TEKST siger under billedet.
+ *
+ * KOMPLET ER DET SAMME FOTO MED KLISTERMÆRKET PÅ. Mærket "Indeholder
+ * stempelkort" er 3 × 2 cm og lagt i billedet af
+ * `scripts/lav-komplet-foto.mjs` — se dét script for målene og for, hvorfor
+ * det ikke er en overlejring i CSS. At det er et KLISTERMÆRKE og ikke trykt
+ * på skiltet er hele pointen: selve skiltet er ens for alle tre varer, og
+ * stempelkortet oprettes af kunden EFTER købet, så et trykt løfte ville stå
+ * på et skilt hos en kunde, der aldrig kom i gang.
  */
 export const PRODUKT_FOTO: Record<string, string> = {
   reviewstander: "/reviewstander-boutique.jpg",
   "reviewstander-pro": "/reviewstander-boutique.jpg",
-  "loyalsum-komplet": "/reviewstander-boutique.jpg",
+  "loyalsum-komplet": "/reviewstander-boutique-komplet.jpg",
 };
 
 /**
@@ -559,6 +567,52 @@ export const PRODUKT_FOTO: Record<string, string> = {
  */
 export const FOTO_FARVETEKST =
   "Vælg selv farve på stjernerne uden beregning — og evt. din egen baggrundsfarve mod tillæg.";
+
+/**
+ * Salgspunkterne på katalogkortet — korte nok til at kunne skimmes på en
+ * telefon, og ÉN ting pr. linje.
+ *
+ * De er skrevet her og ikke taget fra `features`, fordi de to lister har hver
+ * sit job: `features` står på produktsiden, hvor der er plads til en hel
+ * sætning, mens kortet skal kunne læses på et blik. Begge skal dog beskrive
+ * den SAMME vare, og `produktfoto.test.ts` holder fast i, at et punkt, der
+ * kun gælder ét niveau, ikke kan liste sig ind på et andet:
+ *
+ * - **Opslag hører til Komplet.** Spærringen ligger i
+ *   `src/app/dashboard/opslag/layout.tsx` og spørger om PRODUKTET
+ *   (`hasLoyaltyAccess`), ikke om `plan` — Pro og Komplet er samme niveau.
+ * - **Statistik og feedback-indbakke følger NIVEAUET** (`TIER_CAPABILITIES`,
+ *   `pro`), så de gælder både Pro og Komplet — men aldrig Basic, der slet
+ *   ikke har et dashboard.
+ *
+ * Og opslag er IKKE automatiske: kunden vælger tekst og baggrund, henter
+ * billedet og deler det selv. Punktet må derfor ikke love, at der bliver
+ * slået noget op af sig selv.
+ */
+export const KORT_PUNKTER: Record<string, string[]> = {
+  reviewstander: [
+    "Selvvalgt link til Google, Trustpilot m.fl.",
+    "QR + NFC — kunden scanner eller tapper",
+    "Dit logo trykt på skiltet",
+    // IKKE "Ingen abonnement": det står allerede i prisblokken lige under, og
+    // to gange på samme kort læses som to forskellige ting.
+    "Klar til brug ud af kassen",
+  ],
+  "reviewstander-pro": [
+    "Egen anmeldelsesside med flere platforme",
+    "Eget link til fx menukort eller booking",
+    "Skift links når som helst — uden nyt tryk",
+    "Privat feedback-indbakke",
+    "Statistik i realtid",
+  ],
+  "loyalsum-komplet": [
+    "Alt i Reviewstander Pro",
+    "Digitalt stempelkort — uden app",
+    "Scan-til-stempel over disken",
+    "Opslag af dine anmeldelser — klar til at dele",
+    "Statistik og omdømme i realtid",
+  ],
+};
 
 /**
  * Billedtekst pr. vare: den ENE sætning, der skiller varen fra de to andre,
