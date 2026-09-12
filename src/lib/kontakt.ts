@@ -16,8 +16,19 @@ import { erGyldigEmail } from "./bestilling-uden-konto";
  * hvad som helst — og fordi den så kan prøves uden at rendere noget.
  */
 
-/** Svartid vi tør skrive på siden. Ét sted, så den kan rettes uden at lede. */
-export const SVARTID = "Vi svarer normalt inden for 1-2 hverdage.";
+/**
+ * Hvornår vi sidder ved skærmen, og hvor hurtigt der plejer at komme svar.
+ *
+ * KONTORTIDEN SKAL MED I SÆTNINGEN. "Vi svarer typisk inden for to timer" er
+ * sandt om formiddagen og forkert klokken 22 — og en, der skriver om aftenen
+ * og intet hører, tror ikke, at beskeden er nået frem. Forbeholdet er derfor
+ * ikke en juridisk garde, men dét, der gør løftet brugbart.
+ *
+ * Ét sted, så svartiden kan rettes uden at lede: den står på /kontakt (tre
+ * steder) og på hjælpesiden i dashboardet.
+ */
+export const KONTORTID = "hverdage kl. 9-16";
+export const SVARTID = `Skriver du inden for kontortiden (${KONTORTID}), får du typisk svar inden for to timer.`;
 
 /**
  * Emnerne.
@@ -141,5 +152,102 @@ export function kontaktMail(v: KontaktFelter): {
       ryger mailen i spamfilteret på SPF/DKIM.
     */
     svarTil: v.email,
+  };
+}
+
+
+/* ------------------------------------------------------------------ SUPPORT
+   Den samme formular set indefra.
+
+   FORSKELLEN ER, HVAD VI VED I FORVEJEN. På /kontakt skriver en fremmed, og
+   vi må spørge om navn og mail. I dashboardet er kunden logget ind, så butik,
+   produkt og mailadresse hentes fra SESSIONEN og aldrig fra formularen — et
+   skjult felt kunne forfalskes, og så ville en henvendelse se ud til at komme
+   fra en anden butik, end den gjorde.
+
+   Derfor er der kun to felter at udfylde: hvad det handler om, og hvad der er
+   galt. Alt andet hæfter serveren på.
+   -------------------------------------------------------------------------- */
+
+export interface SupportFelter {
+  emne: string;
+  besked: string;
+}
+
+export type SupportFejl = Partial<Record<keyof SupportFelter, string>>;
+
+export function laesSupport(raw: Record<string, unknown>): {
+  ok: boolean;
+  fejl: SupportFejl;
+  vaerdier?: SupportFelter;
+} {
+  const tekst = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+  const fejl: SupportFejl = {};
+
+  const emne = tekst(raw.emne);
+  if (!emneNavn(emne)) fejl.emne = "Vælg hvad det handler om.";
+
+  const besked = tekst(raw.besked);
+  if (besked.length < MINDST_BESKED) {
+    fejl.besked = "Skriv lidt mere, så vi kan svare ordentligt.";
+  } else if (besked.length > MAKS.besked) {
+    fejl.besked = `Beskeden er for lang. Skriv højst ${MAKS.besked} tegn, eller send den til ${COMPANY.email}.`;
+  }
+
+  if (Object.keys(fejl).length > 0) return { ok: false, fejl };
+  return { ok: true, fejl: {}, vaerdier: { emne, besked } };
+}
+
+/** Alt det, serveren ved om afsenderen. Læses af sessionen, ikke af formularen. */
+export interface SupportKontekst {
+  /** Kundens egen mailadresse — også dén, svaret skal gå til. */
+  email: string;
+  butik?: string | null;
+  /** Produktets NAVN (fx "LoyalSum Komplet"), ikke dets slug. */
+  produkt?: string | null;
+  plan?: string | null;
+  /**
+   * Sendt af en ADMIN med supportadgang til kundens dashboard?
+   *
+   * Så er butikken kundens, men afsenderen vores egen. Uden linjen ville
+   * mailen ligne en henvendelse fra kunden — og nogen ville svare kunden på
+   * noget, de aldrig har spurgt om. Se src/lib/support-adgang.ts.
+   */
+  viaAdmin?: boolean;
+}
+
+export function supportMail(
+  v: SupportFelter,
+  k: SupportKontekst,
+): { emne: string; tekst: string; svarTil: string } {
+  const emne = emneNavn(v.emne) ?? v.emne;
+  const linjer = [
+    "En kunde har skrevet fra hjælpesiden i dashboardet.",
+    "",
+    `Butik:    ${k.butik?.trim() || "ingen virksomhed på kontoen"}`,
+    `Produkt:  ${k.produkt?.trim() || "ikke oplyst"}`,
+    `Niveau:   ${k.plan?.trim() || "ukendt"}`,
+    `Bruger:   ${k.email}`,
+    `Emne:     ${emne}`,
+  ];
+  if (k.viaAdmin) {
+    linjer.push(
+      "",
+      "OBS: sendt af en ADMIN med supportadgang til butikkens dashboard.",
+      "Butikken har altså ikke selv skrevet det her.",
+    );
+  }
+  linjer.push(
+    "",
+    "Besked:",
+    v.besked,
+    "",
+    "— Svar direkte på denne mail; den er sat op til at gå til afsenderen.",
+  );
+
+  return {
+    emne: `Support (${emne}): ${k.butik?.trim() || k.email}`,
+    tekst: linjer.join("\n"),
+    svarTil: k.email,
   };
 }
