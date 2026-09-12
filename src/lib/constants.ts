@@ -686,6 +686,11 @@ export function getProduct(slug: string): Product | undefined {
 // Ingen af dem har pris endnu. Sæt ikke et tal på her: prisen ville blive vist
 // som en rigtig pris på en offentlig side. Når en vare er klar, flyttes den
 // over i PRODUCTS med rigtig pris, billede og egen side.
+//
+// STØRRELSERNE ER PLANLAGTE og står som tekst, netop fordi de ikke er
+// besluttet endnu. Derfor siger sektionen på /produkter ligeud, at hverken
+// størrelser eller priser er fastlagt — ellers ville en A4 her være et
+// tilsagn om et format, vi ikke har lovet nogen.
 // ===========================================================================
 
 export interface UpcomingItem {
@@ -695,36 +700,43 @@ export interface UpcomingItem {
   tagline: string;
   /** Hvor i forretningen varen sidder. Holder listen konkret. */
   placering: string;
+  /**
+   * Planlagte størrelser, største først.
+   *
+   * IKKE ENDELIGE. Planen er A4 som det største og mindre formater derfra, og
+   * sektionen på /produkter siger ligeud, at hverken størrelser eller priser
+   * er fastlagt. Uden det forbehold ville et A-format her læses som et tilbud.
+   */
+  stoerrelser: string[];
 }
 
 export const UPCOMING_MERCH: UpcomingItem[] = [
   {
-    key: "bordskaaner",
-    name: "Bordskåner med QR",
+    key: "maerkater",
+    name: "Vindues- & bordmærkater",
     tagline:
-      "Ligger på bordet, mens gæsten alligevel venter. Et scan, og de er inde i dit stempelkort.",
-    placering: "Bordet",
+      "Samme QR på ruden og på bordet. Fylder ingenting, virker døgnet rundt — og kan sættes op og tages af igen.",
+    placering: "Ruden og bordet",
+    // PRISGÆT (ikke vist nogen steder): omkring 79 kr. for et sæt på fire.
+    stoerrelser: ["A6", "A7"],
   },
   {
-    key: "facadeplakat",
-    name: "Facadeplakat",
+    key: "plakater",
+    name: "Plakater",
     tagline:
-      "Viser allerede ved døren, at I samler anmeldelser — og at der er en kundeklub indenfor.",
-    placering: "Facaden",
+      "Viser allerede ved døren eller på væggen, at I samler anmeldelser — og at der er en kundeklub indenfor.",
+    placering: "Døren og væggen",
+    // PRISGÆT (ikke vist nogen steder): omkring 99 kr. pr. stk.
+    stoerrelser: ["A4", "A5"],
   },
   {
-    key: "vinduesmaerkat",
-    name: "Vinduesmærkat",
+    key: "flyers",
+    name: "Flyers",
     tagline:
-      "Diskret mærkat til ruden. Fylder ingenting og virker døgnet rundt.",
-    placering: "Ruden",
-  },
-  {
-    key: "bordkort",
-    name: "Bordkort",
-    tagline:
-      "Lille kort til hvert bord, så gæsten ikke skal hen til disken for at scanne.",
-    placering: "Hvert bord",
+      "Følger med i posen eller ligger på disken, så kunden kan scanne igen hjemmefra.",
+    placering: "Disken og posen",
+    // PRISGÆT (ikke vist nogen steder): omkring 249 kr. for 100 stk.
+    stoerrelser: ["A5", "A6"],
   },
 ];
 

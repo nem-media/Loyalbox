@@ -60,28 +60,26 @@ export function StanderIcon({ className }: { className?: string }) {
 
 /** Ikon pr. kommende vare — nøglen er `UpcomingItem.key` fra constants. */
 export const UPCOMING_ICONS: Record<string, React.ReactNode> = {
-  bordskaaner: (
+  // Mærkat: firkant med et ombukket hjørne — dét, der gør et mærkat til et
+  // mærkat frem for et skilt, er netop at det kan pilles af igen.
+  maerkater: (
     <Svg>
-      <rect x="3" y="6" width="18" height="12" rx="2" />
-      <rect x="8.5" y="10" width="7" height="4" rx="1" />
+      <path d="M4.5 4.5h12a1 1 0 0 1 1 1v9l-5 5h-8a1 1 0 0 1-1-1z" />
+      <path d="M17.5 14.5h-4a1 1 0 0 0-1 1v4" />
     </Svg>
   ),
-  facadeplakat: (
+  plakater: (
     <Svg>
       <rect x="5" y="3" width="14" height="18" rx="1.5" />
       <path d="M9 8h6M9 12h6M9 16h3" />
     </Svg>
   ),
-  vinduesmaerkat: (
+  // Flyers: to ark, fordi de deles ud i bundter og aldrig ligger ét ad gangen.
+  flyers: (
     <Svg>
-      <circle cx="12" cy="12" r="8" />
-      <path d="M9 12.5l2 2 4-4.5" />
-    </Svg>
-  ),
-  bordkort: (
-    <Svg>
-      <path d="M4 19l8-13 8 13z" />
-      <path d="M9 16h6" />
+      <rect x="3.5" y="5.5" width="11" height="14" rx="1.5" />
+      <path d="M7.5 3.5h10a1 1 0 0 1 1 1v12" />
+      <path d="M7 10h4M7 13.5h4" />
     </Svg>
   ),
 };
