@@ -114,6 +114,22 @@ export default function KontaktPage() {
                 </a>
               </p>
               <p className="mt-2 text-sm text-muted">{SVARTID}</p>
+              {/* ER DU ALLEREDE KUNDE, er der en kortere vej ind: skriver
+                  du fra hjælpesiden i dashboardet, kender vi butikken i
+                  forvejen, og så slipper vi begge for runden med "hvem
+                  skriver du fra?". Derfor står linjen her og ikke gemt
+                  nederst på siden. */}
+              <p className="mt-3 border-t border-border pt-3 text-sm text-muted">
+                <span className="font-medium text-foreground">
+                  Er du allerede kunde?
+                </span>{" "}
+                Skriv fra{" "}
+                <a href="/dashboard/hjaelp#support" className="font-medium text-accent">
+                  Hjælp i dashboardet
+                </a>{" "}
+                — så ved vi, hvilken butik du skriver fra, og kan svare uden
+                at spørge først.
+              </p>
               {/* Telefonen står i COMPANY og vises kun, hvis der ER et nummer
                   — et tomt felt på en kontaktside er værre end ingen linje. */}
               {COMPANY.phone ? (

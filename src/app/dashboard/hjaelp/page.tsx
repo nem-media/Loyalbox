@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/dashboard-shell";
 import { GuideCard } from "@/components/guide";
+import { SupportForm } from "@/components/support-form";
 import { Card, CardBody } from "@/components/ui/card";
 import { GUIDES } from "@/lib/guides";
 import { COMPANY, getProduct, hasLoyaltyAccess } from "@/lib/constants";
@@ -110,22 +111,39 @@ export default async function HelpPage() {
         </div>
       ) : null}
 
-      <Card className="mt-6">
+      {/*
+        SUPPORT PÅ SIDEN FREM FOR EN MAILADRESSE.
+        Her stod før en `mailto:` og en opfordring til selv at fortælle,
+        hvilken side man stod på. Det gør de færreste, og så gik der en runde
+        med "hvilken butik skriver du fra?" — et spørgsmål, vi selv kender
+        svaret på, når kunden er logget ind. Formularen hæfter butik, produkt
+        og niveau på af sig selv (serveren læser dem af sessionen), og
+        mailadressen står stadig ved knappen for dem, der hellere vil skrive
+        fra deres eget mailprogram.
+      */}
+      <Card className="mt-6" id="support">
         <CardBody>
           <h2 className="font-bold tracking-tight">
             Står du stadig og mangler noget?
           </h2>
-          <p className="mt-1 text-sm text-muted">
-            Skriv til os på{" "}
-            <a
-              href={`mailto:${COMPANY.email}`}
-              className="font-medium text-accent hover:underline"
-            >
-              {COMPANY.email}
-            </a>
-            , så hjælper vi dig i gang. Fortæl gerne hvilken side du står på —
-            så kan vi svare konkret.
-          </p>
+          <div className="mt-3">
+            {user ? (
+              <SupportForm afsender={user.email} butik={company?.name} />
+            ) : (
+              /* Siden ligger bag login, så det her er reelt uopnåeligt — men
+                 en tom side er ikke et svar, hvis sessionen er udløbet. */
+              <p className="text-sm text-muted">
+                Skriv til os på{" "}
+                <a
+                  href={`mailto:${COMPANY.email}`}
+                  className="font-medium text-accent hover:underline"
+                >
+                  {COMPANY.email}
+                </a>
+                .
+              </p>
+            )}
+          </div>
         </CardBody>
       </Card>
     </>
