@@ -65,14 +65,17 @@ export default function ProductsPage() {
                       alt={`${p.name} — reviewstander i brug`}
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
+                    {/* SOLIDT mærke, ikke <Badge>: den er bg-accent/10
+                        (næsten gennemsigtig) og forsvinder over et foto. Her
+                        skal det kunne læses over et hvilket som helst billede. */}
                     {p.featured ? (
-                      <div className="absolute left-3 top-3">
-                        <Badge tone="accent">Mest populær</Badge>
-                      </div>
+                      <span className="box-shape absolute left-3 top-3 bg-accent px-2.5 py-1 text-xs font-semibold text-accent-fg shadow-[0_4px_12px_-4px_rgba(0,0,0,0.5)]">
+                        Mest populær
+                      </span>
                     ) : p.includesLoyalSum ? (
-                      <div className="absolute left-3 top-3">
-                        <Badge tone="neutral">Komplet</Badge>
-                      </div>
+                      <span className="box-shape absolute left-3 top-3 bg-dark px-2.5 py-1 text-xs font-semibold text-white shadow-[0_4px_12px_-4px_rgba(0,0,0,0.5)]">
+                        Komplet
+                      </span>
                     ) : null}
                   </div>
                 ) : (
