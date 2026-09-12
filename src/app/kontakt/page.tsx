@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { CompanyDetails } from "@/components/legal";
 import { KontaktForm } from "@/components/kontakt-form";
 import { PurchaseNotice } from "@/components/purchase-notice";
 import { Liste, ListeRaekke } from "@/components/ui/liste";
@@ -122,11 +121,22 @@ export default function KontaktPage() {
                   Telefon: {COMPANY.phone}
                 </p>
               ) : null}
+              {/*
+                KUN NAVN OG ADRESSE HER.
+                Selskabsnavn og CVR stod også på dette kort, men de hører til
+                dér, hvor de er et lovkrav: footeren (på hver eneste side,
+                også denne) samt /handelsbetingelser og /privatliv. På en
+                kontaktside er de støj — den skal svare på "hvor er I, og
+                hvordan får jeg fat i jer". Mailen står lige ovenfor og
+                gentages derfor ikke.
+              */}
               <div className="mt-5 border-t border-border pt-4 text-sm text-muted">
-                <p className="mb-2 font-medium text-foreground">
-                  {SITE_NAME} drives af
-                </p>
-                <CompanyDetails />
+                <p className="font-medium text-foreground">{SITE_NAME}</p>
+                <address className="mt-1 not-italic">
+                  {COMPANY.address}
+                  <br />
+                  {COMPANY.postalCode} {COMPANY.city}
+                </address>
               </div>
             </section>
 
