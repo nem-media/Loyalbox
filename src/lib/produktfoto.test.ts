@@ -22,15 +22,15 @@ describe("produktfoto og billedtekst", () => {
     }
   });
 
-  it("alle tre varer viser den SAMME stander", () => {
-    // Det er det samme fysiske emne. Tre miljøer fik varerne til at ligne tre
-    // forskellige produkter; forskellen ligger i teksten under billedet.
-    // Komplet er det samme foto MED klistermærket, derfor sammenlignes der på
-    // grundfilen og ikke på filnavnet.
-    const grundfil = (slug: string) =>
-      PRODUKT_FOTO[slug].replace("-komplet.jpg", ".jpg");
-    const fotos = new Set(KATALOG.map((p) => grundfil(p.slug)));
-    expect(fotos.size).toBe(1);
+  it("Basic og Pro deler foto — Komplet har sit eget", () => {
+    // De to første er den samme akryl med det samme tryk, og forskellen
+    // mellem dem kan et foto ikke vise; tre miljøer fik dem til at ligne tre
+    // produkter. Komplet KAN ses: klistermærket sidder på skiltet.
+    const uden = KATALOG.filter((p) => !p.includesLoyalSum).map(
+      (p) => PRODUKT_FOTO[p.slug],
+    );
+    expect(new Set(uden).size).toBe(1);
+    expect(uden).not.toContain(PRODUKT_FOTO["loyalsum-komplet"]);
   });
 
   it("KUN Komplet har klistermærke-fotoet", () => {

@@ -535,29 +535,29 @@ export const KATALOG: Product[] = PRODUCTS.filter((p) => !p.addon);
  * Produktfoto pr. vare (i /public). Slår en vare ikke op her, falder
  * kataloget og produktsiderne tilbage på pladsholderen.
  *
- * ALLE TRE VARER VISER DEN SAMME STANDER, og det er med vilje: det ER det
- * samme fysiske emne. Tre forskellige miljøer (café/boutique/salon) fik
- * varerne til at se ud som tre forskellige produkter, og forskellen mellem
- * dem ligger ikke i akrylen — den ligger i, hvad QR-koden fører hen til. Det
- * er dét, PRODUKT_FOTO_TEKST siger under billedet.
+ * BASIC OG PRO DELER FOTO, KOMPLET HAR SIT EGET — og det er ikke en
+ * tilfældighed, at de ikke er ens tre veje rundt.
  *
- * KOMPLET ER DET SAMME FOTO MED KLISTERMÆRKET PÅ. Mærket "Indeholder
- * stempelkort" er 3 × 2 cm og lagt i billedet af
- * `scripts/lav-komplet-foto.mjs` — se dét script for målene og for, hvorfor
- * det ikke er en overlejring i CSS. At det er et KLISTERMÆRKE og ikke trykt
- * på skiltet er hele pointen: selve skiltet er ens for alle tre varer, og
- * stempelkortet oprettes af kunden EFTER købet, så et trykt løfte ville stå
- * på et skilt hos en kunde, der aldrig kom i gang.
+ * De to første varer er den samme akryl med det samme tryk; forskellen ligger
+ * i, hvad QR-koden fører hen til, og dét kan et foto ikke vise. Tre
+ * forskellige miljøer fik dem til at ligne tre forskellige produkter, så de
+ * står med ét og samme billede, og punkterne under (KORT_PUNKTER) siger
+ * forskellen.
  *
- * MÆRKET MÅ VISES, MEN IKKE SKRIVES. Det ligger fysisk i kassen, og derfor er
- * fotoet sandt — men det må ikke ind i `tagline`, `description`, `features`,
- * KORT_PUNKTER eller nogen anden kundevendt tekst. `produktfoto.test.ts`
- * håndhæver det, og begrundelsen står i AGENTS.md.
+ * KOMPLET KAN DERIMOD SES: klistermærket "Indeholder Stempelkort" ligger
+ * fysisk i kassen og sidder på skiltet på fotoet. Det er den eneste forskel,
+ * der findes som et fysisk emne, og derfor den eneste, der fortjener sit eget
+ * billede.
+ *
+ * MÆRKET MÅ VISES, MEN IKKE SKRIVES. Fotoet er sandt, fordi mærket følger med
+ * — men det må ikke ind i `tagline`, `description`, `features`, KORT_PUNKTER
+ * eller nogen anden kundevendt tekst. `produktfoto.test.ts` håndhæver det, og
+ * begrundelsen står i AGENTS.md.
  */
 export const PRODUKT_FOTO: Record<string, string> = {
   reviewstander: "/reviewstander-boutique.jpg",
   "reviewstander-pro": "/reviewstander-boutique.jpg",
-  "loyalsum-komplet": "/reviewstander-boutique-komplet.jpg",
+  "loyalsum-komplet": "/reviewstander-cafe-komplet.jpg",
 };
 
 /**
