@@ -678,19 +678,35 @@ export default function ReviewstanderPage() {
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Placér den dér, hvor den gode oplevelse slutter
             </h2>
-            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {PLACES.map((p) => (
-                <div
-                  key={p.name}
-                  className="box-shape border border-border bg-card p-5"
-                >
-                  <div className="flex items-center gap-3">
-                    <IndustryBadge branche={p.branche} size="md" />
-                    <h3 className="font-bold tracking-tight">{p.name}</h3>
+            <div className="mt-10 grid items-start gap-10 lg:grid-cols-[minmax(0,22rem)_1fr]">
+              {/* Produktfoto: standeren i et rigtigt miljø. 4:5 som kilden —
+                  ikke beskåret, for standeren fylder næsten hele højden, og en
+                  bredere beskæring ville klippe top eller bund af den. */}
+              <div className="box-shape overflow-hidden border border-border shadow-[var(--hoejde-2)]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/reviewstander-boutique.jpg"
+                  alt="Hvid LoyalSum reviewstander på en marmordisk i en lys butik"
+                  width={1000}
+                  height={1250}
+                  className="block h-auto w-full"
+                />
+              </div>
+
+              <div className="grid gap-6 sm:grid-cols-2">
+                {PLACES.map((p) => (
+                  <div
+                    key={p.name}
+                    className="box-shape border border-border bg-card p-5"
+                  >
+                    <div className="flex items-center gap-3">
+                      <IndustryBadge branche={p.branche} size="md" />
+                      <h3 className="font-bold tracking-tight">{p.name}</h3>
+                    </div>
+                    <p className="mt-3 text-sm text-muted">{p.where}</p>
                   </div>
-                  <p className="mt-3 text-sm text-muted">{p.where}</p>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </section>
