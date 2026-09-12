@@ -6,10 +6,11 @@ import { ButtonLink } from "@/components/ui/button";
 import {
   FOTO_FARVETEKST,
   KATALOG,
+  KORT_PUNKTER,
   PRODUKT_FOTO,
-  PRODUKT_FOTO_TEKST,
   UPCOMING_MERCH,
 } from "@/lib/constants";
+import { FluebenListe } from "@/components/ui/flueben-liste";
 import { ProductPrice } from "@/components/product-price";
 import { PurchaseNotice } from "@/components/purchase-notice";
 import {
@@ -103,16 +104,21 @@ export default function ProductsPage() {
                 <div className="flex flex-1 flex-col p-5">
                   <h3 className="font-bold tracking-tight">{p.name}</h3>
                   <p className="mt-1 text-sm text-muted">{p.tagline}</p>
-                  {/* Billedtekst. Alle tre kort viser den SAMME stander, så
-                      fotoet kan ikke længere skille varerne ad — det gør de
-                      to linjer her: hvad man vælger på skiltet (fælles), og
-                      hvad QR-koden fører hen til (varens egen). */}
-                  {PRODUKT_FOTO_TEKST[p.slug] ? (
-                    <p className="mt-3 text-xs leading-relaxed text-muted">
-                      {PRODUKT_FOTO_TEKST[p.slug]}
-                    </p>
+                  {/* Alle tre kort viser den SAMME stander, så fotoet kan
+                      ikke skille varerne ad — det gør punkterne her. Ét punkt
+                      pr. linje, så kortet kan skimmes; den hele sætning står
+                      på produktsiden. */}
+                  {KORT_PUNKTER[p.slug] ? (
+                    <FluebenListe
+                      punkter={KORT_PUNKTER[p.slug]}
+                      tekstKlasse="text-xs"
+                      className="mt-4"
+                    />
                   ) : null}
-                  <p className="mt-2 text-xs leading-relaxed text-muted">
+                  {/* Farvevalget gælder alle tre og står derfor for sig selv
+                      under punkterne — ikke som et sjette flueben, der ville
+                      læses som endnu en forskel mellem varerne. */}
+                  <p className="mt-4 border-t border-border pt-3 text-xs leading-relaxed text-muted">
                     {FOTO_FARVETEKST}
                   </p>
                   {/* mt-auto: billedteksterne er ikke lige lange, og uden den

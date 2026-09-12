@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   FOTO_FARVETEKST,
   KATALOG,
+  KORT_PUNKTER,
   PRODUKT_FOTO,
   PRODUKT_FOTO_TEKST,
 } from "./constants";
@@ -21,11 +22,27 @@ describe("produktfoto og billedtekst", () => {
     }
   });
 
-  it("alle tre varer viser det SAMME foto", () => {
-    // Det er den samme fysiske stander. Tre miljøer fik varerne til at ligne
-    // tre forskellige produkter; forskellen ligger i teksten under billedet.
-    const fotos = new Set(KATALOG.map((p) => PRODUKT_FOTO[p.slug]));
+  it("alle tre varer viser den SAMME stander", () => {
+    // Det er det samme fysiske emne. Tre miljøer fik varerne til at ligne tre
+    // forskellige produkter; forskellen ligger i teksten under billedet.
+    // Komplet er det samme foto MED klistermærket, derfor sammenlignes der på
+    // grundfilen og ikke på filnavnet.
+    const grundfil = (slug: string) =>
+      PRODUKT_FOTO[slug].replace("-komplet.jpg", ".jpg");
+    const fotos = new Set(KATALOG.map((p) => grundfil(p.slug)));
     expect(fotos.size).toBe(1);
+  });
+
+  it("KUN Komplet har klistermærke-fotoet", () => {
+    // Mærket siger "Indeholder stempelkort", og det er præcis dét, der skiller
+    // Komplet fra Pro. Havnede det på Pro, lovede fotoet en funktion, kunden
+    // ikke har købt.
+    for (const p of KATALOG) {
+      const harMaerke = PRODUKT_FOTO[p.slug].includes("-komplet");
+      expect(harMaerke, `${p.slug} har forkert foto`).toBe(
+        Boolean(p.includesLoyalSum),
+      );
+    }
   });
 
   it("billedteksterne er forskellige — ellers skiller de ikke varerne ad", () => {
@@ -48,6 +65,44 @@ describe("produktfoto og billedtekst", () => {
     expect(FOTO_FARVETEKST).toContain(ACCENT_TEKSTER.pris);
     expect(FOTO_FARVETEKST).toMatch(/tillæg/i);
     expect(FRONT_TEKSTER.prisNote).toMatch(/pr\. ordre/i);
+  });
+
+  it("hver vare har korte punkter til kortet", () => {
+    for (const p of KATALOG) {
+      const punkter = KORT_PUNKTER[p.slug];
+      expect(punkter, `punkter mangler for ${p.slug}`).toBeTruthy();
+      expect(punkter.length).toBeGreaterThanOrEqual(3);
+      // Et kort skal kunne skimmes. Et punkt, der wrapper til tre linjer på en
+      // telefon, er en sætning og hører hjemme i `features` på produktsiden.
+      for (const linje of punkter) {
+        expect(linje.length, `for langt punkt: "${linje}"`).toBeLessThanOrEqual(
+          46,
+        );
+      }
+    }
+  });
+
+  it("opslag står KUN på Komplet, og loves ikke som automatiske", () => {
+    // Spærringen sidder i src/app/dashboard/opslag/layout.tsx og spørger om
+    // PRODUKTET (hasLoyaltyAccess), ikke om plan — Pro og Komplet er samme
+    // niveau. Et opslags-punkt på Pro ville altså love en side, der afviser
+    // kunden. Og opslag laves ikke af sig selv: kunden vælger tekst og
+    // baggrund, henter billedet og deler det selv.
+    for (const p of KATALOG) {
+      const punkter = KORT_PUNKTER[p.slug].join(" ").toLowerCase();
+      if (!p.includesLoyalSum) expect(punkter).not.toContain("opslag");
+      expect(punkter).not.toMatch(/automatisk/);
+    }
+    expect(KORT_PUNKTER["loyalsum-komplet"].join(" ")).toMatch(/Opslag/);
+  });
+
+  it("statistik står på abonnementsvarerne og ikke på engangskøbet", () => {
+    // Statistik følger NIVEAUET (TIER_CAPABILITIES.pro). Basic har intet
+    // dashboard overhovedet, så punktet ville være et løfte uden en side.
+    for (const p of KATALOG) {
+      const punkter = KORT_PUNKTER[p.slug].join(" ").toLowerCase();
+      expect(punkter.includes("statistik")).toBe(Boolean(p.monthlyPrice));
+    }
   });
 
   it("farveteksten lover kun stjernerne — ikke rammen om logoet", () => {
