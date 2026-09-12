@@ -532,14 +532,46 @@ export const PRODUCTS: Product[] = [
 export const KATALOG: Product[] = PRODUCTS.filter((p) => !p.addon);
 
 /**
- * Produktfoto pr. vare (i /public). Samme fysiske stander i tre miljøer, så
- * kataloget og produktsiderne viser et rigtigt billede frem for en pladsholder.
- * Slår en vare ikke op her, falder siderne tilbage på pladsholderen.
+ * Produktfoto pr. vare (i /public). Slår en vare ikke op her, falder
+ * kataloget og produktsiderne tilbage på pladsholderen.
+ *
+ * ALLE TRE VARER VISER DET SAMME FOTO, og det er med vilje: det ER den samme
+ * fysiske stander. Tre forskellige miljøer (café/boutique/salon) fik varerne
+ * til at se ud som tre forskellige produkter, og forskellen mellem dem ligger
+ * ikke i akrylen — den ligger i, hvad QR-koden fører hen til. Det er dét,
+ * PRODUKT_FOTO_TEKST siger under billedet.
  */
 export const PRODUKT_FOTO: Record<string, string> = {
-  reviewstander: "/reviewstander-cafe.jpg",
+  reviewstander: "/reviewstander-boutique.jpg",
   "reviewstander-pro": "/reviewstander-boutique.jpg",
-  "loyalsum-komplet": "/reviewstander-salon.jpg",
+  "loyalsum-komplet": "/reviewstander-boutique.jpg",
+};
+
+/**
+ * Det, man kan vælge på selve SKILTET. Gælder alle tre varer, fordi standeren
+ * er den samme — derfor står linjen ét sted og ikke i hver billedtekst.
+ *
+ * Ordlyden følger `ACCENT_TEKSTER`/`FRONT_TEKSTER` i stander-tilvalg.ts:
+ * accenten farver stjernerne og "Scan eller tap" og koster ikke ekstra, mens
+ * en egen baggrundsfarve er et selvstændigt tryk og koster pr. ordre. Begge
+ * halvdele skal med — en gratis farve nævnt uden den, der koster, læses som
+ * om begge er gratis.
+ */
+export const FOTO_FARVETEKST =
+  "Vælg selv farve på stjernerne uden beregning — og evt. din egen baggrundsfarve mod tillæg.";
+
+/**
+ * Billedtekst pr. vare: den ENE sætning, der skiller varen fra de to andre,
+ * skrevet i kundens sprog frem for i funktionsnavne. Står under fotoet
+ * sammen med FOTO_FARVETEKST, så kataloget kan læses uden at klikke ind.
+ */
+export const PRODUKT_FOTO_TEKST: Record<string, string> = {
+  reviewstander:
+    "QR og NFC peger på ét link, du selv vælger — Google, Trustpilot, Facebook eller din egen side.",
+  "reviewstander-pro":
+    "Vælg flere anmeldelsesplatforme på din egen anmeldelsesside — og et eget link til fx dit menukort eller booking.",
+  "loyalsum-komplet":
+    "Alt i Pro — plus digitalt stempelkort uden app, som kunderne tilmelder sig selv på standeren.",
 };
 
 /**

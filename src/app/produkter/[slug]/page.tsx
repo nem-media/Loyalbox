@@ -4,7 +4,13 @@ import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Badge } from "@/components/ui/badge";
-import { KATALOG, PRODUKT_FOTO, getProduct } from "@/lib/constants";
+import {
+  FOTO_FARVETEKST,
+  KATALOG,
+  PRODUKT_FOTO,
+  PRODUKT_FOTO_TEKST,
+  getProduct,
+} from "@/lib/constants";
 import { toProductJsonLd } from "@/lib/commerce";
 import { formatCurrency } from "@/lib/utils";
 import { QuantityOrder } from "@/components/quantity-order";
@@ -85,22 +91,33 @@ export default async function ProductPage({
         </nav>
 
         <div className="grid gap-10 lg:grid-cols-2">
-          {/* Billede */}
-          {PRODUKT_FOTO[product.slug] ? (
-            <div className="box-shape aspect-[4/5] overflow-hidden border border-border">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={PRODUKT_FOTO[product.slug]}
-                alt={`${product.name} — reviewstander i brug`}
-                className="h-full w-full object-cover"
+          {/* Billede + billedtekst.
+              Fotoet er det SAMME på alle tre varer (se PRODUKT_FOTO), så det
+              er teksten under, der siger hvad netop denne vare kan. To linjer:
+              varens egen først, dernæst det, der gælder alle tre skilte. */}
+          <div>
+            {PRODUKT_FOTO[product.slug] ? (
+              <div className="box-shape aspect-[4/5] overflow-hidden border border-border">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={PRODUKT_FOTO[product.slug]}
+                  alt={`${product.name} — reviewstander i brug`}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ) : (
+              <StanderPlaceholder
+                className="box-shape aspect-[2/3] overflow-hidden border border-border"
+                iconClassName="h-32 w-32"
               />
-            </div>
-          ) : (
-            <StanderPlaceholder
-              className="box-shape aspect-[2/3] overflow-hidden border border-border"
-              iconClassName="h-32 w-32"
-            />
-          )}
+            )}
+            {PRODUKT_FOTO_TEKST[product.slug] ? (
+              <p className="mt-4 text-sm text-muted">
+                {PRODUKT_FOTO_TEKST[product.slug]}
+              </p>
+            ) : null}
+            <p className="mt-2 text-sm text-muted">{FOTO_FARVETEKST}</p>
+          </div>
 
           {/* Detaljer */}
           <div className="flex flex-col">
