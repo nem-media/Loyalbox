@@ -23,6 +23,15 @@ async function send(
   til: string[],
   emne: string,
   tekst: string,
+  /**
+   * Hvem et SVAR skal gå til, hvis det ikke er afsenderen.
+   *
+   * Kontaktformularen sender fra vores eget domæne (det er dét, der er
+   * verificeret hos Resend — sender vi som den besøgende, ryger mailen i
+   * spamfilteret på SPF/DKIM). Uden `reply_to` ville et svar derfor gå til os
+   * selv, og beskeden ville se besvaret ud, uden at nogen havde fået noget.
+   */
+  svarTil?: string,
 ): Promise<boolean> {
   const noegle = process.env.RESEND_API_KEY;
   if (!noegle) {
@@ -37,7 +46,13 @@ async function send(
         Authorization: `Bearer ${noegle}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ from: fra, to: til, subject: emne, text: tekst }),
+      body: JSON.stringify({
+        from: fra,
+        to: til,
+        subject: emne,
+        text: tekst,
+        ...(svarTil ? { reply_to: svarTil } : {}),
+      }),
     });
 
     if (!svar.ok) {
@@ -76,8 +91,12 @@ export function sendAlarm(emne: string, tekst: string): Promise<boolean> {
  * er i stykker", og et ordrevarsel betyder "der skal pakkes noget". Havde de
  * samme emnepræfiks, ville en travl indbakke behandle dem ens.
  */
-export function sendIntern(emne: string, tekst: string): Promise<boolean> {
-  return send(AFSENDER_DRIFT, [COMPANY.email], emne, tekst);
+export function sendIntern(
+  emne: string,
+  tekst: string,
+  svarTil?: string,
+): Promise<boolean> {
+  return send(AFSENDER_DRIFT, [COMPANY.email], emne, tekst, svarTil);
 }
 
 /** Mail til en kunde. Afsenderen er den, de kan svare på. */

@@ -26,6 +26,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
     },
     {
+      url: `${base}/kontakt`,
+      changeFrequency: "yearly",
+      priority: 0.5,
+      lastModified,
+    },
+    {
       url: `${base}/handelsbetingelser`,
       changeFrequency: "yearly",
       priority: 0.3,

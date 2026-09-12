@@ -37,6 +37,7 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
       { href: "/blog", label: "Blog" },
       { href: "/produkter", label: "Priser" },
       { href: "/bestil", label: "Bestil stander" },
+      { href: "/kontakt", label: "Kontakt os" },
     ],
   },
   {
