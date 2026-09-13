@@ -9,6 +9,7 @@ import {
   KORT_PUNKTER,
   PRODUKT_FOTO,
   UPCOMING_MERCH,
+  formatMaal,
   harPris,
 } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
@@ -146,8 +147,8 @@ export default function ProductsPage() {
             </h2>
             <p className="mt-2 max-w-2xl text-sm text-muted">
               Vi er i gang med flere materialer, så kunderne møder dig flere
-              steder end ved disken. De kan ikke bestilles endnu — og hvor der
-              ikke står en pris, er hverken størrelser eller pris fastlagt.
+              steder end ved disken. Priserne er på plads, men de kan ikke
+              bestilles endnu — står der ingen pris, er den ikke fastlagt.
             </p>
           </div>
 
@@ -181,22 +182,45 @@ export default function ProductsPage() {
                   */}
                   {harPris(m) ? (
                     <>
-                      <p className="mt-4 text-sm">
-                        {m.stoerrelser
-                          .map((st) =>
-                            st.pris
-                              ? `${st.format} ${formatCurrency(st.pris)}`
-                              : st.format,
-                          )
-                          .join(" · ")}
-                      </p>
+                      {/* ÉN LINJE PR. STØRRELSE, ikke en sammenskrevet
+                          stribe: formaterne har hver sit mål og sit antal, og
+                          de skal kunne sammenlignes lodret. Målet i cm står
+                          med, fordi "A6" ikke siger nogen, om mærkatet passer
+                          på en rude. */}
+                      <ul className="mt-4 space-y-1 text-sm">
+                        {m.stoerrelser.map((st) => (
+                          <li
+                            key={st.format}
+                            className="flex items-baseline justify-between gap-3"
+                          >
+                            <span>
+                              {st.format}{" "}
+                              <span className="text-xs text-muted">
+                                {formatMaal(st.format)}
+                              </span>
+                            </span>
+                            <span className="shrink-0 font-medium">
+                              {/* Antallet FØRST: "8 stk. 99 kr." kan ikke
+                                  læses som 99 kr. pr. stk., men "99 kr. for
+                                  8 stk." bliver det ved et hurtigt blik. */}
+                              {st.antal ? `${st.antal} stk. ` : ""}
+                              {st.pris ? formatCurrency(st.pris) : "—"}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
                       <p className="mt-1 text-xs text-muted">ex moms</p>
                     </>
                   ) : (
                     <>
                       <p className="mt-4 text-xs text-muted">
                         Planlagt i{" "}
-                        {m.stoerrelser.map((st) => st.format).join(" · ")}
+                        {m.stoerrelser
+                          .map((st) => {
+                            const maal = formatMaal(st.format);
+                            return maal ? `${st.format} (${maal})` : st.format;
+                          })
+                          .join(" · ")}
                       </p>
                       <p className="mt-1 text-sm text-muted">
                         Pris annonceres senere

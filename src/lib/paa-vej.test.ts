@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { UPCOMING_MERCH, harPris, PRODUCTS, KATALOG } from "./constants";
+import {
+  UPCOMING_MERCH,
+  harPris,
+  formatMaal,
+  A_FORMAT_MM,
+  PRODUCTS,
+  KATALOG,
+} from "./constants";
 import { UPCOMING_ICONS } from "@/components/product-placeholder";
 
 /**
@@ -81,13 +88,78 @@ describe("priser på kommende varer", () => {
     ]);
   });
 
-  it("de varer, der ikke er meldt ud, har INGEN pris", () => {
-    // Mærkater og flyers venter stadig på tal. Et gæt må ligge i en
-    // kommentar, aldrig i feltet — det ville blive vist som en rigtig pris.
-    for (const key of ["maerkater", "flyers"]) {
-      const vare = UPCOMING_MERCH.find((m) => m.key === key);
-      expect(vare, key).toBeTruthy();
-      expect(harPris(vare!), key).toBe(false);
+  it("mærkaterne koster 99 for både fire A6 og otte A7", () => {
+    // De to pakker dækker samme areal — én A4 — og skal derfor koste det
+    // samme. Ændres en pakkestørrelse uden prisen, er de pludselig uenige om,
+    // hvad et ark materiale koster.
+    const m = UPCOMING_MERCH.find((x) => x.key === "maerkater");
+    expect(m?.stoerrelser).toEqual([
+      { format: "A6", pris: 99, antal: 4 },
+      { format: "A7", pris: 99, antal: 8 },
+    ]);
+  });
+
+  it("flyers sælges pr. 100 stk.", () => {
+    const f = UPCOMING_MERCH.find((x) => x.key === "flyers");
+    expect(f?.stoerrelser).toEqual([
+      { format: "A5", pris: 289, antal: 100 },
+      { format: "A6", pris: 189, antal: 100 },
+    ]);
+  });
+
+  it("en pakke har altid et antal ved prisen", () => {
+    /*
+      "99 kr." uden et antal læses som stykprisen. Står der et antal i data,
+      skal prisen dække netop dét antal — og omvendt må et antal aldrig stå
+      alene uden en pris, for så er det et løfte om en pakke til ingen pris.
+    */
+    for (const m of UPCOMING_MERCH) {
+      for (const st of m.stoerrelser) {
+        if (st.antal === undefined) continue;
+        expect(st.antal, `${m.key} ${st.format}`).toBeGreaterThan(1);
+        expect(st.pris, `${m.key} ${st.format}`).toBeDefined();
+      }
     }
+  });
+
+  it("de varer, der ikke er meldt ud, har INGEN pris", () => {
+    // Alle fire HAR en pris i dag. Prøven holder reglen fast for den næste
+    // vare, der kommer til: et gæt må ligge i en kommentar, aldrig i feltet.
+    for (const m of UPCOMING_MERCH) {
+      for (const st of m.stoerrelser) {
+        if (st.pris !== undefined) continue;
+        expect(st.antal, `${m.key} ${st.format}`).toBeUndefined();
+      }
+    }
+  });
+});
+
+describe("målene i cm", () => {
+  it("A-formaterne er ISO 216's egne mål", () => {
+    // Skrevet af i hånden ville en tastefejl stå på siden som et produktmål.
+    expect(A_FORMAT_MM.A4).toEqual([210, 297]);
+    expect(A_FORMAT_MM.A5).toEqual([148, 210]);
+    expect(A_FORMAT_MM.A6).toEqual([105, 148]);
+    expect(A_FORMAT_MM.A7).toEqual([74, 105]);
+  });
+
+  it("hvert format, der bruges, HAR et mål", () => {
+    // Uden målet render kortet en tom parentes, og typerne siger ingenting:
+    // opslaget giver bare null.
+    for (const m of UPCOMING_MERCH) {
+      for (const st of m.stoerrelser) {
+        expect(formatMaal(st.format), `${m.key} ${st.format}`).toBeTruthy();
+      }
+    }
+  });
+
+  it("skrives i centimeter med dansk komma og uden overflødigt nul", () => {
+    expect(formatMaal("A4")).toBe("21 × 29,7 cm");
+    expect(formatMaal("A6")).toBe("10,5 × 14,8 cm");
+    expect(formatMaal("A7")).toBe("7,4 × 10,5 cm");
+  });
+
+  it("svarer null på et format, vi ikke kender", () => {
+    expect(formatMaal("A0")).toBeNull();
   });
 });
