@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { PageHeader } from "@/components/dashboard-shell";
-import { PurchaseNotice } from "@/components/purchase-notice";
 import {
   CAPABILITY_LABELS,
   CAPABILITY_HELP,
@@ -258,7 +257,6 @@ export default async function SubscriptionPage() {
               ))}
           </div>
 
-          <PurchaseNotice className="mt-5" />
         </section>
       ) : null}
 

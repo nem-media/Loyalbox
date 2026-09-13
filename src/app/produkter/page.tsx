@@ -15,7 +15,6 @@ import {
 import { formatCurrency } from "@/lib/utils";
 import { FluebenListe } from "@/components/ui/flueben-liste";
 import { ProductPrice } from "@/components/product-price";
-import { PurchaseNotice } from "@/components/purchase-notice";
 import {
   PlaceholderPanel,
   StanderPlaceholder,
@@ -58,7 +57,6 @@ export default function ProductsPage() {
             </p>
           </div>
 
-          <PurchaseNotice className="mb-6" />
 
           <div className="grid gap-6 md:grid-cols-3">
             {KATALOG.map((p) => (

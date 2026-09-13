@@ -39,8 +39,7 @@ import { EKSTRA_STANDER_SLUG } from "@/components/bestil-stander";
  * ikke ÅRSAGEN, kun at selvbetjeningen ikke er åben — og den henviser til en
  * mail, så et salg ikke går tabt imens.
  *
- * IKKE `PurchaseNotice`: den er skrevet til en BESØGENDE og tilbyder en
- * venteliste. Her står en betalende kunde, der allerede har produktet og bare
+ * IKKE den gamle besked til BESØGENDE (slettet ved åbningen). Her står en betalende kunde, der allerede har produktet og bare
  * vil have et skilt mere — dem sætter vi ordren op for i hånden.
  *
  * `ingen-virksomhed` skjuler stadig boksen, og det er med vilje: det svar

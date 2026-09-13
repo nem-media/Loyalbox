@@ -4,7 +4,6 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ButtonLink } from "@/components/ui/button";
 import { StanderPlaceholder } from "@/components/product-placeholder";
-import { PurchaseNotice } from "@/components/purchase-notice";
 import { getProduct } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 import { getSiteUrl } from "@/lib/site";
@@ -827,7 +826,6 @@ export default function ReviewstanderPage() {
               hvad der sker, når kunden har tappet.
             </p>
 
-            <PurchaseNotice className="mt-8" />
 
             <div className="mt-6 grid gap-6 lg:grid-cols-2">
               {[basis, pro].map((p) =>

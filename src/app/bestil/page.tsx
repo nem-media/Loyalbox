@@ -15,7 +15,7 @@ import { kraeverDestination, kanBestillesUdenKonto } from "@/lib/commerce";
 import type { DestinationType } from "@/lib/types/database";
 import { designFrontfarve } from "@/lib/design";
 import { Badge } from "@/components/ui/badge";
-import { PurchaseNotice } from "@/components/purchase-notice";
+import { KanIkkeBestilles } from "@/components/kan-ikke-bestilles";
 import { ButtonLink } from "@/components/ui/button";
 import { CheckoutButton } from "@/components/checkout-button";
 import { getCurrentUser } from "@/lib/auth";
@@ -282,11 +282,11 @@ export default async function OrderPage({
                 </p>
               </div>
             ) : spaerre === "ikke-aabnet" ? (
-              <PurchaseNotice />
+              <KanIkkeBestilles />
             ) : (
               /*
-                EN GREN FOR HVER GRUND, fordi PurchaseNotice skjuler sig selv,
-                når salget åbner — og så ville en fælles else-gren stå tom.
+                EN GREN FOR HVER GRUND. Grunden til at spærren svarer nej
+                er ikke den samme, og beskeden må ikke være det heller.
                 Hertil kommer man kun med "ingen-virksomhed" på en vare, der
                 IKKE kan købes uden konto, altså tilkøbet: alle andre er
                 viderestillet til /bestil/uden-konto længere oppe.

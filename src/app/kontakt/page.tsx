@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { KontaktForm } from "@/components/kontakt-form";
-import { PurchaseNotice } from "@/components/purchase-notice";
 import { Liste, ListeRaekke } from "@/components/ui/liste";
 import { COMPANY, SITE_NAME } from "@/lib/constants";
 import { SVARTID } from "@/lib/kontakt";
@@ -155,11 +154,6 @@ export default function KontaktPage() {
                 </address>
               </div>
             </section>
-
-            {/* Købet er ikke åbnet endnu. Beskeden ligger ét sted (se
-                PurchaseNotice) og forsvinder herfra af sig selv den dag,
-                betalingen åbner — sammen med ventelisten. */}
-            <PurchaseNotice />
 
             <section
               aria-labelledby="slutkunde"

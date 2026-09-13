@@ -14,7 +14,6 @@ import {
 import { toProductJsonLd } from "@/lib/commerce";
 import { formatCurrency } from "@/lib/utils";
 import { QuantityOrder } from "@/components/quantity-order";
-import { PurchaseNotice } from "@/components/purchase-notice";
 import { StanderPlaceholder } from "@/components/product-placeholder";
 import { FluebenListe } from "@/components/ui/flueben-liste";
 
@@ -119,7 +118,6 @@ export default async function ProductPage({
 
             <FluebenListe punkter={product.features} className="mt-6" />
 
-            <PurchaseNotice className="mt-8" />
 
             <div className="mt-4">
               <QuantityOrder product={product} mode="order" />
