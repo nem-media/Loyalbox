@@ -190,7 +190,10 @@ export default function ProductsPage() {
                       <ul className="mt-4 space-y-1 text-sm">
                         {m.stoerrelser.map((st) => (
                           <li
-                            key={st.format}
+                            // Nøglen er format OG antal: mærkaterne har to
+                            // A7-linjer (8 og 24 stk.), og formatet alene
+                            // ville give to rækker samme nøgle.
+                            key={`${st.format}-${st.antal ?? 1}`}
                             className="flex items-baseline justify-between gap-3"
                           >
                             <span>

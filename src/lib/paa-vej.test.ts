@@ -73,19 +73,47 @@ describe("priser på kommende varer", () => {
     }
   });
 
-  it("plakaten koster 139 i A4 og findes ikke i A5", () => {
-    // De to eneste fastlagte varer skrives ned, så en omskrivning af listen
-    // ikke stille kan ændre en pris, der er meldt ud.
+  it("papirplakaten koster 99 i A4 og findes ikke i A5", () => {
+    // Priserne skrives ned, så en omskrivning af listen ikke stille kan
+    // ændre et beløb, der er meldt ud.
     const plakat = UPCOMING_MERCH.find((m) => m.key === "plakater");
-    expect(plakat?.stoerrelser).toEqual([{ format: "A4", pris: 139 }]);
+    expect(plakat?.stoerrelser).toEqual([{ format: "A4", pris: 99 }]);
   });
 
-  it("den selvklæbende koster 149 i A4 og 99 i A5", () => {
+  it("den selvklæbende koster 149 i A4 og 129 i A5", () => {
     const selv = UPCOMING_MERCH.find((m) => m.key === "selvklaebende");
     expect(selv?.stoerrelser).toEqual([
       { format: "A4", pris: 149 },
-      { format: "A5", pris: 99 },
+      { format: "A5", pris: 129 },
     ]);
+  });
+
+  it("papirplakaten er billigere end den selvklæbende i samme format", () => {
+    /*
+      DET ER HELE GRUNDEN TIL, AT BEGGE FINDES. Papiret skal tapes op eller i
+      en ramme; den selvklæbende gør det selv. Står de tæt på hinanden, har
+      papirplakaten ingen grund til at eksistere — dét var den fejl, der
+      sendte den fra 139 ned til 99.
+    */
+    const papir = UPCOMING_MERCH.find((m) => m.key === "plakater")
+      ?.stoerrelser[0];
+    const selv = UPCOMING_MERCH.find((m) => m.key === "selvklaebende")
+      ?.stoerrelser.find((st) => st.format === "A4");
+    expect(papir!.pris!).toBeLessThan(selv!.pris!);
+    expect(selv!.pris! - papir!.pris!).toBeGreaterThanOrEqual(40);
+  });
+
+  it("et ark mærkater er billigere end den mindste selvklæbende", () => {
+    /*
+      Til 99 kostede A5-selvklæbende det samme som fire A6-mærkater og gav
+      det halve materiale — og begge sælges til ruden. Prøven holder fast i,
+      at de to ikke igen kan ende på samme pris.
+    */
+    const ark = UPCOMING_MERCH.find((m) => m.key === "maerkater")
+      ?.stoerrelser[0];
+    const mindsteSelv = UPCOMING_MERCH.find((m) => m.key === "selvklaebende")
+      ?.stoerrelser.at(-1);
+    expect(ark!.pris!).toBeLessThan(mindsteSelv!.pris!);
   });
 
   it("mærkaterne koster 99 for både fire A6 og otte A7", () => {
@@ -96,7 +124,26 @@ describe("priser på kommende varer", () => {
     expect(m?.stoerrelser).toEqual([
       { format: "A6", pris: 99, antal: 4 },
       { format: "A7", pris: 99, antal: 8 },
+      { format: "A7", pris: 249, antal: 24 },
     ]);
+  });
+
+  it("storpakken er billigere pr. stk. end den lille", () => {
+    // 24 stk. er tre ark, som efter arkprisen ville koste 297. Er 249 ikke
+    // lavere pr. stk., er der ingen grund til at købe den store.
+    const rk = UPCOMING_MERCH.find((x) => x.key === "maerkater")!.stoerrelser;
+    const lille = rk.find((st) => st.antal === 8)!;
+    const stor = rk.find((st) => st.antal === 24)!;
+    expect(stor.pris! / stor.antal!).toBeLessThan(lille.pris! / lille.antal!);
+  });
+
+  it("to rækker kan dele format, men ikke format OG antal", () => {
+    // Kortet bruger `format-antal` som React-nøgle, netop fordi A7 nu står
+    // to gange. To ens par ville give to rækker samme nøgle.
+    for (const m of UPCOMING_MERCH) {
+      const noegler = m.stoerrelser.map((st) => `${st.format}-${st.antal ?? 1}`);
+      expect(new Set(noegler).size, m.key).toBe(noegler.length);
+    }
   });
 
   it("flyers sælges pr. 100 stk.", () => {

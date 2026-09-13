@@ -764,11 +764,19 @@ export const UPCOMING_MERCH: UpcomingItem[] = [
     key: "plakater",
     name: "Plakater",
     tagline:
-      "Viser allerede ved døren eller på væggen, at I samler anmeldelser — og at der er en kundeklub indenfor.",
+      "Papirplakat til en ramme eller en opslagstavle. Viser allerede ved døren, at I samler anmeldelser — og at der er en kundeklub indenfor.",
     placering: "Døren og væggen",
-    // KUN A4. A5 er bevidst droppet: en A5 på en væg forsvinder, og skal
-    // budskabet være mindre, er det den selvklæbende til ruden, der løser det.
-    stoerrelser: [{ format: "A4", pris: 139 }],
+    /*
+      KUN A4. A5 er bevidst droppet: en A5 på en væg forsvinder, og skal
+      budskabet være mindre, er det den selvklæbende til ruden, der løser det.
+
+      99 OG IKKE 139. Den stod 10 kr. under den selvklæbende A4, og med så
+      lille en forskel havde papirplakaten ingen grund til at findes: den
+      skal tapes op eller i en ramme, mens den anden klæber selv. Nu er den
+      det billige valg, og de 50 kr. op til den selvklæbende er prisen for at
+      slippe for rammen. Rollen står nu også i teksten.
+    */
+    stoerrelser: [{ format: "A4", pris: 99 }],
   },
   {
     key: "selvklaebende",
@@ -776,9 +784,16 @@ export const UPCOMING_MERCH: UpcomingItem[] = [
     tagline:
       "Sættes direkte på ruden eller væggen — ingen ramme, ingen tape, og den kan tages af igen.",
     placering: "Ruden og væggen",
+    /*
+      A5 ER SAT OP FRA 99 TIL 129. Til 99 kostede den præcis det samme som
+      fire A6-mærkater — men gav det halve materiale (311 mod 622 cm²), og
+      begge sælges til ruden. Den sammenligning ville enhver kunde lave, og
+      den faldt ud til mærkaternes fordel hver gang. Nu er trappen 99 for et
+      ark mærkater, 129 for den lille selvklæbende og 149 for den store.
+    */
     stoerrelser: [
       { format: "A4", pris: 149 },
-      { format: "A5", pris: 99 },
+      { format: "A5", pris: 129 },
     ],
   },
   {
@@ -788,14 +803,21 @@ export const UPCOMING_MERCH: UpcomingItem[] = [
       "Samme QR på ruden og på bordet. Fylder ingenting, virker døgnet rundt — og kan sættes op og tages af igen.",
     placering: "Ruden og bordet",
     /*
-      BEGGE PAKKER ER ÉT A4-ARK VÆRD, og derfor koster de det samme: fire A6
-      og otte A7 dækker hver især 620 cm², altså præcis en A4. Prisen følger
-      materialet og ikke antallet — ændres en pakkestørrelse, skal prisen
-      følge med, ellers er de to pludselig uenige om, hvad et ark koster.
+      PRISEN FØLGER ARKET, IKKE ANTALLET. Fire A6 og otte A7 dækker hver især
+      620 cm² — præcis ét A4-ark — og koster derfor begge 99. Ændres en
+      pakkestørrelse, skal prisen følge med, ellers er de to pludselig uenige
+      om, hvad et ark materiale koster.
+
+      DEN STORE PAKKE ER TIL BORDENE. Otte A7 rækker til otte borde, og en
+      café med tyve skulle købe tre pakker. 24 stk. er tre ark, som efter
+      samme regel ville koste 297; 249 er de 16 % rabat, mængden fortjener —
+      samme tanke som VOLUME_DISCOUNTS på standerne. Kun A7 får en stor
+      pakke: A6 sidder på ruden, og dér er der brug for én, ikke tyve.
     */
     stoerrelser: [
       { format: "A6", pris: 99, antal: 4 },
       { format: "A7", pris: 99, antal: 8 },
+      { format: "A7", pris: 249, antal: 24 },
     ],
   },
   {
