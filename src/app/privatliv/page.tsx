@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { LegalSection, CompanyDetails } from "@/components/legal";
 import { COMPANY, SITE_NAME } from "@/lib/constants";
 import { FRISTER, OPRYDNING_KADENCE } from "@/lib/opbevaring";
+import { salgetErAabent } from "@/lib/commerce";
 import {
   SUSPENSION_MAANEDER,
   SLETNING_ANGREFRIST_DAGE,
@@ -125,12 +126,28 @@ export default function PrivacyPage() {
           id="venteliste"
           title="4. Hvis du skriver dig op til åbningen"
         >
-          <p>
-            Salget er ikke åbnet endnu, og du kan i stedet bede om at blive
-            kontaktet, når det sker. Vi beder om dit navn, din e-mail og — hvis
-            du vil — dit telefonnummer, samt hvilken løsning du er interesseret
-            i.
-          </p>
+          {/*
+            SÆTNINGEN SKIFTER, NÅR SALGET ÅBNER. Afsnittet skal blive stående —
+            det beskriver oplysninger, vi stadig har liggende om dem, der
+            skrev sig op — men "salget er ikke åbnet endnu" ville være
+            usandt fra den dag, live-nøglen er sat. Samme kilde som
+            PurchaseNotice, så de to ikke kan komme i utakt.
+          */}
+          {salgetErAabent() ? (
+            <p>
+              Før salget åbnede, kunne man bede om at blive kontaktet, når det
+              skete. Skrev du dig op, bad vi om dit navn, din e-mail og — hvis
+              du ville — dit telefonnummer, samt hvilken løsning du var
+              interesseret i.
+            </p>
+          ) : (
+            <p>
+              Salget er ikke åbnet endnu, og du kan i stedet bede om at blive
+              kontaktet, når det sker. Vi beder om dit navn, din e-mail og —
+              hvis du vil — dit telefonnummer, samt hvilken løsning du er
+              interesseret i.
+            </p>
+          )}
           <p>
             <strong>Oplysningerne gemmes ikke i vores system.</strong> De sendes
             som en almindelig mail til {COMPANY.email} og ligger i vores

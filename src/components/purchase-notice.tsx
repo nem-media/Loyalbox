@@ -1,5 +1,6 @@
 import { VentelisteForm } from "@/components/venteliste-form";
 import { COMPANY } from "@/lib/constants";
+import { salgetErAabent } from "@/lib/commerce";
 
 /**
  * "Køb er ikke åbnet endnu"-besked.
@@ -17,10 +18,19 @@ import { COMPANY } from "@/lib/constants";
  * Nu kan de skrive sig op på stedet, og vi har dem den dag, salget åbner.
  * Formularen er foldet sammen, fordi beskeden står SYV steder.
  *
- * NÅR STRIPE ÅBNER: slet denne fil og de steder, den importeres. Husk også
- * ventelisten — de mennesker har bedt om at høre fra os.
+ * DEN SKJULER SIG SELV, NÅR SALGET ÅBNER. Beskeden står otte steder, og et
+ * go-live, hvor nogen skulle huske dem alle, ville ende med et site, der sagde
+ * "du kan ikke købe online endnu" ved siden af en virkende købsknap. Den
+ * spørger derfor `salgetErAabent()` og render ingenting i live-tilstand — også
+ * de steder, hvor beskeden står i en else-gren.
+ *
+ * NÅR SALGET ER ÅBNET, og de sidste på ventelisten har hørt fra os, kan filen
+ * og dens importer slettes. Ventelisten er ikke en detalje: de mennesker har
+ * bedt om at høre fra os, og formularen forsvinder sammen med beskeden her.
  */
 export function PurchaseNotice({ className }: { className?: string }) {
+  if (salgetErAabent()) return null;
+
   return (
     <div
       className={

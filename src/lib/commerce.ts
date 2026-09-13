@@ -193,6 +193,23 @@ export function koebSpaerreUdenKonto(
   return null;
 }
 
+/**
+ * Er salget åbnet for almindelige besøgende?
+ *
+ * DEN ENESTE MÅDE AT SPØRGE PÅ. Beskeden "du kan ikke købe online endnu" stod
+ * hårdt kodet otte steder, og den dag live-nøglen bliver sat, ville sitet sige
+ * det samme, mens købsknapperne virkede. Nu spørger `PurchaseNotice` her og
+ * skjuler sig selv — der er ingen liste af steder at huske.
+ *
+ * Svaret er præcis de to led fra `koebSpaerre()`, der IKKE handler om kunden
+ * eller varen: er der en nøgle, og er den en live-nøgle? Er den en testnøgle,
+ * kan kun `@loyalbox.test` købe (se `isTestBuyer`), og for alle andre er
+ * salget reelt lukket — derfor skal beskeden stadig stå.
+ */
+export function salgetErAabent(): boolean {
+  return isStripeConfigured() && stripeMode() === "live";
+}
+
 export function canStartCheckout(
   user:
     | { email: string; company: { cvr?: string | null } | null }

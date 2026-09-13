@@ -16,6 +16,7 @@ import type { DestinationType } from "@/lib/types/database";
 import { designFrontfarve } from "@/lib/design";
 import { Badge } from "@/components/ui/badge";
 import { PurchaseNotice } from "@/components/purchase-notice";
+import { ButtonLink } from "@/components/ui/button";
 import { CheckoutButton } from "@/components/checkout-button";
 import { getCurrentUser } from "@/lib/auth";
 import { koebSpaerre } from "@/lib/commerce";
@@ -280,8 +281,28 @@ export default async function OrderPage({
                   og der er ikke fortrydelsesret ved erhvervskøb.
                 </p>
               </div>
-            ) : (
+            ) : spaerre === "ikke-aabnet" ? (
               <PurchaseNotice />
+            ) : (
+              /*
+                EN GREN FOR HVER GRUND, fordi PurchaseNotice skjuler sig selv,
+                når salget åbner — og så ville en fælles else-gren stå tom.
+                Hertil kommer man kun med "ingen-virksomhed" på en vare, der
+                IKKE kan købes uden konto, altså tilkøbet: alle andre er
+                viderestillet til /bestil/uden-konto længere oppe.
+              */
+              <div className="box-shape border border-border bg-card p-4">
+                <p className="text-sm font-medium">
+                  Log ind for at bestille denne vare
+                </p>
+                <p className="mt-1 text-sm text-muted">
+                  Tilkøb hører til en butik, der allerede er kunde, og
+                  bestilles fra dit dashboard.
+                </p>
+                <ButtonLink href="/login" size="sm" className="mt-3">
+                  Log ind
+                </ButtonLink>
+              </div>
             )}
 
             {/* Antalsvælgeren er en PRISVISNING her, ikke en bestilling.
