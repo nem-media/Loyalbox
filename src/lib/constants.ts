@@ -683,15 +683,31 @@ export function getProduct(slug: string): Product | undefined {
 // (generateStaticParams) og et kommende Google Shopping-feed — placeholdere
 // hører ingen af de steder hjemme.
 //
-// Ingen af dem har pris endnu. Sæt ikke et tal på her: prisen ville blive vist
-// som en rigtig pris på en offentlig side. Når en vare er klar, flyttes den
-// over i PRODUCTS med rigtig pris, billede og egen side.
+// EN PRIS HER BLIVER VIST SOM EN RIGTIG PRIS. Derfor er `pris` valgfri pr.
+// størrelse, og reglen er enkel: skriv KUN et tal, når det er besluttet.
+// Mangler det, står der "Pris annonceres senere" på kortet, og et gæt hører
+// hjemme i en kommentar — aldrig i feltet. Det var netop derfor, blokken før
+// slet ikke måtte have priser: dengang var ingen af dem fastlagt.
 //
-// STØRRELSERNE ER PLANLAGTE og står som tekst, netop fordi de ikke er
-// besluttet endnu. Derfor siger sektionen på /produkter ligeud, at hverken
-// størrelser eller priser er fastlagt — ellers ville en A4 her være et
-// tilsagn om et format, vi ikke har lovet nogen.
+// Priserne er EX MOMS som alle andre priser på sitet (se AGENTS.md), og
+// kortene skriver det, så et tal her ikke kan forveksles med en pris inkl.
+//
+// En vare bliver her, indtil den kan BESTILLES. En pris gør den ikke
+// købbar — det kræver en plads i PRODUCTS med Stripe-id'er, billede og egen
+// side, og det er dét skridt, der flytter den ud af listen.
 // ===========================================================================
+
+export interface UpcomingSize {
+  /** Papirformat, fx "A4". */
+  format: string;
+  /**
+   * Pris i kroner EX MOMS — eller udeladt, hvis den ikke er besluttet.
+   *
+   * Et tal her vises til kunder. Gæt hører til i en kommentar; se blokkens
+   * regel ovenfor.
+   */
+  pris?: number;
+}
 
 export interface UpcomingItem {
   /** Bruges kun som React-key og til ikonvalg — ikke som URL. */
@@ -700,34 +716,41 @@ export interface UpcomingItem {
   tagline: string;
   /** Hvor i forretningen varen sidder. Holder listen konkret. */
   placering: string;
-  /**
-   * Planlagte størrelser, største først.
-   *
-   * IKKE ENDELIGE. Planen er A4 som det største og mindre formater derfra, og
-   * sektionen på /produkter siger ligeud, at hverken størrelser eller priser
-   * er fastlagt. Uden det forbehold ville et A-format her læses som et tilbud.
-   */
-  stoerrelser: string[];
+  /** Størrelser, største først. Med pris når den er fastlagt. */
+  stoerrelser: UpcomingSize[];
 }
 
 export const UPCOMING_MERCH: UpcomingItem[] = [
-  {
-    key: "maerkater",
-    name: "Vindues- & bordmærkater",
-    tagline:
-      "Samme QR på ruden og på bordet. Fylder ingenting, virker døgnet rundt — og kan sættes op og tages af igen.",
-    placering: "Ruden og bordet",
-    // PRISGÆT (ikke vist nogen steder): omkring 79 kr. for et sæt på fire.
-    stoerrelser: ["A6", "A7"],
-  },
   {
     key: "plakater",
     name: "Plakater",
     tagline:
       "Viser allerede ved døren eller på væggen, at I samler anmeldelser — og at der er en kundeklub indenfor.",
     placering: "Døren og væggen",
-    // PRISGÆT (ikke vist nogen steder): omkring 99 kr. pr. stk.
-    stoerrelser: ["A4", "A5"],
+    // KUN A4. A5 er bevidst droppet: en A5 på en væg forsvinder, og skal
+    // budskabet være mindre, er det den selvklæbende til ruden, der løser det.
+    stoerrelser: [{ format: "A4", pris: 139 }],
+  },
+  {
+    key: "selvklaebende",
+    name: "Selvklæbende plakat",
+    tagline:
+      "Sættes direkte på ruden eller væggen — ingen ramme, ingen tape, og den kan tages af igen.",
+    placering: "Ruden og væggen",
+    stoerrelser: [
+      { format: "A4", pris: 149 },
+      { format: "A5", pris: 99 },
+    ],
+  },
+  {
+    key: "maerkater",
+    name: "Vindues- & bordmærkater",
+    tagline:
+      "Samme QR på ruden og på bordet. Fylder ingenting, virker døgnet rundt — og kan sættes op og tages af igen.",
+    placering: "Ruden og bordet",
+    // Størrelser og pris er ikke meldt ud endnu; A6/A7 er en PLAN, ikke et
+    // tilsagn, og derfor står der "Planlagt i" på kortet.
+    stoerrelser: [{ format: "A6" }, { format: "A7" }],
   },
   {
     key: "flyers",
@@ -735,10 +758,15 @@ export const UPCOMING_MERCH: UpcomingItem[] = [
     tagline:
       "Følger med i posen eller ligger på disken, så kunden kan scanne igen hjemmefra.",
     placering: "Disken og posen",
-    // PRISGÆT (ikke vist nogen steder): omkring 249 kr. for 100 stk.
-    stoerrelser: ["A5", "A6"],
+    // PRISGÆT (må ikke i feltet): omkring 249 kr. for 100 stk.
+    stoerrelser: [{ format: "A5" }, { format: "A6" }],
   },
 ];
+
+/** Har varen mindst én fastlagt pris? Afgør, hvad kortet skriver. */
+export function harPris(vare: UpcomingItem): boolean {
+  return vare.stoerrelser.some((s) => typeof s.pris === "number");
+}
 
 /** Højeste mængderabat (%) kunden opnår ved et givet antal standere. */
 export function volumeDiscountPct(qty: number): number {

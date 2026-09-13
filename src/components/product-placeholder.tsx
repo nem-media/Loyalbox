@@ -74,6 +74,15 @@ export const UPCOMING_ICONS: Record<string, React.ReactNode> = {
       <path d="M9 8h6M9 12h6M9 16h3" />
     </Svg>
   ),
+  // Selvklæbende: en RUDE med sprosser. Varen er en plakat, men det, der
+  // skiller den fra den almindelige, er hvor den kan sidde — og et vindue
+  // kan kendes på 40 px, hvor endnu et ark med en flig ikke kan.
+  selvklaebende: (
+    <Svg>
+      <rect x="3.5" y="4" width="17" height="16" rx="1.5" />
+      <path d="M12 4v16M3.5 12h17" />
+    </Svg>
+  ),
   // Flyers: to ark, fordi de deles ud i bundter og aldrig ligger ét ad gangen.
   flyers: (
     <Svg>
