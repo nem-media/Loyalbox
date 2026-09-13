@@ -697,8 +697,39 @@ export function getProduct(slug: string): Product | undefined {
 // side, og det er dét skridt, der flytter den ud af listen.
 // ===========================================================================
 
+/**
+ * Papirformaternes mål i MILLIMETER (ISO 216).
+ *
+ * Tallene står ÉT sted og skrives ikke af pr. vare: "A5" betyder det samme,
+ * uanset om det er en plakat eller en flyer, og to lister ville før eller
+ * siden sige hver sit om samme format. `paa-vej.test.ts` prøver dem mod
+ * standardens egne mål.
+ */
+export const A_FORMAT_MM: Record<string, [number, number]> = {
+  A4: [210, 297],
+  A5: [148, 210],
+  A6: [105, 148],
+  A7: [74, 105],
+};
+
+/**
+ * Målet som kunden skal læse det: "10,5 × 14,8 cm".
+ *
+ * CENTIMETER OG IKKE MILLIMETER. Et "A6" siger ingenting til en, der skal
+ * vurdere, om mærkatet passer på en rude — og 105 × 148 mm kræver et ekstra
+ * regnestykke i hovedet. Centimeter er det mål, folk holder fingrene op mod.
+ * Dansk decimalkomma, og et helt tal skrives uden ",0".
+ */
+export function formatMaal(format: string): string | null {
+  const mm = A_FORMAT_MM[format];
+  if (!mm) return null;
+  const cm = (v: number) =>
+    (v / 10).toFixed(1).replace(/\.0$/, "").replace(".", ",");
+  return `${cm(mm[0])} × ${cm(mm[1])} cm`;
+}
+
 export interface UpcomingSize {
-  /** Papirformat, fx "A4". */
+  /** Papirformat, fx "A4". Målet i cm slås op med formatMaal(). */
   format: string;
   /**
    * Pris i kroner EX MOMS — eller udeladt, hvis den ikke er besluttet.
@@ -707,6 +738,14 @@ export interface UpcomingSize {
    * regel ovenfor.
    */
   pris?: number;
+  /**
+   * Antal stykker, prisen dækker. Udeladt betyder ét stykke.
+   *
+   * SKAL MED, HVOR DEN GÆLDER. Mærkater og flyers sælges i pakker, og 99 kr.
+   * for otte er noget helt andet end 99 kr. for ét — står antallet ikke ved
+   * beløbet, læser kunden den dyreste af de to muligheder.
+   */
+  antal?: number;
 }
 
 export interface UpcomingItem {
@@ -748,9 +787,16 @@ export const UPCOMING_MERCH: UpcomingItem[] = [
     tagline:
       "Samme QR på ruden og på bordet. Fylder ingenting, virker døgnet rundt — og kan sættes op og tages af igen.",
     placering: "Ruden og bordet",
-    // Størrelser og pris er ikke meldt ud endnu; A6/A7 er en PLAN, ikke et
-    // tilsagn, og derfor står der "Planlagt i" på kortet.
-    stoerrelser: [{ format: "A6" }, { format: "A7" }],
+    /*
+      BEGGE PAKKER ER ÉT A4-ARK VÆRD, og derfor koster de det samme: fire A6
+      og otte A7 dækker hver især 620 cm², altså præcis en A4. Prisen følger
+      materialet og ikke antallet — ændres en pakkestørrelse, skal prisen
+      følge med, ellers er de to pludselig uenige om, hvad et ark koster.
+    */
+    stoerrelser: [
+      { format: "A6", pris: 99, antal: 4 },
+      { format: "A7", pris: 99, antal: 8 },
+    ],
   },
   {
     key: "flyers",
@@ -758,12 +804,19 @@ export const UPCOMING_MERCH: UpcomingItem[] = [
     tagline:
       "Følger med i posen eller ligger på disken, så kunden kan scanne igen hjemmefra.",
     placering: "Disken og posen",
-    // PRISGÆT (må ikke i feltet): omkring 249 kr. for 100 stk.
-    stoerrelser: [{ format: "A5" }, { format: "A6" }],
+    stoerrelser: [
+      { format: "A5", pris: 289, antal: 100 },
+      { format: "A6", pris: 189, antal: 100 },
+    ],
   },
 ];
 
-/** Har varen mindst én fastlagt pris? Afgør, hvad kortet skriver. */
+/**
+ * Har varen mindst én fastlagt pris? Afgør, hvad kortet skriver.
+ *
+ * Alle fire varer HAR en pris i dag. Grenen uden bliver stående, fordi det er
+ * sådan enhver ny vare begynder — de fire startede selv dér.
+ */
 export function harPris(vare: UpcomingItem): boolean {
   return vare.stoerrelser.some((s) => typeof s.pris === "number");
 }
