@@ -102,6 +102,48 @@ describe("salgetErAabent", () => {
   });
 });
 
+describe("alle varer kan sælges i LIVE", () => {
+  /*
+    DEN DAG LIVE-NØGLEN SÆTTES, SKAL HVER ENESTE VARE VIRKE.
+
+    canSell() svarer falsk, hvis produktet, månedsprisen eller momssatsen
+    mangler i tilstanden — og knappen forsvinder så bare, uden en fejl nogen
+    steder. Tilkøbet "Ekstra stander" stod netop sådan indtil 13. september:
+    det havde aldrig fået live-id'er, og en kunde ville have stået med en
+    manglende knap på en vare, der ellers var klar.
+
+    Prøven dækker PRODUCTS og ikke KATALOG, fordi tilkøbet netop ikke står i
+    kataloget — og det var dét, der gjorde, at ingen opdagede hullet.
+  */
+  it("hver vare har hele sættet af live-id'er", () => {
+    process.env.STRIPE_SECRET_KEY = "sk_live_abc";
+    for (const p of PRODUCTS) {
+      expect(canSell(p), `${p.slug} kan ikke sælges i live`).toBe(true);
+    }
+  });
+
+  it("og i test, så begge verdener er hele", () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_abc";
+    for (const p of PRODUCTS) {
+      expect(canSell(p), `${p.slug} kan ikke sælges i test`).toBe(true);
+    }
+  });
+
+  it("test- og live-id'er er FORSKELLIGE priser", () => {
+    // De to tilstande er adskilte verdener. Et test-id sendt til live-API'et
+    // fejler — og et live-id i test ville tage imod rigtige penge.
+    for (const p of PRODUCTS) {
+      const t = p.stripe?.test;
+      const l = p.stripe?.live;
+      if (!t || !l) continue;
+      expect(l.priceId, p.slug).not.toBe(t.priceId);
+      if (t.monthlyPriceId || l.monthlyPriceId) {
+        expect(l.monthlyPriceId, p.slug).not.toBe(t.monthlyPriceId);
+      }
+    }
+  });
+});
+
 describe("canSell", () => {
   beforeEach(() => {
     process.env.STRIPE_SECRET_KEY = "sk_test_abc";
