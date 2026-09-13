@@ -3,6 +3,7 @@ import {
   canSell,
   canStartCheckout,
   koebSpaerre,
+  salgetErAabent,
   isTestBuyer,
   stripeMode,
   skalOpretteFoersteStander,
@@ -63,6 +64,41 @@ describe("stripeMode", () => {
     expect(stripeMode()).toBe("test");
     delete process.env.STRIPE_SECRET_KEY;
     expect(stripeMode()).toBe("test");
+  });
+});
+
+describe("salgetErAabent", () => {
+  /*
+    DET ER DENNE FUNKTION, DER SLUKKER "du kan ikke købe online endnu".
+    Svarer den forkert, siger sitet enten det modsatte af sig selv (besked ved
+    siden af en virkende købsknap) eller skjuler beskeden, mens salget reelt er
+    lukket — og så står en rigtig kunde med et afvist kort uden en forklaring.
+  */
+  it("er lukket uden nøgle og med en TESTnøgle", () => {
+    delete process.env.STRIPE_SECRET_KEY;
+    expect(salgetErAabent()).toBe(false);
+    process.env.STRIPE_SECRET_KEY = "sk_test_abc";
+    expect(salgetErAabent()).toBe(false);
+  });
+
+  it("er åbent først med en live-nøgle", () => {
+    process.env.STRIPE_SECRET_KEY = "sk_live_abc";
+    expect(salgetErAabent()).toBe(true);
+  });
+
+  it("følger nøjagtig de to led i koebSpaerre, der ikke handler om kunden", () => {
+    // Er de to uenige, kan beskeden forsvinde, mens spærren stadig afviser.
+    const kunde = {
+      email: "ejer@cafeaurora.dk",
+      company: { cvr: "37811769" },
+    };
+    process.env.STRIPE_SECRET_KEY = "sk_test_abc";
+    expect(salgetErAabent()).toBe(false);
+    expect(koebSpaerre(kunde, KOMPLET)).toBe("ikke-aabnet");
+
+    process.env.STRIPE_SECRET_KEY = "sk_live_abc";
+    expect(salgetErAabent()).toBe(true);
+    expect(koebSpaerre(kunde, KOMPLET)).toBeNull();
   });
 });
 
