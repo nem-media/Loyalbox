@@ -398,7 +398,7 @@ export const PRODUCTS: Product[] = [
       },
       live: {
         productId: "prod_V60HuKNAn27bkH",
-        priceId: "price_1U5tgC2LQpGDZNEWAR6ngZBB",
+        priceId: "price_1UFJN52LQpGDZNEW0uyF2OfU",
       },
     },
     mpn: "LS-REVIEW",
@@ -434,7 +434,7 @@ export const PRODUCTS: Product[] = [
       },
       live: {
         productId: "prod_V60HMfPVGevsVG",
-        priceId: "price_1U5tg72LQpGDZNEWcadzuRAa",
+        priceId: "price_1UFJN62LQpGDZNEWpXFjR4qA",
         monthlyPriceId: "price_1U5tg72LQpGDZNEW8omPhStB",
       },
     },
@@ -472,7 +472,7 @@ export const PRODUCTS: Product[] = [
       },
       live: {
         productId: "prod_V60HgN0EFCzxre",
-        priceId: "price_1U5tg82LQpGDZNEWOBzAMmvu",
+        priceId: "price_1UFJN72LQpGDZNEWsbEPIvRG",
         monthlyPriceId: "price_1U5tg82LQpGDZNEWTFSgdiEe",
       },
     },
@@ -512,10 +512,15 @@ export const PRODUCTS: Product[] = [
         productId: "prod_V77rcHM3RsTaUq",
         priceId: "price_1U6tc6Rr2uZmH0wddf9e17pl",
       },
-      // LIVE MANGLER MED VILJE. Live-tilstanden er ikke åbnet, og id'erne
-      // oprettes med scripts/setup-stripe-products.mjs og live-nøglen, når den
-      // dag kommer — TILFØJ dem her ved siden af test, erstat aldrig.
-      // Indtil da svarer canSell() falsk i live, og knappen vises ikke.
+      // OPRETTET 2026-09-13 med live-nøglen. Tilkøbet var den ENESTE vare
+      // uden live-id'er, og uden dem ville "Ekstra stander" have været
+      // usælgelig den dag salget åbnede — canSell() svarer falsk uden dem,
+      // og knappen ville bare mangle. Produktet er nyt i live og har derfor
+      // sit eget prod_-id, modsat de tre andre, hvor test og live deler.
+      live: {
+        productId: "prod_VFp1tICwfO2AW2",
+        priceId: "price_1UFJN82LQpGDZNEWM0USmnER",
+      },
     },
   },
 ];
