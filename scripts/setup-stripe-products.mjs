@@ -48,6 +48,37 @@ if (!key && !dryRun) {
   );
   process.exit(1);
 }
+/*
+  NØGLEN SKAL SE UD SOM EN HEL NØGLE — ellers fejler kørslen med en rå
+  TypeError fra fetch ("Cannot convert argument to a ByteString"), fordi et
+  tegn over 255 ikke kan stå i en HTTP-header. Det skete 13. september: nøglen
+  var kopieret fra Stripes dashboard, hvor den vises FORKORTET med et
+  tre-prikker-tegn, og fejlen sagde intet om hvorfor.
+
+  Kontrollen kigger ikke efter en bestemt længde — Stripe kan ændre formatet —
+  kun efter at der ikke er sneget noget ind, som ikke hører hjemme i en nøgle.
+*/
+if (key) {
+  const rest = key.replace(/^sk_(test|live)_/, "");
+  if (!/^sk_(test|live)_/.test(key) || /[^A-Za-z0-9]/.test(rest) || rest.length < 20) {
+    const linjer = [
+      "STRIPE_SECRET_KEY ligner ikke en hel nøgle.",
+      "",
+      "Den skal begynde med sk_test_ eller sk_live_ og derefter kun indeholde",
+      "bogstaver og tal — ingen mellemrum, anførselstegn eller prikker.",
+    ];
+    if (/…/.test(key)) {
+      linjer.push(
+        "",
+        "Der står et afkortnings-tegn i nøglen. Stripes dashboard VISER nøglen",
+        "forkortet — tryk «Reveal live key» og kopiér hele strengen.",
+      );
+    }
+    console.error(linjer.join(String.fromCharCode(10)));
+    process.exit(1);
+  }
+}
+
 const live = Boolean(key?.startsWith("sk_live_"));
 
 /* --------------------------------------------- produkter fra constants.ts */
