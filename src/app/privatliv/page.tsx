@@ -130,8 +130,8 @@ export default function PrivacyPage() {
             SÆTNINGEN SKIFTER, NÅR SALGET ÅBNER. Afsnittet skal blive stående —
             det beskriver oplysninger, vi stadig har liggende om dem, der
             skrev sig op — men "salget er ikke åbnet endnu" ville være
-            usandt fra den dag, live-nøglen er sat. Samme kilde som
-            PurchaseNotice, så de to ikke kan komme i utakt.
+            usandt fra den dag, live-nøglen er sat. Sætningen spørger
+            salgetErAabent() — samme kilde som købsspærren.
           */}
           {salgetErAabent() ? (
             <p>

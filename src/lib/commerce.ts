@@ -198,8 +198,9 @@ export function koebSpaerreUdenKonto(
  *
  * DEN ENESTE MÅDE AT SPØRGE PÅ. Beskeden "du kan ikke købe online endnu" stod
  * hårdt kodet otte steder, og den dag live-nøglen bliver sat, ville sitet sige
- * det samme, mens købsknapperne virkede. Nu spørger `PurchaseNotice` her og
- * skjuler sig selv — der er ingen liste af steder at huske.
+ * det samme, mens købsknapperne virkede. Beskeden er slettet sammen med ventelisten, da salget åbnede; funktionen
+ * bruges nu af privatlivspolitikken og kan bruges af alt, der skal opføre sig
+ * forskelligt før og efter åbningen.
  *
  * Svaret er præcis de to led fra `koebSpaerre()`, der IKKE handler om kunden
  * eller varen: er der en nøgle, og er den en live-nøgle? Er den en testnøgle,

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { BestilUdenKontoForm } from "./bestil-form";
-import { PurchaseNotice } from "@/components/purchase-notice";
+import { KanIkkeBestilles } from "@/components/kan-ikke-bestilles";
 import { getProduct } from "@/lib/constants";
 import { koebSpaerreUdenKonto, kanBestillesUdenKonto } from "@/lib/commerce";
 
@@ -67,7 +67,7 @@ export default async function UdenKontoPage({
         */}
         <div className="mt-8">
           {koebSpaerreUdenKonto(product) ? (
-            <PurchaseNotice className="mb-6" />
+            <KanIkkeBestilles className="mb-6" />
           ) : null}
           <BestilUdenKontoForm
             product={product}
