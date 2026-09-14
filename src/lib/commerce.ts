@@ -6,8 +6,11 @@
  * de kan tages i brug uændret, når integrationerne bygges.
  */
 import { getSiteUrl } from "@/lib/site";
+import { erBetalende } from "@/lib/abonnement";
 import {
   COMMERCE,
+  abonnementsRang,
+  getProduct,
   STRIPE_TAX_RATES,
   harFysiskSkilt,
   tierCan,
@@ -131,7 +134,59 @@ export type KoebSpaerre =
   /** Ingen virksomhed at knytte købet til. */
   | "ingen-virksomhed"
   /** Varen er ikke klar i denne tilstand, eller salget er ikke åbnet endnu. */
-  | "ikke-aabnet";
+  | "ikke-aabnet"
+  /** Kunden har et større abonnement; nedad går kun gennem os. */
+  | "nedgradering"
+  /** Kunden abonnerer allerede på præcis denne vare. */
+  | "har-den-allerede";
+
+/** Felterne, et abonnementsskifte afgøres ud fra. */
+export interface AbonnementsIndehav {
+  product_slug?: string | null;
+  stripe_status?: string | null;
+}
+
+/**
+ * Må kunden skifte til DENNE vare?
+ *
+ * OPAD JA, NEDAD NEJ. En Pro-kunde må når som helst gå op til Komplet —
+ * det er en ren udvidelse, og alt i Pro er med. Den anden vej er ikke en
+ * pris, der ændrer sig: stempelkortet, medlemmerne, belønningerne og
+ * opslagene hører til Komplet, og de forsvinder for kunden i samme
+ * sekund. Det skal et menneske tale med dem om først, og derfor er der
+ * ingen knap — ikke fordi vi vil holde på dem, men fordi et klik ikke
+ * kan rumme spørgsmålet 'hvad sker der med mine 200 stempelkort?'.
+ *
+ * EN VARE, DE ALLEREDE HAR, ER HELLER IKKE ET SKIFTE. Købet ville lave et
+ * abonnement nummer to på samme virksomhed, og der er kun ét
+ * `stripe_subscription_id` at gemme det i — det andet ville blive
+ * usynligt og blive ved med at trække penge. Præcis dét skete 14.
+ * september 2026. Skal de bruge et skilt mere, er det tilkøbet.
+ *
+ * TRE TING SLÅR REGLEN FRA, og alle tre er nødvendige:
+ *  - Varen har ingen månedspris (engangskøb og tilkøb rører aldrig et
+ *    bestående kundeforhold — se webhooken).
+ *  - Kunden har ikke et abonnement i forvejen (så er ALT en start).
+ *  - Abonnementet betaler ikke længere (opsagt, suspenderet, ophørt):
+ *    så er der intet at beskytte, og en genoptagelse skal kunne købes.
+ */
+export function abonnementsSkifteSpaerre(
+  company: AbonnementsIndehav | null | undefined,
+  product: Product | undefined,
+): KoebSpaerre | null {
+  if (!company || !product?.monthlyPrice) return null;
+
+  const nuvaerende = company.product_slug
+    ? getProduct(company.product_slug)
+    : undefined;
+  if (!nuvaerende?.monthlyPrice) return null;
+  if (!erBetalende(company.stripe_status)) return null;
+
+  if (nuvaerende.slug === product.slug) return "har-den-allerede";
+  return abonnementsRang(product) > abonnementsRang(nuvaerende)
+    ? null
+    : "nedgradering";
+}
 
 /**
  * Hvad spærrer for et køb — eller null, hvis der ikke er noget i vejen.
@@ -143,7 +198,10 @@ export type KoebSpaerre =
  */
 export function koebSpaerre(
   user:
-    | { email: string; company: { cvr?: string | null } | null }
+    | {
+        email: string;
+        company: ({ cvr?: string | null } & AbonnementsIndehav) | null;
+      }
     | null
     | undefined,
   product: Product | undefined,
@@ -164,7 +222,12 @@ export function koebSpaerre(
   if (!product || !canSell(product)) return "ikke-aabnet";
   if (stripeMode() !== "live" && !isTestBuyer(user.email)) return "ikke-aabnet";
 
-  return null;
+  /*
+   * TIL SIDST: er skiftet overhovedet et, kunden må tage selv? Spørgsmålet
+   * stilles HER og ikke i ruten alene, så knappen og betalingen svarer
+   * ens — det er hele grunden til, at denne funktion er den eneste dør.
+   */
+  return abonnementsSkifteSpaerre(user.company, product);
 }
 
 /**

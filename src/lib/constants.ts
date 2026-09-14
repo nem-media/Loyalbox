@@ -83,8 +83,7 @@ export const TRAEKDAG = 20;
  * som et vilkårligt beløb, og et beløb, kunden ikke kan genkende, er dét,
  * indsigelser og opkald er lavet af.
  */
-export const PRORATA_FORKLARING =
-  `Ved købet betaler du kun for dagene frem til den ${TRAEKDAG}. Derefter trækkes abonnementet fast den ${TRAEKDAG}. i hver måned.`;
+export const PRORATA_FORKLARING = `Ved købet betaler du kun for dagene frem til den ${TRAEKDAG}. Derefter trækkes abonnementet fast den ${TRAEKDAG}. i hver måned.`;
 
 export const LEVERINGSLANDE = ["DK"] as const;
 export const LEVERINGSLAND_NAVN = "Danmark";
@@ -675,6 +674,21 @@ export const STRIPE_TAX_RATES: Partial<Record<StripeMode, string>> = {
 export function planForProduct(slug: string | null | undefined): Tier {
   const p = slug ? getProduct(slug) : undefined;
   return p?.monthlyPrice ? "pro" : "basic";
+}
+
+/**
+ * Hvor højt oppe ad abonnementsstigen ligger varen?
+ *
+ * MÅNEDSPRISEN ER RANGEN, og det er ikke dovenskab: stigen ER prisen.
+ * Reviewstander uden abonnement er 0, Pro er 99, Komplet er 399, og
+ * Komplet indeholder ordret alt i Pro. En håndskrevet rækkefølge ved
+ * siden af priserne kunne komme i utakt med dem; det her kan ikke.
+ *
+ * Tilkøb rammer 0 og er uden betydning — de spørges aldrig (se
+ * `abonnementsSkifteSpaerre()`, der kun kigger på varer MED månedspris).
+ */
+export function abonnementsRang(p: Product | undefined): number {
+  return p?.monthlyPrice ?? 0;
 }
 
 export function getProduct(slug: string): Product | undefined {
