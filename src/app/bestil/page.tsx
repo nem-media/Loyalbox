@@ -4,7 +4,12 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Pricing } from "@/components/pricing";
 import { QuantityOrder } from "@/components/quantity-order";
-import { PRODUCTS, LEVERINGSLAND_NAVN, harFysiskSkilt } from "@/lib/constants";
+import {
+  PRODUCTS,
+  getProduct,
+  LEVERINGSLAND_NAVN,
+  harFysiskSkilt,
+} from "@/lib/constants";
 import { StanderDesigner } from "@/components/stander-designer";
 import {
   GenbestilDesign,
@@ -16,6 +21,7 @@ import type { DestinationType } from "@/lib/types/database";
 import { designFrontfarve } from "@/lib/design";
 import { Badge } from "@/components/ui/badge";
 import { KanIkkeBestilles } from "@/components/kan-ikke-bestilles";
+import { SkiftAbonnement } from "@/components/skift-abonnement";
 import { ButtonLink } from "@/components/ui/button";
 import { CheckoutButton } from "@/components/checkout-button";
 import { getCurrentUser } from "@/lib/auth";
@@ -174,9 +180,7 @@ export default async function OrderPage({
   ) {
     // Antallet følger med. Uden det ville kunden vælge 3 på produktsiden og
     // møde en formular, der stod på 1.
-    redirect(
-      `/bestil/uden-konto?produkt=${selected.slug}&antal=${initialQty}`,
-    );
+    redirect(`/bestil/uden-konto?produkt=${selected.slug}&antal=${initialQty}`);
   }
 
   /**
@@ -277,10 +281,25 @@ export default async function OrderPage({
                   </p>
                 ) : null}
                 <p className="mt-2 text-xs leading-relaxed text-muted">
-                  Vi leverer i {LEVERINGSLAND_NAVN}. Priserne er ex moms,
-                  og der er ikke fortrydelsesret ved erhvervskøb.
+                  Vi leverer i {LEVERINGSLAND_NAVN}. Priserne er ex moms, og der
+                  er ikke fortrydelsesret ved erhvervskøb.
                 </p>
               </div>
+            ) : spaerre === "nedgradering" || spaerre === "har-den-allerede" ? (
+              /*
+                ET SKIFTE, KUNDEN IKKE MÅ TAGE SELV. Beskeden hører til
+                her og ikke i en skjult knap: kunden har netop klikket
+                sig hertil og skal kunne læse hvorfor — og hvad de så
+                gør i stedet.
+              */
+              <SkiftAbonnement
+                grund={spaerre}
+                vare={selected.name}
+                nuvaerende={
+                  getProduct(user?.company?.product_slug ?? "")?.name ??
+                  "dit nuværende abonnement"
+                }
+              />
             ) : spaerre === "ikke-aabnet" ? (
               <KanIkkeBestilles />
             ) : (
@@ -296,8 +315,8 @@ export default async function OrderPage({
                   Log ind for at bestille denne vare
                 </p>
                 <p className="mt-1 text-sm text-muted">
-                  Tilkøb hører til en butik, der allerede er kunde, og
-                  bestilles fra dit dashboard.
+                  Tilkøb hører til en butik, der allerede er kunde, og bestilles
+                  fra dit dashboard.
                 </p>
                 <ButtonLink href="/login" size="sm" className="mt-3">
                   Log ind

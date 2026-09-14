@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { noterFejl } from "@/lib/drift";
+import { findKonto } from "@/lib/konto-opslag";
 import {
   aktiveringSpaerre,
   erGyldigKode,
@@ -40,7 +41,8 @@ const BESKED: Record<AktiveringSpaerre, string> = {
 };
 
 /** Felterne, aktiveringen har brug for. Ét sted, så de to veje henter det samme. */
-const FELTER = "id, contact_email, user_id, aktivering_token, aktivering_udloeber";
+const FELTER =
+  "id, contact_email, user_id, aktivering_token, aktivering_udloeber";
 
 /** Virksomheden bag en Stripe-session — vejen fra tak-siden. */
 async function firmaFraSession(sessionId: string) {
@@ -99,8 +101,6 @@ async function aktiver(
       logInd: spaerre === "allerede-aktiveret",
     };
   }
-  if (!erGyldigKode(kode)) return { fejl: KODE_FEJL };
-
   const email = firma!.contact_email?.trim();
   if (!email) {
     await noterFejl(
@@ -113,36 +113,62 @@ async function aktiver(
   const admin = createAdminClient();
 
   /*
-   * FINDES ADRESSEN I FORVEJEN, knyttes den BESTÅENDE bruger i stedet for at
-   * fejle. Køberen har både tokenet fra betalingen og adressen — to beviser —
-   * og alternativet ville være en betalende kunde, der ikke kan komme ind,
-   * fordi de engang har haft en konto. Deres adgangskode røres ikke; de
-   * logger ind som de plejer.
+   * FINDES ADRESSEN I FORVEJEN, knyttes den BESTÅENDE bruger — køberen har
+   * både tokenet fra betalingen og adressen, og alternativet ville være en
+   * betalende kunde, der ikke kan komme ind, fordi de engang har haft en
+   * konto. Men der SPØRGES FØRST, og der bliver IKKE bedt om en kode.
+   *
+   * FØR BLEV KODEN TAGET IMOD OG SMIDT VÆK I TAVSHED. Kunden valgte en
+   * adgangskode, blev sendt til loginskærmen uden en eneste besked og kunne
+   * så ikke logge ind med den — den var aldrig gemt nogen steder. Det ramte
+   * et rigtigt køb 14. september 2026. Koden må heller ikke bare SÆTTES i
+   * stedet: så kunne den, der har tokenet, skifte adgangskode på en
+   * bestående konto, og tokenet ville gå fra at knytte et køb til en konto
+   * til at overtage den.
    */
-  let brugerId: string | null = null;
-  const { data: oprettet, error: opretFejl } =
-    await admin.auth.admin.createUser({
-      email,
-      password: kode,
-      email_confirm: true,
-      user_metadata: { role: "customer" },
-    });
+  const konto = await findKonto(email);
 
-  if (oprettet?.user) {
-    brugerId = oprettet.user.id;
-  } else {
-    const { data: liste } = await admin.auth.admin.listUsers({ perPage: 1000 });
-    const fundet = liste?.users.find(
-      (u) => u.email?.toLowerCase() === email.toLowerCase(),
-    );
-    if (!fundet) {
-      await noterFejl(
-        "aktivering",
-        `Kunne ikke oprette bruger til ${firma!.id}: ${opretFejl?.message ?? "ukendt"}`,
+  let brugerId: string | null = konto?.brugerId ?? null;
+  let viOprettede = false;
+
+  if (!brugerId) {
+    if (!erGyldigKode(kode)) return { fejl: KODE_FEJL };
+
+    const { data: oprettet, error: opretFejl } =
+      await admin.auth.admin.createUser({
+        email,
+        password: kode,
+        email_confirm: true,
+        user_metadata: { role: "customer" },
+      });
+
+    if (oprettet?.user) {
+      brugerId = oprettet.user.id;
+      viOprettede = true;
+    } else {
+      /*
+       * SPEJLET I `public.users` FYLDES VED OPRETTELSEN OG IKKE VED ET
+       * SENERE SKIFT, så en kunde, der har ændret sin e-mail bagefter,
+       * findes ikke af opslaget ovenfor — men `createUser` afviser hende.
+       * Så er det stadig en eksisterende konto, og koden skal STADIG ikke
+       * bruges: vi ender i den samme besked som alle andre med en konto i
+       * forvejen, frem for at tie.
+       */
+      const { data: liste } = await admin.auth.admin.listUsers({
+        perPage: 1000,
+      });
+      const fundet = liste?.users.find(
+        (u) => u.email?.toLowerCase() === email.toLowerCase(),
       );
-      return { fejl: "Kontoen kunne ikke oprettes. Prøv igen." };
+      if (!fundet) {
+        await noterFejl(
+          "aktivering",
+          `Kunne ikke oprette bruger til ${firma!.id}: ${opretFejl?.message ?? "ukendt"}`,
+        );
+        return { fejl: "Kontoen kunne ikke oprettes. Prøv igen." };
+      }
+      brugerId = fundet.id;
     }
-    brugerId = fundet.id;
   }
 
   const { data: knyttet, error: knytFejl } = await admin
@@ -159,7 +185,7 @@ async function aktiver(
   if (knytFejl || !knyttet?.length) {
     // Kapløbet tabt, eller opdateringen fejlede: ryd den bruger, vi lige har
     // lavet, hvis det var os, der lavede den.
-    if (oprettet?.user) await admin.auth.admin.deleteUser(oprettet.user.id);
+    if (viOprettede && brugerId) await admin.auth.admin.deleteUser(brugerId);
     return {
       fejl: knytFejl
         ? "Kontoen kunne ikke knyttes til din bestilling. Skriv til os."
@@ -169,17 +195,37 @@ async function aktiver(
   }
 
   /*
+   * EJEDE BRUGEREN ALLEREDE EN VIRKSOMHED, ejer de nu to — og dashboardet
+   * viser kun én. Det skal bestillingen have afvist på forhånd (se
+   * `EMAIL_HAR_KONTO`); står vi her alligevel, er noget sluppet forbi, og
+   * kunden har betalt for noget, de ikke kan se. Derfor et varsel frem for
+   * en tavs tilknytning: det er dét, der gør forskel på en fejl, VI
+   * opdager, og en, kunden opdager.
+   */
+  if (konto?.harVirksomhed) {
+    await noterFejl(
+      "aktivering",
+      `Virksomhed ${firma!.id} blev knyttet til en bruger, der i forvejen ` +
+        "ejer en virksomhed. Dashboardet viser kun én — flyt købet i hånden.",
+    );
+  }
+
+  /*
    * LOG DEM IND MED DET SAMME. De har lige valgt en kode; at bede dem skrive
    * den igen på en loginskærm ville være et ekstra trin uden formål — og det
    * er præcis den slags trin, hele ændringen handler om at fjerne.
    *
-   * Kun når vi selv oprettede brugeren: har de en konto i forvejen, kender vi
-   * ikke deres kode, og `kode` var aldrig deres.
+   * Kun når VI oprettede brugeren: har de en konto i forvejen, kender vi
+   * ikke deres kode. De sendes til login MED EN BESKED om netop det — en bar
+   * loginskærm efter en betaling ligner, at købet ikke gik igennem.
    */
-  if (oprettet?.user) {
-    const supabase = await createClient();
-    await supabase.auth.signInWithPassword({ email, password: kode });
+  if (!viOprettede) {
+    revalidatePath("/", "layout");
+    redirect("/login?besked=knyttet");
   }
+
+  const supabase = await createClient();
+  await supabase.auth.signInWithPassword({ email, password: kode });
 
   /*
    * IND PÅ DEN STANDER, DE LIGE HAR KØBT — ikke på listen.
@@ -197,13 +243,12 @@ async function aktiver(
     .order("created_at", { ascending: true })
     .limit(2);
 
-  const maal =
+  revalidatePath("/", "layout");
+  redirect(
     standere?.length === 1
       ? `/dashboard/standere/${standere[0].id}`
-      : "/dashboard/standere";
-
-  revalidatePath("/", "layout");
-  redirect(oprettet?.user ? maal : "/login");
+      : "/dashboard/standere",
+  );
 }
 
 /** Tak-siden: aktiverer med Stripes `session_id`. */
@@ -213,7 +258,10 @@ export async function aktiverFraSession(
 ): Promise<AktiveringResultat> {
   const sessionId = String(formData.get("session_id") ?? "").trim();
   if (!sessionId) return { fejl: AKTIVERING_TEKSTER.intetToken };
-  return aktiver(await firmaFraSession(sessionId), String(formData.get("kode") ?? ""));
+  return aktiver(
+    await firmaFraSession(sessionId),
+    String(formData.get("kode") ?? ""),
+  );
 }
 
 /** Mailen: aktiverer med tokenet. */
@@ -223,5 +271,8 @@ export async function aktiverFraToken(
 ): Promise<AktiveringResultat> {
   const token = String(formData.get("token") ?? "").trim();
   if (!token) return { fejl: AKTIVERING_TEKSTER.intetToken };
-  return aktiver(await firmaFraToken(token), String(formData.get("kode") ?? ""));
+  return aktiver(
+    await firmaFraToken(token),
+    String(formData.get("kode") ?? ""),
+  );
 }

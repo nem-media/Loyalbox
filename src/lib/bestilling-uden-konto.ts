@@ -211,3 +211,26 @@ export function laesBestilling(
  */
 export const CVR_HAR_KONTO =
   "Der findes allerede en konto med dette CVR-nummer. Log ind og bestil derfra — så kommer ordren med på jeres eksisterende aftale.";
+
+/**
+ * Samme besked, men fanget på E-MAILEN i stedet for CVR'et.
+ *
+ * CVR-SPÆRREN HAR ET HUL, og det kostede en rigtig kunde adgangen til et
+ * køb på 548 kr. Feltet er frivilligt (se AGENTS.md), og et TOMT CVR
+ * springer opslaget over — så en butiksejer, der bestiller igen uden at
+ * udfylde nummeret, fik en HELT NY virksomhed i stedet for at lande på
+ * sin egen. Dashboardet viser kun én virksomhed pr. bruger, så det
+ * betalte køb blev usynligt.
+ *
+ * DER AFVISES, OG DER KNYTTES IKKE. En offentlig formular må aldrig kunne
+ * hænge en ordre på en eksisterende kundes virksomhed, blot fordi nogen
+ * kender deres e-mail — adresser er ikke verificerede. Vejen frem er den
+ * samme som ved CVR'et: log ind, og bestil derfra, hvor ordren lander
+ * det rigtige sted af sig selv.
+ *
+ * KUN når kontoen FAKTISK ejer en virksomhed. En slutkunde med et
+ * stempelkort har også en konto, men intet kundeforhold at lande på —
+ * afvistes de her, kunne de hverken bestille her eller inde i systemet.
+ */
+export const EMAIL_HAR_KONTO =
+  "Der findes allerede en konto med denne e-mail. Log ind og bestil derfra — så lander ordren på jeres eksisterende aftale i stedet for at oprette en ny virksomhed.";

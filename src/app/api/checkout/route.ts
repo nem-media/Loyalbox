@@ -11,6 +11,7 @@ import {
   isTestBuyer,
   canSell,
   kraeverDestination,
+  abonnementsSkifteSpaerre,
 } from "@/lib/commerce";
 import {
   getProduct,
@@ -170,6 +171,32 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  /*
+   * OPAD JA, NEDAD NEJ — samme regel som knappen viser.
+   *
+   * RUTEN ER STEDET, DET AFGØRES. Knappen kan skjules; en POST kan
+   * sendes alligevel. Og konsekvensen er ikke kosmetisk: et køb af en
+   * vare, kunden allerede abonnerer på, giver abonnement nummer to på
+   * samme virksomhed, og der er kun ét `stripe_subscription_id` at gemme
+   * det i — det andet bliver usynligt og trækker videre. Det skete for
+   * en rigtig kunde 14. september 2026.
+   *
+   * `genoptag` er undtaget og skal være det: dér er abonnementet netop
+   * IKKE betalende, og kunden køber sin egen vare tilbage.
+   */
+  const skifte = genoptag ? null : abonnementsSkifteSpaerre(company, product);
+  if (skifte) {
+    return NextResponse.json(
+      {
+        error:
+          skifte === "har-den-allerede"
+            ? `Du abonnerer allerede på ${product.name}. Skal du bruge et skilt mere, er det tilkøbet "Ekstra stander" — det ændrer ikke dit abonnement.`
+            : "Skift til et mindre abonnement klarer vi i hånden, så intet går tabt ved et uheld. Skriv til os, så ordner vi det.",
+      },
+      { status: 400 },
+    );
+  }
+
   const qty = genoptag
     ? 1
     : Math.max(1, Math.min(MAX_QTY, Number(body.antal) || 1));
@@ -210,7 +237,9 @@ export async function POST(request: NextRequest) {
     if (genbrug) {
       const { data } = await admin
         .from("designs")
-        .select("id, stander_farve, front_type, front_hex, accent_hex, frontfarve_betalt")
+        .select(
+          "id, stander_farve, front_type, front_hex, accent_hex, frontfarve_betalt",
+        )
         .eq("id", genbrug)
         // Ejerskabet kontrolleres i forespørgslen og ikke bagefter: et design,
         // der tilhører en anden butik, må ikke engang læses.
@@ -241,7 +270,9 @@ export async function POST(request: NextRequest) {
           print_skabelon: PRINT_SKABELON_VERSION,
           ...nyt,
         })
-        .select("id, stander_farve, front_type, front_hex, accent_hex, frontfarve_betalt")
+        .select(
+          "id, stander_farve, front_type, front_hex, accent_hex, frontfarve_betalt",
+        )
         .single();
 
       if (error || !data) {

@@ -21,6 +21,7 @@ import { PRINT_SKABELON_VERSION } from "@/lib/design";
 import { laesPngHoved, validerLogo } from "@/lib/logo";
 import {
   CVR_HAR_KONTO,
+  EMAIL_HAR_KONTO,
   laesBestilling,
   type Fejl,
 } from "@/lib/bestilling-uden-konto";
@@ -30,6 +31,7 @@ import { generateSlug } from "@/lib/utils";
 import { aktiveringUdloeber } from "@/lib/aktivering";
 import { randomBytes } from "node:crypto";
 import { noterFejl } from "@/lib/drift";
+import { findKonto } from "@/lib/konto-opslag";
 import type { DestinationType } from "@/lib/types/database";
 
 export interface BestillingResultat {
@@ -93,7 +95,9 @@ export async function bestilUdenKonto(
   // Ét sted ud med en fejl, så forsøgstælleren ikke kan blive glemt på en af
   // de tolv veje ud herunder — se `forsoeg` i BestillingResultat.
   const forsoeg = (_prev.forsoeg ?? 0) + 1;
-  const svar = (r: Omit<BestillingResultat, "forsoeg">): BestillingResultat => ({
+  const svar = (
+    r: Omit<BestillingResultat, "forsoeg">,
+  ): BestillingResultat => ({
     ...r,
     forsoeg,
   });
@@ -118,29 +122,30 @@ export async function bestilUdenKonto(
     });
   }
 
-  const laest = laesBestilling({
-    firmanavn: formData.get("firmanavn"),
-    cvr: formData.get("cvr"),
-    accentHex: formData.get("accentHex"),
-    email: formData.get("email"),
-    antal: formData.get("antal"),
-    standerFarve: formData.get("standerFarve"),
-    egenFrontfarve: formData.get("egenFrontfarve") === "1",
-    frontHex: formData.get("frontHex"),
-    destinationType: formData.get("destinationType"),
-    destinationUrl: formData.get("destinationUrl"),
-    accepterVilkaar: formData.get("accepterVilkaar") === "1",
-  },
-  undefined,
-  /*
-   * DESTINATIONEN KRÆVES KUN, NÅR DEN IKKE KAN ÆNDRES BAGEFTER.
-   *
-   * `null` som virksomhed er det rigtige her og ikke en forglemmelse: der ER
-   * ingen kunde endnu, så svaret afhænger alene af varen. Et abonnement peger
-   * på vores egen /r/<slug> og sættes i dashboardet efter aktiveringen; et
-   * engangsskilt trykkes direkte til butikkens link og kan aldrig omdirigeres.
-   */
-  kraeverDestination(product, null),
+  const laest = laesBestilling(
+    {
+      firmanavn: formData.get("firmanavn"),
+      cvr: formData.get("cvr"),
+      accentHex: formData.get("accentHex"),
+      email: formData.get("email"),
+      antal: formData.get("antal"),
+      standerFarve: formData.get("standerFarve"),
+      egenFrontfarve: formData.get("egenFrontfarve") === "1",
+      frontHex: formData.get("frontHex"),
+      destinationType: formData.get("destinationType"),
+      destinationUrl: formData.get("destinationUrl"),
+      accepterVilkaar: formData.get("accepterVilkaar") === "1",
+    },
+    undefined,
+    /*
+     * DESTINATIONEN KRÆVES KUN, NÅR DEN IKKE KAN ÆNDRES BAGEFTER.
+     *
+     * `null` som virksomhed er det rigtige her og ikke en forglemmelse: der ER
+     * ingen kunde endnu, så svaret afhænger alene af varen. Et abonnement peger
+     * på vores egen /r/<slug> og sættes i dashboardet efter aktiveringen; et
+     * engangsskilt trykkes direkte til butikkens link og kan aldrig omdirigeres.
+     */
+    kraeverDestination(product, null),
   );
 
   if (!laest.ok || !laest.vaerdier) return svar({ fejl: laest.fejl });
@@ -223,9 +228,7 @@ export async function bestilUdenKonto(
    * 32 tilfældige bytes: det skal ikke kunne gættes, for den der har det,
    * kan overtage virksomheden.
    */
-  const aktiveringToken = abonnement
-    ? randomBytes(32).toString("hex")
-    : null;
+  const aktiveringToken = abonnement ? randomBytes(32).toString("hex") : null;
   /*
    * DATABEHANDLERAFTALEN INDGÅS VED KØBET — også her.
    *
@@ -262,6 +265,17 @@ export async function bestilUdenKonto(
     : { data: null };
 
   if (fundet?.user_id) return svar({ fejl: { cvr: CVR_HAR_KONTO } });
+
+  /*
+   * OG SÅ DET SAMME PÅ E-MAILEN. Opslaget ovenfor springes over, når CVR
+   * er tomt, og feltet er frivilligt — så uden det her kunne en kunde med
+   * et login bestille igen og få en HELT NY virksomhed, som dashboardet
+   * aldrig viser. Det skete 14. september 2026 på et rigtigt køb.
+   */
+  const eksisterende = await findKonto(v.email);
+  if (eksisterende?.harVirksomhed) {
+    return svar({ fejl: { email: EMAIL_HAR_KONTO } });
+  }
 
   let companyId = fundet?.id ?? null;
 

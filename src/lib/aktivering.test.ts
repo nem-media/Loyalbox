@@ -8,7 +8,9 @@ import {
   erGyldigKode,
   AKTIVERING_DAGE,
   KODE_MINIMUM,
+  AKTIVERING_TEKSTER,
 } from "./aktivering";
+import { EMAIL_HAR_KONTO } from "./bestilling-uden-konto";
 
 /**
  * Aktiveringen er dét, der gør en betalt virksomhed til en bestemt persons.
@@ -167,5 +169,133 @@ describe("hvor aktiveringen lander", () => {
   it("falder tilbage på listen, når der ikke er præcis én", () => {
     expect(KILDE).toMatch(/standere\?\.length === 1/);
     expect(KILDE).toMatch(/"\/dashboard\/standere"/);
+  });
+});
+
+/**
+ * DEN KODE, DER BLEV SMIDT VÆK.
+ *
+ * 14. september 2026 købte en kunde med en e-mail, der allerede havde en
+ * konto. Aktiveringen viste kodefeltet alligevel, tog imod koden,
+ * knyttede virksomheden til den BESTÅENDE bruger — og smed koden væk uden
+ * et ord. Kunden blev sendt til en bar loginskærm og kunne hverken komme
+ * ind med den nye kode eller via linket i ordrebekræftelsen.
+ *
+ * Fejlen kunne ikke ses i en build, og intet i systemet sagde fra. Derfor
+ * holdes de tre led fast her: opslaget sker FØR oprettelsen, kodefeltet
+ * vises kun i den ene gren, og koden bliver aldrig sat på en konto, der
+ * findes i forvejen.
+ */
+describe("en e-mail, der allerede har en konto", () => {
+  const HANDLING = readFileSync(
+    join(process.cwd(), "src/app/aktiver/actions.ts"),
+    "utf8",
+  );
+  const FORMULAR = readFileSync(
+    join(process.cwd(), "src/components/aktiver-form.tsx"),
+    "utf8",
+  );
+
+  it("slås op FØR brugeren forsøges oprettet", () => {
+    /*
+      Rækkefølgen ER rettelsen. Spørges der først bagefter — når
+      `createUser` er fejlet — er koden allerede taget imod, og så er der
+      ingen skærm tilbage at sige det på.
+    */
+    const opslag = HANDLING.indexOf("await findKonto(");
+    const opret = HANDLING.indexOf("createUser({");
+    expect(opslag, "findKonto kaldes slet ikke").toBeGreaterThan(-1);
+    expect(opret).toBeGreaterThan(-1);
+    expect(opslag).toBeLessThan(opret);
+  });
+
+  it("får ALDRIG sin adgangskode overskrevet", () => {
+    /*
+      Den nærliggende 'rettelse' er at sætte den nye kode på den fundne
+      bruger. Det ville gøre tokenet til en måde at overtage en bestående
+      konto på — præcis dét, `aktiveringSpaerre` er bygget for at forhindre.
+      Der må derfor ikke stå en opdatering af en bruger i filen.
+    */
+    expect(HANDLING).not.toMatch(/updateUserById/);
+  });
+
+  it("bliver ikke bedt om en kode, der ikke kan bruges", () => {
+    // Feltet er ikke skjult eller deaktiveret: det tegnes slet ikke.
+    expect(FORMULAR).toMatch(/eksisterende \? null : \(/);
+    const felt = FORMULAR.indexOf('name="kode"');
+    expect(felt).toBeGreaterThan(-1);
+    expect(FORMULAR.indexOf("eksisterende ? null : (")).toBeLessThan(felt);
+  });
+
+  it("får at vide, at det er den GAMLE kode, der skal bruges", () => {
+    /*
+      Ordlyden er halvdelen af rettelsen. Siger beskeden ikke HVILKEN kode,
+      leder kunden efter en, de aldrig har fået — og så er vi tilbage ved
+      den oprindelige fejl med pænere ord.
+    */
+    for (const tekst of [
+      AKTIVERING_TEKSTER.eksisterendeHjaelp,
+      AKTIVERING_TEKSTER.knyttet,
+    ]) {
+      expect(tekst).toMatch(/i forvejen|som du plejer|du bruger/i);
+    }
+
+    // Og de må ikke bede om en NY kode — det er hele misforståelsen.
+    expect(AKTIVERING_TEKSTER.eksisterendeHjaelp).toMatch(
+      /ikke vælge en ny adgangskode/i,
+    );
+    expect(AKTIVERING_TEKSTER.eksisterendeKnap).not.toMatch(/adgangskode/i);
+  });
+
+  it("lander på login MED en besked og ikke på en bar skærm", () => {
+    // `redirect("/login")` uden noget efter var dét, kunden mødte.
+    expect(HANDLING).toMatch(/"\/login\?besked=knyttet"/);
+    expect(HANDLING).not.toMatch(/redirect\("\/login"\)/);
+
+    const SIDE = readFileSync(
+      join(process.cwd(), "src/app/(auth)/login/page.tsx"),
+      "utf8",
+    );
+    expect(SIDE).toMatch(/besked === "knyttet"/);
+    expect(SIDE).toMatch(/AKTIVERING_TEKSTER\.knyttet/);
+  });
+});
+
+/**
+ * HULLET, DER LOD DET SKE.
+ *
+ * CVR-spærren i bestillingen uden konto springes over, når feltet er tomt —
+ * og feltet er frivilligt. En butiksejer, der bestilte igen uden at udfylde
+ * nummeret, fik derfor en HELT NY virksomhed i stedet for at lande på sin
+ * egen, og dashboardet viser kun én pr. bruger. Købet blev usynligt.
+ */
+describe("bestilling med en e-mail, der har en konto", () => {
+  const KILDE = readFileSync(
+    join(process.cwd(), "src/app/bestil/uden-konto/actions.ts"),
+    "utf8",
+  );
+
+  it("afvises — og knyttes ikke", () => {
+    /*
+      AFVIST og ikke tilknyttet: en offentlig formular må aldrig kunne
+      hænge en ordre på en eksisterende kundes virksomhed, fordi nogen
+      kender deres e-mail. Adresser er ikke verificerede.
+    */
+    expect(KILDE).toMatch(/EMAIL_HAR_KONTO/);
+    expect(KILDE).toMatch(/eksisterende\?\.harVirksomhed/);
+  });
+
+  it("afviser KUN, når kontoen også ejer en virksomhed", () => {
+    /*
+      En slutkunde med et stempelkort har også en konto, men intet
+      kundeforhold at lande på. Spærredes de her, kunne de hverken bestille
+      her eller inde i systemet — der er ingen tredje vej.
+    */
+    expect(KILDE).not.toMatch(/if \(eksisterende\) return/);
+  });
+
+  it("siger, hvad kunden så skal gøre", () => {
+    expect(EMAIL_HAR_KONTO).toMatch(/log ind/i);
+    expect(EMAIL_HAR_KONTO).toMatch(/bestil/i);
   });
 });

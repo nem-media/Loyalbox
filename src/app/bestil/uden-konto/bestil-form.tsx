@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useId, useRef, useState } from "react";
+import { useActionState, useEffect, useId, useRef, useState } from "react";
 import { bestilUdenKonto, type BestillingResultat } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input, Field } from "@/components/ui/input";
@@ -106,6 +106,19 @@ export function BestilUdenKontoForm({
   const [egenFront, setEgenFront] = useState(false);
   const [hex, setHex] = useState("#26616e");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  /*
+   * SELVE FILEN, ikke kun previewets blob-adresse.
+   *
+   * REACT NULSTILLER FORMULAREN, NÅR EN SERVER ACTION SVARER — og et
+   * filfelt kan ikke være styret, så det tømmes. Tekstfelterne blev
+   * gjort styrede af præcis samme grund (se ovenfor), men logoet kunne
+   * ikke reddes den vej. Resultatet var værre end et tomt felt: previewet
+   * viste stadig logoet, fordi blob-adressen ligger i tilstanden, mens
+   * feltet var tomt. En kunde, der rettede sit CVR og trykkede igen,
+   * ville altså se sit logo på skærmen og få et skilt UDEN det —
+   * serveren kræver `logo.size > 0`, og der var ingenting at læse.
+   */
+  const [logoFil, setLogoFil] = useState<File | null>(null);
   // Accenten er gratis at skifte — se STANDARD_ACCENT i stander-tilvalg.ts.
   const [egenAccent, setEgenAccent] = useState(false);
   const [accent, setAccent] = useState(STANDARD_ACCENT);
@@ -184,6 +197,7 @@ export function BestilUdenKontoForm({
 
     if (!valgt) {
       setLogoUrl(null);
+      setLogoFil(null);
       return;
     }
 
@@ -198,6 +212,7 @@ export function BestilUdenKontoForm({
 
     if (!kontrol.ok) {
       setLogoUrl(null);
+      setLogoFil(null);
       setLogoFejl(kontrol.fejl ?? "Filen kan ikke bruges.");
       e.target.value = "";
       return;
@@ -205,22 +220,59 @@ export function BestilUdenKontoForm({
 
     setAdvarsler(kontrol.advarsler);
     setLogoUrl(URL.createObjectURL(valgt));
+    setLogoFil(valgt);
   }
 
   /** Fortryd et valgt logo. Feltet tømmes, så filen heller ikke sendes med. */
   function fjernLogo() {
     if (logoUrl) URL.revokeObjectURL(logoUrl);
     setLogoUrl(null);
+    setLogoFil(null);
     setLogoFejl(null);
     setAdvarsler([]);
     if (logoInput.current) logoInput.current.value = "";
   }
 
+  /*
+   * FILEN LÆGGES TILBAGE I FELTET, hver gang serveren har svaret.
+   *
+   * `DataTransfer` er den ENESTE måde at skrive i et filfelt på —
+   * `value` er skrivebeskyttet, og det er derfor nulstillingen ikke bare
+   * kunne gøres om med en tilstand som på tekstfelterne. Uden det her
+   * står feltet og siger 'ingen fil valgt', mens previewet ved siden af
+   * viser logoet.
+   *
+   * Der skrives KUN, når feltet faktisk er tomt: en fil, kunden lige har
+   * valgt, må ikke blive lagt tilbage oven i sig selv.
+   */
+  useEffect(() => {
+    const felt = logoInput.current;
+    if (!felt || !logoFil || felt.files?.length) return;
+    const overfoersel = new DataTransfer();
+    overfoersel.items.add(logoFil);
+    felt.files = overfoersel.files;
+  }, [nulstil, logoFil]);
+
   const valgtDestination = DESTINATIONER.find((d) => d.vaerdi === destination)!;
 
   return (
     <form
-      action={action}
+      /*
+       * SIKKERHEDSNETTET UNDER GENINDSÆTTELSEN OVENFOR.
+       *
+       * Lykkedes den ikke — en browser uden `DataTransfer`, eller et svar
+       * der nåede at nulstille feltet igen — hæftes filen på her i
+       * stedet. Serveren kræver `logo.size > 0`, så et tomt felt betyder
+       * et skilt uden logo, og dét må ikke kunne ske i stilhed, når
+       * kunden kan se sit logo i previewet ved siden af.
+       */
+      action={(formData) => {
+        const medsendt = formData.get("logo");
+        const mangler =
+          !(medsendt instanceof File) || medsendt.size === 0;
+        if (logoFil && mangler) formData.set("logo", logoFil);
+        action(formData);
+      }}
       /*
        * TO SPALTER: VALGENE TIL VENSTRE, RESULTATET TIL HØJRE.
        *

@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth";
 import { COMPANY } from "@/lib/constants";
 import { aktiveringSpaerre } from "@/lib/aktivering";
+import { findKonto } from "@/lib/konto-opslag";
 import { aktiverFraSession } from "@/app/aktiver/actions";
 import { AktiverForm, AktiveringSpaerret } from "@/components/aktiver-form";
 
@@ -46,6 +47,14 @@ export default async function OrderThanksPage({
   const spaerre = firma ? aktiveringSpaerre(firma) : null;
   const kanAktivere = Boolean(firma && !spaerre && session_id);
 
+  /*
+   * OG DE HAR MÅSKE EN KONTO I FORVEJEN. Så skal der ikke vælges en ny
+   * adgangskode — den ville hverken blive gemt eller kunne bruges — og
+   * derfor afgøres det HER, før formularen tegnes, og ikke først når
+   * den er sendt.
+   */
+  const konto = kanAktivere ? await findKonto(firma!.contact_email) : null;
+
   return (
     <>
       <SiteHeader />
@@ -64,7 +73,9 @@ export default async function OrderThanksPage({
           <h2 className="font-bold tracking-tight">Hvad sker der nu?</h2>
           <ol className="mt-3 space-y-2 text-muted">
             {(kanAktivere
-              ? TRIN_AKTIVERING
+              ? konto
+                ? TRIN_EKSISTERENDE
+                : TRIN_AKTIVERING
               : medKonto
                 ? TRIN_MED_KONTO
                 : TRIN_UDEN_KONTO
@@ -80,6 +91,8 @@ export default async function OrderThanksPage({
           <AktiverForm
             action={aktiverFraSession}
             skjultFelt={{ navn: "session_id", vaerdi: session_id! }}
+            form={konto ? "eksisterende-konto" : "ny-konto"}
+            email={firma!.contact_email}
           />
         ) : firma && spaerre ? (
           <AktiveringSpaerret grund={spaerre} />
@@ -103,8 +116,8 @@ export default async function OrderThanksPage({
              i samme åndedrag læser som om købet ikke var nok. Vejen til de
              øvrige varer står på bestillingssiden, før man beslutter sig. */
           <p className="mt-8 leading-relaxed text-muted">
-            Der følger ikke noget login med, og du skal ikke gøre mere —
-            skiltet virker af sig selv, når det kommer.
+            Der følger ikke noget login med, og du skal ikke gøre mere — skiltet
+            virker af sig selv, når det kommer.
           </p>
         )}
 
@@ -141,6 +154,19 @@ const TRIN_AKTIVERING = [
   `Vi trykker og sender skiltet — typisk ${COMPANY.deliveryDays}.`,
 ];
 
+/**
+ * Abonnement købt med en e-mail, der ALLEREDE har en konto.
+ *
+ * Trinene må ikke sige 'vælg en adgangskode'. Gjorde de det, ville de
+ * modsige knappen lige nedenunder — og det var netop den besked, der
+ * fik en rigtig kunde til at vælge en kode, der aldrig blev gemt.
+ */
+const TRIN_EKSISTERENDE = [
+  "Knyt købet til din konto nedenfor — du skal ikke vælge en ny adgangskode.",
+  "Log ind, som du plejer, og fortæl hvor QR-koden skal føre hen.",
+  `Vi trykker og sender skiltet — typisk ${COMPANY.deliveryDays}.`,
+];
+
 const TRIN_UDEN_KONTO = [
   "Vi trykker skiltet med dit logo og det link, du valgte.",
   `Vi sender det til adressen fra betalingen — typisk ${COMPANY.deliveryDays}.`,
@@ -165,6 +191,7 @@ async function koebsTilstand(sessionId: string | undefined): Promise<{
   medKonto: boolean;
   /** Sat KUN når købet venter på en aktivering — ellers null. */
   firma: {
+    contact_email: string | null;
     user_id: string | null;
     aktivering_token: string | null;
     aktivering_udloeber: string | null;
@@ -190,7 +217,7 @@ async function koebsTilstand(sessionId: string | undefined): Promise<{
 
       const { data: firma } = await admin
         .from("companies")
-        .select("user_id, aktivering_token, aktivering_udloeber")
+        .select("contact_email, user_id, aktivering_token, aktivering_udloeber")
         .eq("id", data.company_id)
         .maybeSingle();
 

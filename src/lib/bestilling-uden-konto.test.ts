@@ -233,3 +233,55 @@ describe("abonnement uden konto: det Basic ikke havde brug for", () => {
     expect(FORM).toMatch(/PRORATA_FORKLARING/);
   });
 });
+
+/**
+ * LOGOET MÅ IKKE FALDE UD AF FORMULAREN VED EN FEJL I ET ANDET FELT.
+ *
+ * React nulstiller formularen, når en server action svarer. Tekstfelterne
+ * blev gjort styrede af præcis den grund — men et filfelt KAN ikke være
+ * styret, og det blev derfor tømt hver gang. Værre endnu: previewets
+ * blob-adresse ligger i tilstanden og overlevede, så skærmen viste logoet,
+ * mens feltet var tomt. En kunde, der rettede sit CVR og trykkede igen,
+ * ville se sit logo og få et skilt uden det — serveren kræver
+ * `logo.size > 0`, og der var intet at læse.
+ *
+ * Afprøvet i browseren 14. september 2026: uden rettelsen stod feltet med
+ * nul filer efter CVR-fejlen, med rettelsen med filen i behold.
+ */
+describe("logoet overlever en afvist indsendelse", () => {
+  const FORM = readFileSync(
+    join(process.cwd(), "src/app/bestil/uden-konto/bestil-form.tsx"),
+    "utf8",
+  );
+
+  it("holder selve filen i tilstanden og ikke kun previewet", () => {
+    /*
+      `logoUrl` er blob-adressen til previewet og kan ikke sendes til
+      serveren. Uden filen ved siden af er der intet at lægge tilbage.
+    */
+    expect(FORM).toMatch(/const \[logoFil, setLogoFil\] = useState<File \| null>/);
+  });
+
+  it("lægger filen tilbage i feltet efter hvert svar", () => {
+    // `DataTransfer` er den eneste vej ind i et filfelt — `value` er
+    // skrivebeskyttet, og derfor kunne feltet ikke reddes som tekstfelterne.
+    expect(FORM).toMatch(/new DataTransfer\(\)/);
+    expect(FORM).toMatch(/felt\.files = /);
+  });
+
+  it("hæfter filen på formulardataene, hvis feltet alligevel er tomt", () => {
+    /*
+      Sikkerhedsnettet. Slår genindsættelsen fejl, må resultatet ikke være
+      et skilt uden logo — serveren læser `logo` ud af formulardataene og
+      kræver en fil med indhold.
+    */
+    expect(FORM).toMatch(/formData\.set\("logo", logoFil\)/);
+  });
+
+  it("rydder filen igen, når kunden fortryder", () => {
+    // Ellers ville 'Fjern' tømme feltet, hvorefter effekten lagde filen
+    // tilbage ved næste svar — og kunden fik et logo, de havde fravalgt.
+    const fjern = FORM.slice(FORM.indexOf("function fjernLogo"));
+    expect(fjern.slice(0, 400)).toMatch(/setLogoFil\(null\)/);
+  });
+});

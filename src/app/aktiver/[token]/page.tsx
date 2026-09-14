@@ -2,6 +2,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { aktiveringSpaerre } from "@/lib/aktivering";
+import { findKonto } from "@/lib/konto-opslag";
 import { aktiverFraToken } from "@/app/aktiver/actions";
 import { AktiverForm, AktiveringSpaerret } from "@/components/aktiver-form";
 import { PRIVAT_SIDE } from "@/lib/site";
@@ -30,7 +31,9 @@ export default async function AktiverPage({
 
   const { data: firma } = await createAdminClient()
     .from("companies")
-    .select("name, user_id, aktivering_token, aktivering_udloeber")
+    .select(
+      "name, contact_email, user_id, aktivering_token, aktivering_udloeber",
+    )
     .eq("aktivering_token", token)
     .maybeSingle();
 
@@ -40,6 +43,16 @@ export default async function AktiverPage({
    * offentlig, og adressen kan gættes på.
    */
   const spaerre = aktiveringSpaerre(firma);
+
+  /*
+   * HVILKEN SLAGS AKTIVERING, AFGØRES HER — på serveren, før skærmen
+   * tegnes. Har e-mailen allerede en konto, må der ikke vises et
+   * kodefelt: koden kan ikke bruges til noget, og før blev den taget
+   * imod og smidt væk i tavshed. Slås kun op, når der FAKTISK er noget
+   * at aktivere — ellers ville en side, der i forvejen siger nej,
+   * lave et opslag for hvert gæt på adressen.
+   */
+  const konto = spaerre ? null : await findKonto(firma?.contact_email);
 
   return (
     <>
@@ -55,6 +68,8 @@ export default async function AktiverPage({
           <AktiverForm
             action={aktiverFraToken}
             skjultFelt={{ navn: "token", vaerdi: token }}
+            form={konto ? "eksisterende-konto" : "ny-konto"}
+            email={firma?.contact_email}
           />
         )}
       </main>
