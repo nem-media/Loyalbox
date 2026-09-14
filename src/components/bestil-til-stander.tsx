@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { koebSpaerre } from "@/lib/commerce";
 import { COMPANY, getProduct, VOLUME_DISCOUNTS } from "@/lib/constants";
 import { designFrontfarve } from "@/lib/design";
+import { DesignPreview } from "@/components/design-preview";
 import { formatCurrency } from "@/lib/utils";
 import { EKSTRA_STANDER_SLUG } from "@/components/bestil-stander";
 
@@ -68,16 +69,17 @@ export async function BestilTilStander({
 
   // Designene hentes kun, når de kan bruges til noget. Er købet spærret, er
   // listen et katalog over knapper, der ikke virker.
-  const { data: designs } = company && kanBestille
-    ? await createAdminClient()
-        .from("designs")
-        .select(
-          "id, navn, stander_farve, front_type, front_hex, logo_url, frontfarve_betalt",
-        )
-        .eq("company_id", company.id)
-        .order("created_at", { ascending: false })
-        .limit(6)
-    : { data: null };
+  const { data: designs } =
+    company && kanBestille
+      ? await createAdminClient()
+          .from("designs")
+          .select(
+            "id, navn, stander_farve, front_type, front_hex, accent_hex, logo_url, frontfarve_betalt",
+          )
+          .eq("company_id", company.id)
+          .order("created_at", { ascending: false })
+          .limit(6)
+      : { data: null };
 
   const stoersteRabat = Math.max(...VOLUME_DISCOUNTS.map((d) => d.discountPct));
   const grund = `/bestil?produkt=${EKSTRA_STANDER_SLUG}&stand=${standId}`;
@@ -118,8 +120,8 @@ export async function BestilTilStander({
             >
               {COMPANY.email}
             </a>
-            , så sætter vi ordren op i hånden — skiltet trykkes stadig med
-            denne standers QR-kode.
+            , så sætter vi ordren op i hånden — skiltet trykkes stadig med denne
+            standers QR-kode.
           </p>
         </div>
       )}
@@ -141,22 +143,12 @@ export async function BestilTilStander({
                     href={`${grund}&design=${d.id}`}
                     className="box-shape flex items-center gap-3 border border-border p-3 transition-colors hover:border-accent/50 hover:bg-accent/5"
                   >
-                    {/* Farveprøven vises som den trykkes — også en hvid front,
-                        så kunden genkender designet uden at åbne det. */}
-                    <span
-                      aria-hidden="true"
-                      className="box-shape grid h-11 w-9 shrink-0 place-items-center overflow-hidden border border-border"
-                      style={{ background: front.hex }}
-                    >
-                      {d.logo_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={d.logo_url}
-                          alt=""
-                          className="max-h-full max-w-full object-contain p-0.5"
-                        />
-                      ) : null}
-                    </span>
+                    {/* Skiltet selv, så designet kan GENKENDES uden at blive
+                        åbnet. Farveprøven her var 44 × 36 px og viste kun
+                        fronten og logoet — to designs i samme farve så
+                        fuldstændig ens ud. Bredden er prøvet af: ved 36 px er
+                        skiltet et udtværet frimærke, ved 56 er logoet skarpt. */}
+                    <DesignPreview design={d} className="w-14 shrink-0" />
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-medium">
                         {d.navn}
