@@ -327,6 +327,28 @@ export function adresseSpaerre(
 }
 
 /**
+ * Hvilken QR-adresse skal et nyt skilt trykkes med?
+ *
+ * ET SKILT UDEN ADRESSE FÅR SKABELONENS PLADSHOLDER. Ordren bærer
+ * `stand_id`, og mangler det, står der i admin 'Ordren peger ikke på en
+ * stander — spørg kunden'. Det var den rigtige opførsel, dengang en butik
+ * kunne have mange adresser: systemet måtte ikke gætte, for et skilt med
+ * en FORKERT kode er værre end et med en pladsholder.
+ *
+ * MED ÉN ADRESSE ER DER IKKE NOGET AT GÆTTE. Køber kunden et skilt mere
+ * fra 'Mangler du et skilt?' — uden at komme fra standerens egen side —
+ * er der præcis ét sted, det kan høre til.
+ *
+ * NUL ELLER FLERE GIVER STADIG NULL, og det er ikke en forglemmelse: de
+ * to virksomheder, der har flere adresser fra før grænsen, skal stadig
+ * spørges. Samme regel som aktiveringen, der kun sender kunden direkte
+ * ind på standeren, når der er præcis én.
+ */
+export function enesteAdresse(ider: string[]): string | null {
+  return ider.length === 1 ? ider[0] : null;
+}
+
+/**
  * Det kunden får at vide. Ét sted, så knappen og handlingen ikke kan
  * komme til at sige hver sit — samme regel som `AKTIVERING_TEKSTER`.
  */

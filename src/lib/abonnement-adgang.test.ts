@@ -6,6 +6,7 @@ import {
   adresseSpaerre,
   ADRESSER_PR_ABONNEMENT,
   ADRESSE_TEKSTER,
+  enesteAdresse,
 } from "./abonnement";
 import { PRODUCTS } from "./constants";
 
@@ -206,5 +207,32 @@ describe("hvor mange QR-adresser følger der med", () => {
     // abonnement. Så skal tallet læses fra virksomheden — og resten af
     // mekanikken skal kunne blive stående.
     expect(ADRESSER_PR_ABONNEMENT).toBe(1);
+  });
+});
+
+/**
+ * HVILKEN ADRESSE SKAL ET NYT SKILT TRYKKES MED?
+ *
+ * Et skilt uden adresse får skabelonens pladsholder, og admin må spørge
+ * kunden. Det var rigtigt, dengang en butik kunne have mange adresser — et
+ * skilt med en FORKERT kode er værre end et med en pladsholder. Med én
+ * adresse er der ikke noget at gætte.
+ */
+describe("enesteAdresse", () => {
+  it("svarer med adressen, når der er præcis én", () => {
+    expect(enesteAdresse(["a"])).toBe("a");
+  });
+
+  it("gætter ikke, når der er flere", () => {
+    /*
+      De to virksomheder med flere adresser fra før grænsen skal stadig
+      spørges. Et gæt her ville trykke en QR-kode, kunden ikke bad om — og
+      et skilt kan ikke kaldes tilbage.
+    */
+    expect(enesteAdresse(["a", "b"])).toBeNull();
+  });
+
+  it("svarer null uden adresser", () => {
+    expect(enesteAdresse([])).toBeNull();
   });
 });
