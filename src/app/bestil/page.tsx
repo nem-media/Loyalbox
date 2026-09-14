@@ -17,6 +17,7 @@ import {
 } from "@/components/genbestil-design";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { kraeverDestination, kanBestillesUdenKonto } from "@/lib/commerce";
+import { enesteAdresse } from "@/lib/abonnement";
 import type { DestinationType } from "@/lib/types/database";
 import { designFrontfarve } from "@/lib/design";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +35,25 @@ export const metadata = {
     "Bestil din LoyalSum-stander med mængderabat. Reviewstander, Reviewstander Pro eller LoyalSum Komplet med digitalt stempelkort.",
   alternates: { canonical: "/bestil" },
 };
+
+/**
+ * Butikkens ene adresse — eller null, hvis der ikke er præcis én.
+ *
+ * Reglen selv ligger i `enesteAdresse()`, så den kan prøves uden database.
+ * Her er kun opslaget. `limit(2)` fordi vi ikke skal bruge flere end det:
+ * svaret er alligevel null, så snart der er to.
+ */
+async function enesteAdresseFor(
+  companyId: string | undefined,
+): Promise<string | undefined> {
+  if (!companyId) return undefined;
+  const { data } = await createAdminClient()
+    .from("stands")
+    .select("id")
+    .eq("company_id", companyId)
+    .limit(2);
+  return enesteAdresse((data ?? []).map((s) => s.id)) ?? undefined;
+}
 
 /**
  * Henter et gemt design, hvis det tilhører butikken.
@@ -159,6 +179,16 @@ export default async function OrderPage({
       ? await hentStandDestination(standId, user.company.id)
       : undefined;
 
+  /*
+   * HVILKEN ADRESSE SKAL SKILTET PEGE PÅ?
+   *
+   * Kommer kunden fra standerens egen side, står den i adressen. Kommer
+   * de fra 'Mangler du et skilt?', gør den ikke — og så fik ordren
+   * ingen stander, og produktionen måtte spørge kunden, hvad der skulle
+   * trykkes. Med én adresse pr. abonnement er der præcis ét svar.
+   */
+  const standTilTryk = standId ?? (await enesteAdresseFor(user?.company?.id));
+
   const spaerre = koebSpaerre(user, selected);
 
   /*
@@ -248,7 +278,7 @@ export default async function OrderPage({
                 product={selected}
                 design={gemt}
                 kraeverDpa={requiresDpa(selected)}
-                standId={standId}
+                standId={standTilTryk}
                 kraeverDestination={skalHaveDestination}
                 destinationStart={standDest}
               />
@@ -260,7 +290,7 @@ export default async function OrderPage({
                 companyId={user.company.id}
                 initialQty={initialQty}
                 kraeverDpa={requiresDpa(selected)}
-                standId={standId}
+                standId={standTilTryk}
                 kraeverDestination={skalHaveDestination}
                 destinationStart={standDest}
               />

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
-import { getCompanyStats } from "@/lib/data";
+import { getCompanyStats, getAdresseStats, efterAktivitet } from "@/lib/data";
+import { Table, THead, TBody, TR, TH, TD } from "@/components/ui/table";
 import { PageHeader, Sektion } from "@/components/dashboard-shell";
 import { FeedbackBubbleIcon, StandIcon } from "@/components/nav-icons";
 import { Stat } from "@/components/ui/stat";
@@ -159,6 +160,17 @@ export default async function DashboardPage({
   const stats = await getCompanyStats(company.id, period);
 
   /*
+   * OPDELINGEN HENTES KUN, NÅR DER ER NOGET AT SAMMENLIGNE.
+   *
+   * Med én adresse er hver række det samme tal som i kassen ovenfor, bare
+   * skrevet en gang til — og to ekstra forespørgsler for at sige det.
+   */
+  const perAdresse =
+    canSeeStats && stats.standCount > 1
+      ? (await getAdresseStats(company.id, period)).sort(efterAktivitet)
+      : [];
+
+  /*
    * OMDØMMET HENTES KUN, NÅR DET KAN VISES. Kaldet læser fem tællinger og to
    * tabeller, og der er ingen grund til at belægge basen for en Basic-konto,
    * der alligevel får et opgraderingskort at se.
@@ -226,6 +238,49 @@ export default async function DashboardPage({
                 }
               />
             </div>
+
+            {perAdresse.length ? (
+              <div>
+                <p className="etiket mt-6">Fordelt på dine steder</p>
+                <p className="mt-1.5 text-sm text-muted">
+                  Samme periode som ovenfor. Mest aktivitet først — så du kan
+                  se, hvor der sker noget, og hvor der ikke gør.
+                </p>
+                <Table className="mt-3">
+                  <THead>
+                    <TR className="hover:bg-transparent">
+                      <TH>Sted</TH>
+                      <TH numerisk>Scanninger</TH>
+                      <TH numerisk>Feedbacks</TH>
+                      <TH numerisk>Klik til anmeldelse</TH>
+                      <TH numerisk>Gns. rating</TH>
+                    </TR>
+                  </THead>
+                  <TBody>
+                    {perAdresse.map((a) => (
+                      <TR key={a.standId}>
+                        <TD>
+                          <Link
+                            href={`/dashboard/standere/${a.standId}`}
+                            className="font-medium text-accent hover:underline"
+                          >
+                            {a.navn}
+                          </Link>
+                        </TD>
+                        <TD numerisk>{a.scans}</TD>
+                        <TD numerisk>{a.feedback}</TD>
+                        <TD numerisk>{a.klik}</TD>
+                        {/* Tankestreg og ikke 0: et sted uden bedømmelser
+                            har ikke karakteren nul, det har ingen. */}
+                        <TD numerisk>
+                          {a.avgRating ? a.avgRating.toFixed(1) : "–"}
+                        </TD>
+                      </TR>
+                    ))}
+                  </TBody>
+                </Table>
+              </div>
+            ) : null}
           </>
         ) : (
           <UpgradeNotice
@@ -259,7 +314,9 @@ export default async function DashboardPage({
                   <span className="text-lg text-muted">/ 100</span>
                 </p>
                 <p className="mt-2 flex flex-wrap items-center gap-2">
-                  <Badge tone={scoreTone(omdoemme.score)}>{omdoemme.etiket}</Badge>
+                  <Badge tone={scoreTone(omdoemme.score)}>
+                    {omdoemme.etiket}
+                  </Badge>
                   <span className="text-xs text-muted">
                     {DATAGRUNDLAG_TEKST[omdoemme.datagrundlag]}
                   </span>
@@ -271,7 +328,9 @@ export default async function DashboardPage({
                   <p className="etiket">LoyalSum Kundescore</p>
                   <p className="mt-1 text-2xl font-bold tracking-tight">
                     {omdoemme.kundescore.toFixed(1).replace(".", ",")}{" "}
-                    <span className="text-base font-normal text-muted">/ 5</span>
+                    <span className="text-base font-normal text-muted">
+                      / 5
+                    </span>
                   </p>
                   <p className="text-sm text-muted">
                     {omdoemme.antalOplevelser}{" "}

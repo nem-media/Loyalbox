@@ -14,7 +14,7 @@ import {
   MAKS_ANMELDELSESLINKS,
   EGEN_PLATFORM_NAVN_MAKS,
 } from "@/lib/stands";
-import { harAbonnement } from "@/lib/abonnement";
+import { adresseSpaerre, ADRESSE_TEKSTER } from "@/lib/abonnement";
 import type { CompanyPlan, DestinationType } from "@/lib/types/database";
 
 export interface FormResult {
@@ -84,8 +84,7 @@ export async function updateCompany(
       address: String(formData.get("address") ?? "").trim() || null,
       postnummer: postnummerRaw || null,
       by: String(formData.get("by") ?? "").trim() || null,
-      kontaktperson:
-        String(formData.get("kontaktperson") ?? "").trim() || null,
+      kontaktperson: String(formData.get("kontaktperson") ?? "").trim() || null,
       // `stand_text` skrives IKKE længere. Feltet "Ønsket tekst på
       // standeren" var write-only: det blev gemt her og læst af ingenting.
       // Standerens udseende afgøres i designflowet (`designs`: farve, front,
@@ -160,20 +159,37 @@ export async function createStand(
   if (!user?.company) return { error: "Ingen virksomhed fundet." };
 
   /*
-   * EN QR-ADRESSE FØLGER MED ET ABONNEMENT.
+   * EN QR-ADRESSE FØLGER MED ET ABONNEMENT — OG DER FØLGER ÉN MED.
    *
-   * Uden denne kunne en gratis konto oprette ubegrænset mange standere og
-   * bruge anmeldelsesflowet i det uendelige uden at betale. Det var ikke et
-   * hul i en betalingsmur, men i selve forretningsmodellen: design og
-   * bestilling er en del af KØBET, og adressen er det, man får bagefter.
+   * Uden det første kunne en gratis konto bruge anmeldelsesflowet i det
+   * uendelige uden at betale. Det var ikke et hul i en betalingsmur, men i
+   * selve forretningsmodellen: design og bestilling er en del af KØBET, og
+   * adressen er det, man får bagefter.
+   *
+   * Uden det andet betalte en kæde med tyve butikker det samme som en
+   * enkelt café — hver butik fik sin egen side, sin egen statistik og sit
+   * eget flow for én pris. Reglen ligger i `adresseSpaerre()`, så knappen på
+   * /dashboard/standere og denne handling ikke kan svare forskelligt.
+   *
+   * ANTALLET TÆLLES I BASEN og ikke i en variabel: handlingen kører i mange
+   * eksemplarer, og to faner ville ellers kunne oprette hver sin adresse
+   * forbi grænsen.
    *
    * Kontrollen ligger i handlingen og ikke kun i knappen: en skjult knap er
    * ikke adgangskontrol, når handlingen kan kaldes direkte.
    */
-  if (!harAbonnement(user.company)) {
+  const { count: antalAdresser } = await createAdminClient()
+    .from("stands")
+    .select("id", { count: "exact", head: true })
+    .eq("company_id", user.company.id);
+
+  const spaerre = adresseSpaerre(user.company, antalAdresser ?? 0);
+  if (spaerre) {
     return {
       error:
-        "En QR-adresse følger med Reviewstander Pro eller LoyalSum Komplet. Se dit abonnement for at komme i gang.",
+        spaerre === "intet-abonnement"
+          ? ADRESSE_TEKSTER.intetAbonnement
+          : `${ADRESSE_TEKSTER.graenseOverskrift}. ${ADRESSE_TEKSTER.graenseHjaelp}`,
     };
   }
 

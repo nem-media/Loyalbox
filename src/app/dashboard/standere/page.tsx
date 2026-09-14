@@ -10,8 +10,8 @@ import { CreateStand } from "./create-stand";
 import { GuideHint } from "@/components/guide";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StandIcon } from "@/components/nav-icons";
-import { harAbonnement } from "@/lib/abonnement";
-import { PRODUCTS } from "@/lib/constants";
+import { adresseSpaerre, ADRESSE_TEKSTER } from "@/lib/abonnement";
+import { PRODUCTS, COMPANY } from "@/lib/constants";
 
 /** Varerne med en QR-adresse. Udledt, så navnene ikke kan drive. */
 const ABONNEMENTER = PRODUCTS.filter((p) => p.monthlyPrice && !p.addon).map(
@@ -23,7 +23,6 @@ export const metadata = { title: "Standere" };
 export default async function StandsPage() {
   const user = await getCurrentUser();
   const company = user!.company;
-  const abonnement = harAbonnement(company);
   const supabase = await createClient();
 
   const { data: stands } = company
@@ -34,6 +33,12 @@ export default async function StandsPage() {
         .order("created_at", { ascending: true })
     : { data: [] };
 
+  /*
+   * SAMME SPÆRRE SOM HANDLINGEN. `adresseSpaerre()` er det ene sted,
+   * reglen står, så knappen og `createStand()` ikke kan svare forskelligt.
+   */
+  const graense = adresseSpaerre(company, stands?.length ?? 0);
+
   return (
     <>
       <PageHeader
@@ -43,13 +48,34 @@ export default async function StandsPage() {
 
       <GuideHint id="standere" className="mb-6" />
 
-      {/* OPRETTELSEN VISES KUN MED ET ABONNEMENT. Selve spærringen ligger i
+      {/* OPRETTELSEN VISES KUN, NÅR DEN VIRKER. Selve spærringen ligger i
           `createStand()` — en skjult knap er ikke adgangskontrol — men en
-          formular, der altid afviser, er en dårlig måde at sige det på. */}
+          formular, der altid afviser, er en dårlig måde at sige det på.
+
+          GRÆNSEN AFGØRES AF SAMME FUNKTION som handlingen bruger. Stod der
+          et håndskrevet `stands.length < 1` her, ville de to kunne komme i
+          utakt den dag, tallet ændrer sig. */}
       <Card className="mb-4">
         <CardBody>
-          {abonnement ? (
+          {graense === null ? (
             <CreateStand />
+          ) : graense === "graense-naaet" ? (
+            <>
+              <p className="font-semibold tracking-tight">
+                {ADRESSE_TEKSTER.graenseOverskrift}
+              </p>
+              <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted">
+                {ADRESSE_TEKSTER.graenseHjaelp}
+              </p>
+              <p className="mt-3 text-sm">
+                <Link
+                  href={`mailto:${COMPANY.email}`}
+                  className="font-medium text-accent hover:underline"
+                >
+                  Skriv til os om en butik mere →
+                </Link>
+              </p>
+            </>
           ) : (
             <>
               <p className="font-semibold tracking-tight">

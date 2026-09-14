@@ -274,3 +274,95 @@ export function harAbonnement(
   if (!slug) return false;
   return Boolean(getProduct(slug)?.monthlyPrice);
 }
+
+/**
+ * HVOR MANGE QR-ADRESSER FØLGER DER MED ÉT ABONNEMENT?
+ *
+ * ÉN. Og det er hele forretningsmodellen, ikke en teknisk begrænsning.
+ *
+ * En QR-adresse er en dedikeret side for ét sted: én butik, én afdeling.
+ * Skilte er derimod bare skilte — man kan have tyve af dem på den samme
+ * adresse, og de koster kun det, akrylen koster. Det er dét, kunderne skal
+ * forstå: du skal ikke købe abonnement nummer to for at få et skilt mere
+ * ved den anden dør.
+ *
+ * OMVENDT ER EN BUTIK MERE ET KUNDEFORHOLD MERE. Før kunne én abonnent
+ * oprette ubegrænset mange adresser — en kæde med tyve butikker betalte
+ * det samme som en enkelt café, og hver butik fik sin egen side, sin egen
+ * statistik og sit eget flow. Grænsen lukker det.
+ *
+ * TALLET STÅR HER OG IKKE I EN IF-SÆTNING, fordi det skal kunne hæves.
+ * Planen er, at en ekstra adresse en dag bliver en linje mere på det
+ * SAMME abonnement — så bliver dette tal til et, der læses fra
+ * virksomheden, og resten af mekanikken kan blive stående.
+ */
+export const ADRESSER_PR_ABONNEMENT = 1;
+
+/**
+ * Hvorfor kan der IKKE oprettes en QR-adresse mere? Null betyder at der kan.
+ *
+ * SVARER MED EN GRUND og ikke bare falsk, af samme årsag som
+ * `koebSpaerre()`: 'du har intet abonnement' og 'du har allerede den, der
+ * følger med' er to vidt forskellige beskeder, og en knap, der bare
+ * forsvinder, forklarer ingen af dem.
+ */
+export type AdresseSpaerre =
+  /** Ingen løbende vare — adressen følger med Pro eller Komplet. */
+  | "intet-abonnement"
+  /** Abonnementets adresse er brugt. Flere butikker er en samtale værd. */
+  | "graense-naaet";
+
+export function adresseSpaerre(
+  company: { product_slug?: string | null } | null | undefined,
+  antalAdresser: number,
+): AdresseSpaerre | null {
+  if (!harAbonnement(company)) return "intet-abonnement";
+  /*
+   * `>=` og ikke `===`. De to virksomheder, der blev oprettet FØR grænsen,
+   * har flere adresser end én, og de skal beholde dem — en grænse må
+   * spærre for at lave FLERE, aldrig fjerne noget, der er i drift.
+   */
+  if (antalAdresser >= ADRESSER_PR_ABONNEMENT) return "graense-naaet";
+  return null;
+}
+
+/**
+ * Hvilken QR-adresse skal et nyt skilt trykkes med?
+ *
+ * ET SKILT UDEN ADRESSE FÅR SKABELONENS PLADSHOLDER. Ordren bærer
+ * `stand_id`, og mangler det, står der i admin 'Ordren peger ikke på en
+ * stander — spørg kunden'. Det var den rigtige opførsel, dengang en butik
+ * kunne have mange adresser: systemet måtte ikke gætte, for et skilt med
+ * en FORKERT kode er værre end et med en pladsholder.
+ *
+ * MED ÉN ADRESSE ER DER IKKE NOGET AT GÆTTE. Køber kunden et skilt mere
+ * fra 'Mangler du et skilt?' — uden at komme fra standerens egen side —
+ * er der præcis ét sted, det kan høre til.
+ *
+ * NUL ELLER FLERE GIVER STADIG NULL, og det er ikke en forglemmelse: de
+ * to virksomheder, der har flere adresser fra før grænsen, skal stadig
+ * spørges. Samme regel som aktiveringen, der kun sender kunden direkte
+ * ind på standeren, når der er præcis én.
+ */
+export function enesteAdresse(ider: string[]): string | null {
+  return ider.length === 1 ? ider[0] : null;
+}
+
+/**
+ * Det kunden får at vide. Ét sted, så knappen og handlingen ikke kan
+ * komme til at sige hver sit — samme regel som `AKTIVERING_TEKSTER`.
+ */
+export const ADRESSE_TEKSTER = {
+  intetAbonnement:
+    "En QR-adresse følger med Reviewstander Pro eller LoyalSum Komplet. Se dit abonnement for at komme i gang.",
+
+  graenseOverskrift: "Du har den QR-adresse, der følger med",
+
+  /*
+   * BESKEDEN SKAL FØRST FJERNE MISFORSTÅELSEN, og dernæst sige hvad man
+   * gør. Den, der trykker 'opret', vil som regel bare have et skilt mere —
+   * og skal ikke tro, at det kræver noget køb.
+   */
+  graenseHjaelp:
+    "Du kan sætte så mange skilte op, du vil, på den adresse du har — de peger alle sammen på den samme side, og du bestiller dem under standeren. En adresse mere hører til en butik mere, og den sætter vi op sammen med dig.",
+} as const;
