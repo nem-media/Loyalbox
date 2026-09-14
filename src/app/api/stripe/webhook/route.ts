@@ -10,10 +10,7 @@ import { erBetalende } from "@/lib/abonnement";
 import { noterFejl, noterKoersel } from "@/lib/drift";
 import { traekLagerForOrdre } from "@/lib/lager";
 import { generateSlug } from "@/lib/utils";
-import {
-  skalOpretteFoersteStander,
-  sessionErBetalt,
-} from "@/lib/commerce";
+import { skalOpretteFoersteStander, sessionErBetalt } from "@/lib/commerce";
 import { qrAdresseFor } from "@/lib/qr-adresse";
 import { getSiteUrl } from "@/lib/site";
 
@@ -185,7 +182,10 @@ async function varslOmKoeb(
            * (0030's att.-felt gør netop det muligt), skrev varslet det
            * forkerte navn på pakkelabelen.
            */
-          leveringsnavn(session) ?? session.customer_details?.name ?? firma?.name ?? "",
+          leveringsnavn(session) ??
+            session.customer_details?.name ??
+            firma?.name ??
+            "",
           adresse.line1 ?? "",
           adresse.line2 ?? "",
           [adresse.postal_code, adresse.city].filter(Boolean).join(" "),
@@ -706,28 +706,79 @@ export async function POST(request: NextRequest) {
       case "customer.subscription.updated":
       case "customer.subscription.deleted": {
         const sub = event.data.object;
-        const companyId = sub.metadata?.company_id;
         const slug = sub.metadata?.product_slug;
 
-        // Virksomheden findes på sit id, eller — mangler metadataen — på
-        // abonnementet. Nøglen udregnes én gang og bruges til hver opdatering.
-        const noegle: ["id", string] | ["stripe_subscription_id", string] =
-          companyId ? ["id", companyId] : ["stripe_subscription_id", sub.id];
+        /*
+         * HVILKEN VIRKSOMHED? METADATAEN ER ET ØJEBLIKSBILLEDE FRA KØBET.
+         *
+         * Den blev sat, da abonnementet blev oprettet, og den bliver ALDRIG
+         * rettet af sig selv. Peger `company_id` på en række, der er flyttet
+         * eller lagt sammen med en anden, ramte opdateringen før nul rækker
+         * — og fejlede uden at fejle. Konsekvensen er ikke kosmetisk: så
+         * ville en MISLYKKET BETALING aldrig suspendere kunden, og
+         * `stripe_status` ville stå og lyve i al fremtid. Stilhed ligner
+         * succes, præcis som med de baggrundsopgaver, driftsloggen findes
+         * for.
+         *
+         * Derfor slås virksomheden OP frem for at blive opdateret i blinde,
+         * og abonnements-id'et er reserven — det står på virksomheden selv
+         * og kan ikke blive forældet på samme måde.
+         */
+        let firmaId: string | null = null;
+        let fraMetadata = false;
+
+        if (sub.metadata?.company_id) {
+          const { data } = await admin
+            .from("companies")
+            .select("id")
+            .eq("id", sub.metadata.company_id)
+            .maybeSingle();
+          firmaId = data?.id ?? null;
+          fraMetadata = Boolean(firmaId);
+        }
+
+        if (!firmaId) {
+          const { data } = await admin
+            .from("companies")
+            .select("id")
+            .eq("stripe_subscription_id", sub.id)
+            .maybeSingle();
+          firmaId = data?.id ?? null;
+        }
+
+        if (!firmaId) {
+          // Et abonnement uden en virksomhed at høre til. Der er ikke noget
+          // at gøre her, men det SKAL ses: nogen betaler for noget, vi ikke
+          // kan knytte til nogen.
+          await noterFejl(
+            "stripe-webhook",
+            `${event.type} for ${sub.id} kunne ikke knyttes til en virksomhed.`,
+          );
+          break;
+        }
 
         if (erBetalende(sub.status)) {
-          // Betalingen er på plads: adgangen tilbage, og uret nulstilles. Et
-          // ophør, der endnu ikke er nået at blive udført, fortrydes her.
+          /*
+           * Betalingen er på plads: adgangen tilbage, og uret nulstilles. Et
+           * ophør, der endnu ikke er nået at blive udført, fortrydes her.
+           *
+           * `product_slug` skrives KUN, når metadataen selv fandt
+           * virksomheden. Måtte vi falde tilbage på abonnements-id'et, ved vi
+           * at metadataen er forældet — og så er dens vare det også. At
+           * skrive den ville sætte kunden tilbage til det, de købte ENGANG,
+           * og ikke det, de har i dag.
+           */
           await admin
             .from("companies")
             .update({
-              ...(slug
+              ...(slug && fraMetadata
                 ? { product_slug: slug, plan: planForProduct(slug) }
                 : {}),
               stripe_status: sub.status,
               suspenderet_siden: null,
               ophoert_den: null,
             })
-            .eq(noegle[0], noegle[1]);
+            .eq("id", firmaId);
           break;
         }
 
@@ -744,7 +795,7 @@ export async function POST(request: NextRequest) {
         await admin
           .from("companies")
           .update({ plan: "basic" as const, stripe_status: sub.status })
-          .eq(noegle[0], noegle[1]);
+          .eq("id", firmaId);
 
         // Starttidspunktet sættes KUN, hvis der ikke allerede står et. Stripe
         // sender flere opdateringer på vej gennem rykkerforløbet, og uden
@@ -753,7 +804,7 @@ export async function POST(request: NextRequest) {
         await admin
           .from("companies")
           .update({ suspenderet_siden: new Date().toISOString() })
-          .eq(noegle[0], noegle[1])
+          .eq("id", firmaId)
           .is("suspenderet_siden", null);
         break;
       }
