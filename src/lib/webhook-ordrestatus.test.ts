@@ -47,7 +47,10 @@ const SIDSTE_ETIKET = 'case "checkout.session.async_payment_succeeded"';
 
 function betalingsGrenen(): string {
   const start = KILDE.indexOf(SIDSTE_ETIKET);
-  expect(start, "betalingsgrenens case-etiketter findes ikke længere").toBeGreaterThan(-1);
+  expect(
+    start,
+    "betalingsgrenens case-etiketter findes ikke længere",
+  ).toBeGreaterThan(-1);
 
   const næste = KILDE.indexOf('case "', start + SIDSTE_ETIKET.length);
   const krop = KILDE.slice(start, næste === -1 ? undefined : næste);
@@ -79,7 +82,10 @@ describe("webhooken markerer ordren betalt ad alle veje", () => {
   const ordreOpdatering = gren.indexOf('status: "needs_onboarding"');
 
   it("har både grenkæden og ordreopdateringen", () => {
-    expect(kædeStart, "grenen, der sætter kundeforholdet, er væk").toBeGreaterThan(-1);
+    expect(
+      kædeStart,
+      "grenen, der sætter kundeforholdet, er væk",
+    ).toBeGreaterThan(-1);
     expect(ordreOpdatering, "ordreopdateringen er væk").toBeGreaterThan(-1);
   });
 
@@ -161,7 +167,10 @@ describe("webhooken markerer ordren betalt ad alle veje", () => {
     // ligger der legitime `noterFejl` — en fejlet standeroprettelse er en
     // rigtig fejl og skal alarmere. Prøven må ikke ramme dem.
     const fra = gren.indexOf("sessionErBetalt(");
-    const spaerren = gren.slice(fra, gren.indexOf("break;", fra) + "break;".length);
+    const spaerren = gren.slice(
+      fra,
+      gren.indexOf("break;", fra) + "break;".length,
+    );
 
     expect(spaerren).toMatch(/noterKoersel\(/);
     expect(spaerren).not.toMatch(/noterFejl\(/);
@@ -172,5 +181,57 @@ describe("webhooken markerer ordren betalt ad alle veje", () => {
     // statussen her til noget, der ikke står i listen, forsvinder ordren fra
     // "betalte ordrer i alt" uden at noget fejler.
     expect(BETALTE_ORDRE_STATUSSER).toContain("needs_onboarding");
+  });
+});
+
+/**
+ * ET ABONNEMENT SKAL KUNNE FINDE SIN VIRKSOMHED — OGSÅ ÅR EFTER KØBET.
+ *
+ * `sub.metadata.company_id` er et øjebliksbillede fra oprettelsen og bliver
+ * aldrig rettet af sig selv. Peger den på en række, der siden er flyttet
+ * eller lagt sammen med en anden, ramte opdateringen nul rækker og fejlede
+ * uden at fejle. Konsekvensen er ikke kosmetisk: en MISLYKKET BETALING
+ * ville aldrig suspendere kunden, og `stripe_status` ville stå og lyve.
+ *
+ * Det var ikke teoretisk — det opstod, da to virksomheder på samme bruger
+ * blev lagt sammen i hånden 14. september 2026, og abonnementets metadata
+ * blev stående og pegede på den slettede.
+ */
+describe("abonnementshændelser finder virksomheden", () => {
+  const RUTE = readFileSync(
+    join(process.cwd(), "src/app/api/stripe/webhook/route.ts"),
+    "utf8",
+  );
+
+  it("slår virksomheden OP frem for at opdatere i blinde", () => {
+    /*
+      Den gamle form var `.eq(noegle[0], noegle[1])` på et par, der kom
+      direkte fra metadataen — uden at nogen så efter, om den ramte noget.
+    */
+    expect(RUTE).not.toMatch(/\.eq\(noegle\[0\], noegle\[1\]\)/);
+    expect(RUTE).toMatch(/let firmaId: string \| null = null;/);
+  });
+
+  it("falder tilbage på abonnements-id'et", () => {
+    // Det står på virksomheden selv og kan ikke blive forældet som
+    // metadataen.
+    expect(RUTE).toMatch(/\.eq\("stripe_subscription_id", sub\.id\)/);
+  });
+
+  it("råber op, når der slet ingen virksomhed er", () => {
+    // Nogen betaler for noget, vi ikke kan knytte til nogen. Det må ikke
+    // være en tavs `break`.
+    const gren = RUTE.slice(RUTE.indexOf("if (!firmaId) {"));
+    expect(gren.slice(0, 900)).toMatch(/noterFejl\(/);
+  });
+
+  it("skriver IKKE varen, når metadataen er forældet", () => {
+    /*
+      Måtte vi falde tilbage, ved vi at metadataen er gammel — og så er
+      dens `product_slug` det også. At skrive den ville sætte kunden
+      tilbage til det, de købte ENGANG, og ikke det, de har i dag. Præcis
+      dét ville have rullet en sammenlagt Komplet-kunde tilbage til Pro.
+    */
+    expect(RUTE).toMatch(/slug && fraMetadata/);
   });
 });
