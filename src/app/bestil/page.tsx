@@ -48,7 +48,7 @@ async function hentDesign(
   const { data } = await createAdminClient()
     .from("designs")
     .select(
-      "id, navn, stander_farve, front_type, front_hex, logo_url, frontfarve_betalt",
+      "id, navn, stander_farve, front_type, front_hex, accent_hex, logo_url, frontfarve_betalt",
     )
     .eq("id", id)
     .eq("company_id", companyId)
@@ -63,6 +63,8 @@ async function hentDesign(
     stander_farve: data.stander_farve,
     front_hex: front.hex,
     front_beskrivelse: front.beskrivelse,
+    front_type: data.front_type,
+    accent_hex: data.accent_hex,
     logo_url: data.logo_url,
     frontfarve_betalt: data.frontfarve_betalt,
     egen_frontfarve: front.egen,
