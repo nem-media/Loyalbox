@@ -508,7 +508,7 @@ export const PRODUCTS: Product[] = [
     addon: true,
     tagline: "Endnu et skilt til disken",
     description:
-      "En stander mere til din forretning — samme akryl med QR og NFC, med dit logo. Den kan pege på en ny QR-adresse eller på den samme som dine andre. Købes uanset hvilket abonnement du har, og ændrer ikke noget ved det.",
+      "Et skilt mere til din forretning — samme akryl med QR og NFC, med dit logo. Det peger på den QR-adresse, du har i forvejen, så alle dine skilte fører hen til den samme side. Du kan have så mange, du vil: ved døren, på bordene, i receptionen. Købes uanset hvilket abonnement du har, og ændrer ikke noget ved det.",
     image: "/mockups/stander-reviewstander.svg",
     features: [
       "Samme stander som dine nuværende",

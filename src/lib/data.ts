@@ -57,9 +57,15 @@ export async function getCompanyStats(
   const klik = { company_id: companyId, is_public_review_clicked: true };
 
   const [
-    scansPeriod, scansPrev, scansTotal,
-    feedbackPeriod, feedbackPrev, feedbackTotal,
-    clicksPeriod, clicksPrev, clicksTotal,
+    scansPeriod,
+    scansPrev,
+    scansTotal,
+    feedbackPeriod,
+    feedbackPrev,
+    feedbackTotal,
+    clicksPeriod,
+    clicksPrev,
+    clicksTotal,
     standCount,
   ] = await Promise.all([
     tael("scans", { company_id: companyId }, nu),
@@ -79,22 +85,25 @@ export async function getCompanyStats(
       ? rows.reduce((s, r) => s + r.rating, 0) / rows.length
       : null;
 
-  const [{ data: ratingPeriod }, { data: ratingAlle }, { data: recentFeedback }] =
-    await Promise.all([
-      supabase
-        .from("feedback")
-        .select("rating")
-        .eq("company_id", companyId)
-        .gte("created_at", nu.from)
-        .lte("created_at", nu.to),
-      supabase.from("feedback").select("rating").eq("company_id", companyId),
-      supabase
-        .from("feedback")
-        .select("*")
-        .eq("company_id", companyId)
-        .order("created_at", { ascending: false })
-        .limit(5),
-    ]);
+  const [
+    { data: ratingPeriod },
+    { data: ratingAlle },
+    { data: recentFeedback },
+  ] = await Promise.all([
+    supabase
+      .from("feedback")
+      .select("rating")
+      .eq("company_id", companyId)
+      .gte("created_at", nu.from)
+      .lte("created_at", nu.to),
+    supabase.from("feedback").select("rating").eq("company_id", companyId),
+    supabase
+      .from("feedback")
+      .select("*")
+      .eq("company_id", companyId)
+      .order("created_at", { ascending: false })
+      .limit(5),
+  ]);
 
   return {
     scans: { period: scansPeriod, previous: scansPrev, total: scansTotal },
@@ -109,4 +118,130 @@ export async function getCompanyStats(
     recentFeedback: recentFeedback ?? [],
     standCount,
   };
+}
+
+/**
+ * Tal for ÉN QR-adresse — altså ét sted: én butik, én afdeling.
+ */
+export interface AdresseStat {
+  standId: string;
+  navn: string;
+  scans: number;
+  feedback: number;
+  klik: number;
+  /** Gennemsnit i perioden. Null når ingen har bedømt stedet i vinduet. */
+  avgRating: number | null;
+}
+
+/**
+ * DET SAMLEDE TAL SIGER IKKE HVILKEN BUTIK DER TRÆKKER DET.
+ *
+ * `getCompanyStats()` tæller alt på `company_id`, og for en kunde med flere
+ * steder er svaret derfor ubrugeligt: 70 scanninger kan være 64 det ene sted
+ * og 3 det andet. Det er præcis dét, en kæde vil vide.
+ *
+ * DER SKAL INGEN MIGRATION TIL. `scans` og `feedback` har båret `stand_id`
+ * med indeks siden 0001 — der er bare aldrig blevet læst på det.
+ *
+ * TO FORESPØRGSLER, UANSET HVOR MANGE ADRESSER. Rækkerne hentes for
+ * perioden og grupperes her; en tælling pr. adresse ville være fire kald
+ * gange antallet af butikker, og en kæde med tyve ville betale for det ved
+ * hver sideindlæsning. Til gengæld hentes der RÆKKER og ikke tal, så
+ * vinduet skal være en periode og aldrig 'alle tider'.
+ */
+/** Rækkerne, grupperingen har brug for. Med vilje minimale. */
+export interface AdresseRaekker {
+  stands: { id: string; name: string }[];
+  scans: { stand_id: string }[];
+  feedback: {
+    stand_id: string;
+    rating: number;
+    is_public_review_clicked: boolean;
+  }[];
+}
+
+/**
+ * SELVE OPDELINGEN — og den rører ikke databasen.
+ *
+ * Skilt fra hentningen, så den kan prøves uden hverken login eller netværk.
+ * Det er samme grund som i `aktivering.ts`: reglerne skal kunne efterprøves,
+ * og en funktion, der både henter og regner, kan kun prøves ved at logge
+ * ind som en rigtig kunde.
+ *
+ * ET STED UDEN AKTIVITET FALDER IKKE UD. Det er hele pointen med listen:
+ * en butik med nul scanninger er præcis dét, ejeren skal have at vide.
+ */
+export function grupperPrAdresse(r: AdresseRaekker): AdresseStat[] {
+  return r.stands.map((stand) => {
+    const egne = r.feedback.filter((f) => f.stand_id === stand.id);
+    const ratings = egne.map((f) => f.rating);
+
+    return {
+      standId: stand.id,
+      navn: stand.name,
+      scans: r.scans.filter((x) => x.stand_id === stand.id).length,
+      feedback: egne.length,
+      klik: egne.filter((f) => f.is_public_review_clicked).length,
+      avgRating: ratings.length
+        ? ratings.reduce((a, b) => a + b, 0) / ratings.length
+        : null,
+    };
+  });
+}
+
+/**
+ * DET SAMLEDE TAL SIGER IKKE HVILKEN BUTIK DER TRÆKKER DET.
+ *
+ * `getCompanyStats()` tæller alt på `company_id`, og for en kunde med flere
+ * steder er svaret derfor ubrugeligt: 70 scanninger kan være 64 det ene sted
+ * og 3 det andet. Det er præcis dét, en kæde vil vide.
+ *
+ * DER SKAL INGEN MIGRATION TIL. `scans` og `feedback` har båret `stand_id`
+ * med indeks siden 0001 — der er bare aldrig blevet læst på det.
+ *
+ * TO FORESPØRGSLER, UANSET HVOR MANGE ADRESSER. Rækkerne hentes for
+ * perioden og grupperes her; en tælling pr. adresse ville være fire kald
+ * gange antallet af butikker, og en kæde med tyve ville betale for det ved
+ * hver sideindlæsning. Til gengæld hentes der RÆKKER og ikke tal, så
+ * vinduet skal være en periode og aldrig 'alle tider'.
+ *
+ * Læses med kundens egen klient som resten af dashboardet: RLS er det, der
+ * holder én butiks tal væk fra en andens.
+ */
+export async function getAdresseStats(
+  companyId: string,
+  period: Period = "30",
+): Promise<AdresseStat[]> {
+  const supabase = await createClient();
+  const nu = periodRange(period);
+
+  const [{ data: stands }, { data: scans }, { data: feedback }] =
+    await Promise.all([
+      supabase
+        .from("stands")
+        .select("id, name")
+        .eq("company_id", companyId)
+        .order("created_at", { ascending: true }),
+      supabase
+        .from("scans")
+        .select("stand_id")
+        .eq("company_id", companyId)
+        .gte("created_at", nu.from)
+        .lte("created_at", nu.to),
+      supabase
+        .from("feedback")
+        .select("stand_id, rating, is_public_review_clicked")
+        .eq("company_id", companyId)
+        .gte("created_at", nu.from)
+        .lte("created_at", nu.to),
+    ]);
+
+  return grupperPrAdresse({
+    stands: stands ?? [],
+    scans: scans ?? [],
+    feedback: feedback ?? [],
+  });
+}
+export function efterAktivitet(a: AdresseStat, b: AdresseStat): number {
+  return b.scans - a.scans || b.feedback - a.feedback;
 }

@@ -1,7 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { harAbonnement } from "./abonnement";
+import {
+  harAbonnement,
+  adresseSpaerre,
+  ADRESSER_PR_ABONNEMENT,
+  ADRESSE_TEKSTER,
+} from "./abonnement";
 import { PRODUCTS } from "./constants";
 
 /**
@@ -72,12 +77,34 @@ describe("spærringerne findes, hvor de skal", () => {
   /**
    * Knappen skjules i `standere/page.tsx`, men dét er ikke adgangskontrol:
    * server-handlingen kan kaldes direkte. Kontrollen SKAL stå i handlingen.
+   *
+   * `adresseSpaerre()` svarer på BEGGE spørgsmål — er der et abonnement, og
+   * er adressen brugt — så handlingen kun har ét sted at spørge.
    */
-  it("createStand afviser uden abonnement", () => {
+  it("createStand afviser uden abonnement og over grænsen", () => {
     const s = kilde("src/app/dashboard/actions.ts");
     const i = s.indexOf("export async function createStand");
     expect(i).toBeGreaterThan(-1);
-    expect(s.slice(i, i + 1400)).toContain("harAbonnement");
+    const krop = s.slice(i, i + 2200);
+    expect(krop).toContain("adresseSpaerre");
+
+    /*
+      ANTALLET SKAL TÆLLES I BASEN. Handlingen kører i mange eksemplarer,
+      og et tal fra klienten — eller fra en liste, der blev hentet før —
+      ville lade to faner oprette hver sin adresse forbi grænsen.
+    */
+    expect(krop).toMatch(/count: "exact"/);
+  });
+
+  /**
+   * Knappen og handlingen SKAL spørge den samme funktion. Et håndskrevet
+   * `stands.length < 1` i siden ville komme i utakt med grænsen den dag,
+   * tallet ændrer sig — og så ville sitet vise en knap, handlingen afviser.
+   */
+  it("knappen spørger samme regel som handlingen", () => {
+    expect(kilde("src/app/dashboard/standere/page.tsx")).toContain(
+      "adresseSpaerre",
+    );
   });
 
   it("anmeldelsessiden viderestiller uden abonnement", () => {
@@ -118,5 +145,66 @@ describe("spærringerne findes, hvor de skal", () => {
     ]) {
       expect(kilde(sti), sti).not.toContain("harAbonnement");
     }
+  });
+});
+
+/**
+ * ÉN QR-ADRESSE PR. ABONNEMENT — OG SÅ MANGE SKILTE MAN VIL.
+ *
+ * Adressen er en dedikeret side for ét sted. Skilte er bare skilte: tyve af
+ * dem på den samme adresse koster kun det, akrylen koster. Før kunne én
+ * abonnent oprette ubegrænset mange adresser, så en kæde med tyve butikker
+ * betalte det samme som en enkelt café.
+ */
+describe("hvor mange QR-adresser følger der med", () => {
+  const pro = { product_slug: "reviewstander-pro" };
+  const komplet = { product_slug: "loyalsum-komplet" };
+  const basic = { product_slug: "reviewstander" };
+
+  it("lukker den første igennem på begge abonnementsvarer", () => {
+    expect(adresseSpaerre(pro, 0)).toBeNull();
+    expect(adresseSpaerre(komplet, 0)).toBeNull();
+  });
+
+  it("afviser den anden", () => {
+    expect(adresseSpaerre(komplet, 1)).toBe("graense-naaet");
+  });
+
+  /**
+   * DE, DER HAVDE FLERE FØR GRÆNSEN, BEHOLDER DEM. En grænse må spærre for
+   * at lave FLERE, aldrig fjerne noget, der står ude i en butik. Derfor
+   * `>=` og ikke `===`: med tre adresser skal svaret stadig være nej og
+   * ikke et hul, der lader den fjerde slippe igennem.
+   */
+  it("siger stadig nej, når der er flere end grænsen i forvejen", () => {
+    expect(adresseSpaerre(komplet, 3)).toBe("graense-naaet");
+  });
+
+  it("svarer på abonnementet FØR grænsen", () => {
+    /*
+      Rækkefølgen er ikke ligegyldig: en konto uden abonnement og uden
+      adresser skal have at vide, at adressen følger med et abonnement —
+      ikke at de har brugt en, de aldrig har haft.
+    */
+    expect(adresseSpaerre(basic, 0)).toBe("intet-abonnement");
+    expect(adresseSpaerre(null, 0)).toBe("intet-abonnement");
+    expect(adresseSpaerre(basic, 5)).toBe("intet-abonnement");
+  });
+
+  it("siger i beskeden, at skiltene IKKE er begrænset", () => {
+    /*
+      Halvdelen af rettelsen er ordlyden. Den, der trykker 'opret', vil som
+      regel bare have et skilt mere ved den anden dør — og må ikke gå
+      derfra og tro, at det kræver et køb.
+    */
+    expect(ADRESSE_TEKSTER.graenseHjaelp).toMatch(/så mange skilte/i);
+    expect(ADRESSE_TEKSTER.graenseHjaelp).toMatch(/samme side/i);
+  });
+
+  it("har et tal, der kan hæves ét sted", () => {
+    // Planen er, at en ekstra adresse bliver en linje mere på det SAMME
+    // abonnement. Så skal tallet læses fra virksomheden — og resten af
+    // mekanikken skal kunne blive stående.
+    expect(ADRESSER_PR_ABONNEMENT).toBe(1);
   });
 });
