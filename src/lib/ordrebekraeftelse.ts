@@ -1,4 +1,4 @@
-import { PRORATA_FORKLARING, COMPANY } from "./constants";
+import { PRORATA_FORKLARING, COMPANY, BRAND_NAVN } from "./constants";
 import type { Ordredetaljer } from "./ordrevarsel";
 
 /**
@@ -142,7 +142,14 @@ export function ordrebekraeftelse(d: Ordredetaljer): {
     `Har du spørgsmål, så svar bare på denne mail eller skriv til ${COMPANY.email}.`,
     "",
     "Venlig hilsen",
-    COMPANY.legalName,
+    /*
+      BRANDET UNDERSKRIVER, IKKE SELSKABET. Her stod COMPANY.legalName, så en
+      kunde, der lige havde købt hos LoyalSum, fik en mail underskrevet "Nem
+      Media ApS" — et navn, de aldrig har set. Selskabsnavnet hører hjemme
+      dér, hvor det ER et krav: på fakturaen, i footeren, i
+      databehandleraftalen og i privatlivspolitikken. Ikke i en hilsen.
+    */
+    BRAND_NAVN,
   );
 
   return {
