@@ -77,9 +77,7 @@ export function aktiveringSpaerre(
   if (c.user_id) return "allerede-aktiveret";
   if (!c.aktivering_token) return "intet-token";
 
-  const udloeb = c.aktivering_udloeber
-    ? new Date(c.aktivering_udloeber)
-    : null;
+  const udloeb = c.aktivering_udloeber ? new Date(c.aktivering_udloeber) : null;
   if (!udloeb || Number.isNaN(udloeb.getTime())) return "udloebet";
   if (udloeb.getTime() <= nu.getTime()) return "udloebet";
 
@@ -107,6 +105,26 @@ export function erGyldigKode(kode: string | null | undefined): boolean {
   return (kode ?? "").length >= KODE_MINIMUM;
 }
 
+/**
+ * Hvilken slags aktivering står kunden i?
+ *
+ * DET AFGØRES AF, OM E-MAILEN ALLEREDE HAR EN KONTO, og det SKAL afgøres
+ * FØR formularen tegnes. Før spurgte siden altid om en ny adgangskode og
+ * kastede den i tavshed væk, hvis adressen var kendt i forvejen — kunden
+ * valgte en kode, fik at vide at kontoen var oprettet, og kunne så ikke
+ * logge ind med den. Det skete for en rigtig, betalende kunde.
+ *
+ * Der SKAL ikke sættes en ny kode i det tilfælde: vi kender ikke den
+ * gamle, og at overskrive den ville lade den, der har tokenet, ændre
+ * adgangskoden på en bestående konto. Tokenet må knytte et køb til en
+ * konto — det må ikke kunne overtage den.
+ */
+export type AktiveringsForm =
+  /** Ukendt e-mail: kunden vælger en adgangskode, og vi logger dem ind. */
+  | "ny-konto"
+  /** Kendt e-mail: købet knyttes til kontoen, og kunden logger ind som altid. */
+  | "eksisterende-konto";
+
 /** Det kunden får at vide, samlet så tak-siden og /aktiver siger det samme. */
 export const AKTIVERING_TEKSTER = {
   overskrift: "Vælg en adgangskode, så er du i gang",
@@ -118,4 +136,19 @@ export const AKTIVERING_TEKSTER = {
     "Linket er for gammelt. Skriv til os, så sender vi et nyt — dit køb og din stander er urørt.",
   intetToken:
     "Vi kan ikke finde en bestilling til det her link. Skriv til os, så finder vi ud af det.",
+
+  /*
+   * NÅR E-MAILEN ALLEREDE HAR EN KONTO. Ordlyden skal gøre tre ting på én
+   * gang: sige at købet ER kommet frem, sige at der ikke skal vælges en ny
+   * kode, og sige hvilken kode der så skal bruges. Mangler det sidste, leder
+   * kunden efter en kode, de aldrig har fået.
+   */
+  eksisterendeOverskrift: "Du har allerede en konto hos os",
+  eksisterendeHjaelp:
+    "Du skal ikke vælge en ny adgangskode. Vi knytter købet til den konto, du har i forvejen — så logger du ind, som du plejer.",
+  eksisterendeKnap: "Knyt købet til min konto",
+
+  /** Beskeden på loginskærmen, lige efter at købet er knyttet. */
+  knyttet:
+    "Dit køb er knyttet til din konto. Log ind med den adgangskode, du bruger i forvejen — ikke en ny. Har du glemt den, kan du få en ny nedenfor.",
 } as const;
