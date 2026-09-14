@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { Card, CardBody } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { designFrontfarve } from "@/lib/design";
+import { DesignPreview } from "@/components/design-preview";
 import { EGEN_FRONTFARVE_PRIS, standerFarveNavn } from "@/lib/stander-tilvalg";
 import { formatDate } from "@/lib/utils";
 import { EKSTRA_STANDER_SLUG } from "@/components/bestil-stander";
@@ -27,7 +28,7 @@ export async function DesignListe({ companyId }: { companyId: string }) {
   const { data: designs } = await createAdminClient()
     .from("designs")
     .select(
-      "id, navn, stander_farve, front_type, front_hex, logo_url, frontfarve_betalt, created_at",
+      "id, navn, stander_farve, front_type, front_hex, accent_hex, logo_url, frontfarve_betalt, created_at",
     )
     .eq("company_id", companyId)
     .order("created_at", { ascending: false });
@@ -57,24 +58,11 @@ export async function DesignListe({ companyId }: { companyId: string }) {
           <Card key={d.id}>
             <CardBody className="space-y-4">
               <div className="flex items-start gap-4">
-                <div
-                  className="box-shape grid h-24 w-20 shrink-0 place-items-center overflow-hidden border border-border p-2"
-                  style={{ background: front.hex }}
-                >
-                  {d.logo_url ? (
-                    // Vises præcis som det trykkes — også en hvid baggrund.
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={d.logo_url}
-                      alt=""
-                      className="max-h-full max-w-full object-contain"
-                    />
-                  ) : (
-                    <span className="text-center text-[10px] text-muted">
-                      Uden logo
-                    </span>
-                  )}
-                </div>
+                {/* HELE SKILTET og ikke en farveprøve. To designs i samme
+                    farve kunne ikke skelnes fra hinanden, når kun fronten og
+                    logoet blev vist — og det er netop dét, listen skal bruges
+                    til at gøre. */}
+                <DesignPreview design={d} className="w-24 shrink-0" />
 
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate font-semibold">{d.navn}</h3>

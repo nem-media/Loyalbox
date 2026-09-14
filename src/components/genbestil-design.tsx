@@ -17,6 +17,7 @@ import {
   type Product,
 } from "@/lib/constants";
 import { FRONT_TEKSTER, farveTillaegNote } from "@/lib/stander-tilvalg";
+import { DesignPreview } from "@/components/design-preview";
 import { formatCurrency } from "@/lib/utils";
 
 /** Sender browseren til Stripe. Uden for komponenten — se stander-designer.tsx. */
@@ -30,6 +31,9 @@ export interface GemtDesign {
   stander_farve: "sort" | "hvid";
   front_hex: string;
   front_beskrivelse: string;
+  /** Rå felter til previewet — se DesignPreview for hvorfor accenten SKAL med. */
+  front_type: "matcher" | "egen";
+  accent_hex: string | null;
   logo_url: string | null;
   /** Er tillægget for frontfarven allerede betalt for dette design? */
   frontfarve_betalt: boolean;
@@ -132,19 +136,15 @@ export function GenbestilDesign({
       <div className="box-shape border border-border bg-card p-5">
         <p className="text-sm font-medium">Du bestiller flere af</p>
         <div className="mt-3 flex items-center gap-4">
-          <div
-            className="box-shape grid h-24 w-20 shrink-0 place-items-center overflow-hidden border border-border p-2"
-            style={{ background: design.front_hex }}
-          >
-            {design.logo_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={design.logo_url}
-                alt=""
-                className="max-h-full max-w-full object-contain"
-              />
-            ) : null}
-          </div>
+          {/* HER ER DET VIGTIGST: kunden står lige før en betaling og skal
+              kunne se, at det er det rigtige skilt, de bestiller flere af.
+              En farveprøve svarer ikke på det. Derfor også `eager` — der er
+              kun ét, og det er hele grunden til at siden er åben. */}
+          <DesignPreview
+            design={design}
+            loading="eager"
+            className="w-24 shrink-0"
+          />
           <div className="min-w-0">
             <p className="truncate font-semibold">{design.navn}</p>
             <p className="mt-0.5 text-sm text-muted">
