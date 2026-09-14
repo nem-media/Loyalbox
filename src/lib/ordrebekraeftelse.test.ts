@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { ordrebekraeftelse } from "./ordrebekraeftelse";
 import { ordrevarsel, type Ordredetaljer } from "./ordrevarsel";
-import { COMPANY } from "./constants";
+import { COMPANY, BRAND_NAVN } from "./constants";
 
 /**
  * Ordrebekræftelsen til kunden.
@@ -37,6 +37,22 @@ const abonnement: Ordredetaljer = {
 };
 
 describe("ordrebekraeftelse", () => {
+  it("underskrives med BRANDET og ikke med selskabet", () => {
+    /*
+      Her stod COMPANY.legalName, så en kunde, der lige havde købt hos
+      LoyalSum, fik en mail underskrevet "Nem Media ApS" — et navn, de aldrig
+      har set. Selskabsnavnet hører hjemme dér, hvor det ER et krav: på
+      fakturaen, i footeren, i databehandleraftalen og i privatlivspolitikken.
+
+      Prøven ser på SLUTNINGEN og ikke bare på om ordet findes: "LoyalSum"
+      optræder også midt i teksten som en del af produktnavnet.
+    */
+    const { tekst } = ordrebekraeftelse(engangs);
+    expect(tekst.trimEnd().endsWith(`Venlig hilsen
+${BRAND_NAVN}`)).toBe(true);
+    expect(tekst).not.toContain(COMPANY.legalName);
+  });
+
   it("siger hvad der er købt og hvad der er betalt", () => {
     const { emne, tekst } = ordrebekraeftelse(engangs);
     expect(emne).toContain("Reviewstander");

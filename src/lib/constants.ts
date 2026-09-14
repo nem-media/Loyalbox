@@ -6,6 +6,18 @@ import {
 } from "@/lib/stander-tilvalg";
 
 export const SITE_NAME = "LoyalSum.dk";
+
+/**
+ * Brandet uden domæneendelse — dét, en kunde kalder os.
+ *
+ * BRUGES DÉR, HVOR VI SKRIVER SOM OS SELV: hilsenen i ordrebekræftelsen og
+ * lignende. `SITE_NAME` er sitets navn og hører hjemme i titler og manifest;
+ * `COMPANY.legalName` er selskabet og hører hjemme dér, hvor det ER et krav
+ * — faktura, footer, databehandleraftale, privatlivspolitik. En kunde, der
+ * har købt hos LoyalSum, skal ikke have en mail underskrevet af et navn, de
+ * aldrig har set.
+ */
+export const BRAND_NAVN = SITE_NAME.replace(/\.dk$/, "");
 export const SITE_TAGLINE =
   "Anmeldelser, loyalitet, feedback og synlighed samlet i én platform — så lokale forretninger får flere nye kunder og flere genbesøg.";
 
