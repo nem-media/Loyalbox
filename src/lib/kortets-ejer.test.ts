@@ -24,6 +24,11 @@ import { join } from "node:path";
  * som ren funktion i `loyalty/program-status.test.ts`.
  */
 
+import {
+  kortLinkMail,
+  FIND_KORT_KVITTERING,
+} from "./loyalty/kort-link";
+
 const kilde = (sti: string) => readFileSync(join(process.cwd(), sti), "utf8");
 
 describe("kortet viser sin egen gyldighed", () => {
@@ -125,4 +130,125 @@ describe("kortet kan findes igen uden en konto", () => {
     // Kun når der FAKTISK er en nøgle at kende kunden på.
     expect(side).toContain("member.email || member.phone");
   });
+});
+
+/**
+ * "FIND MIT KORT" — VEJEN TILBAGE HJEMMEFRA.
+ *
+ * `selfEnroll()` genbruger et medlem på e-mail eller telefon, så et mistet
+ * kort kan hentes tilbage med alle sine stempler — men kun fra butikkens egen
+ * tilmeldingsside. En kunde uden linket, der sad hjemme, havde ingen vej ind,
+ * og dét gjorde "uden app · uden konto" til et halvt løfte: kortet var ikke
+ * væk, hun kunne bare ikke nå det.
+ *
+ * HELE SIKKERHEDEN LIGGER I TO TING, og begge prøves her: svaret er ens hver
+ * gang, og tokenet går kun til indbakken.
+ */
+describe("find mit kort", () => {
+  const ACTIONS = kilde("src/app/kort/actions.ts");
+  const BASE = "https://loyalsum.dk";
+
+  it("sender linket til et kort, der ikke er på en konto", () => {
+    const { emne, tekst } = kortLinkMail(
+      [{ butik: "Café Nord", url: `${BASE}/kort/abc123` }],
+      BASE,
+    );
+    expect(emne).toBe("Dit stempelkort");
+    expect(tekst).toContain("Café Nord");
+    expect(tekst).toContain(`${BASE}/kort/abc123`);
+  });
+
+  /**
+   * ET KORT PÅ EN KONTO FÅR ALDRIG SIT TOKEN MED. Dér er login adgangen —
+   * samme spærre som i `selfEnroll()`, hvor e-mail alene heller ikke længere
+   * åbner kortet. Ellers ville "gem på min konto" gøre kortet mindre sikkert
+   * i stedet for mere.
+   */
+  it("sender ALDRIG et token for et kort, der er knyttet til en konto", () => {
+    const { tekst } = kortLinkMail([{ butik: "Salon Syd", url: null }], BASE);
+    expect(tekst).toContain("Salon Syd");
+    expect(tekst).not.toContain("/kort/");
+    expect(tekst).toContain("/mine-kort");
+  });
+
+  it("holder de to slags adskilt i samme mail", () => {
+    const { emne, tekst } = kortLinkMail(
+      [
+        { butik: "Café Nord", url: `${BASE}/kort/abc123` },
+        { butik: "Salon Syd", url: null },
+      ],
+      BASE,
+    );
+    // Flere kort med link → flertal i emnefeltet.
+    expect(emne).toBe("Dine stempelkort");
+    expect(tekst).toContain(`${BASE}/kort/abc123`);
+    // Butikken nævnes, men uden en vej ind uden om login.
+    expect(tekst).toContain("Salon Syd");
+    expect(tekst).not.toContain("Salon Syd\n  https");
+  });
+
+  /**
+   * KVITTERINGEN MÅ IKKE AFSLØRE, HVAD VI FANDT. Siden ville ellers kunne
+   * bruges til at spørge, om en bestemt e-mail handler et bestemt sted — et
+   * opslagsværk over butikkernes kundelister, åbent for enhver.
+   */
+  it("siger det samme, uanset om der blev fundet et kort", () => {
+    expect(FIND_KORT_KVITTERING).toMatch(/hvis der findes/i);
+    expect(FIND_KORT_KVITTERING).not.toMatch(/vi fandt|dit kort er|ingen kort/i);
+  });
+
+  it("har kun ét svar efter e-mailen er godkendt", () => {
+    const i = ACTIONS.indexOf("export async function findMitKort");
+    expect(i).toBeGreaterThan(-1);
+    const krop = ACTIONS.slice(i);
+    // Tre udgange — intet kort, ramt af karantænen, og mailen sendt — og de
+    // giver alle sammen præcis det samme svar.
+    expect(krop.match(/return \{ sendt: true \};/g)?.length).toBeGreaterThan(2);
+    // Den ENESTE fejl, siden viser, er en adresse, der ikke ligner en e-mail.
+    expect(krop.match(/error:/g)?.length).toBe(1);
+  });
+
+  /**
+   * DÆMPNINGEN LIGGER I DATABASEN OG IKKE I EN VARIABEL. Handlingen kører i
+   * mange eksemplarer, og hver af dem ville have sin egen tæller — to
+   * samtidige forsøg ville begge sende. Uden en grænse er siden en knap, en
+   * fremmed kan trykke på i det uendelige, og kundens indbakke betaler.
+   */
+  it("dæmper gentagne forsøg med en betinget opdatering", () => {
+    const krop = ACTIONS.slice(ACTIONS.indexOf("export async function findMitKort"));
+    expect(krop).toContain("kort_link_sendt_den");
+    expect(krop).toMatch(/kort_link_sendt_den\.is\.null,kort_link_sendt_den\.lt\./);
+  });
+
+  /**
+   * TOKENET NÅR ALDRIG SKÆRMEN. Det er hele grunden til, at siden er
+   * forsvarlig: kun den, der kan læse mailen, får adgangen.
+   */
+  it("returnerer aldrig et token til browseren", () => {
+    const stat = ACTIONS.slice(
+      ACTIONS.indexOf("export interface FindKortState"),
+      ACTIONS.indexOf("export interface FindKortState") + 260,
+    );
+    expect(stat).not.toContain("token");
+    expect(kilde("src/app/kort/find/find-form.tsx")).not.toContain("token");
+  });
+
+  /** Siden må ikke indekseres — den handler om, hvem der har kort hvor. */
+  it("holder siden ude af søgemaskiner", () => {
+    expect(kilde("src/app/kort/find/page.tsx")).toContain("PRIVAT_SIDE");
+  });
+
+  /**
+   * DEN SKAL KUNNE FINDES. En vej tilbage, ingen kan komme til, er ingen vej
+   * tilbage — og tilmeldingssiden er dér, hvor kunden ellers er ved at
+   * oprette kort nummer to ved en fejl.
+   */
+  for (const sti of [
+    "src/app/kort/tilmeld/[slug]/page.tsx",
+    "src/app/kort/[token]/page.tsx",
+  ]) {
+    it(`${sti} henviser til /kort/find`, () => {
+      expect(kilde(sti)).toContain("/kort/find");
+    });
+  }
 });

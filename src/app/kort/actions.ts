@@ -11,6 +11,13 @@ import {
   maaKnyttesAutomatisk,
 } from "@/lib/loyalty/member-account";
 import { giveStamp, redeemReward } from "@/lib/loyalty/service";
+import {
+  kortLinkMail,
+  KORT_LINK_KARANTAENE_MINUTTER,
+} from "@/lib/loyalty/kort-link";
+import { sendKundeMail } from "@/lib/mail";
+import { noterFejl } from "@/lib/drift";
+import { getSiteUrl } from "@/lib/site";
 
 export interface EnrollState {
   error?: string;
@@ -386,4 +393,123 @@ export async function redeemRewardByToken(
 
   revalidatePath(`/kort/${token}`);
   return { ok: true };
+}
+
+/* ------------------------------------------------------ find mit kort --- */
+
+export interface FindKortState {
+  /** Sat når forsøget er behandlet. Beskeden er ALTID den samme — se nedenfor. */
+  sendt?: boolean;
+  error?: string;
+}
+
+/**
+ * Mailer kunden linket til hendes eget stempelkort.
+ *
+ * HULLET DEN LUKKER: `selfEnroll()` genbruger et medlem på e-mail eller
+ * telefon, så kortet kan hentes tilbage med alle sine stempler — men kun fra
+ * butikkens egen tilmeldingsside. En kunde, der havde mistet linket og sad
+ * hjemme, kunne ikke komme til sit eget kort, og hverken vi eller butikken
+ * kunne hjælpe. Det er dét, der gjorde "uden app · uden konto" til et halvt
+ * løfte.
+ *
+ * SVARET ER ALTID DET SAMME, uanset hvad vi fandt. Ellers ville formularen
+ * kunne bruges til at spørge, om en bestemt e-mail handler et bestemt sted —
+ * et opslagsværk over butikkernes kundelister, åbent for enhver.
+ *
+ * TOKENET NÅR ALDRIG SKÆRMEN. Det sendes kun til den indbakke, der i forvejen
+ * står på kortet. Samme regel som aktiveringslinket efter et køb: besiddelse
+ * af adressen ER autorisationen, og så skal adressen kun gå ét sted hen.
+ *
+ * KORT PÅ EN KONTO FÅR IKKE DERES TOKEN MED — dér er login adgangen, præcis
+ * som i `selfEnroll()`. Mailen nævner dem ved butiksnavn og henviser til
+ * login; det er nyttigt for ejeren og siger ingenting til en fremmed, for en
+ * fremmed får ikke mailen.
+ */
+export async function findMitKort(
+  _prev: FindKortState,
+  formData: FormData,
+): Promise<FindKortState> {
+  const email = str(formData.get("email")).toLowerCase();
+
+  // Den eneste fejl, siden viser. Alt andet ender i den faste kvittering.
+  if (!email || !email.includes("@")) {
+    return { error: "Skriv den e-mailadresse, du brugte, da du fik kortet." };
+  }
+
+  const admin = createAdminClient();
+
+  const { data: medlemmer } = await admin
+    .from("loyalty_members")
+    .select("id, company_id, public_token, user_id, kort_link_sendt_den")
+    .eq("email", email);
+
+  /*
+   * KARANTÆNEN AFGØRES AF DATABASEN OG IKKE AF EN VARIABEL. Handlingen kører
+   * i mange eksemplarer, og hver af dem ville have sin egen tæller — to
+   * samtidige forsøg ville begge sende. Den betingede opdatering nedenfor er
+   * dét, der gør, at kun den ene vinder.
+   *
+   * Uden en grænse er siden en knap, en fremmed kan trykke på i det
+   * uendelige, og kundens indbakke er den, der betaler. Samme fælde som
+   * alarmerne: alarmér aldrig fra en sti, en udefrakommende kan udløse frit.
+   */
+  const graense = new Date(
+    Date.now() - KORT_LINK_KARANTAENE_MINUTTER * 60_000,
+  ).toISOString();
+
+  const kandidater = (medlemmer ?? []).filter(
+    (m) => !m.kort_link_sendt_den || m.kort_link_sendt_den < graense,
+  );
+
+  if (kandidater.length === 0) {
+    // Enten findes der intet kort, eller også er der lige sendt et. Kunden
+    // får det samme at vide i begge tilfælde — se funktionens hoved.
+    return { sendt: true };
+  }
+
+  const { data: reserveret } = await admin
+    .from("loyalty_members")
+    .update({ kort_link_sendt_den: new Date().toISOString() })
+    .in(
+      "id",
+      kandidater.map((m) => m.id),
+    )
+    .or(`kort_link_sendt_den.is.null,kort_link_sendt_den.lt.${graense}`)
+    .select("id");
+
+  if (!reserveret || reserveret.length === 0) return { sendt: true };
+
+  const vandt = new Set(reserveret.map((r) => r.id));
+  const sender = kandidater.filter((m) => vandt.has(m.id));
+
+  const { data: firmaer } = await admin
+    .from("companies")
+    .select("id, name")
+    .in("id", [...new Set(sender.map((m) => m.company_id))]);
+  const navnPaa = new Map((firmaer ?? []).map((c) => [c.id, c.name]));
+
+  const base = getSiteUrl();
+  const { emne, tekst } = kortLinkMail(
+    sender.map((m) => ({
+      butik: navnPaa.get(m.company_id) ?? "Butik",
+      // Et kort på en konto får IKKE sit token med.
+      url: m.user_id ? null : `${base}/kort/${m.public_token}`,
+    })),
+    base,
+  );
+
+  if (!(await sendKundeMail(email, emne, tekst))) {
+    /*
+     * FEJLEN SKAL UD AF SYSTEMET, men kunden får stadig den faste kvittering:
+     * en anden besked her ville afsløre, at der FANDTES et kort at sende til.
+     * Driftsloggen må ikke bære e-mailen — kun at det skete.
+     */
+    await noterFejl(
+      "find-mit-kort",
+      `Kunne ikke sende kortlink til ${sender.length} kort.`,
+    );
+  }
+
+  return { sendt: true };
 }
