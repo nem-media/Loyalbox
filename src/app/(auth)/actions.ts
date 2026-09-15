@@ -100,7 +100,23 @@ export async function signup(
     email,
     password,
     options: {
-      data: { role: "customer" },
+      /*
+       * ROLLEN SÆTTES IKKE HER — OG DET ER POINTEN.
+       *
+       * Der stod `data: { role: "customer" }`, og det så uskyldigt ud: vi
+       * sendte jo den rigtige værdi. Men databasens trigger LÆSTE den værdi,
+       * og `options.data` kommer fra klienten. Anon-nøglen er offentlig, så
+       * enhver kunne kalde Supabases eget signup-endpoint med
+       * `{"role":"admin"}` og få en admin-konto (afprøvet 2026-09-15 mod
+       * produktion; brugeren blev slettet igen). Migration 0040 gør rollen
+       * fast til `customer` i triggeren.
+       *
+       * Feltet er fjernet herfra, fordi det efter rettelsen ikke gør noget —
+       * og et felt, der ser ud til at bestemme rollen uden at gøre det, er
+       * netop dét, der får den næste til at tro, at rollen kan sendes med.
+       * Skal en bruger være admin, sættes det bevidst med service-role, se
+       * `scripts/create-admin.mjs`.
+       */
       // Bekræftelseslinket skal lande på /auth/callback, som veksler koden til
       // en session. Uden dette peger linket på Site URL'ens rod, der ikke
       // veksler noget: brugeren får bekræftet sin mail, men ender uden session
@@ -180,7 +196,7 @@ export async function signupCustomer(
     email,
     password,
     options: {
-      data: { role: "customer" },
+      /* Rollen sættes ikke her — se migration 0040. */
       // Bekræftelseslinket skal lande på /auth/callback, som veksler koden til
       // en session. Uden dette peger linket på Site URL'ens rod, der ikke
       // veksler noget: brugeren får bekræftet sin mail, men ender uden session
