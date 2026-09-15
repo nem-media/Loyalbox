@@ -39,31 +39,55 @@ export async function noterKoersel(
 }
 
 /**
- * Noter at en opgave fejlede — og send en alarm, hvis der ikke lige er sendt en.
+ * Må der alarmeres for `opgave` lige nu?
  *
- * DÆMPNINGEN LIGGER I DATABASEN og ikke i en variabel i processen. En
- * serverfunktion kan køre i mange eksemplarer samtidig, og hver af dem ville
- * have sin egen tæller: en fejl, der rammer hundrede gange på et minut, ville
- * blive til hundrede mails. Her deles hukommelsen af dem alle.
+ * DÆMPNINGEN AFGØRES AF DATABASEN — og det skal tages bogstaveligt. Det stod
+ * her i forvejen som en begrundelse, men var lavet som et OPSLAG efterfulgt af
+ * en indsættelse, og dét er ikke det samme: alle eksemplarer læser "ingen
+ * alarm sendt endnu", før nogen af dem har skrevet sin linje. **Målt: ti
+ * samtidige fejl gav ti mails** — præcis det tal, designet lovede at
+ * forhindre. Sekventielt virkede den upåklageligt, og det er derfor fejlen
+ * kunne stå: den almindelige dag så rigtig ud.
+ *
+ * `maa_alarmere()` (0039) er én sætning i basen og svarer sandt til præcis ét
+ * kald inden for vinduet — samme greb som `juster_lager()`.
+ *
+ * FALDER TILBAGE PÅ DEN GAMLE TÆLLING, hvis funktionen ikke findes. Det er
+ * ikke pænhed: migrationer køres i hånden, så koden skal kunne stå i drift,
+ * FØR 0039 er kørt. Tællingen dæmper korrekt i det sekventielle tilfælde, som
+ * er det almindelige — den er svagere, ikke forkert.
+ */
+async function maaAlarmere(
+  db: ReturnType<typeof createAdminClient>,
+  opgave: string,
+): Promise<boolean> {
+  const { data, error } = await db.rpc("maa_alarmere", {
+    p_opgave: opgave,
+    p_minutter: DAEMPNING_MINUTTER,
+  });
+  if (!error) return data === true;
+
+  const siden = new Date(Date.now() - DAEMPNING_MINUTTER * 60_000).toISOString();
+  const { count } = await db
+    .from("drift_log")
+    .select("id", { count: "exact", head: true })
+    .eq("opgave", opgave)
+    .eq("ok", false)
+    .eq("alarmeret", true)
+    .gte("created_at", siden);
+  return (count ?? 0) === 0;
+}
+
+/**
+ * Noter at en opgave fejlede — og send en alarm, hvis der ikke lige er sendt en.
  *
  * Fejlen skrives ALTID. Det er kun mailen, der holdes tilbage.
  */
 export async function noterFejl(opgave: string, besked: string): Promise<void> {
   try {
     const db = createAdminClient();
-    const siden = new Date(
-      Date.now() - DAEMPNING_MINUTTER * 60_000,
-    ).toISOString();
 
-    const { count } = await db
-      .from("drift_log")
-      .select("id", { count: "exact", head: true })
-      .eq("opgave", opgave)
-      .eq("ok", false)
-      .eq("alarmeret", true)
-      .gte("created_at", siden);
-
-    const skalAlarmere = (count ?? 0) === 0;
+    const skalAlarmere = await maaAlarmere(db, opgave);
     const sendt = skalAlarmere
       ? await sendAlarm(
           `${opgave} fejlede`,

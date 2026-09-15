@@ -47,7 +47,7 @@ describe("kun én udestående belønning ad gangen", () => {
       .join("\n");
 
     const indeks =
-      /create\s+unique\s+index[^;]*?on\s+public\.customer_rewards\s*\(\s*membership_id\s*\)\s*where\s+status\s*=\s*'available'/is;
+      /create\s+unique\s+index[^;]*?on\s+public\.customer_rewards\s*\(\s*membership_id\s*\)\s*where\s+status\s*=\s*'available'/i;
     expect(alle).toMatch(indeks);
   });
 
@@ -63,7 +63,7 @@ describe("kun én udestående belønning ad gangen", () => {
       .join("\n");
 
     const uden =
-      /create\s+unique\s+index[^;]*?on\s+public\.customer_rewards\s*\(\s*membership_id\s*\)\s*;/is;
+      /create\s+unique\s+index[^;]*?on\s+public\.customer_rewards\s*\(\s*membership_id\s*\)\s*;/i;
     expect(alle).not.toMatch(uden);
   });
 

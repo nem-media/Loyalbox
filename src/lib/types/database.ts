@@ -1085,6 +1085,14 @@ export interface Database {
         Args: { p_farve: string; p_delta: number };
         Returns: number;
       };
+      /**
+       * Se supabase/migrations/0039_alarm_daempning.sql. Svarer sandt til
+       * PRÆCIS ét kald inden for vinduet, også ved samtidighed.
+       */
+      maa_alarmere: {
+        Args: { p_opgave: string; p_minutter: number };
+        Returns: boolean;
+      };
       /** Se supabase/migrations/0012_opbevaring.sql. Kun service-role. */
       ryd_op_efter_frister: {
         Args: { p_toerloeb: boolean };
