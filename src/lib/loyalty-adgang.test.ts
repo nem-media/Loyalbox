@@ -179,11 +179,35 @@ describe("medarbejderens stempelkort-handlinger kræver canManage", () => {
  */
 describe("medarbejder-administration er stadig ejer-only", () => {
   const PERSONALE_ACT = L("src/app/dashboard/personale/actions.ts");
-  for (const navn of ["addEmployee", "updateEmployee", "removeEmployee", "setEmployeeActive"] as const) {
+
+  /*
+   * TO DØRE, OG BEGGE FØRER GENNEM `requireOwner()`.
+   *
+   * `kraevMedarbejderadgang()` kom til, da medarbejdere blev bundet til
+   * LoyalSum Komplet — den spørger FØRST om ejerskab og DEREFTER om planen.
+   * Prøven tillader derfor begge navne, men kræver til gengæld nedenfor, at
+   * den nye dør selv går gennem den gamle. Uden dét led kunne ejerkravet
+   * forsvinde ud af en handling, uden at nogen opdagede det.
+   */
+  for (const navn of [
+    "addEmployee",
+    "updateEmployee",
+    "removeEmployee",
+    "setEmployeeActive",
+  ] as const) {
     it(`${navn} kræver ejer, ikke bare canManage`, () => {
-      expect(krop(PERSONALE_ACT, navn)).toContain("await requireOwner()");
+      expect(krop(PERSONALE_ACT, navn)).toMatch(
+        /await (requireOwner|kraevMedarbejderadgang)\(\)/,
+      );
     });
   }
+
+  it("kraevMedarbejderadgang går selv gennem requireOwner", () => {
+    const i = PERSONALE_ACT.indexOf("async function kraevMedarbejderadgang");
+    expect(i).toBeGreaterThan(-1);
+    expect(PERSONALE_ACT.slice(i, i + 400)).toContain("await requireOwner()");
+  });
+
   it("requireOwner kræver rollen owner", () => {
     expect(PERSONALE_ACT).toMatch(/role !== "owner"/);
   });

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getCompanyAccess } from "@/lib/loyalty/access";
+import { medarbejdereIPlan } from "@/lib/loyalty/plan";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteUrl } from "@/lib/site";
@@ -27,6 +28,29 @@ async function requireOwner() {
 }
 
 /**
+ * Hører medarbejdere overhovedet med i det, butikken har købt?
+ *
+ * SPØRGES I HVER HANDLING og ikke kun i layoutet. Et layout tegner en skærm;
+ * det spærrer ingenting. Server-handlingerne kan kaldes direkte, og uden
+ * dette led kunne en Reviewstander Pro-kunde invitere ansatte ind til en
+ * funktion, de ikke har købt — knappen ville bare mangle.
+ *
+ * Samme regel som `/dashboard/opslag` og `/dashboard/loyalitet`: adgangen
+ * afgøres af PRODUKTET, fordi Pro og Komplet er samme `plan`.
+ */
+const IKKE_I_PLANEN =
+  "Medarbejderadgang følger med LoyalSum Komplet. Se dit abonnement for at få stempelkort og personale med.";
+
+async function kraevMedarbejderadgang() {
+  const access = await requireOwner();
+  if (!access) return { access: null, fejl: "Kun ejeren kan gøre det." };
+  if (!(await medarbejdereIPlan(access.companyId))) {
+    return { access: null, fejl: IKKE_I_PLANEN };
+  }
+  return { access, fejl: null };
+}
+
+/**
  * Finder en eksisterende bruger på e-mailen.
  *
  * Slår op i public.users og ikke gennem auth-API'et, fordi rækken oprettes af
@@ -46,8 +70,8 @@ export async function addEmployee(
   _prev: FormResult,
   formData: FormData,
 ): Promise<FormResult> {
-  const access = await requireOwner();
-  if (!access) return { error: "Kun ejeren kan tilføje medarbejdere." };
+  const { access, fejl } = await kraevMedarbejderadgang();
+  if (!access) return { error: fejl ?? "Kun ejeren kan tilføje medarbejdere." };
 
   const name = String(formData.get("name") ?? "").trim();
   const email = normalizeEmail(String(formData.get("email") ?? ""));
@@ -141,8 +165,8 @@ export async function updateEmployee(
   _prev: FormResult,
   formData: FormData,
 ): Promise<FormResult> {
-  const access = await requireOwner();
-  if (!access) return { error: "Kun ejeren kan ændre medarbejdere." };
+  const { access, fejl } = await kraevMedarbejderadgang();
+  if (!access) return { error: fejl ?? "Kun ejeren kan ændre medarbejdere." };
 
   const id = String(formData.get("id") ?? "");
   const admin = createAdminClient();
@@ -171,6 +195,16 @@ export async function setEmployeeActive(
   const id = String(formData.get("id") ?? "");
   const active = String(formData.get("active") ?? "") === "true";
 
+  /*
+   * KUN ÅBNINGEN SPÆRRES. At LUKKE en adgang skal altid kunne lade sig gøre —
+   * også for en butik, der ikke længere har medarbejdere i sin plan. En
+   * spærring, der forhindrer nogen i at lukke en adgang, er det modsatte af
+   * det, den er til for.
+   */
+  if (active && !(await medarbejdereIPlan(access.companyId))) {
+    return { error: IKKE_I_PLANEN };
+  }
+
   const { error } = await createAdminClient()
     .from("employees")
     .update({ is_active: active })
@@ -193,6 +227,11 @@ export async function setEmployeeActive(
  *
  * Selve brugerkontoen slettes IKKE — den kan være knyttet til stempelkort
  * eller til en anden butik. Kun tilknytningen til denne virksomhed fjernes.
+ *
+ * DER SPØRGES BEVIDST IKKE TIL PLANEN HER. En butik, der ikke længere har
+ * medarbejdere med i sit abonnement, kan sagtens have nogle stående fra før —
+ * og de skal kunne fjernes. En spærring må aldrig kunne fange nogen med en
+ * adgang, de ikke kan komme af med.
  */
 export async function removeEmployee(
   _prev: FormResult,
@@ -226,8 +265,8 @@ export async function resendEmployeeInvite(
   _prev: FormResult,
   formData: FormData,
 ): Promise<FormResult> {
-  const access = await requireOwner();
-  if (!access) return { error: "Kun ejeren kan sende login-links." };
+  const { access, fejl } = await kraevMedarbejderadgang();
+  if (!access) return { error: fejl ?? "Kun ejeren kan sende login-links." };
 
   const id = String(formData.get("id") ?? "");
 

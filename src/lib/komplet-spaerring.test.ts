@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { PRODUCTS, hasLoyaltyAccess } from "./constants";
+import { PRODUCTS, hasLoyaltyAccess, KOMPLET_FUNKTIONER } from "./constants";
 
 /**
  * Funktionerne, kun LoyalSum Komplet betaler for, SKAL være spærret.
@@ -23,7 +23,15 @@ import { PRODUCTS, hasLoyaltyAccess } from "./constants";
  * SLETTET — og det ser man i kilden.
  */
 
-const KOMPLET_RUTER = ["loyalitet", "opslag"];
+/*
+ * RUTERNE UDLEDES AF `KOMPLET_FUNKTIONER` og skrives ikke i hånden her.
+ *
+ * Listen er dét, abonnementsoversigten viser kunden som "ikke med i dit
+ * abonnement". Står en linje dér uden en spærring bag sig, siger vi nej på
+ * skærmen og ja i koden — og det er værre end begge dele hver for sig.
+ * Tilføjes en fjerde funktion, fejler prøven, indtil ruten har et layout.
+ */
+const KOMPLET_RUTER = KOMPLET_FUNKTIONER.map((f) => f.rute);
 
 describe("Komplet-spærringer i dashboardet", () => {
   for (const rute of KOMPLET_RUTER) {
@@ -48,6 +56,95 @@ describe("Komplet-spærringer i dashboardet", () => {
       expect(kilde).toContain("loyalsum-komplet");
     });
   }
+});
+
+/**
+ * MEDARBEJDERE FØLGER STEMPELKORTET — OG SPÆRRINGEN SKAL LIGGE I HANDLINGEN.
+ *
+ * Personale hang før på `harAbonnement()`, altså "har du købt en løbende
+ * vare" — og både Reviewstander Pro (99 kr.) og LoyalSum Komplet (399 kr.)
+ * svarer ja på dét. En Pro-kunde kunne derfor invitere ansatte ind til en
+ * funktion, de ikke har købt: den ansatte logger ind og møder et panel uden
+ * kort at stemple.
+ *
+ * ET LAYOUT ER IKKE ADGANGSKONTROL. Det tegner en skærm; server-handlingerne
+ * kan kaldes direkte. Derfor prøves BEGGE dele.
+ */
+describe("medarbejdere hører til Komplet", () => {
+  const ACTIONS = readFileSync(
+    join(process.cwd(), "src/app/dashboard/personale/actions.ts"),
+    "utf8",
+  );
+
+  it("spærrer de handlinger, der GIVER adgang", () => {
+    // `kraevMedarbejderadgang()` spørger både om ejerskab og om planen.
+    for (const navn of [
+      "addEmployee",
+      "updateEmployee",
+      "resendEmployeeInvite",
+    ]) {
+      const i = ACTIONS.indexOf(`export async function ${navn}`);
+      expect(i, navn).toBeGreaterThan(-1);
+      expect(ACTIONS.slice(i, i + 400), navn).toContain(
+        "kraevMedarbejderadgang()",
+      );
+    }
+  });
+
+  /**
+   * AT LUKKE EN ADGANG SKAL ALTID KUNNE LADE SIG GØRE. En butik uden
+   * medarbejdere i planen kan sagtens have nogle stående fra før, og en
+   * spærring må aldrig fange nogen med en adgang, de ikke kan komme af med.
+   * Derfor er `removeEmployee` fri, og `setEmployeeActive` spærrer KUN, når
+   * der åbnes.
+   */
+  it("lader butikken fjerne og lukke uanset planen", () => {
+    const i = ACTIONS.indexOf("export async function removeEmployee");
+    expect(ACTIONS.slice(i, i + 400)).not.toContain("medarbejdereIPlan");
+
+    const j = ACTIONS.indexOf("export async function setEmployeeActive");
+    expect(ACTIONS.slice(j, j + 900)).toContain(
+      "active && !(await medarbejdereIPlan(",
+    );
+  });
+
+  /** Reglen ligger ÉT sted, så layoutet og handlingen ikke kan svare forskelligt. */
+  it("afgør adgangen på produktet og ikke på plan", () => {
+    const plan = readFileSync(
+      join(process.cwd(), "src/lib/loyalty/plan.ts"),
+      "utf8",
+    );
+    const i = plan.indexOf("export async function medarbejdereIPlan");
+    expect(i).toBeGreaterThan(-1);
+    expect(plan.slice(i, i + 300)).toContain("hasLoyaltyAccess");
+  });
+});
+
+/**
+ * OVERSIGTEN SKAL SIGE BÅDE JA OG NEJ.
+ *
+ * En Pro-kunde skal kunne se på sin abonnementsside, at stempelkort, opslag
+ * og medarbejderadgang IKKE er med — ellers opdager de det først den dag, de
+ * rammer muren inde i dashboardet.
+ */
+describe("abonnementsoversigten viser Komplet-funktionerne", () => {
+  it("bygger listen på KOMPLET_FUNKTIONER", () => {
+    const side = readFileSync(
+      join(process.cwd(), "src/app/dashboard/abonnement/page.tsx"),
+      "utf8",
+    );
+    expect(side).toContain("KOMPLET_FUNKTIONER");
+    // Flaget er PRODUKTET og ikke niveauet — Pro og Komplet er samme `plan`.
+    expect(side).toContain("hasLoyaltyAccess");
+  });
+
+  it("lover ikke, at opslag sker af sig selv", () => {
+    const opslag = KOMPLET_FUNKTIONER.find((f) => f.rute === "opslag");
+    expect(opslag).toBeTruthy();
+    // Kunden vælger tekst og baggrund, henter billedet og deler det SELV.
+    expect(opslag!.help).toMatch(/selv/i);
+    expect(opslag!.help).not.toMatch(/automatisk|af sig selv/i);
+  });
 });
 
 describe("hasLoyaltyAccess", () => {
