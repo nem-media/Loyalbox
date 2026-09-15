@@ -171,7 +171,14 @@ export function andele(f: Stjernefordeling): {
   if (antal === 0) return null;
   const positiv = Math.round(((f[4] + f[5]) / antal) * 100);
   const neutral = Math.round((f[3] / antal) * 100);
-  return { positiv, neutral, negativ: 100 - positiv - neutral };
+  /*
+   * RESTEN KAN BLIVE NEGATIV, og så står der "-1 % negativ" på skærmen.
+   * Det sker, når begge de to afrundede dele runder en halv OP: 101 af 200
+   * positive (50,5 %) og 99 neutrale (49,5 %) giver 51 + 50 = 101, og resten
+   * bliver −1. Sjældent, men ikke umuligt — og et negativt antal procent er
+   * den slags, der får en kunde til at holde op med at tro på hele tallet.
+   */
+  return { positiv, neutral, negativ: Math.max(0, 100 - positiv - neutral) };
 }
 
 /**
@@ -544,6 +551,18 @@ export function beregnOmdoemme(input: OmdoemmeInput): Omdoemme {
     (k) => dele[k] !== null,
   );
   const samlet = aktive.reduce((s, k) => s + VAEGTE[k], 0);
+  /*
+   * VÆGTENE SKAL SUMME TIL 100 — SAMME GRUND SOM I `andele()`.
+   *
+   * De står på skærmen som "vejer 59 %", "vejer 24 %", "vejer 18 %", og med
+   * tre uafhængige afrundinger bliver det 101. Målt på en rigtig virksomhed:
+   * uden eksterne ratings deles 85 point ud som 50/85, 20/85 og 15/85, altså
+   * 58,8 + 23,5 + 17,6 — hver rundet op. Nogen tæller efter.
+   *
+   * RESTEN LÆGGES PÅ DEN MINDSTE aktive del, præcis som `andele()` giver den
+   * til `negativ`: den mindste tåler en afvigelse på ét point bedst, og i
+   * eksemplet ovenfor er den også numerisk tættest på sin egen råværdi.
+   */
   const faktiskeVaegte = (Object.keys(VAEGTE) as Delnavn[]).reduce(
     (acc, k) => {
       acc[k] = samlet > 0 && dele[k] !== null
@@ -553,6 +572,17 @@ export function beregnOmdoemme(input: OmdoemmeInput): Omdoemme {
     },
     {} as Record<Delnavn, number>,
   );
+
+  if (aktive.length > 0) {
+    const sumVaegte = aktive.reduce((s, k) => s + faktiskeVaegte[k], 0);
+    const rest = 100 - sumVaegte;
+    if (rest !== 0) {
+      const mindste = aktive.reduce((a, b) =>
+        VAEGTE[a] <= VAEGTE[b] ? a : b,
+      );
+      faktiskeVaegte[mindste] += rest;
+    }
+  }
 
   return {
     score,

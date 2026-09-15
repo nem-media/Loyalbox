@@ -1,29 +1,29 @@
 import { describe, it, expect } from "vitest";
 import {
   ANMELDELSER_LOFT,
+  FORBUDTE_ORD,
+  OFFENTLIG_MINIMUM,
+  OFFENTLIG_PERIODE_MAANEDER,
+  OFFENTLIG_TEKST,
   OMDOEMME_VERSION,
   VAEGTE,
   afrund,
   andele,
   beregnOmdoemme,
+  boerForeslaaOffentlig,
   datagrundlag,
   eksternScore,
   gennemsnit,
   haandteringsScore,
+  klarTilOffentligVisning,
+  offentligKundescore,
+  offentligPeriodeStart,
   ratingTilScore,
   scoreEtiket,
-  valider,
-  vejetScore,
-  offentligKundescore,
-  klarTilOffentligVisning,
-  OFFENTLIG_MINIMUM,
-  OFFENTLIG_PERIODE_MAANEDER,
-  offentligPeriodeStart,
-  boerForeslaaOffentlig,
-  OFFENTLIG_TEKST,
-  FORBUDTE_ORD,
   type EksternProfil,
   type Stjernefordeling,
+  valider,
+  vejetScore,
 } from "./omdoemme";
 
 /**
@@ -642,5 +642,61 @@ describe("den offentlige periode og nudgen", () => {
     const medEn1 = offentligKundescore(fordeling({ 5: 10, 1: 1 }), true)!;
     expect(medEn1.score).toBeLessThan(kun5.score);
     expect(medEn1.antal).toBe(11);
+  });
+});
+
+/**
+ * AFRUNDINGER, DER STÅR VED SIDEN AF HINANDEN PÅ SKÆRMEN, SKAL SUMME TIL 100.
+ *
+ * Fundet ved at regne et rigtigt omdømme efter (Testcafe, 7 oplevelser, ingen
+ * eksterne profiler): vægtene blev vist som "vejer 59 %", "vejer 24 %",
+ * "vejer 18 %" — 101 i alt. Det er nøjagtig samme fejl, `andele()` har en hel
+ * kommentar om at undgå, og den stod ét felt væk.
+ *
+ * Tallet er ikke forkert i sig selv — 50/85 ER 58,8 — men tre uafhængige
+ * afrundinger ved siden af hinanden inviterer til at blive lagt sammen, og
+ * gør de 101, holder læseren op med at tro på resten af siden.
+ */
+describe("procenter, der vises sammen, summer til 100", () => {
+  it("fordeler vægtene, så de lander på 100 uden eksterne ratings", () => {
+    const r = beregnOmdoemme({
+      fordeling: { 1: 2, 2: 1, 3: 1, 4: 1, 5: 2 },
+      haandteredeNegative: 0,
+      profiler: [],
+    });
+    const aktive = Object.values(r.faktiskeVaegte).filter((v) => v > 0);
+    expect(aktive.reduce((a, b) => a + b, 0)).toBe(100);
+    // Resten lægges på den MINDSTE aktive del — som i `andele()`.
+    expect(r.faktiskeVaegte.feedbackhaandtering).toBe(17);
+    // Og selve scoren må ikke flytte sig af en visningsrettelse.
+    expect(r.score).toBe(40);
+  });
+
+  it("summer også til 100, når alle fire dele er aktive", () => {
+    const r = beregnOmdoemme({
+      fordeling: { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1 },
+      haandteredeNegative: 1,
+      profiler: [
+        { platform: "google", rating: 4.5, antal: 20, maks: 5 } as never,
+      ],
+    });
+    const sum = Object.values(r.faktiskeVaegte)
+      .filter((v) => v > 0)
+      .reduce((a, b) => a + b, 0);
+    expect(sum).toBe(100);
+  });
+
+  /**
+   * "-1 % NEGATIV" ER IKKE ET TAL, NOGEN TROR PÅ.
+   *
+   * Resten kan blive negativ, når begge de afrundede dele runder en halv OP:
+   * 101 positive og 99 neutrale ud af 200 giver 50,5 % og 49,5 % → 51 + 50 =
+   * 101, og resten bliver −1. Sjældent, men ikke umuligt.
+   */
+  it("viser aldrig en negativ andel", () => {
+    const a = andele({ 1: 0, 2: 0, 3: 99, 4: 101, 5: 0 })!;
+    expect(a.negativ).toBeGreaterThanOrEqual(0);
+    expect(a.positiv).toBe(51);
+    expect(a.neutral).toBe(50);
   });
 });
