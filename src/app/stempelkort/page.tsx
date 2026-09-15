@@ -84,7 +84,7 @@ const STEPS = [
   {
     Icon: ScanIcon,
     title: "Kunden får sit kort ved at scanne",
-    body: "Gæsten scanner QR-koden på din stander og opretter kortet på få sekunder. Kortet er en helt almindelig webside — der er ingen app at hente og ingen konto, kunden skal oprette først.",
+    body: "Gæsten scanner QR-koden på din stander og opretter kortet på få sekunder. Kortet er en helt almindelig webside — der er ingen app at hente og ingen konto, kunden skal oprette først. Kortet hænger på kundens e-mail, så det kan altid findes frem igen.",
   },
   {
     Icon: StampIcon,
@@ -261,6 +261,17 @@ const FAQ = [
   {
     q: "Hvad er et digitalt stempelkort?",
     a: "Et digitalt stempelkort er den digitale udgave af papkortet med stempler. I stedet for et fysisk kort ligger kundens stempler på telefonen. Når kunden har samlet det antal stempler, du har bestemt, kan de hente den belønning, du har valgt — for eksempel den tiende kaffe gratis.",
+  },
+  {
+    /*
+     * DET HER SPØRGSMÅL BLIVER STILLET OVER DISKEN, og indtil vi havde
+     * /kort/find kunne vi ikke svare ordentligt på det: kortet KUNNE hentes
+     * tilbage, men kun ved at stå i butikken. Svaret må sige begge veje — og
+     * må ikke love, at et kort uden e-mail kan findes frem, for det kan det
+     * ikke. Se `selfEnroll()` og `findMitKort()`.
+     */
+    q: "Hvad hvis kunden mister linket til sit kort?",
+    a: "Så er stemplerne der stadig. Kortet hænger på kundens e-mail eller telefonnummer, ikke på linket: hun kan enten scanne koden hos dig igen og taste de samme oplysninger, eller få linket sendt på loyalsum.dk/kort/find. Opretter hun en konto, ligger alle hendes kort samlet og kan åbnes fra enhver telefon.",
   },
   {
     q: "Skal mine kunder hente en app?",

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Logo } from "@/components/brand";
@@ -66,6 +67,26 @@ export default async function EnrollCardPage({
             Der er endnu ikke noget aktivt stempelkort her.
           </p>
         )}
+
+        {/*
+          HER STÅR DEN, DER ER VED AT OPRETTE KORT NUMMER TO VED EN FEJL.
+          Tilmelder kunden sig med den SAMME e-mail, får hun sit gamle kort
+          igen (se `selfEnroll()`) — men skriver hun en anden adresse, får hun
+          et nyt, tomt kort, og stemplerne bliver liggende under den gamle.
+          Linjen her er den billige måde at fange det på, netop i det øjeblik
+          hun står med telefonen.
+        */}
+        {program ? (
+          <p className="mt-6 border-t border-border pt-5 text-center text-sm text-muted">
+            Har du et kort her i forvejen og mistet linket?{" "}
+            <Link
+              href="/kort/find"
+              className="font-medium text-accent hover:underline"
+            >
+              Find dit kort
+            </Link>
+          </p>
+        ) : null}
       </div>
       <div className="mt-8">
         <Logo image="light" className="opacity-80" />

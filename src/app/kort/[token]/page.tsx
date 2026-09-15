@@ -285,10 +285,25 @@ export default async function CardPage({
               */}
               {member.email || member.phone ? (
                 <p className="mt-1 text-xs text-muted">
-                  Du behøver ingen konto: scan koden i butikken igen og skriv
-                  den samme{" "}
-                  {member.email ? "e-mail" : "telefon"}, så får du dette kort
-                  frem med alle dine stempler.
+                  Du behøver ingen konto:{" "}
+                  {member.email ? (
+                    <>
+                      mist du linket, kan du få det sendt igen på{" "}
+                      <Link
+                        href="/kort/find"
+                        className="font-medium text-accent"
+                      >
+                        loyalsum.dk/kort/find
+                      </Link>
+                      .
+                    </>
+                  ) : (
+                    <>
+                      scan koden i butikken igen og skriv det samme
+                      telefonnummer, så får du dette kort frem med alle dine
+                      stempler.
+                    </>
+                  )}
                 </p>
               ) : (
                 <p className="mt-1 text-xs text-muted">

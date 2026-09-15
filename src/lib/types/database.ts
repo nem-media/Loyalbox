@@ -668,6 +668,11 @@ export interface Database {
           user_id: string | null;
           claimed_at: string | null;
           created_at: string;
+          /**
+           * Sidst vi mailede et link til kortet via "Find mit kort" (0035).
+           * Bruges KUN til at dæmpe gentagne forsøg — se loyalty/kort-link.ts.
+           */
+          kort_link_sendt_den: string | null;
         };
         Insert: {
           id?: string;
@@ -680,6 +685,7 @@ export interface Database {
           user_id?: string | null;
           claimed_at?: string | null;
           created_at?: string;
+          kort_link_sendt_den?: string | null;
         };
         Update: Partial<
           Database["public"]["Tables"]["loyalty_members"]["Insert"]
