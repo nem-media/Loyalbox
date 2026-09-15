@@ -120,9 +120,32 @@ describe("webhooken trækker fra lageret idempotent", () => {
     join(process.cwd(), "src/app/api/stripe/webhook/route.ts"),
     "utf8",
   );
+  /**
+   * SPÆRREN ER `foersteGang`, OG DEN BETYDER NOGET ANDET END FØR.
+   *
+   * Prøven krævede `if (foersteGang && opdateretOrdre?.length)`, dengang
+   * `foersteGang` var et OPSLAG fra tidligere i behandlingen
+   * (`ordreDest?.status === "new"`) og ordreopdateringen var ubetinget. Det
+   * andet led var dér, fordi det første ikke var nok til at vide, om DENNE
+   * leverance faktisk var den, der flyttede ordren.
+   *
+   * Nu ER `foersteGang` resultatet af den betingede opdatering, så de to led
+   * er blevet det samme, og det andet ville kun være en gentagelse. Prøven
+   * holder derfor fast i den egenskab, der betyder noget — at trækket sker
+   * bag idempotens-signalet og ikke ubetinget — frem for i den præcise
+   * skrivemåde. Sammenhængen mellem `foersteGang` og skrivningen vogtes i
+   * `webhook-ordrestatus.test.ts`.
+   */
   it("kalder traekLagerForOrdre bag foersteGang", () => {
-    expect(kilde).toMatch(/if \(foersteGang && opdateretOrdre\?\.length\)/);
-    expect(kilde).toContain("traekLagerForOrdre(admin");
+    const iTraek = kilde.indexOf("traekLagerForOrdre(admin");
+    expect(iTraek, "lagertrækket er væk").toBeGreaterThan(-1);
+
+    // Den nærmeste betingelse OVER trækket skal være foersteGang.
+    const foer = kilde.slice(0, iTraek);
+    const sidsteIf = foer.lastIndexOf("if (");
+    expect(foer.slice(sidsteIf, sidsteIf + 40)).toMatch(
+      /if \(foersteGang[\s)&]/,
+    );
   });
   it("sluger en lagerfejl som en driftsnote frem for at fejle mod Stripe", () => {
     // Trækket ligger i en try/catch, der noterer i driftsloggen.
