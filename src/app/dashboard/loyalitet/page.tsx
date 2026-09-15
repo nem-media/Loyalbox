@@ -1,3 +1,4 @@
+import { TIDSZONE } from "@/lib/dansk-dag";
 import Link from "next/link";
 import { getCompanyAccess } from "@/lib/loyalty/access";
 import { createClient } from "@/lib/supabase/server";
@@ -261,7 +262,7 @@ export default async function LoyaltyOverviewPage({
                     </span>
                     <span className="text-xs text-muted">
                       {t.stamps > 0 ? `+${t.stamps} · ` : ""}
-                      {new Date(t.createdAt).toLocaleDateString("da-DK")}
+                      {new Date(t.createdAt).toLocaleDateString("da-DK", { timeZone: TIDSZONE })}
                     </span>
                   </li>
                 ))}

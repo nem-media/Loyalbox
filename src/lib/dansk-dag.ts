@@ -23,7 +23,8 @@
  * halve år, hvor det passer, ville skjule fejlen.
  */
 
-const TIDSZONE = "Europe/Copenhagen";
+/** Produktets tidszone. Alt, der vises til en butik eller en kunde, er her. */
+export const TIDSZONE = "Europe/Copenhagen";
 
 /** Dagens dato (YYYY-MM-DD) i dansk tid. */
 export function iDagDatoKoebenhavn(now: Date = new Date()): string {

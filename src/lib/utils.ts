@@ -1,3 +1,5 @@
+import { TIDSZONE } from "@/lib/dansk-dag";
+
 export type ClassValue = string | false | null | undefined;
 
 /** Minimal className joiner. */
@@ -38,9 +40,29 @@ export function formatCurrency(amount: number, currency = "DKK"): string {
   }).format(amount);
 }
 
+/**
+ * DATOER OG KLOKKESLÆT VISES I DANSK TID — ALTID, OG UANSET HVOR DE TEGNES.
+ *
+ * `Intl.DateTimeFormat` uden `timeZone` bruger den tidszone, koden tilfældigvis
+ * kører i. Serverfunktionerne kører i UTC, og komponenterne her tegnes på
+ * serveren — så alt, hvad butikken fik at se, var ude af takt med uret på
+ * væggen: en eller to timer forkert, og datoen forkert for alt mellem kl. 22 og
+ * midnat.
+ *
+ * MÅLT PÅ EN RIGTIG RÆKKE 2026-09-15: en kundes anmeldelse ligger i basen
+ * 2026-09-08T21:01:26Z, altså kl. **23.01** dansk tid. Dashboardet skrev
+ * "8. sep., 21.01". Butikken kunne altså ikke bruge tidspunktet til at finde
+ * ud af, hvilken kunde det var — og der står ikke noget om tidszoner på
+ * skærmen, så der er ingen måde at gætte det på.
+ *
+ * Tredje udgave af samme fejl på én dag: den daglige stempelgrænse og
+ * statistikkens "I dag" målte også fra serverens døgn. Tidszonen ligger derfor
+ * i `@/lib/dansk-dag` sammen med resten.
+ */
 export function formatDate(input: string | Date): string {
   const d = typeof input === "string" ? new Date(input) : input;
   return new Intl.DateTimeFormat("da-DK", {
+    timeZone: TIDSZONE,
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -50,6 +72,7 @@ export function formatDate(input: string | Date): string {
 export function formatDateTime(input: string | Date): string {
   const d = typeof input === "string" ? new Date(input) : input;
   return new Intl.DateTimeFormat("da-DK", {
+    timeZone: TIDSZONE,
     day: "numeric",
     month: "short",
     hour: "2-digit",
