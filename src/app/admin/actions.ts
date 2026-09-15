@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { generateSlug } from "@/lib/utils";
-import { KATALOG, planForProduct } from "@/lib/constants";
+import { KATALOG, planForProduct, ORDER_STATUSSER } from "@/lib/constants";
 import { stripe } from "@/lib/stripe";
 import { erGyldigtPostnummer, POSTNUMMER_FEJL } from "@/lib/adresse";
 import { isStripeConfigured } from "@/lib/commerce";
@@ -114,7 +114,7 @@ export async function updateCompanyAdmin(
   _prev: FormResult,
   formData: FormData,
 ): Promise<FormResult> {
-  await requireAdmin();
+  const bruger = await requireAdmin();
   const id = String(formData.get("company_id") ?? "");
   if (!id) return { error: "Ugyldig virksomhed." };
 
@@ -125,21 +125,70 @@ export async function updateCompanyAdmin(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase
+
+  const felter = {
+    name: String(formData.get("name") ?? "").trim(),
+    contact_email: String(formData.get("contact_email") ?? "").trim() || null,
+    phone: String(formData.get("phone") ?? "").trim() || null,
+    address: String(formData.get("address") ?? "").trim() || null,
+    postnummer: postnummerRaw || null,
+    by: String(formData.get("by") ?? "").trim() || null,
+    kontaktperson: String(formData.get("kontaktperson") ?? "").trim() || null,
+  };
+
+  // Hentes FØR, men kun for at se HVILKE felter der faktisk ændrer sig —
+  // værdierne bliver aldrig skrevet nogen steder, se begrundelsen nedenfor.
+  const { data: foer } = await supabase
     .from("companies")
-    .update({
-      name: String(formData.get("name") ?? "").trim(),
-      contact_email: String(formData.get("contact_email") ?? "").trim() || null,
-      phone: String(formData.get("phone") ?? "").trim() || null,
-      address: String(formData.get("address") ?? "").trim() || null,
-      postnummer: postnummerRaw || null,
-      by: String(formData.get("by") ?? "").trim() || null,
-      kontaktperson:
-        String(formData.get("kontaktperson") ?? "").trim() || null,
-    })
-    .eq("id", id);
+    .select("name, contact_email, phone, address, postnummer, by, kontaktperson")
+    .eq("id", id)
+    .maybeSingle();
+
+  const { data: ramt, error } = await supabase
+    .from("companies")
+    .update(felter)
+    .eq("id", id)
+    .select("id");
 
   if (error) return { error: error.message };
+  if (!ramt?.length) return { error: "Virksomheden blev ikke opdateret." };
+
+  /*
+   * KUNDENS EGNE STAMDATA ÆNDRET I HÅND — OG DET BLEV IKKE NOTERET.
+   *
+   * Navn, kontaktmail, telefon og leveringsadresse er dét, en pakke sendes
+   * efter, og dét en faktura bærer. Ændres de her, kunne ingen bagefter se
+   * hvem der gjorde det eller hvad der stod før. Kun de felter, der FAKTISK
+   * blev ændret, skrives — en log fuld af uændrede felter er ulæselig.
+   */
+  const aendret = Object.keys(felter).filter(
+    (k) =>
+      (foer as Record<string, unknown> | null)?.[k] !==
+      (felter as Record<string, unknown>)[k],
+  );
+  if (aendret.length > 0) {
+    /*
+     * KUN FELTNAVNENE — ALDRIG VÆRDIERNE.
+     *
+     * Det er fristende at skrive "før: peter@…, efter: pia@…", for det er
+     * netop dét, man vil vide. Men `admin-log.ts` har en regel, og den er
+     * ældre og bedre end mit ønske: loggen må ikke blive endnu en kopi af
+     * kunden. Navn, mail, telefon og adresse er personoplysninger, og en
+     * revisionslog, der bærer dem, er et sted mere, der skal huskes ved en
+     * sletning og ved et dataudtræk.
+     *
+     * "Hvem rørte hvad hvornår" kan besvares uden værdierne. Det er også
+     * dét, en log er til for — ikke at kunne rulle tilbage.
+     */
+    await noterAdminHandling({
+      actorId: bruger.id,
+      actorEmail: bruger.email,
+      companyId: id,
+      handling: "virksomhed-rettet",
+      efter: { aendrede_felter: aendret },
+    });
+  }
+
   revalidatePath(`/admin/virksomheder/${id}`);
   return { ok: true };
 }
@@ -277,29 +326,73 @@ export async function updateStandLinks(
   _prev: FormResult,
   formData: FormData,
 ): Promise<FormResult> {
-  await requireAdmin();
+  const bruger = await requireAdmin();
   const standId = String(formData.get("stand_id") ?? "");
   const companyId = String(formData.get("company_id") ?? "");
   if (!standId) return { error: "Ugyldig stander." };
 
   const supabase = await createClient();
-  const { error } = await supabase
+
+  const felter = {
+    destination_type: String(
+      formData.get("destination_type") ?? "google",
+    ) as DestinationType,
+    google_review_url:
+      String(formData.get("google_review_url") ?? "").trim() || null,
+    trustpilot_url: String(formData.get("trustpilot_url") ?? "").trim() || null,
+    facebook_url: String(formData.get("facebook_url") ?? "").trim() || null,
+    custom_url: String(formData.get("custom_url") ?? "").trim() || null,
+    is_active: formData.get("is_active") === "on",
+  };
+
+  const { data: foer } = await supabase
     .from("stands")
-    .update({
-      destination_type: String(
-        formData.get("destination_type") ?? "google",
-      ) as DestinationType,
-      google_review_url:
-        String(formData.get("google_review_url") ?? "").trim() || null,
-      trustpilot_url:
-        String(formData.get("trustpilot_url") ?? "").trim() || null,
-      facebook_url: String(formData.get("facebook_url") ?? "").trim() || null,
-      custom_url: String(formData.get("custom_url") ?? "").trim() || null,
-      is_active: formData.get("is_active") === "on",
-    })
-    .eq("id", standId);
+    .select(
+      "name, destination_type, google_review_url, trustpilot_url, facebook_url, custom_url, is_active",
+    )
+    .eq("id", standId)
+    .maybeSingle();
+
+  const { data: ramt, error } = await supabase
+    .from("stands")
+    .update(felter)
+    .eq("id", standId)
+    .select("id");
 
   if (error) return { error: error.message };
+  if (!ramt?.length) return { error: "Standeren blev ikke opdateret." };
+
+  /*
+   * HER ÆNDRES NOGET, DER STÅR UDE I EN BUTIK.
+   *
+   * QR-koden er trykt og kan ikke kaldes tilbage; det eneste, der kan
+   * ændres, er hvor den peger hen — og det er præcis dét, denne knap gør.
+   * Sættes `is_active` fra, holder kundens skilt op med at virke. Ingen af
+   * delene efterlod et spor.
+   *
+   * VÆRDIERNE MÅ GERNE MED HER, i modsætning til virksomhedens stamdata: en
+   * anmeldelsesadresse er en offentlig forretningsoplysning og ikke en
+   * personoplysning. Og det er netop det gamle link, man har brug for, hvis
+   * en ændring skal gøres om.
+   */
+  const aendret = Object.keys(felter).filter(
+    (k) =>
+      (foer as Record<string, unknown> | null)?.[k] !==
+      (felter as Record<string, unknown>)[k],
+  );
+  if (aendret.length > 0) {
+    const udsnit = (kilde: Record<string, unknown> | null) =>
+      Object.fromEntries(aendret.map((k) => [k, kilde?.[k] ?? null]));
+    await noterAdminHandling({
+      actorId: bruger.id,
+      actorEmail: bruger.email,
+      companyId,
+      handling: "qr-maal-rettet",
+      foer: { stander: foer?.name ?? null, ...udsnit(foer as Record<string, unknown> | null) },
+      efter: udsnit(felter as unknown as Record<string, unknown>),
+    });
+  }
+
   revalidatePath(`/admin/virksomheder/${companyId}`);
   return { ok: true };
 }
@@ -413,12 +506,50 @@ async function saetOpsigelse(
 ): Promise<FormResult> {
   const bruger = await requireAdmin();
   const id = String(formData.get("company_id") ?? "");
-  const abonnement = String(formData.get("subscription_id") ?? "");
-  if (!id || !abonnement) return { error: "Ugyldig virksomhed." };
+  if (!id) return { error: "Ugyldig virksomhed." };
   if (!isStripeConfigured())
     return { error: "Stripe er ikke konfigureret i dette miljø." };
 
+  /*
+   * ABONNEMENTET SLÅS OP PÅ VIRKSOMHEDEN — DET KOMMER IKKE FRA FORMULAREN.
+   *
+   * Id'et blev før taget direkte fra et skjult felt og sendt til Stripe uden
+   * at nogen havde set efter, at det hørte til netop denne kunde. Admin er
+   * betroet, så det er ikke et angreb, der bekymrer — det er en FORÆLDET
+   * SIDE: står fanen åben, mens kundens abonnement skiftes (et køb, en
+   * genoptagelse, en opgradering), opsiger knappen et abonnement, der ikke
+   * findes længere, eller et andet end det, siden viser. Og linjen i
+   * `admin_log` ville stå på den rigtige virksomhed med den forkerte
+   * handling.
+   *
+   * Samme regel som alle andre steder i systemet: slå op frem for at stole
+   * på det, der kommer ind.
+   */
+  const supabase = await createClient();
+  const { data: firma } = await supabase
+    .from("companies")
+    .select("stripe_subscription_id")
+    .eq("id", id)
+    .maybeSingle();
+
+  const abonnement = firma?.stripe_subscription_id;
+  if (!abonnement) {
+    return { error: "Virksomheden har ikke et abonnement hos Stripe." };
+  }
+
+  /*
+   * HVAD STOD DER FØR? SPØRG, I STEDET FOR AT ANTAGE DET MODSATTE.
+   *
+   * Loggen skrev `foer: { opsagt_ved_periodeslut: !opsig }`, altså en
+   * udledning af, hvad der BLEV trykket — ikke hvad der faktisk stod. Trykkes
+   * "opsig" på et abonnement, der allerede var opsagt, påstod loggen et
+   * skifte fra false til true, som aldrig fandt sted. En revisionslog, der
+   * gætter sin egen "før"-værdi, er ikke en revisionslog.
+   */
+  let foer: boolean | null = null;
   try {
+    const nu = await stripe().subscriptions.retrieve(abonnement);
+    foer = nu.cancel_at_period_end;
     await stripe().subscriptions.update(abonnement, {
       cancel_at_period_end: opsig,
     });
@@ -433,7 +564,7 @@ async function saetOpsigelse(
     actorEmail: bruger.email,
     companyId: id,
     handling: opsig ? "abonnement-opsagt" : "opsigelse-fortrudt",
-    foer: { opsagt_ved_periodeslut: !opsig },
+    foer: { opsagt_ved_periodeslut: foer },
     efter: { opsagt_ved_periodeslut: opsig },
   });
 
@@ -504,16 +635,69 @@ export async function genoptagKundeforhold(
   return { ok: true };
 }
 
-export async function setOrderStatus(formData: FormData): Promise<void> {
-  await requireAdmin();
+/**
+ * Skift en ordres status i hånden.
+ *
+ * DEN FEJLEDE I TAVSHED. Statussen blev taget fra formularen og kastet til
+ * `OrderStatus` uden at blive prøvet, opdateringens svar blev ikke set på, og
+ * funktionen gav intet tilbage. En værdi uden for enum'en afviser databasen
+ * med 400 — målt — men admin så kun siden genindlæse, mens dropdown'en blev
+ * stående på det, der IKKE blev gemt: komponenten sætter værdien lokalt med
+ * det samme, og et `router.refresh()` nulstiller ikke en `useState`. Samme
+ * klasse som logo-previewet, der viste en fil, formularen ikke havde.
+ *
+ * OG DEN BLEV IKKE NOTERET. `admin_log` skal bære hver manuel ændring, og
+ * netop denne afgør, om noget bliver trykt og sendt — det er den, man vil
+ * kunne slå op, når en kunde spørger, hvorfor deres skilt aldrig kom.
+ */
+export async function setOrderStatus(
+  _prev: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const bruger = await requireAdmin();
   const id = String(formData.get("order_id") ?? "");
-  const status = String(formData.get("status") ?? "") as OrderStatus;
-  if (!id) return;
+  const status = String(formData.get("status") ?? "");
+  if (!id) return { error: "Ugyldig ordre." };
+
+  // Prøvet mod den liste, brugerfladen selv viser. `as OrderStatus` var en
+  // påstand om noget, der kom udefra.
+  if (!(ORDER_STATUSSER as readonly string[]).includes(status)) {
+    return { error: "Ukendt ordrestatus." };
+  }
 
   const supabase = await createClient();
-  await supabase.from("orders").update({ status }).eq("id", id);
+
+  // Hentes FØR, så loggen kan sige hvad der stod — og så et forkert id kan
+  // skelnes fra en fejlet skrivning.
+  const { data: foer } = await supabase
+    .from("orders")
+    .select("status, company_id")
+    .eq("id", id)
+    .maybeSingle();
+  if (!foer) return { error: "Ordren findes ikke." };
+
+  const { data: ramt, error } = await supabase
+    .from("orders")
+    .update({ status: status as OrderStatus })
+    .eq("id", id)
+    .select("id");
+
+  if (error) return { error: error.message };
+  // En `update` mod PostgREST svarer glad, når den rammer nul rækker.
+  if (!ramt?.length) return { error: "Ordren blev ikke opdateret." };
+
+  await noterAdminHandling({
+    actorId: bruger.id,
+    actorEmail: bruger.email,
+    companyId: foer.company_id,
+    handling: "ordrestatus-skiftet",
+    foer: { status: foer.status },
+    efter: { status },
+  });
+
   revalidatePath("/admin/ordrer");
   revalidatePath("/admin");
+  return { ok: true };
 }
 
 /* --------------------------------------------------------------- lager --- */
