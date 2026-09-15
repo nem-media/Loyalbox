@@ -1,3 +1,4 @@
+import { TIDSZONE } from "@/lib/dansk-dag";
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { COMPANY, SITE_NAME } from "@/lib/constants";
 import { SLETNING_ANGREFRIST_DAGE } from "@/lib/abonnement";
@@ -75,6 +76,7 @@ export function udfoeresDen(nu = new Date()): Date {
 /** Dansk dato, som den skrives i mails. */
 function dansk(dato: Date): string {
   return dato.toLocaleDateString("da-DK", {
+    timeZone: TIDSZONE,
     day: "numeric",
     month: "long",
     year: "numeric",

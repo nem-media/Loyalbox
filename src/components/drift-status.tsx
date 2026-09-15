@@ -1,3 +1,4 @@
+import { TIDSZONE } from "@/lib/dansk-dag";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { senesteKoersel, erForaeldet, type DriftRaekke } from "@/lib/drift";
 
@@ -125,6 +126,7 @@ function siden(tidspunkt: string): string {
 
 function dato(tidspunkt: string): string {
   return new Date(tidspunkt).toLocaleDateString("da-DK", {
+    timeZone: TIDSZONE,
     day: "numeric",
     month: "long",
   });

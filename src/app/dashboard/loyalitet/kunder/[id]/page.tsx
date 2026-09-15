@@ -1,3 +1,4 @@
+import { TIDSZONE } from "@/lib/dansk-dag";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCompanyAccess } from "@/lib/loyalty/access";
@@ -235,6 +236,7 @@ export default async function MemberPage({
                       ) : null}
                       <span className="text-xs text-muted">
                         {new Date(t.created_at).toLocaleString("da-DK", {
+    timeZone: TIDSZONE,
                           dateStyle: "short",
                           timeStyle: "short",
                         })}

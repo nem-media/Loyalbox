@@ -6,6 +6,8 @@
  * øvrige + produktsiderne (intern linking styrker SEO).
  */
 
+import { TIDSZONE } from "@/lib/dansk-dag";
+
 export type BlogBlock =
   | { type: "p"; html: string } // afsnit — betroet, førstepartsmarkup (links/fed)
   | { type: "h2"; text: string }
@@ -3467,6 +3469,7 @@ export function relaterede(post: BlogPost): BlogPost[] {
 /** Formatér ISO-dato som dansk dato, fx "6. juli 2026". */
 export function formatBlogDate(iso: string): string {
   return new Date(iso).toLocaleDateString("da-DK", {
+    timeZone: TIDSZONE,
     day: "numeric",
     month: "long",
     year: "numeric",

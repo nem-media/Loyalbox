@@ -1,5 +1,6 @@
 "use client";
 
+import { TIDSZONE } from "@/lib/dansk-dag";
 import { useActionState, useState } from "react";
 import { Card, CardBody } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ function opdateret(iso: string): string {
   const iDag = new Date().toDateString() === d.toDateString();
   if (iDag) return "i dag";
   return d.toLocaleDateString("da-DK", {
+    timeZone: TIDSZONE,
     day: "numeric",
     month: "short",
     year: "numeric",

@@ -1,3 +1,4 @@
+import { TIDSZONE } from "@/lib/dansk-dag";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -356,7 +357,7 @@ export default async function CardPage({
                 >
                   <span>{TXN_TYPE_LABELS[t.type]}</span>
                   <span className="text-xs text-muted">
-                    {new Date(t.created_at).toLocaleDateString("da-DK")}
+                    {new Date(t.created_at).toLocaleDateString("da-DK", { timeZone: TIDSZONE })}
                     {t.stamps > 0 ? ` · +${t.stamps}` : ""}
                   </span>
                 </li>

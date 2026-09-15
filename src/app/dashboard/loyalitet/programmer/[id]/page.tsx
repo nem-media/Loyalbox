@@ -1,3 +1,4 @@
+import { TIDSZONE } from "@/lib/dansk-dag";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCompanyAccess } from "@/lib/loyalty/access";
@@ -20,6 +21,7 @@ import {
 /** 2026-09-30 → "30. sep. 2026". */
 function datoTekst(iso: string): string {
   return new Date(iso + "T00:00:00").toLocaleDateString("da-DK", {
+    timeZone: TIDSZONE,
     day: "numeric",
     month: "short",
     year: "numeric",
