@@ -19,6 +19,41 @@ import { abonnementTilstand } from "@/lib/abonnement";
  * kortene selv røres ikke (se `src/lib/abonnement.ts`).
  */
 export async function stempelkortIPlan(companyId: string): Promise<boolean> {
+  const data = await hentAbonnementsfelter(companyId);
+  if (!data) return false;
+  if (abonnementTilstand(data) !== "aktiv") return false;
+  return hasLoyaltyAccess(data.product_slug);
+}
+
+/**
+ * Må virksomheden administrere MEDARBEJDERE?
+ *
+ * SAMME SVAR SOM STEMPELKORTET, OG DET ER HELE POINTEN. En medarbejder findes
+ * for at kunne stemple, give rabat og indløse — alt sammen stempelkort. En
+ * Reviewstander Pro-kunde har intet af det, så medarbejderfladen var en
+ * invitationsflade til rettigheder, ingen af parterne kunne bruge til noget.
+ *
+ * SPÆRRINGEN HANG FØR PÅ `harAbonnement()`, altså "har du købt en løbende
+ * vare" — og både Pro (99 kr.) og Komplet (399 kr.) svarer ja på dét. Fejlen
+ * var tavs og til kundens fordel: intet gik i stykker, ingen klagede, og en
+ * Pro-kunde kunne invitere ansatte ind til en funktion, de ikke havde købt.
+ * Samme klasse fejl som `/dashboard/opslag`, der heller ikke var spærret.
+ *
+ * DER SPØRGES BEVIDST IKKE TIL SUSPENSION — modsat `stempelkortIPlan()`.
+ * Reglen er den samme som for kortene: en manglende betaling lukker
+ * dashboardets indsigt, ikke det personalet står og bruger ved disken. En
+ * butik i restance skal stadig kunne fjerne en medarbejder, der er stoppet.
+ */
+export async function medarbejdereIPlan(companyId: string): Promise<boolean> {
+  const data = await hentAbonnementsfelter(companyId);
+  return data ? hasLoyaltyAccess(data.product_slug) : false;
+}
+
+/**
+ * Felterne, begge spørgsmål regnes ud fra. Ét opslag, så de to ikke kan
+ * komme til at læse hver sin kolonne.
+ */
+async function hentAbonnementsfelter(companyId: string) {
   const { data } = await createAdminClient()
     .from("companies")
     .select(
@@ -26,8 +61,5 @@ export async function stempelkortIPlan(companyId: string): Promise<boolean> {
     )
     .eq("id", companyId)
     .maybeSingle();
-
-  if (!data) return false;
-  if (abonnementTilstand(data) !== "aktiv") return false;
-  return hasLoyaltyAccess(data.product_slug);
+  return data;
 }

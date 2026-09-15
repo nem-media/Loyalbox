@@ -657,6 +657,46 @@ export const PRODUKT_FOTO_TEKST: Record<string, string> = {
 };
 
 /**
+ * HVAD FØLGER MED KOMPLET — OG IKKE MED PRO?
+ *
+ * TRE TING, OG DE HÆNGER SAMMEN. Stempelkortet er varen; opslagene er lavet
+ * af anmeldelserne, kortet samler op; og medarbejderne findes for at kunne
+ * betjene kortet ved disken. Køber man Pro, får man ingen af dem — og det er
+ * ikke tre uafhængige flag, men ét køb.
+ *
+ * DERFOR STÅR DE HER OG IKKE I HVER SIN SIDE. Listen bruges af
+ * abonnementsoversigten til at sige BÅDE ja og nej: en Pro-kunde skal kunne
+ * se, hvad der ikke er med, ellers opdager de det først, når de rammer en
+ * mur. `komplet-spaerring.test.ts` kræver, at hver linje her har en rute med
+ * en spærring bag sig — en funktion, vi siger nej til på oversigten, men
+ * lader stå åben, er værre end ingen af delene.
+ *
+ * `plan` kan ikke svare på det: både Reviewstander Pro og LoyalSum Komplet er
+ * niveau `pro`. Det er PRODUKTET, der skiller dem — se `hasLoyaltyAccess()`.
+ *
+ * TEKSTERNE MÅ KUN LOVE DET, PRODUKTET GØR. Opslag laves ikke af sig selv:
+ * kunden vælger tekst og baggrund, henter billedet og deler det selv.
+ */
+export const KOMPLET_FUNKTIONER = [
+  {
+    /** Ruten under /dashboard, hvor spærringen skal ligge. */
+    rute: "loyalitet",
+    label: "Stempelkort og loyalitetsprogram",
+    help: "Opret stempelkort, giv stempler og belønninger, og få kunderne til at komme igen.",
+  },
+  {
+    rute: "opslag",
+    label: "Opslag til sociale medier",
+    help: "Lav et delbart opslag ud af jeres bedste anmeldelser — vælg tekst og baggrund, hent billedet og del det selv.",
+  },
+  {
+    rute: "personale",
+    label: "Medarbejderadgang",
+    help: "Giv dine ansatte adgang til at stemple og indløse — uden at dele din egen adgangskode.",
+  },
+] as const;
+
+/**
  * Har virksomheden købt et produkt, der indeholder stempelkortet?
  *
  * `plan` kan ikke svare på det: både Reviewstander Pro og LoyalSum Komplet er

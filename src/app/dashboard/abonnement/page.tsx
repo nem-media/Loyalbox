@@ -7,6 +7,7 @@ import {
   CAPABILITY_ORDER,
   getProduct,
   hasLoyaltyAccess,
+  KOMPLET_FUNKTIONER,
   PRODUCTS,
   TIER_LABELS,
   tierCan,
@@ -100,19 +101,25 @@ export default async function SubscriptionPage() {
 
         <ul className="mt-5 space-y-2.5 text-sm">
           {/*
-            STEMPELKORTET FØRST — det er hele forskellen på Komplet og Pro, og
-            det er IKKE et niveau-flag, men følger produktet (hasLoyaltyAccess).
-            Derfor stod det slet ikke på listen før, og en Komplet-kunde så
-            aldrig sin vigtigste fordel nævnt.
+            KOMPLET-FUNKTIONERNE FØRST — det er hele forskellen på Komplet og
+            Pro, og de er IKKE niveau-flag, men følger produktet
+            (hasLoyaltyAccess). Derfor stod stempelkortet slet ikke på listen
+            før, og en Komplet-kunde så aldrig sin vigtigste fordel nævnt.
+
+            OG LISTEN SIGER BÅDE JA OG NEJ. En Pro-kunde skal kunne se, at
+            opslag og medarbejderadgang IKKE er med — ellers opdager de det
+            først den dag, de rammer muren inde i dashboardet. Linjerne står
+            i KOMPLET_FUNKTIONER, så oversigten og spærringerne ikke kan komme
+            til at sige hver sit.
           */}
           {(
             [
-              {
-                key: "loyalty",
+              ...KOMPLET_FUNKTIONER.map((f) => ({
+                key: f.rute,
                 has: harStempelkort,
-                label: "Stempelkort og loyalitetsprogram",
-                help: "Opret stempelkort, giv stempler og belønninger, og få kunderne til at komme igen.",
-              },
+                label: f.label,
+                help: f.help,
+              })),
               ...CAPABILITY_ORDER.map((cap) => ({
                 key: cap,
                 has: tierCan(plan, cap),

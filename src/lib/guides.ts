@@ -184,7 +184,14 @@ export const GUIDES: Guide[] = [
   },
   {
     id: "personale",
-    kraever: "abonnement" as const,
+    /*
+     * KOMPLET OG IKKE BARE "ET ABONNEMENT". Medarbejdere findes for at kunne
+     * stemple og indløse, og det er stempelkortet — altså Komplet. Stod der
+     * `abonnement`, ville en Reviewstander Pro-kunde få en vejledning i at
+     * bruge en side, der siger nej til dem. En vejledning til noget, kunden
+     * ikke har, er værre end ingen vejledning.
+     */
+    kraever: "komplet" as const,
     title: "Giv personalet adgang",
     summary:
       "Dine ansatte får deres eget login, så de kan stemple uden at kende din adgangskode.",

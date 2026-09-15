@@ -55,7 +55,11 @@ describe("GUIDES", () => {
   it("markerer hvad en vejledning forudsætter", () => {
     const spaerrede: Record<string, "abonnement" | "komplet"> = {
       "/dashboard/standere": "abonnement",
-      "/dashboard/personale": "abonnement",
+      // Personale følger STEMPELKORTET og ikke bare "et abonnement": en
+      // medarbejder findes for at kunne stemple og indløse, og det er
+      // Komplet. En Pro-kunde fik før en vejledning i at bruge en side, der
+      // siger nej til dem.
+      "/dashboard/personale": "komplet",
       "/dashboard/feedback": "abonnement",
       "/dashboard/opslag": "komplet",
       "/dashboard/loyalitet": "komplet",
