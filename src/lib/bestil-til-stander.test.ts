@@ -81,3 +81,73 @@ describe("bestillingen på standersiden", () => {
     expect(svar).toBe("ikke-aabnet");
   });
 });
+
+/**
+ * ET SKILT MERE ER IKKE EN ADRESSE MERE.
+ *
+ * Boksen sagde "Samme udseende, ny QR-kode" under "Eller genbrug et design,
+ * du har" — og det var forkert på den dyre måde. Begge veje herfra bærer
+ * samme `?stand=`, så skiltet trykkes med DENNE standers kode og peger på den
+ * side, kunden allerede har sat op. Overskriften to linjer længere oppe siger
+ * ligefrem det modsatte af undersætningen.
+ *
+ * DET ER IKKE KUN EN SJUSKEFEJL. Statistikken deles pr. QR-adresse
+ * (`stand_id` → `grupperPrAdresse()`) og aldrig pr. skilt. En butik, der
+ * ville have to steder talt hver for sig, kunne læse teksten som at et
+ * genbestilt skilt gav dem en ny adresse — og så ville tallene lande i samme
+ * kasse, uden at nogen opdagede det. Skal to steder tælles hver for sig, er
+ * det en adresse mere (`adresseSpaerre()`), ikke et skilt mere.
+ */
+describe("hvad et genbestilt skilt peger på", () => {
+  it("lover ikke en ny QR-kode, når koden er den samme", () => {
+    expect(KILDE).not.toMatch(/ny QR-kode/);
+  });
+
+  it("siger, at koden er den samme som standerens egen", () => {
+    const i = KILDE.indexOf("Eller genbrug et design");
+    expect(i).toBeGreaterThan(-1);
+    expect(KILDE.slice(i, i + 900)).toMatch(/samme QR-kode/i);
+  });
+
+  /**
+   * DET ER `?stand=` DER GØR DET SANDT. Forsvinder den fra genbrugslinket,
+   * kan /bestil ikke vide hvilken kode der skal trykkes — og så bliver
+   * teksten en påstand i stedet for en beskrivelse.
+   */
+  it("bærer standeren med på begge veje ud af boksen", () => {
+    expect(KILDE).toMatch(/const grund = `\/bestil\?produkt=\$\{[^}]+\}&stand=\$\{standId\}`/);
+    // Genbrugslinket bygger videre på præcis den adresse.
+    expect(KILDE).toContain("`${grund}&design=${d.id}`");
+  });
+});
+
+/**
+ * DESIGNLISTEN KAN IKKE GÆTTE, NÅR DER ER FLERE ADRESSER.
+ *
+ * "Bestil flere af denne" sender til /bestil UDEN en `?stand=`, og
+ * `enesteAdresseFor()` gætter kun, når der er præcis ÉN adresse. Med to får
+ * ordren `stand_id: null`, og produktionen må ringe og spørge, hvilken kode
+ * der skal trykkes. Det var harmløst, dengang én adresse var alt man kunne
+ * have — efter at en butik mere kan KØBES, er det en fælde, der venter på den
+ * første kæde.
+ */
+describe("designlisten med flere QR-adresser", () => {
+  const LISTE = readFileSync(
+    join(process.cwd(), "src", "app", "dashboard", "standere", "design-liste.tsx"),
+    "utf8",
+  );
+
+  it("tæller adresserne, før den tilbyder en genbestilling", () => {
+    expect(LISTE).toContain("flereAdresser");
+    expect(LISTE).toMatch(/from\("stands"\)/);
+  });
+
+  it("sender kunden til standeren i stedet for at gætte", () => {
+    const i = LISTE.indexOf("flereAdresser ? (");
+    expect(i).toBeGreaterThan(-1);
+    // KUN grenen med flere adresser — `else` har med vilje stadig linket.
+    const gren = LISTE.slice(i, LISTE.indexOf(") : (", i));
+    expect(gren).not.toContain("/bestil?produkt=");
+    expect(gren).toMatch(/flere QR-adresser/i);
+  });
+});

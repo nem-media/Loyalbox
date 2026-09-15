@@ -25,13 +25,34 @@ import { EKSTRA_STANDER_SLUG } from "@/components/bestil-stander";
  * tvang alligevel kunden til at vælge mellem to punkter for én ting.
  */
 export async function DesignListe({ companyId }: { companyId: string }) {
-  const { data: designs } = await createAdminClient()
-    .from("designs")
-    .select(
-      "id, navn, stander_farve, front_type, front_hex, accent_hex, logo_url, frontfarve_betalt, created_at",
-    )
-    .eq("company_id", companyId)
-    .order("created_at", { ascending: false });
+  const admin = createAdminClient();
+  const [{ data: designs }, { data: adresser }] = await Promise.all([
+    admin
+      .from("designs")
+      .select(
+        "id, navn, stander_farve, front_type, front_hex, accent_hex, logo_url, frontfarve_betalt, created_at",
+      )
+      .eq("company_id", companyId)
+      .order("created_at", { ascending: false }),
+    /*
+     * HVOR MANGE QR-ADRESSER HAR BUTIKKEN?
+     *
+     * "Bestil flere af denne" sender til /bestil UDEN en `?stand=`, og
+     * `enesteAdresseFor()` gætter så adressen — men kun når der er præcis
+     * ÉN. Har butikken to, får ordren ingen stander, og produktionen må
+     * ringe og spørge, hvilken kode der skal trykkes. Det var harmløst,
+     * dengang én adresse var alt, man kunne have; efter at en butik mere kan
+     * KØBES (se `adresseSpaerre()`), er det en fælde, der venter på den
+     * første kæde.
+     *
+     * To rækker er nok til at kende forskel på "én" og "flere".
+     */
+    admin.from("stands").select("id, name").eq("company_id", companyId).limit(2),
+  ]);
+
+  // `>= 2` og ikke `!== 1`: uden adresser er der heller ikke noget at vælge
+  // imellem, og så skal linket opføre sig som før.
+  const flereAdresser = (adresser ?? []).length >= 2;
 
   // Uden design er beskeden ren oplysning — derfor et roligt kort og ikke en
   // fuld `EmptyState`. Siden har allerede en tom tilstand for standerne, og to
@@ -85,12 +106,26 @@ export async function DesignListe({ companyId }: { companyId: string }) {
                 </Badge>
               ) : null}
 
-              <Link
-                href={`/bestil?produkt=${EKSTRA_STANDER_SLUG}&design=${d.id}`}
-                className="inline-block text-sm font-medium text-accent hover:underline"
-              >
-                Bestil flere af denne →
-              </Link>
+              {/*
+                MED FLERE ADRESSER SKAL KUNDEN VÆLGE, HVILKEN KODE DER TRYKKES.
+                Linket her bærer ingen `?stand=`, og med to adresser kan
+                /bestil ikke gætte — ordren ville få `stand_id: null`, og et
+                skilt uden en kode er ingenting. Så hellere sige det og sende
+                kunden hen til standeren, hvor bestillingen kender svaret.
+              */}
+              {flereAdresser ? (
+                <p className="text-sm text-muted">
+                  Du har flere QR-adresser — åbn den, skiltet skal pege på, og
+                  bestil derfra, så trykkes den rigtige kode.
+                </p>
+              ) : (
+                <Link
+                  href={`/bestil?produkt=${EKSTRA_STANDER_SLUG}&design=${d.id}`}
+                  className="inline-block text-sm font-medium text-accent hover:underline"
+                >
+                  Bestil flere af denne →
+                </Link>
+              )}
             </CardBody>
           </Card>
         );
