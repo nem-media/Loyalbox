@@ -368,7 +368,13 @@ export function ProgramWizard({
           rewardName={rewardType === "none" ? null : rewardName}
           cardText={cardText}
           companyName={companyName}
+          startDato={startDate || null}
+          slutDato={endDate || null}
         />
+        {/* DATOERNE SKAL MED I FORHÅNDSVISNINGEN. Teksten under lover, at det
+            er sådan kundens kort ser ud — og sætter butikken en slutdato uden
+            at se linjen om den, er løftet ikke sandt. Det er også her, ejeren
+            opdager, hvad kunden får at vide, og hvor tidligt. */}
         <p className="mt-2 text-xs text-muted">Sådan ser kundens kort ud.</p>
       </div>
     </div>

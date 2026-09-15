@@ -190,6 +190,8 @@ export default async function CardPage({
                 cardText={program.card_text}
                 companyName={company?.name}
                 beholderOverskydende={program.keep_overflow}
+                startDato={program.start_date}
+                slutDato={program.end_date}
               />
               {rewardsForMs.length > 0 ? (
                 <div className="box-shape border border-success/30 bg-success/10 p-3 text-center text-sm font-medium text-success">
@@ -267,8 +269,36 @@ export default async function CardPage({
           ) : (
             <div className="box-shape border border-border bg-card p-4 text-center">
               <p className="text-sm font-medium">Mist ikke dit kort</p>
-              <p className="mt-1 text-xs text-muted">
-                Opret en konto, så kan du finde kortet igen på enhver telefon.
+              {/*
+                SANDHEDEN FØRST: DER KRÆVES INGEN KONTO.
+                Sitet lover "uden app · uden konto", og det løfte holder kun,
+                fordi kortet kan hentes frem igen med de samme oplysninger —
+                `selfEnroll()` genbruger medlemmet på e-mail eller telefon.
+                Stod der kun "opret en konto", ville blokken sige det modsatte
+                af forsiden, og kunden ville tro, at stemplerne hænger på en
+                konto, de ikke har.
+
+                Linjen vises kun, når der FAKTISK er en nøgle at kende kunden
+                på. Er der hverken e-mail eller telefon (et kort fra før det
+                blev krævet), er adressen her det eneste, der findes — og så
+                må vi ikke love, at det kan hentes frem igen.
+              */}
+              {member.email || member.phone ? (
+                <p className="mt-1 text-xs text-muted">
+                  Du behøver ingen konto: scan koden i butikken igen og skriv
+                  den samme{" "}
+                  {member.email ? "e-mail" : "telefon"}, så får du dette kort
+                  frem med alle dine stempler.
+                </p>
+              ) : (
+                <p className="mt-1 text-xs text-muted">
+                  Gem denne side som bogmærke — den er lige nu den eneste vej
+                  til dit kort.
+                </p>
+              )}
+              <p className="mt-2 text-xs text-muted">
+                Med en konto finder du det på enhver telefon, sammen med dine
+                kort fra andre butikker.
               </p>
               <ButtonLink
                 href={`/opret-konto?token=${token}${

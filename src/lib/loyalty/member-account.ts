@@ -29,6 +29,12 @@ export interface MemberCard {
   cardText: string | null;
   /** Antal optjente, endnu ikke indløste belønninger på dette kort. */
   availableRewards: number;
+  /**
+   * Kortets datovindue. Oversigten skal sige NØJAGTIG det samme som kortsiden
+   * om, hvor længe kortet gælder — se `gyldighed()` i program-status.ts.
+   */
+  startDato: string | null;
+  slutDato: string | null;
 }
 
 /**
@@ -69,7 +75,9 @@ export async function getCardsForUser(userId: string): Promise<MemberCard[]> {
     programIds.length
       ? admin
           .from("loyalty_programs")
-          .select("id, name, color, card_text")
+          // Datovinduet skal MED: kortet viser sin egen gyldighed, og
+          // "Mine stempelkort" skal sige nøjagtig det samme som kortsiden.
+          .select("id, name, color, card_text, start_date, end_date")
           .in("id", programIds)
       : Promise.resolve({ data: [] as never[] }),
     programIds.length
@@ -108,6 +116,8 @@ export async function getCardsForUser(userId: string): Promise<MemberCard[]> {
         rewardName: null,
         cardText: null,
         availableRewards: 0,
+        startDato: null,
+        slutDato: null,
       });
       continue;
     }
@@ -126,6 +136,8 @@ export async function getCardsForUser(userId: string): Promise<MemberCard[]> {
         availableRewards: (rewardsEarned ?? []).filter(
           (r) => r.membership_id === ms.id,
         ).length,
+        startDato: program?.start_date ?? null,
+        slutDato: program?.end_date ?? null,
       });
     }
   }

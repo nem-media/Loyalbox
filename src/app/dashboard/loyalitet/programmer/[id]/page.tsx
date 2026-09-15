@@ -154,6 +154,8 @@ export default async function ProgramDetailPage({
             filled={0}
             rewardName={reward?.name ?? null}
             cardText={program.card_text}
+            startDato={program.start_date}
+            slutDato={program.end_date}
           />
         </div>
       </div>
