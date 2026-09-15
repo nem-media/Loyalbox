@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import {
   abonnementTilstand,
+  adresserTilladt,
   dageTil,
   sletningSker,
   suspensionUdloeber,
@@ -75,7 +76,12 @@ export function AbonnementKort({
   varsler,
   log,
 }: {
-  company: AbonnentFelter & { id: string; stripe_customer_id: string | null };
+  company: AbonnentFelter & {
+    id: string;
+    stripe_customer_id: string | null;
+    /** Hvor mange QR-adresser abonnementet dækker (0034). Ganger månedsprisen. */
+    adresser_tilladt?: number | null;
+  };
   /** Fra Stripe. Undefined hvis nøglen mangler, eller Stripe ikke svarede. */
   betaling: Betaling | undefined;
   historik: {
@@ -89,7 +95,18 @@ export function AbonnementKort({
   log: AdminLogRaekke[];
 }) {
   const tilstand = TILSTAND_ETIKET[abonnementTilstand(company)];
-  const pris = maanedspris(company.product_slug);
+  /*
+   * ENHEDSPRISEN GANGES MED ANTALLET AF ADRESSER.
+   *
+   * `maanedspris()` svarer på "hvad koster VAREN", og det er stadig det
+   * rigtige spørgsmål dér, hvor den bruges — men linjen her læses som "det
+   * her betaler kunden". En kunde med to butikker betaler to gange, og
+   * kortet stod og sagde 399, mens "Næste betaling" to linjer nede sagde
+   * 798. To tal om det samme, der ikke passer sammen, er værre end ét.
+   */
+  const enhedspris = maanedspris(company.product_slug);
+  const adresser = adresserTilladt(company);
+  const pris = enhedspris === null ? null : enhedspris * adresser;
   const udloeber = suspensionUdloeber(company);
   const sletning = sletningSker(company);
   const dageTilSletning = dageTil(sletning);
@@ -127,7 +144,14 @@ export function AbonnementKort({
 
         <Linje
           etiket="Abonnement"
-          hjaelp={pris === null ? undefined : `${formatCurrency(pris)}/md ex moms`}
+          hjaelp={
+            pris === null
+              ? undefined
+              : `${formatCurrency(pris)}/md ex moms` +
+                (adresser > 1
+                  ? ` · ${formatCurrency(enhedspris!)} × ${adresser} QR-adresser`
+                  : "")
+          }
         >
           {produktNavn(company.product_slug)}
         </Linje>

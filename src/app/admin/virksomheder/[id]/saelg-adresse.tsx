@@ -95,9 +95,15 @@ export function SaelgAdresse({
       {state.error ? (
         <p className="mt-2 text-sm text-danger">{state.error}</p>
       ) : null}
+      {/* KVITTERINGEN GENTAGER IKKE TALLET.
+          Den sagde før "dækker nu {adresserTilladt + 1}" — men proppen er
+          allerede skrevet om af `revalidatePath`, når beskeden tegnes, så
+          den lagde én til det NYE tal og påstod 3, hvor der stod 2. Linjen
+          "X oprettet · Y betalt" lige ovenfor er den ene rigtige kilde, og
+          kvitteringen skal ikke regne sit eget svar ud ved siden af. */}
       {state.ok ? (
         <p className="mt-2 text-sm font-medium">
-          Solgt. Abonnementet dækker nu {adresserTilladt + 1} QR-adresser.
+          Solgt. Abonnementet er hævet, og adressen er oprettet.
         </p>
       ) : null}
     </form>

@@ -375,6 +375,35 @@ describe("købet må ikke kunne bygges om til noget farligt", () => {
   });
 
   /**
+   * ADMIN MÅ IKKE VISE VARENS ENHEDSPRIS SOM DET, KUNDEN BETALER.
+   *
+   * Set på skærmen 15. september med et rigtigt live-abonnement: kortet sagde
+   * "LoyalSum Komplet · 399 kr./md", mens "Næste betaling" to linjer nede
+   * sagde 798 kr. To tal om det samme, der ikke passer sammen, er værre end
+   * ét — og det er præcis samme fejl som på kundens egen abonnementsside.
+   */
+  it("ganger månedsprisen med antallet af adresser i admin", () => {
+    expect(
+      kilde("src/app/admin/virksomheder/[id]/abonnement-kort.tsx"),
+    ).toContain("enhedspris * adresser");
+  });
+
+  /**
+   * KVITTERINGEN MÅ IKKE REGNE SIT EGET TAL UD.
+   *
+   * Den sagde "dækker nu {adresserTilladt + 1}" — men proppen er allerede
+   * skrevet om af `revalidatePath`, når beskeden tegnes, så den lagde én til
+   * det NYE tal og påstod 3, hvor der stod 2. Set på skærmen 15. september.
+   * Linjen "X oprettet · Y betalt" er den ene rigtige kilde.
+   */
+  it("gentager ikke antallet i kvitteringen efter salget", () => {
+    const s = kilde("src/app/admin/virksomheder/[id]/saelg-adresse.tsx");
+    const i = s.indexOf("{state.ok ?");
+    expect(i).toBeGreaterThan(-1);
+    expect(s.slice(i, i + 400)).not.toContain("adresserTilladt + 1");
+  });
+
+  /**
    * DER SKAL PAKKES NOGET. Varslet til os selv er den eneste måde, den viden
    * kommer ud af systemet — admin har ingen åben, og der kommer ingen
    * webhook her. Kundens bekræftelse sendes EFTER, så en fejl i den ikke
