@@ -286,9 +286,18 @@ export default async function AdminOrderPage({
                 ) : null}
               </>
             ) : (
+              /* TEKSTEN MÅ IKKE PÅSTÅ EN ÅRSAG, DEN IKKE KENDER. Der stod
+                 før kun "den er lagt, før designs blev gemt", og det var
+                 forkert på en ordre fra 31. august: designet var ryddet af
+                 den natlige oprydning, mens ordren endnu stod som ubetalt
+                 (se migration 0037). Admin læste en forklaring, der sagde
+                 "gammel ordre, ikke noget at gøre ved", om et BETALT køb,
+                 hvor kunden skulle have været ringet op. En betalt ordre
+                 uden trykvalg er altid noget, der kræver en handling. */
               <p className="text-sm text-muted">
-                Ingen trykvalg på denne ordre. Den er lagt, før designs blev
-                gemt — kontakt kunden for logo og farve.
+                {o.status === "new"
+                  ? "Ingen trykvalg. Ordren er ikke betalt, og kladden med logo og farve ryddes igen efter en uge."
+                  : "Ingen trykvalg på denne ordre — enten er den lagt før 21. august, hvor designs blev gemt, eller også er kladden ryddet, før betalingen nåede at blive registreret. Logofilen kan ikke hentes frem igen; kontakt kunden for logo og farve."}
               </p>
             )}
           </CardBody>
