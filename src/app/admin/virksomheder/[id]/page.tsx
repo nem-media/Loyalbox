@@ -7,6 +7,7 @@ import { FeedbackList } from "@/components/feedback-list";
 import { CompanyInfo } from "./company-info";
 import { AdminStandLinks } from "./admin-stand-links";
 import { AddStand } from "./add-stand";
+import { SaelgAdresse } from "./saelg-adresse";
 import { ProductSelect } from "./product-select";
 import { Button } from "@/components/ui/button";
 import { aabnSupportAdgang } from "@/app/admin/actions";
@@ -18,6 +19,7 @@ import { BETALTE_ORDRE_STATUSSER, stripeMode } from "@/lib/commerce";
 import { hentBetalinger } from "@/lib/stripe-abonnement";
 import { varslerFor } from "@/lib/abonnent-varsler";
 import { hentAdminLog } from "@/lib/admin-log";
+import { adresserTilladt, prisPrAdresse } from "@/lib/abonnement";
 import { AbonnementKort } from "./abonnement-kort";
 
 export const metadata = { title: "Admin — Virksomhed" };
@@ -37,6 +39,9 @@ export default async function AdminCompanyDetail({
     .maybeSingle();
 
   if (!company) notFound();
+
+  // Hvad abonnementet DÆKKER — mod hvad der faktisk er oprettet længere nede.
+  const adresserBetalt = adresserTilladt(company);
 
   const [
     { data: stands },
@@ -313,7 +318,34 @@ export default async function AdminCompanyDetail({
           <CardTitle>Standere & links</CardTitle>
         </CardHeader>
         <CardBody className="space-y-4">
-          <AddStand companyId={company.id} />
+          {/* HVOR STÅR KUNDEN? Tallet til venstre er hvad de HAR, tallet til
+              højre hvad de har BETALT for, og forskellen er hele grunden til,
+              at en kunde møder "skriv til os" i stedet for en købsknap. Uden
+              linjen skulle man i Supabase for at se det. */}
+          <p className="text-sm">
+            <span className="text-muted">QR-adresser: </span>
+            {stands?.length ?? 0} oprettet · {adresserBetalt} betalt
+            {(stands?.length ?? 0) > adresserBetalt ? (
+              <span className="ml-2 text-muted">
+                — flere end abonnementet dækker, så kunden kan ikke købe selv
+              </span>
+            ) : null}
+          </p>
+
+          <SaelgAdresse
+            companyId={company.id}
+            maanedspris={prisPrAdresse(company)}
+            adresserTilladt={adresserBetalt}
+          />
+
+          <div>
+            <p className="mb-2 text-xs text-muted">
+              Eller opret en adresse UDEN at røre abonnementet — kunden får en
+              side mere gratis:
+            </p>
+            <AddStand companyId={company.id} />
+          </div>
+
           {stands && stands.length ? (
             stands.map((s) => <AdminStandLinks key={s.id} stand={s} />)
           ) : (

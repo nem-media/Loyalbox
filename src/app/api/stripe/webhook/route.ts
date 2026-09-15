@@ -12,6 +12,7 @@ import { traekLagerForOrdre } from "@/lib/lager";
 import { generateSlug } from "@/lib/utils";
 import { skalOpretteFoersteStander, sessionErBetalt } from "@/lib/commerce";
 import { qrAdresseFor } from "@/lib/qr-adresse";
+import { adresserPaaAbonnementet } from "@/lib/ekstra-adresse";
 import { getSiteUrl } from "@/lib/site";
 
 /**
@@ -727,23 +728,30 @@ export async function POST(request: NextRequest) {
         let firmaId: string | null = null;
         let fraMetadata = false;
 
+        // `product_slug` hentes MED, fordi antallet af QR-adresser kun kan
+        // læses af den linje, der bærer virksomhedens egen månedspris — se
+        // `adresserPaaAbonnementet()` nedenfor.
+        let firmaSlug: string | null = null;
+
         if (sub.metadata?.company_id) {
           const { data } = await admin
             .from("companies")
-            .select("id")
+            .select("id, product_slug")
             .eq("id", sub.metadata.company_id)
             .maybeSingle();
           firmaId = data?.id ?? null;
+          firmaSlug = data?.product_slug ?? null;
           fraMetadata = Boolean(firmaId);
         }
 
         if (!firmaId) {
           const { data } = await admin
             .from("companies")
-            .select("id")
+            .select("id, product_slug")
             .eq("stripe_subscription_id", sub.id)
             .maybeSingle();
           firmaId = data?.id ?? null;
+          firmaSlug = data?.product_slug ?? null;
         }
 
         if (!firmaId) {
@@ -768,12 +776,35 @@ export async function POST(request: NextRequest) {
            * skrive den ville sætte kunden tilbage til det, de købte ENGANG,
            * og ikke det, de har i dag.
            */
+          /*
+           * ANTALLET AF QR-ADRESSER RETTES MED IND.
+           *
+           * `companies.adresser_tilladt` (0034) er et AFTRYK af antallet på
+           * abonnementets månedslinje — det læses på hver sideindlæsning og
+           * må derfor ikke koste et Stripe-opslag. Men et aftryk kan komme i
+           * utakt: en linje kan være hævet eller sænket i Stripes eget
+           * dashboard, og et køb, der blev afbrudt mellem betaling og
+           * skrivning, ville efterlade kunden med en linje, de betaler for
+           * uden at kunne bruge. Her er Stripe sandheden, og her kommer de to
+           * i takt igen.
+           *
+           * SÆNKES ALDRIG UNDER ÉN: en betalende kunde skal altid have sin
+           * egen adresse, også hvis linjen af en eller anden grund står på
+           * nul. Er antallet ikke til at læse, skrives der intet — et gæt
+           * ville kunne lukke en adresse, der står ude i en butik.
+           */
+          const adresser = adresserPaaAbonnementet(
+            sub,
+            (slug && fraMetadata ? slug : null) ?? firmaSlug,
+          );
+
           await admin
             .from("companies")
             .update({
               ...(slug && fraMetadata
                 ? { product_slug: slug, plan: planForProduct(slug) }
                 : {}),
+              ...(adresser !== null ? { adresser_tilladt: adresser } : {}),
               stripe_status: sub.status,
               suspenderet_siden: null,
               ophoert_den: null,

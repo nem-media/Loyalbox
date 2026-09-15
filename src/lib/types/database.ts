@@ -114,6 +114,12 @@ export interface Database {
           stand_text: string | null;
           created_at: string;
           offentlig_kundescore: boolean;
+          /**
+           * Hvor mange QR-adresser abonnementet dækker (0034). Svarer til
+           * antallet på abonnementets månedslinje hos Stripe. Se
+           * `adresseSpaerre()` i src/lib/abonnement.ts.
+           */
+          adresser_tilladt: number;
         };
         Insert: {
           id?: string;
@@ -149,6 +155,7 @@ export interface Database {
           stand_text?: string | null;
           created_at?: string;
           offentlig_kundescore?: boolean;
+          adresser_tilladt?: number;
         };
         Update: Partial<Database["public"]["Tables"]["companies"]["Insert"]>;
         Relationships: [

@@ -11,6 +11,8 @@ import { stripe } from "@/lib/stripe";
 import { erGyldigtPostnummer, POSTNUMMER_FEJL } from "@/lib/adresse";
 import { isStripeConfigured } from "@/lib/commerce";
 import { noterAdminHandling } from "@/lib/admin-log";
+import { tilfoejAdresseAdmin } from "@/lib/ekstra-adresse";
+import { adresserTilladt } from "@/lib/abonnement";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { justerLager, saetLager, erLagerFarve } from "@/lib/lager";
 import { SUPPORT_COOKIE } from "@/lib/support-adgang";
@@ -146,7 +148,7 @@ export async function createStandAdmin(
   _prev: FormResult,
   formData: FormData,
 ): Promise<FormResult> {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const companyId = String(formData.get("company_id") ?? "");
   const name = String(formData.get("name") ?? "").trim();
   if (!companyId || !name) return { error: "Udfyld navn." };
@@ -158,7 +160,115 @@ export async function createStandAdmin(
     slug: generateSlug(),
   });
   if (error) return { error: error.message };
+
+  /*
+   * DEN HER KNAP GIVER EN ADRESSE VÆK, og indtil nu efterlod den ikke et
+   * spor. Abonnementet røres ikke — kunden får en side mere uden at betale
+   * for den — og resultatet er, at virksomheden står med flere adresser end
+   * linjer. Det er en legitim ting at gøre (en konto sat op i hånden, en
+   * fejl vi retter), men det er også præcis dét, der gør, at kunden bagefter
+   * møder "skriv til os" i stedet for en købsknap.
+   *
+   * Uden linjen i loggen kan spørgsmålet "hvorfor har den her kunde tre
+   * adresser og betaler for én?" ikke besvares af nogen. Se admin-log.ts.
+   */
+  await noterAdminHandling({
+    actorId: admin.id,
+    actorEmail: admin.email,
+    companyId,
+    handling: "adresse-givet",
+    efter: { adresse: name },
+  });
+
   revalidatePath(`/admin/virksomheder/${companyId}`);
+  return { ok: true };
+}
+
+/**
+ * SÆLG EN BUTIK MERE TIL EN KUNDE, DER HAR KONTAKTET OS.
+ *
+ * HVORFOR DEN SKAL FINDES: `adresseSpaerre()` sender en kæde over
+ * selvbetjeningsloftet — og enhver, der har flere adresser end de har betalt
+ * for — hen til "skriv til os". Uden en knap i den anden ende var dét løfte
+ * tomt: admin skulle hæve antallet i Stripes dashboard OG rette kolonnen i
+ * Supabase i hånden, og glemmes den ene, driver de to tal fra hinanden. Hele
+ * mekanikken hviler på, at de er ens.
+ *
+ * ÉN KNAP RØRER BEGGE. Stripe hæves først, og kolonnen skrives af STRIPES
+ * EGET SVAR — ikke af vores egen optælling. Går Stripe galt, er der ikke
+ * skrevet noget, og kunden har hverken fået en regning eller en adresse.
+ *
+ * ADRESSEN OPRETTES MED, fordi det er dét, kunden ringede om. Fejler den
+ * oprettelse, er linjen stadig hævet — og så viser kundens eget dashboard
+ * den almindelige "Opret QR-adresse", præcis som i selvbetjeningen.
+ */
+export async function saelgAdresseAdmin(
+  _prev: FormResult,
+  formData: FormData,
+): Promise<FormResult> {
+  const admin = await requireAdmin();
+  const companyId = String(formData.get("company_id") ?? "");
+  const name = String(formData.get("name") ?? "").trim();
+  if (!companyId || !name) return { error: "Giv butikken et navn." };
+
+  const service = createAdminClient();
+  const { data: company } = await service
+    .from("companies")
+    .select(
+      "id, product_slug, stripe_status, stripe_subscription_id, stripe_customer_id, adresser_tilladt",
+    )
+    .eq("id", companyId)
+    .maybeSingle();
+
+  if (!company) return { error: "Virksomheden blev ikke fundet." };
+
+  const foer = adresserTilladt(company);
+  const svar = await tilfoejAdresseAdmin(company);
+
+  if (!svar.ok) {
+    return {
+      error:
+        svar.fejl === "ikke-betalende"
+          ? "Abonnementet betaler ikke lige nu. Få betalingen på plads først — ellers lægges prorataen oven i en ubetalt regning."
+          : svar.fejl === "intet-hos-stripe" || svar.fejl === "intet-abonnement"
+            ? "Virksomheden har ikke et abonnement hos Stripe at lægge linjen på. Sælg et abonnement først, eller opret adressen gratis med knappen ovenfor."
+            : svar.fejl === "linjen-mangler"
+              ? "Abonnementet hos Stripe har ikke en månedslinje for kundens vare. Se det efter i Stripe."
+              : `Stripe afviste: ${svar.besked ?? "ukendt fejl"}`,
+    };
+  }
+
+  // STRIPES SVAR OG IKKE `foer + 1`. Kolonnen skal blive ved at svare til
+  // abonnementet, og det gør den kun, hvis den skrives af det, Stripe
+  // faktisk står med bagefter.
+  await service
+    .from("companies")
+    .update({ adresser_tilladt: svar.adresserTilladt })
+    .eq("id", companyId);
+
+  const { error: standFejl } = await service.from("stands").insert({
+    company_id: companyId,
+    name,
+    slug: generateSlug(),
+  });
+
+  await noterAdminHandling({
+    actorId: admin.id,
+    actorEmail: admin.email,
+    companyId,
+    handling: "adresse-solgt",
+    foer: { adresser_tilladt: foer },
+    efter: { adresser_tilladt: svar.adresserTilladt, adresse: name },
+  });
+
+  revalidatePath(`/admin/virksomheder/${companyId}`);
+
+  if (standFejl) {
+    return {
+      error: `Abonnementet er hævet til ${svar.adresserTilladt} adresser, men selve adressen kunne ikke oprettes: ${standFejl.message}. Kunden kan oprette den selv i sit dashboard.`,
+    };
+  }
+
   return { ok: true };
 }
 
