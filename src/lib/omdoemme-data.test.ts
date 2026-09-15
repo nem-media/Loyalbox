@@ -14,9 +14,25 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
  * falder.
  */
 
-const createClient = vi.fn();
-vi.mock("@/lib/supabase/server", () => ({ createClient: () => createClient() }));
-vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => ({}) }));
+/*
+ * TO KLIENTER, OG DET ER IKKE VILKÅRLIGT HVILKEN DER BRUGES HVOR.
+ *
+ * Den OFFENTLIGE score læses med SERVICE-ROLE: læseren er anonym og har ingen
+ * adgang til `feedback` gennem RLS, så et opslag med brugerens egen klient gav
+ * nul rækker og dermed ingen score overhovedet (rettet 2026-09-15). Begge
+ * attrapper peger derfor på den samme fake — så prøven måler datogrænsen og
+ * ikke hvilken klient der tilfældigvis blev valgt.
+ */
+/**
+ * Attrappen, begge klienter peger på. `createClient()` afventes af koden,
+ * `createAdminClient()` gør ikke — derfor kan de ikke dele ét `vi.fn()` med
+ * `mockResolvedValue`, som ville give admin-grenen et løfte i stedet for en
+ * klient. Én variabel, to indpakninger.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let klient: any = null;
+vi.mock("@/lib/supabase/server", () => ({ createClient: async () => klient }));
+vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => klient }));
 
 const { hentOffentligKundescore, hentOffentligtGrundlag } = await import(
   "./omdoemme-data"
@@ -35,9 +51,13 @@ let graenser: string[] = [];
  * `.eq()` på virksomhed og rating og `.gte()` på datoen — og den er `then`-bar,
  * fordi koden venter på selve kæden og ikke på et `.execute()`.
  */
+/** Antal forespørgsler, attrappen har fået. Nul betyder: basen blev aldrig rørt. */
+let kald = 0;
+
 function fakeKlient(raekker: Raekke[]) {
   return {
     from() {
+      kald++;
       let rating: number | null = null;
       let siden: string | null = null;
       const q = {
@@ -87,7 +107,8 @@ function raekker(spec: { rating: number; maanederSiden: number; antal: number }[
 
 beforeEach(() => {
   graenser = [];
-  createClient.mockReset();
+  klient = null;
+  kald = 0;
 });
 
 describe("den offentlige kundescore hentet fra basen", () => {
@@ -97,14 +118,12 @@ describe("den offentlige kundescore hentet fra basen", () => {
    * kunder dengang må ikke kunne bære det oppe.
    */
   it("tæller kun kundeoplevelser fra de seneste 12 måneder", async () => {
-    createClient.mockResolvedValue(
-      fakeKlient(
+    klient = fakeKlient(
         raekker([
           { rating: 5, maanederSiden: 2, antal: 10 },
           { rating: 1, maanederSiden: 24, antal: 10 },
         ]),
-      ),
-    );
+      );
 
     const score = await hentOffentligKundescore("c1", true);
     expect(score).not.toBeNull();
@@ -114,7 +133,7 @@ describe("den offentlige kundescore hentet fra basen", () => {
 
   /** Grænsen skal sættes på ALLE fem tællinger — ikke kun den første. */
   it("sætter datogrænsen på hver eneste tælling", async () => {
-    createClient.mockResolvedValue(fakeKlient([]));
+    klient = fakeKlient([]);
     await hentOffentligKundescore("c1", true);
 
     expect(graenser).toHaveLength(5);
@@ -131,12 +150,11 @@ describe("den offentlige kundescore hentet fra basen", () => {
    * kunder rammer — og der er ingen vej, ad hvilken tallet kan slippe ud.
    */
   it("henter slet ikke noget, når visningen er slået fra", async () => {
-    createClient.mockResolvedValue(
-      fakeKlient(raekker([{ rating: 5, maanederSiden: 1, antal: 50 }])),
-    );
+    klient = fakeKlient(raekker([{ rating: 5, maanederSiden: 1, antal: 50 }]));
 
     expect(await hentOffentligKundescore("c1", false)).toBeNull();
-    expect(createClient).not.toHaveBeenCalled();
+    // Stærkere end at tælle klient-kald: basen blev slet ikke forespurgt.
+    expect(kald).toBe(0);
   });
 });
 
@@ -147,15 +165,13 @@ describe("grundlaget bag dashboardets forslag", () => {
    * ingen kunde ser noget af det.
    */
   it("regner på samme 12 måneder, selv om visningen er slået fra", async () => {
-    createClient.mockResolvedValue(
-      fakeKlient(
+    klient = fakeKlient(
         raekker([
           { rating: 5, maanederSiden: 3, antal: 24 },
           { rating: 4, maanederSiden: 6, antal: 6 },
           { rating: 1, maanederSiden: 18, antal: 40 },
         ]),
-      ),
-    );
+      );
 
     const grundlag = await hentOffentligtGrundlag("c1");
     expect(grundlag.antal).toBe(30);
@@ -166,9 +182,7 @@ describe("grundlaget bag dashboardets forslag", () => {
 
   /** Under minimumsgrænsen er der intet at vise et eksempel på. */
   it("giver ingen visning under minimumsgrænsen", async () => {
-    createClient.mockResolvedValue(
-      fakeKlient(raekker([{ rating: 5, maanederSiden: 1, antal: 4 }])),
-    );
+    klient = fakeKlient(raekker([{ rating: 5, maanederSiden: 1, antal: 4 }]));
 
     const grundlag = await hentOffentligtGrundlag("c1");
     expect(grundlag.antal).toBe(4);

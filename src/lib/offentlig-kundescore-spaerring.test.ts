@@ -81,3 +81,63 @@ describe("Reputation Score kan ikke slippe ud", () => {
     expect(side).not.toContain("hentOmdoemme");
   });
 });
+
+/**
+ * DEN OFFENTLIGE SCORE SKAL LÆSES MED SERVICE-ROLE — ELLERS FINDES DEN IKKE.
+ *
+ * FEJLEN, DER BLEV FUNDET 2026-09-15: `hentOffentligKundescore()` læste
+ * feedback med `createClient()`, altså gennem RLS. Men den, der åbner en
+ * offentlig anmeldelsesside, er ANONYM, og anonyme har ingen adgang til
+ * `feedback`. Opslaget gav nul rækker, fordelingen blev tom, og funktionen
+ * svarede null, fordi antallet lå under minimum. Den offentlige kundescore
+ * kunne dermed ALDRIG vises for en besøgende.
+ *
+ * Målt: service-role så 7 vurderinger for demovirksomheden, den anonyme
+ * klient så 0. Efter rettelsen viste siden "FORELØBIG KUNDESCORE 3,0 / 5
+ * baseret på 7 kundeoplevelser".
+ *
+ * FEJLEN VAR TAVS OG SÅ RIGTIG UD FRA EJERENS STOL: dashboardets
+ * forhåndsvisning læser med ejerens eget login og kunne sagtens se tallene,
+ * så butikken slog funktionen til, så scoren i sin egen visning og troede,
+ * den stod ude på siden.
+ *
+ * Prøven er en KILDEPRØVE, fordi fejlen er et valg af klient og ikke en
+ * beregning — der er ingen returværdi at se på uden et rigtigt RLS-miljø.
+ */
+describe("den offentlige kundescore kan faktisk læses af en besøgende", () => {
+  const DATA = readFileSync(
+    join(process.cwd(), "src/lib/omdoemme-data.ts"),
+    "utf8",
+  );
+
+  /*
+   * KUN FUNKTIONENS EGEN KROP. Et fast antal tegn løb ind i NÆSTE funktion,
+   * som med rette bruger `createClient()` — og så fejlede prøven på nabokoden
+   * i stedet for på det, den handler om.
+   */
+  const krop = (() => {
+    const i = DATA.indexOf("export async function hentOffentligKundescore");
+    const rest = DATA.slice(i + 10);
+    const slut = rest.indexOf("\nexport ");
+    return slut === -1 ? rest : rest.slice(0, slut);
+  })();
+
+  it("henter fordelingen med service-role og ikke gennem RLS", () => {
+    expect(krop.length).toBeGreaterThan(50);
+    expect(krop).toContain("createAdminClient()");
+    // `createClient()` her er præcis fejlen — den må ikke komme tilbage.
+    expect(krop).not.toMatch(/await createClient\(\)/);
+  });
+
+  /**
+   * ...MEN KUN NÅR BUTIKKEN HAR VALGT DET. Service-role omgår RLS, så
+   * opt-in-spærren er det eneste, der står mellem en aggregeret score og en
+   * butik, der ikke har bedt om at få den vist.
+   */
+  it("læser slet ikke, når butikken ikke har slået den til", () => {
+    const spaerre = krop.indexOf("if (!tilvalgt) return null;");
+    const klient = krop.indexOf("createAdminClient()");
+    expect(spaerre).toBeGreaterThan(-1);
+    expect(spaerre).toBeLessThan(klient);
+  });
+});

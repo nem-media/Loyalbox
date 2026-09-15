@@ -247,7 +247,34 @@ export async function hentOffentligKundescore(
   tilvalgt: boolean,
 ) {
   if (!tilvalgt) return null;
-  const supabase = await createClient();
+  /*
+   * SERVICE-ROLE OG IKKE BRUGERENS EGEN KLIENT — OG DET ER HELE FORSKELLEN
+   * PÅ, OM FUNKTIONEN VIRKER.
+   *
+   * Her stod `createClient()`, altså et opslag gennem RLS. Men den, der
+   * læser en offentlig anmeldelsesside, er ANONYM, og anonyme har ingen
+   * adgang til `feedback` — opslaget gav nul rækker, fordelingen blev tom, og
+   * `offentligKundescore()` svarede null, fordi antallet var under minimum.
+   * Resultatet: den offentlige kundescore kunne ALDRIG vises for en besøgende.
+   *
+   * Fejlen var tavs og så rigtig ud fra ejerens stol: dashboardets
+   * forhåndsvisning læser med ejerens eget login og kan sagtens se feedbacken,
+   * så butikken slog funktionen til, så tallet i sin egen visning og troede,
+   * det stod ude på siden. Verificeret 2026-09-15: service-role så 7
+   * vurderinger for demovirksomheden, den anonyme klient så 0.
+   *
+   * DET ER FORSVARLIGT, fordi der kun læses TÆLLINGER pr. stjerne, og fordi
+   * `tilvalgt` allerede har afgjort, at butikken selv har bedt om at
+   * offentliggøre netop dét tal. Ingen enkeltrække, intet navn og ingen
+   * kommentar forlader funktionen — den returnerer en score og et antal.
+   * Resten af den offentlige side læser i forvejen med service-role af samme
+   * grund (se `/r/[slug]/page.tsx`).
+   *
+   * Alternativet — en RLS-politik, der åbner `feedback` for anonyme — ville
+   * åbne navne og kommentarer for at vise et gennemsnit. Det er den dyre
+   * løsning på det billige problem.
+   */
+  const supabase = createAdminClient();
   /*
    * KUN DE SENESTE 12 MÅNEDER. Den interne score dækker hele historikken — det
    * er to forskellige spørgsmål. Udadtil skal tallet sige noget om, hvordan
