@@ -111,7 +111,23 @@ export async function addEmployee(
     // bruger-id'et fra starten, og vi behøver aldrig matche på e-mail senere.
     const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
       redirectTo: `${getSiteUrl()}/auth/confirm`,
-      data: { role: "customer" },
+      /*
+       * ROLLEN SÆTTES IKKE HER — OG DET ER POINTEN.
+       *
+       * Der stod `data: { role: "customer" }`, og det så uskyldigt ud: vi
+       * sendte jo den rigtige værdi. Men databasens trigger LÆSTE den værdi,
+       * og `options.data` kommer fra klienten. Anon-nøglen er offentlig, så
+       * enhver kunne kalde Supabases eget signup-endpoint med
+       * `{"role":"admin"}` og få en admin-konto (afprøvet 2026-09-15 mod
+       * produktion; brugeren blev slettet igen). Migration 0040 gør rollen
+       * fast til `customer` i triggeren.
+       *
+       * Feltet er fjernet herfra, fordi det efter rettelsen ikke gør noget —
+       * og et felt, der ser ud til at bestemme rollen uden at gøre det, er
+       * netop dét, der får den næste til at tro, at rollen kan sendes med.
+       * Skal en bruger være admin, sættes det bevidst med service-role, se
+       * `scripts/create-admin.mjs`.
+       */
     });
     if (error || !data.user) {
       return {

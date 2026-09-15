@@ -207,14 +207,42 @@ export async function claimCardForUser(
     };
   }
 
-  const { error: updateError } = await admin
+  /*
+   * DEN BETINGEDE OPDATERING VAR DER — SVARET BLEV BARE IKKE SET PÅ.
+   *
+   * `.is("user_id", null)` er præcis det rigtige greb: den afgør kapløbet i
+   * databasen, så to konti ikke kan tage det samme kort. Men resultatet blev
+   * ikke læst, og en `update` mod PostgREST svarer glad, når den rammer nul
+   * rækker — så taberen fik `{ ok: true }` og beskeden om, at kortet nu lå på
+   * deres konto. Det gjorde det ikke, og de ville først opdage det, når
+   * "Mine stempelkort" var tom.
+   *
+   * MÅLT 2026-09-15: to samtidige forsøg på samme token gav "OK" begge gange;
+   * kun det ene ramte en række. Opslaget ovenfor fanger det IKKE — det er
+   * netop derfor, der er en betinget opdatering, og derfor dens svar skal
+   * læses. `aktiver/actions.ts` gør det rigtigt på præcis samme mønster; det
+   * er kun her, tjekket manglede.
+   *
+   * ET DELT KORTLINK ER IKKE en fjern mulighed: to i en husstand, der scanner
+   * det samme kort og begge trykker "gem på min konto".
+   */
+  const { data: knyttet, error: updateError } = await admin
     .from("loyalty_members")
     .update({ user_id: userId, claimed_at: new Date().toISOString() })
     .eq("id", member.id)
-    .is("user_id", null);
+    .is("user_id", null)
+    .select("id");
 
   if (updateError) {
     return { ok: false, error: "Kunne ikke gemme kortet på din konto." };
+  }
+  if (!knyttet?.length) {
+    // Kapløbet er tabt. Beskeden er den samme, som hvis kortet allerede havde
+    // en ejer ved opslaget ovenfor — for det er præcis dét, der er sket.
+    return {
+      ok: false,
+      error: "Kortet er allerede knyttet til en anden konto.",
+    };
   }
   return { ok: true, alreadyMine: false };
 }
