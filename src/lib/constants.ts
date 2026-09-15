@@ -62,8 +62,15 @@ export const COMPANY = {
 // endnu intet CVR-nummer at vise. Vilkåret siger nu, hvad KØBET er, i stedet
 // for hvem køberen ikke må være. Hvem der kan indgå aftalen er materielt,
 // derfor en ny version og ikke bare en rettet formulering.
-export const TERMS_VERSION = "1.4";
-export const TERMS_DATE = "2026-08-28";
+// 1.5 (2026-09-15): §2 lovede "en fast månedlig pris, uanset hvor mange
+// standere du har" og sagde intet om ADRESSER. Skilte er stadig ubegrænsede,
+// men en butik mere er nu en linje mere på det samme abonnement — og et
+// vilkår, der ikke nævner en betaling, kunden kan komme til at foretage, er
+// et forkert vilkår. Afsnittet siger nu, hvad abonnementet dækker, hvad en
+// adresse mere koster, hvordan den faktureres midt i en måned, og at der
+// følger et skilt med.
+export const TERMS_VERSION = "1.5";
+export const TERMS_DATE = "2026-09-15";
 
 /**
  * Hvor vi sælger og leverer.

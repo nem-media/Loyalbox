@@ -291,39 +291,153 @@ export function harAbonnement(
  * det samme som en enkelt café, og hver butik fik sin egen side, sin egen
  * statistik og sit eget flow. Grænsen lukker det.
  *
- * TALLET STÅR HER OG IKKE I EN IF-SÆTNING, fordi det skal kunne hæves.
- * Planen er, at en ekstra adresse en dag bliver en linje mere på det
- * SAMME abonnement — så bliver dette tal til et, der læses fra
- * virksomheden, og resten af mekanikken kan blive stående.
+ * TALLET ER NU ET STARTTAL OG IKKE ET LOFT. `companies.adresser_tilladt`
+ * (0034) siger, hvor mange abonnementet FAKTISK dækker, og den kan købes op
+ * — se `koebEkstraAdresse()` i src/lib/ekstra-adresse.ts. Dette er den værdi,
+ * en virksomhed starter på, og den, kolonnen falder tilbage på. Den SKAL
+ * blive ved at svare til antallet på abonnementets månedslinje hos Stripe.
  */
 export const ADRESSER_PR_ABONNEMENT = 1;
+
+/**
+ * HVOR LANGT KAN KUNDEN SELV GÅ, FØR VI SKAL TALE SAMMEN?
+ *
+ * Fem adresser — altså fire køb oven i den, der følger med.
+ *
+ * LOFTET ER IKKE TEKNISK, OG DET ER IKKE EN PRISGRÆNSE. Det er der, fordi
+ * valget mellem de to modeller bliver forkert, længe før maskinen opdager
+ * det. En kæde med tyve butikker skal have ÉN virksomhed og tyve linjer,
+ * hvis stempelkortet skal gælde på tværs — og skal have en virksomhed PR.
+ * butik, hvis det er en franchise, hvor kortet netop ikke må deles. Det
+ * spørgsmål kan et klik ikke rumme, og svaret kan ikke gøres om bagefter:
+ * stempler, medlemmer og statistik ligger dér, hvor de blev lagt.
+ *
+ * Derfor må de første fire klares i selvbetjening — det er den café, der
+ * åbner nummer to, og hende skal vi ikke stå i vejen for — mens den femte
+ * er en samtale. Tallet er sat lavt med vilje og kan hæves med ét tal.
+ */
+export const ADRESSER_SELVBETJENING_MAKS = 5;
+
+/**
+ * Hvor mange adresser dækker abonnementet lige nu?
+ *
+ * Kolonnen er valgfri i typen, så ældre kaldesteder og testdata ikke skal
+ * kende den for at kompilere — og et manglende tal betyder dét, der altid
+ * har været sandt: der følger én med.
+ */
+export function adresserTilladt(
+  company: { adresser_tilladt?: number | null } | null | undefined,
+): number {
+  const n = company?.adresser_tilladt;
+  return typeof n === "number" && n >= 1 ? n : ADRESSER_PR_ABONNEMENT;
+}
+
+/**
+ * Hvad koster en QR-adresse mere om måneden?
+ *
+ * PRÆCIS DET SAMME SOM DEN FØRSTE — ingen mængderabat, og det er et valg.
+ * En kæde får MERE pr. butik end den enkelte café, ikke mindre: ét
+ * stempelkort på tværs af butikkerne, ét login og ét overblik. En rabat
+ * ville sige det modsatte af det, produktet gør.
+ *
+ * DERFOR ER DET OGSÅ SAMME STRIPE-PRIS. Adresse nummer to er ANTALLET på
+ * den månedslinje, der allerede kører, og ikke en ny vare — se
+ * src/lib/ekstra-adresse.ts. Havde prisen været en anden, havde det krævet
+ * sit eget produkt i både test og live.
+ *
+ * Null betyder, at virksomheden ikke har et abonnement at lægge den på.
+ */
+export function prisPrAdresse(
+  company: { product_slug?: string | null } | null | undefined,
+): number | null {
+  const slug = company?.product_slug;
+  if (!slug) return null;
+  return getProduct(slug)?.monthlyPrice ?? null;
+}
+
+/**
+ * Kan kunden købe en adresse mere SELV — eller skal der et menneske til?
+ *
+ * TO TING SKAL VÆRE PÅ PLADS, og de er hver sin slags nej.
+ *
+ * Der skal være et abonnement HOS STRIPE at lægge linjen på. Et par
+ * virksomheder har en abonnementsvare, som er sat i hånden i admin, uden at
+ * der nogensinde er oprettet noget hos Stripe — for dem er der intet at hæve,
+ * og købet ville fejle med en besked om en betalingsudbyder, de aldrig har
+ * mødt.
+ *
+ * Og abonnementet skal BETALE. Er det suspenderet, er en prorata oven i en
+ * ubetalt regning det sidste, kunden har brug for; betalingen skal på plads
+ * først.
+ *
+ * SPØRGES BÅDE AF KNAPPEN OG AF HANDLINGEN. En knap, der altid fejler, er
+ * værre end ingen knap — men handlingen kan kaldes direkte, så begge skal
+ * vide det. Selve afvisningen sker i `koebEkstraAdresse()`, som spørger
+ * Stripe; denne her er den billige udgave, en sideindlæsning har råd til.
+ */
+export function kanKoebeAdresseSelv(
+  company:
+    | { stripe_subscription_id?: string | null; stripe_status?: string | null }
+    | null
+    | undefined,
+): boolean {
+  if (!company?.stripe_subscription_id) return false;
+  return erBetalende(company.stripe_status);
+}
 
 /**
  * Hvorfor kan der IKKE oprettes en QR-adresse mere? Null betyder at der kan.
  *
  * SVARER MED EN GRUND og ikke bare falsk, af samme årsag som
- * `koebSpaerre()`: 'du har intet abonnement' og 'du har allerede den, der
- * følger med' er to vidt forskellige beskeder, og en knap, der bare
- * forsvinder, forklarer ingen af dem.
+ * `koebSpaerre()`: 'du har intet abonnement', 'den koster noget' og 'det
+ * her skal vi tale om' er tre vidt forskellige beskeder, og en knap, der
+ * bare forsvinder, forklarer ingen af dem.
  */
 export type AdresseSpaerre =
   /** Ingen løbende vare — adressen følger med Pro eller Komplet. */
   | "intet-abonnement"
-  /** Abonnementets adresse er brugt. Flere butikker er en samtale værd. */
-  | "graense-naaet";
+  /** Abonnementets adresser er brugt, men en mere kan købes med det samme. */
+  | "kan-koebes"
+  /** Over selvbetjeningsloftet. Flere butikker er en samtale værd. */
+  | "kontakt-os";
 
 export function adresseSpaerre(
-  company: { product_slug?: string | null } | null | undefined,
+  company:
+    | {
+        product_slug?: string | null;
+        adresser_tilladt?: number | null;
+      }
+    | null
+    | undefined,
   antalAdresser: number,
 ): AdresseSpaerre | null {
   if (!harAbonnement(company)) return "intet-abonnement";
+
+  const tilladt = adresserTilladt(company);
+
+  // Der er plads i det, de allerede betaler for.
+  if (antalAdresser < tilladt) return null;
+
   /*
-   * `>=` og ikke `===`. De to virksomheder, der blev oprettet FØR grænsen,
-   * har flere adresser end én, og de skal beholde dem — en grænse må
-   * spærre for at lave FLERE, aldrig fjerne noget, der er i drift.
+   * FLERE END DE HAR BETALT FOR — OG DE BEHOLDER DEM ALLE SAMMEN.
+   *
+   * To virksomheder nåede at oprette mere end én adresse, før grænsen kom.
+   * En grænse må spærre for at lave FLERE, aldrig fjerne noget, der står ude
+   * i en butik, så de bliver hvor de er. Men de kan ikke købes op med et
+   * klik: kolonnen skal blive ved at svare til antallet hos Stripe (se 0034),
+   * og et køb ville hæve begge tal og stille dem en regning for noget, de
+   * allerede har. Den slags skal et menneske se på.
    */
-  if (antalAdresser >= ADRESSER_PR_ABONNEMENT) return "graense-naaet";
-  return null;
+  if (antalAdresser > tilladt) return "kontakt-os";
+
+  /*
+   * LOFTET MÅLES PÅ DET BETALTE OG IKKE PÅ DET OPRETTEDE. Ellers ville en
+   * butik, der har slettet en adresse, kunne købe sig forbi loftet én ad
+   * gangen — og de linjer, de betaler for, er dét, samtalen handler om.
+   */
+  if (tilladt >= ADRESSER_SELVBETJENING_MAKS) return "kontakt-os";
+
+  return "kan-koebes";
 }
 
 /**
@@ -339,10 +453,10 @@ export function adresseSpaerre(
  * fra 'Mangler du et skilt?' — uden at komme fra standerens egen side —
  * er der præcis ét sted, det kan høre til.
  *
- * NUL ELLER FLERE GIVER STADIG NULL, og det er ikke en forglemmelse: de
- * to virksomheder, der har flere adresser fra før grænsen, skal stadig
- * spørges. Samme regel som aktiveringen, der kun sender kunden direkte
- * ind på standeren, når der er præcis én.
+ * NUL ELLER FLERE GIVER STADIG NULL, og det er ikke en forglemmelse: en
+ * butik med to adresser skal spørges, hvilken af dem skiltet hører til.
+ * Samme regel som aktiveringen, der kun sender kunden direkte ind på
+ * standeren, når der er præcis én.
  */
 export function enesteAdresse(ider: string[]): string | null {
   return ider.length === 1 ? ider[0] : null;
@@ -364,5 +478,25 @@ export const ADRESSE_TEKSTER = {
    * og skal ikke tro, at det kræver noget køb.
    */
   graenseHjaelp:
-    "Du kan sætte så mange skilte op, du vil, på den adresse du har — de peger alle sammen på den samme side, og du bestiller dem under standeren. En adresse mere hører til en butik mere, og den sætter vi op sammen med dig.",
+    "Du kan sætte så mange skilte op, du vil, på den adresse du har — de peger alle sammen på den samme side, og du bestiller dem under standeren. En adresse mere hører til en butik mere.",
+
+  /*
+   * KØBET SÆLGER EN BUTIK, IKKE EN ADRESSE. Det er dét, kunden har i
+   * hovedet, og dét, pengene svarer til: en side mere, en statistik mere
+   * og et skilt at sætte op — men stadig ét login og ét stempelkort.
+   */
+  koebOverskrift: "Har du åbnet en butik mere?",
+
+  koebHjaelp:
+    "Så giver vi den sin egen QR-adresse, sin egen side og sin egen statistik — på det abonnement, du har i forvejen. Ét login, og dine kunders stempelkort gælder på tværs af butikkerne.",
+
+  /*
+   * LOFTET SIGER IKKE NEJ. Det siger, at valget er for stort til en knap:
+   * deles stempelkortet på tværs, eller skal hver butik have sit eget?
+   * Svaret kan ikke gøres om bagefter.
+   */
+  loftOverskrift: "En butik mere tager vi sammen",
+
+  loftHjaelp:
+    "Herfra afhænger opsætningen af, om stempelkortet skal gælde på tværs af butikkerne eller holdes hver for sig — og det kan ikke laves om bagefter. Skriv til os, så finder vi ud af det, før der bliver trykt noget.",
 } as const;

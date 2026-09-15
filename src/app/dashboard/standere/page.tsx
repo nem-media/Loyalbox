@@ -10,8 +10,21 @@ import { CreateStand } from "./create-stand";
 import { GuideHint } from "@/components/guide";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StandIcon } from "@/components/nav-icons";
-import { adresseSpaerre, ADRESSE_TEKSTER } from "@/lib/abonnement";
-import { PRODUCTS, COMPANY } from "@/lib/constants";
+import {
+  adresseSpaerre,
+  adresserTilladt,
+  kanKoebeAdresseSelv,
+  prisPrAdresse,
+  ADRESSE_TEKSTER,
+} from "@/lib/abonnement";
+import { PRODUCTS, COMPANY, getProduct } from "@/lib/constants";
+import { koebSpaerre } from "@/lib/commerce";
+import { standerPrisForDesign } from "@/lib/ekstra-adresse";
+import { skalBetaleFrontfarve, designFrontfarve } from "@/lib/design";
+import { standerFarveNavn } from "@/lib/stander-tilvalg";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { EKSTRA_STANDER_SLUG } from "@/components/bestil-stander";
+import { TilfoejButik, type DesignValgmulighed } from "./tilfoej-butik";
 
 /** Varerne med en QR-adresse. Udledt, så navnene ikke kan drive. */
 const ABONNEMENTER = PRODUCTS.filter((p) => p.monthlyPrice && !p.addon).map(
@@ -39,6 +52,49 @@ export default async function StandsPage() {
    */
   const graense = adresseSpaerre(company, stands?.length ?? 0);
 
+  /*
+   * KØBET AF EN BUTIK MERE — kun hentet, når det er dét, skærmen skal vise.
+   *
+   * `koebSpaerre()` spørges OGSÅ, og det er den samme dør som alle andre
+   * steder: er der ingen Stripe-nøgle, eller er vi i testtilstand uden en
+   * testkonto, må knappen ikke stå der. Så falder vi tilbage på den besked,
+   * der beder kunden skrive til os — det er stadig sandt.
+   *
+   * DESIGNENE HENTES MED SERVICE-ROLE, præcis som `DesignListe` gør det
+   * lige nedenfor på samme side.
+   */
+  const maaKoebe =
+    graense === "kan-koebes" &&
+    kanKoebeAdresseSelv(company) &&
+    koebSpaerre(user, getProduct(EKSTRA_STANDER_SLUG)) === null;
+
+  const { data: designRaekker } = maaKoebe && company
+    ? await createAdminClient()
+        .from("designs")
+        .select(
+          "id, navn, stander_farve, front_type, front_hex, accent_hex, frontfarve_betalt",
+        )
+        .eq("company_id", company.id)
+        .order("created_at", { ascending: false })
+    : { data: null };
+
+  const designValg: DesignValgmulighed[] = (designRaekker ?? []).map((d) => ({
+    id: d.id,
+    navn: d.navn,
+    beskrivelse: `${standerFarveNavn(d.stander_farve)} stander · ${
+      designFrontfarve(d).beskrivelse
+    }`,
+    // Prisen regnes af DESIGNET: en sort stander koster mere, og en egen
+    // frontfarve, der allerede er betalt, koster ikke igen.
+    pris: standerPrisForDesign({
+      stander_farve: d.stander_farve,
+      betalFrontfarve: skalBetaleFrontfarve(d),
+    }),
+  }));
+
+  const prAdresse = prisPrAdresse(company) ?? 0;
+  const tilladt = adresserTilladt(company);
+
   return (
     <>
       <PageHeader
@@ -59,13 +115,37 @@ export default async function StandsPage() {
         <CardBody>
           {graense === null ? (
             <CreateStand />
-          ) : graense === "graense-naaet" ? (
+          ) : maaKoebe ? (
             <>
+              {/* FØRST HVAD DE HAR, SÅ HVAD DE KAN KØBE. Den, der trykker
+                  "opret", vil som regel bare have et skilt mere — og skal
+                  ikke tro, at dét kræver et køb. Misforståelsen ryddes af
+                  vejen, før prisen nævnes. */}
               <p className="font-semibold tracking-tight">
                 {ADRESSE_TEKSTER.graenseOverskrift}
               </p>
               <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted">
                 {ADRESSE_TEKSTER.graenseHjaelp}
+              </p>
+              <hr className="my-5 border-border" />
+              <TilfoejButik
+                designs={designValg}
+                adresseNummer={tilladt + 1}
+                maanedsprisPrAdresse={prAdresse}
+                maanedsprisEfter={prAdresse * (tilladt + 1)}
+              />
+            </>
+          ) : graense === "kan-koebes" || graense === "kontakt-os" ? (
+            <>
+              <p className="font-semibold tracking-tight">
+                {graense === "kontakt-os"
+                  ? ADRESSE_TEKSTER.loftOverskrift
+                  : ADRESSE_TEKSTER.graenseOverskrift}
+              </p>
+              <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted">
+                {graense === "kontakt-os"
+                  ? ADRESSE_TEKSTER.loftHjaelp
+                  : ADRESSE_TEKSTER.graenseHjaelp}
               </p>
               <p className="mt-3 text-sm">
                 <Link

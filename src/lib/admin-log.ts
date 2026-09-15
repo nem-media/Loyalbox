@@ -37,7 +37,21 @@ export type AdminHandling =
    * netop dét, en kunde vil spørge om.
    */
   | "support-adgang-aabnet"
-  | "support-adgang-lukket";
+  | "support-adgang-lukket"
+  /*
+   * QR-ADRESSER. De to er ikke den samme hændelse, og forskellen er penge.
+   *
+   * `adresse-solgt` hæver abonnementet hos Stripe: kunden får en butik mere
+   * OG en linje mere at betale. `adresse-givet` opretter en adresse uden at
+   * røre abonnementet — det er dét, den gamle "Tilføj stander"-knap altid
+   * har gjort, og indtil nu efterlod den ikke et spor.
+   *
+   * Uden de to linjer kan spørgsmålet "hvorfor har den her kunde tre
+   * adresser og betaler for én?" ikke besvares af nogen. Præcis samme
+   * begrundelse som resten af loggen.
+   */
+  | "adresse-solgt"
+  | "adresse-givet";
 
 /** Det, hver handling hedder på skærmen. */
 export const HANDLING_TEKST: Record<AdminHandling, string> = {
@@ -47,6 +61,8 @@ export const HANDLING_TEKST: Record<AdminHandling, string> = {
   "kundeforhold-genoptaget": "Genoptog kundeforholdet",
   "support-adgang-aabnet": "Åbnede kundens dashboard (support)",
   "support-adgang-lukket": "Forlod kundens dashboard",
+  "adresse-solgt": "Solgte en QR-adresse mere (abonnementet hævet)",
+  "adresse-givet": "Oprettede en QR-adresse uden at ændre abonnementet",
 };
 
 export interface AdminLogRaekke {

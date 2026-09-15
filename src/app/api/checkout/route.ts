@@ -33,6 +33,7 @@ import {
   type DesignValg,
 } from "@/lib/design";
 import { getSiteUrl } from "@/lib/site";
+import { adresserTilladt } from "@/lib/abonnement";
 import { DPA_VERSION, requiresDpa } from "@/lib/dpa";
 import { noterFejl } from "@/lib/drift";
 import { tilStripeShipping, modtagerNavn } from "@/lib/adresse";
@@ -388,9 +389,23 @@ export async function POST(request: NextRequest) {
   }
 
   if (sub) {
+    /*
+     * ANTALLET ER KUNDENS ADRESSER OG IKKE ALTID ÉN.
+     *
+     * En OPGRADERING (Pro → Komplet) og en GENOPTAGELSE laver et nyt
+     * abonnement hos Stripe. Stod der fast 1 her, ville en kunde, der har
+     * KØBT en butik mere (`adresser_tilladt` > 1), miste den linje i samme
+     * sekund de opgraderer — de ville stå med to butikker i drift og betale
+     * for én, og webhooken ville bagefter skrive antallet ned efter det nye
+     * abonnement. En adresse, der står ude i en butik, må aldrig forsvinde,
+     * fordi kunden købte NOGET MERE.
+     *
+     * For en ny kunde er tallet 1 (kolonnens standard), så den almindelige
+     * vej er uændret.
+     */
     lineItems.push({
       price: ids.monthlyPriceId,
-      quantity: 1,
+      quantity: adresserTilladt(company),
       tax_rates: [taxRate],
     });
   }

@@ -4,7 +4,11 @@ import { join } from "node:path";
 import {
   harAbonnement,
   adresseSpaerre,
+  adresserTilladt,
+  kanKoebeAdresseSelv,
+  prisPrAdresse,
   ADRESSER_PR_ABONNEMENT,
+  ADRESSER_SELVBETJENING_MAKS,
   ADRESSE_TEKSTER,
   enesteAdresse,
 } from "./abonnement";
@@ -156,6 +160,10 @@ describe("spærringerne findes, hvor de skal", () => {
  * dem på den samme adresse koster kun det, akrylen koster. Før kunne én
  * abonnent oprette ubegrænset mange adresser, så en kæde med tyve butikker
  * betalte det samme som en enkelt café.
+ *
+ * SIDEN 0034 KAN TALLET KØBES OP. `adresser_tilladt` siger, hvor mange
+ * abonnementet dækker, og en butik mere er en linje mere på det SAMME
+ * abonnement — ét login, ét stempelkort på tværs.
  */
 describe("hvor mange QR-adresser følger der med", () => {
   const pro = { product_slug: "reviewstander-pro" };
@@ -167,18 +175,64 @@ describe("hvor mange QR-adresser følger der med", () => {
     expect(adresseSpaerre(komplet, 0)).toBeNull();
   });
 
-  it("afviser den anden", () => {
-    expect(adresseSpaerre(komplet, 1)).toBe("graense-naaet");
+  it("afviser den anden — men peger på købet og ikke på en blind mur", () => {
+    expect(adresseSpaerre(komplet, 1)).toBe("kan-koebes");
   });
 
   /**
-   * DE, DER HAVDE FLERE FØR GRÆNSEN, BEHOLDER DEM. En grænse må spærre for
-   * at lave FLERE, aldrig fjerne noget, der står ude i en butik. Derfor
-   * `>=` og ikke `===`: med tre adresser skal svaret stadig være nej og
-   * ikke et hul, der lader den fjerde slippe igennem.
+   * DET KØBTE TAL GÆLDER. Har kunden betalt for to adresser, skal den anden
+   * kunne oprettes gratis — ellers ville de blive bedt om at købe noget, de
+   * lige har købt.
    */
-  it("siger stadig nej, når der er flere end grænsen i forvejen", () => {
-    expect(adresseSpaerre(komplet, 3)).toBe("graense-naaet");
+  it("lader en købt adresse blive oprettet uden at koste igen", () => {
+    const toButikker = { ...komplet, adresser_tilladt: 2 };
+    expect(adresseSpaerre(toButikker, 1)).toBeNull();
+    expect(adresseSpaerre(toButikker, 2)).toBe("kan-koebes");
+  });
+
+  /**
+   * DE, DER HAVDE FLERE FØR GRÆNSEN, BEHOLDER DEM — MEN KAN IKKE KØBE MED ET
+   * KLIK.
+   *
+   * To virksomheder nåede at oprette mere end én adresse, før grænsen kom.
+   * De beholder hver eneste af dem; en grænse må aldrig fjerne noget, der
+   * står ude i en butik. Men `adresser_tilladt` skal blive ved at svare til
+   * antallet hos Stripe (se migration 0034), og et køb ville hæve begge tal
+   * og stille dem en regning for noget, de allerede har. Derfor et menneske.
+   */
+  it("sender den, der har flere end betalt for, til os", () => {
+    expect(adresseSpaerre(komplet, 3)).toBe("kontakt-os");
+  });
+
+  /**
+   * LOFTET ER IKKE TEKNISK. Valget mellem 'én virksomhed med mange linjer'
+   * og 'en virksomhed pr. butik' afgør, om stempelkortet deles på tværs —
+   * og det kan ikke gøres om bagefter. Det spørgsmål kan et klik ikke rumme.
+   */
+  it("standser selvbetjeningen ved loftet", () => {
+    const fireKoebt = { ...komplet, adresser_tilladt: 4 };
+    expect(adresseSpaerre(fireKoebt, 4)).toBe("kan-koebes");
+
+    const vedLoftet = {
+      ...komplet,
+      adresser_tilladt: ADRESSER_SELVBETJENING_MAKS,
+    };
+    expect(adresseSpaerre(vedLoftet, ADRESSER_SELVBETJENING_MAKS)).toBe(
+      "kontakt-os",
+    );
+  });
+
+  /**
+   * LOFTET MÅLES PÅ DET BETALTE OG IKKE PÅ DET OPRETTEDE. Ellers kunne en
+   * butik, der har slettet en adresse, købe sig forbi loftet én ad gangen.
+   */
+  it("måler loftet på de linjer, der betales for", () => {
+    const vedLoftet = {
+      ...komplet,
+      adresser_tilladt: ADRESSER_SELVBETJENING_MAKS,
+    };
+    // Færre oprettede end betalte: der er plads, og der skal ikke købes.
+    expect(adresseSpaerre(vedLoftet, 1)).toBeNull();
   });
 
   it("svarer på abonnementet FØR grænsen", () => {
@@ -202,11 +256,88 @@ describe("hvor mange QR-adresser følger der med", () => {
     expect(ADRESSE_TEKSTER.graenseHjaelp).toMatch(/samme side/i);
   });
 
+  /**
+   * KØBSTEKSTEN SÆLGER EN BUTIK OG IKKE EN ADRESSE — og den SKAL sige, at
+   * stempelkortet gælder på tværs. Det er hele forskellen på de to modeller,
+   * og det er dét, kunden betaler for frem for et abonnement nummer to.
+   */
+  it("siger, hvad man køber: en butik med delt stempelkort", () => {
+    expect(ADRESSE_TEKSTER.koebHjaelp).toMatch(/stempelkort/i);
+    expect(ADRESSE_TEKSTER.koebHjaelp).toMatch(/på tværs/i);
+    expect(ADRESSE_TEKSTER.koebHjaelp).toMatch(/abonnement/i);
+  });
+
+  it("forklarer, hvorfor loftet er en samtale og ikke et nej", () => {
+    expect(ADRESSE_TEKSTER.loftHjaelp).toMatch(/stempelkort/i);
+    expect(ADRESSE_TEKSTER.loftHjaelp).toMatch(/ikke laves om/i);
+  });
+
+  it("falder tilbage på én, når kolonnen ikke siger noget", () => {
+    // Kolonnen er valgfri i typen, så ældre kaldesteder og testdata ikke
+    // skal kende den. Et manglende tal betyder dét, der altid har været
+    // sandt: der følger én adresse med.
+    expect(adresserTilladt(null)).toBe(ADRESSER_PR_ABONNEMENT);
+    expect(adresserTilladt({})).toBe(ADRESSER_PR_ABONNEMENT);
+    expect(adresserTilladt({ adresser_tilladt: 0 })).toBe(
+      ADRESSER_PR_ABONNEMENT,
+    );
+    expect(adresserTilladt({ adresser_tilladt: 3 })).toBe(3);
+  });
+
+  /**
+   * PRISEN PÅ ADRESSE NR. 2 ER PRISEN PÅ ADRESSE NR. 1 — ingen mængderabat.
+   * En kæde får MERE pr. butik end den enkelte café (ét stempelkort på
+   * tværs, ét overblik), og en rabat ville sige det modsatte af det,
+   * produktet gør. Det er også dét, der gør, at købet kan være ANTALLET på
+   * den månedslinje, der allerede kører, frem for en ny vare i Stripe.
+   */
+  it("koster det samme som den første adresse", () => {
+    for (const p of PRODUCTS.filter((x) => x.monthlyPrice && !x.addon)) {
+      expect(prisPrAdresse({ product_slug: p.slug }), p.slug).toBe(
+        p.monthlyPrice,
+      );
+    }
+    expect(prisPrAdresse(basic)).toBeNull();
+    expect(prisPrAdresse(null)).toBeNull();
+  });
+
+  /**
+   * EN ABONNEMENTSVARE ER IKKE DET SAMME SOM ET ABONNEMENT HOS STRIPE.
+   *
+   * To virksomheder har en abonnementsvare, der er sat i hånden i admin,
+   * uden at der nogensinde er oprettet noget hos Stripe. For dem er der
+   * ingen linje at hæve, og en knap, der altid fejler, er værre end ingen
+   * knap. Det samme gælder et suspenderet abonnement: betalingen skal på
+   * plads, før der lægges en prorata oven i en ubetalt regning.
+   */
+  it("lader ikke en kunde uden et abonnement hos Stripe købe selv", () => {
+    const betalende = {
+      stripe_subscription_id: "sub_123",
+      stripe_status: "active",
+    };
+    expect(kanKoebeAdresseSelv(betalende)).toBe(true);
+    expect(
+      kanKoebeAdresseSelv({ ...betalende, stripe_status: "trialing" }),
+    ).toBe(true);
+
+    // Sat op i hånden: varen er der, abonnementet er ikke.
+    expect(
+      kanKoebeAdresseSelv({ stripe_subscription_id: null, stripe_status: null }),
+    ).toBe(false);
+    // Suspenderet: betalingen skal på plads først.
+    expect(
+      kanKoebeAdresseSelv({ ...betalende, stripe_status: "past_due" }),
+    ).toBe(false);
+    expect(kanKoebeAdresseSelv(null)).toBe(false);
+  });
+
   it("har et tal, der kan hæves ét sted", () => {
-    // Planen er, at en ekstra adresse bliver en linje mere på det SAMME
-    // abonnement. Så skal tallet læses fra virksomheden — og resten af
-    // mekanikken skal kunne blive stående.
+    // Starttallet: hvad der følger med, før der er købt noget til.
     expect(ADRESSER_PR_ABONNEMENT).toBe(1);
+    // Og loftet for, hvor langt kunden selv kan gå.
+    expect(ADRESSER_SELVBETJENING_MAKS).toBeGreaterThan(
+      ADRESSER_PR_ABONNEMENT,
+    );
   });
 });
 

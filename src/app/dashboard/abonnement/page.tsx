@@ -18,6 +18,7 @@ import { PlanPicker } from "./plan-picker";
 import { PortalButton } from "./portal-button";
 import { DPA_VERSION, dpaIsCurrent } from "@/lib/dpa";
 import { formatDate } from "@/lib/utils";
+import { adresserTilladt } from "@/lib/abonnement";
 
 export const metadata = { title: "Abonnement" };
 
@@ -49,7 +50,15 @@ export default async function SubscriptionPage() {
   const nuvaerende = company?.product_slug
     ? getProduct(company.product_slug)
     : undefined;
-  const betalerAllerede = nuvaerende?.monthlyPrice ?? 0;
+  /*
+   * Hvor mange QR-adresser dækker abonnementet? Prisen ganges med den —
+   * se `adresseSpaerre()` i src/lib/abonnement.ts. Sammenligningen med et
+   * større abonnement bruger SAMME tal i begge ender, så "det koster X
+   * mere" stadig passer for en kæde: adresserne følger med opgraderingen
+   * (se `quantity` i /api/checkout).
+   */
+  const antalAdresser = adresserTilladt(company);
+  const betalerAllerede = (nuvaerende?.monthlyPrice ?? 0) * antalAdresser;
   // Stempelkort følger PRODUKTET, ikke niveauet — Komplet og Pro er samme plan.
   const harStempelkort = hasLoyaltyAccess(company?.product_slug);
 
@@ -73,9 +82,19 @@ export default async function SubscriptionPage() {
         <p className="mt-1 text-2xl font-bold tracking-tight">
           {nuvaerende?.name ?? TIER_LABELS[plan]}
         </p>
+        {/*
+          BELØBET SKAL VÆRE DÉT, DER TRÆKKES. Månedsprisen er prisen PR.
+          QR-ADRESSE, og en kunde med to butikker betaler to gange. Stod
+          varens pris alene, ville siden sige 399, mens kontoudskriften sagde
+          798 — og det er kundens egen abonnementsside, altså netop stedet,
+          hvor tallet skal kunne genkendes.
+        */}
         {nuvaerende?.monthlyPrice ? (
           <p className="mt-0.5 text-sm text-muted">
-            {formatCurrency(nuvaerende.monthlyPrice)}/md
+            {formatCurrency(nuvaerende.monthlyPrice * antalAdresser)}/md
+            {antalAdresser > 1
+              ? ` · ${formatCurrency(nuvaerende.monthlyPrice)} pr. QR-adresse × ${antalAdresser}`
+              : null}
           </p>
         ) : null}
 

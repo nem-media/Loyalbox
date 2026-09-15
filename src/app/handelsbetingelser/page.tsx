@@ -22,6 +22,8 @@ import {
   SKIFT_VARSEL_MAANEDER,
   SKIFT_OVERGANG_DAGE,
   SKIFT_HENTEPERIODE_DAGE,
+  ADRESSER_PR_ABONNEMENT,
+  ADRESSER_SELVBETJENING_MAKS,
 } from "@/lib/abonnement";
 
 /**
@@ -121,6 +123,26 @@ export default function TermsPage() {
             Køber du flere standere, falder prisen pr. stander: {rabatter}.
             Rabatten beregnes automatisk. Der kan bestilles op til {MAX_QTY}{" "}
             standere ad gangen — skal du bruge flere, så skriv til os.
+          </p>
+          <p>
+            Abonnementet dækker{" "}
+            {ADRESSER_PR_ABONNEMENT === 1
+              ? "én QR-adresse"
+              : `${ADRESSER_PR_ABONNEMENT} QR-adresser`}{" "}
+            — altså ét sted med sin egen side, sin egen statistik og sit eget
+            link. Du kan sætte lige så mange skilte op på den adresse, du vil.
+            Har du flere butikker, og skal hver af dem have sin egen adresse,
+            lægges de til på det samme abonnement til samme månedspris pr.
+            adresse. Du kan selv tilføje op til{" "}
+            {ADRESSER_SELVBETJENING_MAKS} adresser i dit dashboard; derover
+            aftaler vi opsætningen med dig først.
+          </p>
+          <p>
+            Tilføjer du en adresse midt i en måned, betaler du samme dag for
+            de resterende dage frem til næste trækdato, og fra da af dækker
+            det månedlige beløb alle dine adresser. Et nyt skilt til den nye
+            adresse købes med og betales samtidig — en QR-kode er trykt, så
+            en ny adresse kræver et nyt skilt.
           </p>
         </LegalSection>
 
