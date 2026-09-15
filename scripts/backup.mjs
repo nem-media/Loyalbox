@@ -52,6 +52,13 @@ const TABELLER = [
   "drift_log",
   // Står alene (kun farve+antal), ingen fremmednøgler — rækkefølgen er ligegyldig.
   "stand_lager",
+  // Ét tidspunkt pr. opgavenavn, ingen fremmednøgler. Den er strengt taget
+  // øjebliksdata, som en gendannelse ikke har brug for — men reglen "hver
+  // eneste tabel eksporteres" er mere værd end at spare en linje, og en
+  // undtagelsesliste ville før eller siden blive brugt til noget, der betød
+  // noget. Det værste, en gendannet række kan koste, er en alarm, der
+  // holdes tilbage i op til en time.
+  "alarm_daempning",
   // Herunder: peger kun på companies (og admin_log desuden på users), så de
   // kan lægges tilbage til sidst.
   "subscriptions",
