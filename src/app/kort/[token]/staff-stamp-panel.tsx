@@ -9,13 +9,32 @@ import { Button } from "@/components/ui/button";
  * besøgende er logget ind som personale for kortets virksomhed — kunder og
  * anonyme ser aldrig denne knap. Selve rettighedstjekket sker server-side i
  * `stampByToken`; dette er blot UI'et.
+ *
+ * REFERENCEN GØR DOBBELT-INDSENDELSE UFARLIG. `service.ts` har fra begyndelsen
+ * lovet, at "dobbelt-submit ikke giver dobbelt stempel" — men løftet hviler på
+ * et unikt indeks over `(membership_id, reference)`, og netop DENNE vej, som er
+ * den, personalet bruger ved disken, sendte ingen reference. Knappen er
+ * ganske vist spærret, mens den arbejder, men det dækker kun ét klik i én
+ * fane: en gensendt POST efter en netværkshikke, en genindlæsning med
+ * formulardata eller to faner på samme kort gik lige igennem.
+ *
+ * NØGLEN LAVES PÅ SERVEREN og gives med som en prop. Den må hverken komme fra
+ * `useId()`, som er den samme for alle, der har siden åben (to medarbejdere på
+ * hver sin telefon ville dele nøgle, og den enes stempel ville stiltiende blive
+ * slugt som et gentaget), eller fra `crypto.randomUUID()` i komponenten, som
+ * ville give server og browser hver sin værdi. Siden er `force-dynamic`, så
+ * hver visning får sin egen — og efter et stempel gentegner `revalidatePath`
+ * siden med en ny, så næste stempel går igennem af sig selv.
  */
 export function StaffStampPanel({
   token,
   membershipId,
+  reference,
 }: {
   token: string;
   membershipId: string;
+  /** Idempotensnøgle for netop denne visning af kortet. Laves på serveren. */
+  reference: string;
 }) {
   const [state, action, pending] = useActionState<StampByTokenState, FormData>(
     stampByToken,
@@ -29,6 +48,7 @@ export function StaffStampPanel({
     >
       <input type="hidden" name="token" value={token} />
       <input type="hidden" name="membership_id" value={membershipId} />
+      <input type="hidden" name="reference" value={reference} />
       <div className="flex items-center justify-between gap-3">
         <span className="text-xs font-medium uppercase tracking-wide text-muted">
           Personale

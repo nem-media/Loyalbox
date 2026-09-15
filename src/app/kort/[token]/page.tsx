@@ -204,7 +204,12 @@ export default async function CardPage({
                 </p>
               )}
               {canStampHere ? (
-                <StaffStampPanel token={token} membershipId={ms.id} />
+                <StaffStampPanel
+                  token={token}
+                  membershipId={ms.id}
+                  /* Idempotensnøgle pr. visning — se panelets eget hoved. */
+                  reference={`kort-${crypto.randomUUID()}`}
+                />
               ) : null}
               {canRedeemHere
                 ? rewardsForMs.map((cr) => (

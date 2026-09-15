@@ -291,6 +291,19 @@ export async function stampByToken(
   const membershipId = str(formData.get("membership_id"));
   if (!token || !membershipId) return { error: "Ugyldigt kort." };
 
+  /*
+   * IDEMPOTENSNØGLEN, som gør en gensendt formular til det samme stempel og
+   * ikke til ét mere. Den laves på serveren ved hver visning af kortet — se
+   * `StaffStampPanel`. Den begrænses i længde af samme grund som alle andre
+   * felter, vi tager imod: ingen kolonne i basen har en, og feltet kommer fra
+   * en formular, som kan sendes uden om vores egen side.
+   *
+   * ER DEN TOM, STEMPLES DER STADIG. Nøglen er en beskyttelse mod et uheld,
+   * ikke en autorisation, og en manglende nøgle må aldrig koste kunden det
+   * stempel, de står og venter på ved disken.
+   */
+  const reference = begraens(formData.get("reference"), 80) || null;
+
   const admin = createAdminClient();
 
   // Token → medlem. Kortet skal tilhøre personalets egen virksomhed.
@@ -327,6 +340,7 @@ export async function stampByToken(
     stamps: 1,
     type: "stamp_manual",
     source: "staff",
+    reference,
   });
   if (!result.ok) return { error: result.error };
 
