@@ -11,6 +11,7 @@ import {
   maaKnyttesAutomatisk,
 } from "@/lib/loyalty/member-account";
 import { giveStamp, redeemReward } from "@/lib/loyalty/service";
+import { begraens, TEKST_MAKS } from "@/lib/tekstgraenser";
 import {
   kortLinkMail,
   KORT_LINK_KARANTAENE_MINUTTER,
@@ -68,7 +69,7 @@ export async function selfEnroll(
   formData: FormData,
 ): Promise<EnrollState> {
   const slug = str(formData.get("slug"));
-  const name = str(formData.get("name"));
+  const name = begraens(formData.get("name"), TEKST_MAKS.navn);
   const email = str(formData.get("email"));
   const phone = str(formData.get("phone"));
 

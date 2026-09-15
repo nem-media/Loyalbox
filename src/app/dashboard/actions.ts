@@ -15,6 +15,7 @@ import {
   EGEN_PLATFORM_NAVN_MAKS,
 } from "@/lib/stands";
 import { adresseSpaerre, ADRESSE_TEKSTER } from "@/lib/abonnement";
+import { begraens, TEKST_MAKS } from "@/lib/tekstgraenser";
 import type { CompanyPlan, DestinationType } from "@/lib/types/database";
 
 export interface FormResult {
@@ -44,7 +45,7 @@ export async function updateCompany(
   const user = await getCurrentUser();
   if (!user?.company) return { error: "Ingen virksomhed fundet." };
 
-  const name = String(formData.get("name") ?? "").trim();
+  const name = begraens(formData.get("name"), TEKST_MAKS.navn);
   if (!name) return { error: "Firmanavn er påkrævet." };
 
   /**
@@ -81,10 +82,10 @@ export async function updateCompany(
       cvr: cvrRaw ? normaliserCvr(cvrRaw) : null,
       contact_email: String(formData.get("contact_email") ?? "").trim() || null,
       phone: String(formData.get("phone") ?? "").trim() || null,
-      address: String(formData.get("address") ?? "").trim() || null,
+      address: begraens(formData.get("address"), TEKST_MAKS.adresse) || null,
       postnummer: postnummerRaw || null,
       by: String(formData.get("by") ?? "").trim() || null,
-      kontaktperson: String(formData.get("kontaktperson") ?? "").trim() || null,
+      kontaktperson: begraens(formData.get("kontaktperson"), TEKST_MAKS.navn) || null,
       // `stand_text` skrives IKKE længere. Feltet "Ønsket tekst på
       // standeren" var write-only: det blev gemt her og læst af ingenting.
       // Standerens udseende afgøres i designflowet (`designs`: farve, front,
@@ -193,7 +194,7 @@ export async function createStand(
     };
   }
 
-  const name = String(formData.get("name") ?? "").trim();
+  const name = begraens(formData.get("name"), TEKST_MAKS.navn);
   if (!name) return { error: "Giv standeren et navn." };
 
   const supabase = await createClient();
@@ -290,7 +291,7 @@ export async function updateStand(
           String(formData.get("trustpilot_url") ?? "").trim() || null,
         facebook_url: String(formData.get("facebook_url") ?? "").trim() || null,
         custom_url: String(formData.get("custom_url") ?? "").trim() || null,
-        custom_label: String(formData.get("custom_label") ?? "").trim() || null,
+        custom_label: begraens(formData.get("custom_label"), TEKST_MAKS.etiket) || null,
         egne_platforme: egnePlatforme,
       }
     : { destination_type: "google" as DestinationType };
@@ -299,7 +300,7 @@ export async function updateStand(
   const { error } = await supabase
     .from("stands")
     .update({
-      name: String(formData.get("name") ?? "").trim() || "Stander",
+      name: begraens(formData.get("name"), TEKST_MAKS.navn) || "Stander",
       google_review_url:
         String(formData.get("google_review_url") ?? "").trim() || null,
       is_active: formData.get("is_active") === "on",

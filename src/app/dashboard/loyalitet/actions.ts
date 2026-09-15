@@ -20,6 +20,7 @@ import type {
   DiscountType,
   DiscountStatus,
 } from "@/lib/loyalty/constants";
+import { begraens, TEKST_MAKS } from "@/lib/tekstgraenser";
 
 export interface FormResult {
   ok?: boolean;
@@ -60,7 +61,7 @@ export async function createProgram(
     return { error: "Stempelkort er ikke med i dit abonnement." };
   }
 
-  const name = str(formData.get("name"));
+  const name = begraens(formData.get("name"), TEKST_MAKS.navn);
   if (!name) return { error: "Giv stempelkortet et navn." };
 
   const requiredStamps = int(formData.get("required_stamps"), 10);
@@ -91,7 +92,7 @@ export async function createProgram(
       keep_overflow: bool(formData.get("keep_overflow")),
       color: str(formData.get("color")) || "#1e1c1a",
       icon: str(formData.get("icon")) || "star",
-      card_text: str(formData.get("card_text")) || null,
+      card_text: begraens(formData.get("card_text"), TEKST_MAKS.kortTekst) || null,
       max_stamps_per_txn: Math.max(1, int(formData.get("max_stamps_per_txn"), 1)),
       max_stamps_per_day: numOrNull(formData.get("max_stamps_per_day")) ?? null,
       min_minutes_between: Math.max(0, int(formData.get("min_minutes_between"), 0)),
@@ -107,7 +108,8 @@ export async function createProgram(
   }
 
   if (rewardType !== "none") {
-    const rewardName = str(formData.get("reward_name")) || "Belønning";
+    const rewardName =
+      begraens(formData.get("reward_name"), TEKST_MAKS.navn) || "Belønning";
     const { error: rewardErr } = await supabase.from("loyalty_rewards").insert({
       company_id: access.companyId,
       program_id: program.id,
@@ -151,7 +153,7 @@ export async function updateProgram(
   const id = str(formData.get("id"));
   if (!id) return { error: "Ukendt stempelkort." };
 
-  const name = str(formData.get("name"));
+  const name = begraens(formData.get("name"), TEKST_MAKS.navn);
   if (!name) return { error: "Giv stempelkortet et navn." };
 
   const requiredStamps = int(formData.get("required_stamps"), 10);
@@ -167,7 +169,7 @@ export async function updateProgram(
     .update({
       name,
       internal_name: str(formData.get("internal_name")) || null,
-      card_text: str(formData.get("card_text")) || null,
+      card_text: begraens(formData.get("card_text"), TEKST_MAKS.kortTekst) || null,
       earn_model: earnModel,
       stamps_per_earn: Math.max(1, int(formData.get("stamps_per_earn"), 1)),
       amount_per_stamp:
@@ -216,7 +218,7 @@ export async function updateProgram(
     const rewardFelter = {
       company_id: access.companyId,
       program_id: id,
-      name: str(formData.get("reward_name")) || "Belønning",
+      name: begraens(formData.get("reward_name"), TEKST_MAKS.navn) || "Belønning",
       description: str(formData.get("reward_description")) || null,
       type: rewardType,
       value: numOrNull(formData.get("reward_value")),
@@ -268,7 +270,7 @@ export async function enrollMember(
   const access = await getCompanyAccess();
   if (!access) return { error: "Du har ikke adgang." };
 
-  const name = str(formData.get("name"));
+  const name = begraens(formData.get("name"), TEKST_MAKS.navn);
   const email = str(formData.get("email"));
   const phone = str(formData.get("phone"));
   const programId = str(formData.get("program_id"));
@@ -427,7 +429,7 @@ export async function createDiscount(
   if (!(await loyaltyInPlan(access.companyId))) {
     return { error: "Rabatter er en del af LoyalSum Komplet." };
   }
-  const name = str(formData.get("name"));
+  const name = begraens(formData.get("name"), TEKST_MAKS.navn);
   if (!name) return { error: "Giv rabatten et navn." };
 
   const supabase = await createClient();

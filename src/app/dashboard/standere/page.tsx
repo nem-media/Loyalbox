@@ -184,8 +184,15 @@ export default async function StandsPage() {
           Den generelle boks lavede en ordre uden at sige, hvilken QR-adresse
           skiltet skulle trykkes med — og et skilt uden en QR er ingenting.
           Hver stander har sin egen vej ind via "Tilpas og bestil skilt". */}
+      {/* `grid-cols-1` ER IKKE PYNT — DEN KLEMMER SPORET.
+          Uden den er den implicitte kolonne `auto`, og et gitterelement har
+          `min-width: auto`: kortet kan ikke skrumpe under sit indholds
+          min-bredde, og med en `truncate`-overskrift (white-space: nowrap) er
+          den bredde stor. Målt på en telefon i 375 px blev kortet 442 px, og
+          HELE siden fik vandret scroll. `sm:grid-cols-2` har problemet ikke,
+          fordi Tailwind udskriver den som `minmax(0, 1fr)`. */}
       {stands && stands.length ? (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {stands.map((s) => (
             /* Hele kortet er stadig ét link, men "Tilpas" står nu skrevet.
                Et kort, der bare bliver lidt grønt i kanten ved hover, kan

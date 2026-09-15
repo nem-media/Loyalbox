@@ -71,8 +71,13 @@ export async function DesignListe({ companyId }: { companyId: string }) {
     );
   }
 
+  /*
+   * `grid-cols-1`: se kommentaren i standere/page.tsx. Designkortet har en
+   * truncate-overskrift og en fast forhåndsvisning, og uden et klemt spor kan
+   * det ikke skrumpe ned i en telefons bredde.
+   */
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       {designs.map((d) => {
         const front = designFrontfarve(d);
         return (
