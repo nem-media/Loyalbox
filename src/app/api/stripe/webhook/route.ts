@@ -535,13 +535,77 @@ export async function POST(request: NextRequest) {
          * Findes ordren slet ikke, er der ikke noget at bekræfte. Det er en
          * anomali, så den noteres frem for at gå stille forbi.
          */
-        const foersteGang = ordreDest?.status === "new";
         if (!ordreDest) {
           after(() =>
             noterFejl(
               "stripe-webhook",
               `Betaling uden ordrerække: ${session.id}`,
             ),
+          );
+        }
+
+        /*
+         * ORDREN MARKERES BETALT — OG DET ER HER, FØRSTE GANG AFGØRES.
+         *
+         * `foersteGang` stod før som `ordreDest?.status === "new"`, altså et
+         * opslag fra tidligere i behandlingen, mens selve opdateringen lå
+         * længere nede og var UBETINGET. Mellem de to ligger flere
+         * databasekald og et Stripe-opslag, så to leverancer af samme
+         * hændelse kunne begge læse `new` og begge kalde sig den første —
+         * med en kundebekræftelse og et lagertræk hver. Stripe leverer
+         * "mindst én gang" og gentager, hvis vi ikke når at svare.
+         *
+         * `.eq("status", "new")` gør opdateringen til den overgang, den hele
+         * tiden var ment som, og `select` fortæller, hvem der vandt. Samme
+         * greb som ved indløsningen af en belønning og ved adressekøbet.
+         *
+         * OPDATERINGEN ER FLYTTET OP FØR kundeforholdet nedenfor. Det er ikke
+         * kosmetik: den lå efter en `if/else if`-kæde, hvor et enkelt `break`
+         * i en gren engang sprang forbi den og efterlod hver eneste
+         * abonnementsordre som "aldrig betalt". Ligger den før, kan den slags
+         * ikke ske igen — og varslet kan stadig registreres, før noget som
+         * helst andet kan gå galt.
+         *
+         * ALLE FELTERNE SKRIVES I SAMME OPDATERING, så en ordre aldrig kan stå
+         * som betalt uden leveringsadresse: enten vandt man og skrev det hele,
+         * eller også gjorde en anden leverance det.
+         */
+        const { data: opdateretOrdre, error: ordreFejl } = await admin
+          .from("orders")
+          .update({
+            // Betalt ordre går videre til onboarding — det er næste skridt i
+            // produktionsflowet, og admin-oversigten tæller netop dem.
+            status: "needs_onboarding",
+            stripe_payment_intent: await paymentIntentFor(session),
+            // Adressen gemmes HER og ikke ved bestillingen: den indsamles først
+            // hos Stripe. Uden den kan ordren ses i admin, men ikke pakkes.
+            leveringsadresse: leveringsadresse(session),
+            // Modtageren hører til adressen og gemmes samme sted og samme
+            // gang — ellers ville halvdelen af pakkelabelen være et bilag og
+            // den anden halvdel et opslag i profilen.
+            leveringsnavn: leveringsnavn(session),
+            kontakt_email: session.customer_details?.email ?? undefined,
+          })
+          .eq("stripe_session_id", session.id)
+          .eq("status", "new")
+          .select("id");
+
+        const foersteGang = Boolean(opdateretOrdre?.length);
+
+        /*
+         * NUL RÆKKER ER TO FORSKELLIGE TING, OG KUN DEN ENE ER EN FEJL.
+         *
+         * Er ordren allerede flyttet videre, er dette Stripe, der prøver igen
+         * — helt normalt, og præcis dét spærren skal fange. Alarmen gælder
+         * kun, når ordren FINDES og stadig står som ubetalt: så er pengene
+         * hjemme, uden at vores egen base ved det.
+         */
+        const alleredeBehandlet =
+          Boolean(ordreDest) && ordreDest?.status !== "new";
+        if (ordreFejl || (!foersteGang && ordreDest && !alleredeBehandlet)) {
+          await noterFejl(
+            "stripe-webhook",
+            `Betalt ordre blev ikke markeret betalt (session ${session.id}): ${ordreFejl?.message ?? "ingen rækker ramt"}`,
           );
         }
 
@@ -624,52 +688,19 @@ export async function POST(request: NextRequest) {
         }
 
         /*
-         * ORDREN MARKERES BETALT — for ALLE tre udfald ovenfor.
-         *
-         * `select("id")` er ikke pynt: en `update` mod PostgREST svarer glad,
-         * når den rammer nul rækker, og det var netop en stille nul-rammer,
-         * der gjorde fejlen usynlig. Pengene ER hjemme på dette tidspunkt, så
-         * en ordre, vi ikke kan finde, skal råbe op.
-         */
-        const { data: opdateretOrdre, error: ordreFejl } = await admin
-          .from("orders")
-          .update({
-            // Betalt ordre går videre til onboarding — det er næste skridt i
-            // produktionsflowet, og admin-oversigten tæller netop dem.
-            status: "needs_onboarding",
-            stripe_payment_intent: await paymentIntentFor(session),
-            // Adressen gemmes HER og ikke ved bestillingen: den indsamles først
-            // hos Stripe. Uden den kan ordren ses i admin, men ikke pakkes.
-            leveringsadresse: leveringsadresse(session),
-            // Modtageren hører til adressen og gemmes samme sted og samme
-            // gang — ellers ville halvdelen af pakkelabelen være et bilag og
-            // den anden halvdel et opslag i profilen.
-            leveringsnavn: leveringsnavn(session),
-            kontakt_email: session.customer_details?.email ?? undefined,
-          })
-          .eq("stripe_session_id", session.id)
-          .select("id");
-
-        if (ordreFejl || !opdateretOrdre?.length) {
-          await noterFejl(
-            "stripe-webhook",
-            `Betalt ordre blev ikke markeret betalt (session ${session.id}): ${ordreFejl?.message ?? "ingen rækker ramt"}`,
-          );
-        }
-
-        /*
          * TRÆK STANDERNE FRA DET INTERNE LAGER — kun FØRSTE gang.
          *
-         * `foersteGang` (ordren stod som `new`) er samme idempotens-signal som
-         * kundebekræftelsen: en gentaget webhook fra Stripe rammer en ordre,
-         * der allerede er `needs_onboarding`, og trækker derfor ikke igen.
+         * `foersteGang` er samme idempotens-signal som kundebekræftelsen, og
+         * det er nu dét, at DENNE leverance vandt den betingede opdatering —
+         * ikke at ordren så ubetalt ud et stykke tid inden. En gentaget
+         * webhook fra Stripe rammer nul rækker og trækker derfor ikke igen.
          *
          * Lageret er kun vejledende: fejler trækket, LOGGES det og købet står
          * ved magt — pengene er hjemme, og et skævt lagertal er en manuel
          * rettelse værd, ikke en fejl til Stripe (der bare ville prøve igen).
          * Antallet må gå i minus; vi sælger videre, selv når hylden er tom.
          */
-        if (foersteGang && opdateretOrdre?.length) {
+        if (foersteGang) {
           try {
             await traekLagerForOrdre(admin, {
               design_id: ordreDest?.design_id ?? null,
@@ -706,7 +737,42 @@ export async function POST(request: NextRequest) {
 
       case "customer.subscription.updated":
       case "customer.subscription.deleted": {
-        const sub = event.data.object;
+        /*
+         * ABONNEMENTET HENTES FRISKT — NYTTELASTEN ER ET ØJEBLIKSBILLEDE.
+         *
+         * Stripe garanterer ikke, at hændelser leveres i den rækkefølge, de
+         * er skabt i: en leverance, der fejlede, prøves igen bagefter, og så
+         * kan en ÆLDRE `subscription.updated` lande efter en nyere. Skriver
+         * vi direkte fra nyttelasten, betyder det to ting, der begge er
+         * tavse og begge rammer penge:
+         *
+         *  - `adresser_tilladt` kunne sættes TILBAGE, så en kunde, der lige
+         *    har betalt for butik nr. 2, får „kontakt os" på den — uden at
+         *    noget fejlede nogen steder.
+         *  - et forældet `active` kunne lande efter et `past_due` og både
+         *    ophæve suspensionen og nulstille de seks måneder, som hele
+         *    ophørsmodellen hviler på.
+         *
+         * Ét opslag gør rækkefølgen ligegyldig: vi skriver altid det, der ER
+         * sandt hos Stripe lige nu. Det koster et kald på en hændelse, der
+         * sker sjældent, og det er samme regel, `/admin/abonnenter` allerede
+         * følger — Stripe er sandheden om penge, og et gemt tal er kun så
+         * friskt som den seneste webhook.
+         *
+         * KAN DET IKKE HENTES, SVARER VI 500 og lader Stripe prøve igen.
+         * Alternativet var at handle på data, vi netop har mistillid til.
+         */
+        let sub: Stripe.Subscription;
+        try {
+          sub = await stripe().subscriptions.retrieve(event.data.object.id);
+        } catch (err) {
+          await noterFejl(
+            "stripe-webhook",
+            `Kunne ikke hente abonnement ${event.data.object.id} friskt: ${(err as Error).message}`,
+          );
+          return NextResponse.json({ error: "kunne ikke hente" }, { status: 500 });
+        }
+
         const slug = sub.metadata?.product_slug;
 
         /*

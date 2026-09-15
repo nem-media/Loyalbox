@@ -60,6 +60,24 @@ function betalingsGrenen(): string {
   return krop;
 }
 
+/**
+ * Grenen UDEN kommentarer.
+ *
+ * EN KILDEPRØVE MÅ IKKE KUNNE BESTÅ PÅ EN KOMMENTAR. Filen her er tæt
+ * kommenteret, og flere af kommentarerne citerer med vilje netop den kode, de
+ * forklarer — `.eq("status", "new")` står ordret i begrundelsen lige over
+ * kaldet. En prøve, der leder efter det mønster i den rå tekst, ville derfor
+ * bestå, også hvis kaldet selv blev slettet, og forklaringen blev stående.
+ *
+ * Opdaget ved at sabotere koden med vilje og se prøven bestå alligevel. Det er
+ * dén kontrol, der afgør, om en kildeprøve er værd at have.
+ */
+function betalingsGrenenUdenKommentarer(): string {
+  return betalingsGrenen()
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/(^|[^:])\/\/.*$/gm, "$1");
+}
+
 describe("sessionErBetalt", () => {
   it("tager de to statusser, hvor der ikke er noget at vente på", () => {
     expect(sessionErBetalt("paid")).toBe(true);
@@ -89,30 +107,77 @@ describe("webhooken markerer ordren betalt ad alle veje", () => {
     expect(ordreOpdatering, "ordreopdateringen er væk").toBeGreaterThan(-1);
   });
 
-  it("opdaterer ordren EFTER kundeforholdet", () => {
-    // Rækkefølgen er ikke ligegyldig: `varslOmKoeb` afgør ud fra statussen
-    // `new`, om kunden allerede har fået sin bekræftelse. Flyttes
-    // opdateringen op før den, sendes bekræftelsen aldrig.
-    expect(ordreOpdatering).toBeGreaterThan(kædeStart);
+  /**
+   * VENDT OM 2026-09-15 — OG DET ER EN STRAMNING, IKKE EN LEMPELSE.
+   *
+   * Prøven krævede før, at opdateringen lå EFTER grenkæden, og vogtede så
+   * over, at der ikke stod et `break` imellem dem. Det beskyttede mod fejlen
+   * fra 21. august ved at holde øje med afstanden mellem to steder.
+   *
+   * Ligger opdateringen FØR kæden, kan et `break` i en gren slet ikke springe
+   * forbi den — så er hele fejlklassen umulig i stedet for bevogtet. Flytningen
+   * skete af en anden grund: `foersteGang` skal være resultatet af den
+   * BETINGEDE opdatering og ikke et opslag fra tidligere i behandlingen, for
+   * ellers kan to samtidige leverancer af samme hændelse begge kalde sig den
+   * første. De to hensyn peger heldigvis samme vej.
+   */
+  it("opdaterer ordren FØR kundeforholdet, så ingen gren kan springe forbi", () => {
+    expect(ordreOpdatering).toBeLessThan(kædeStart);
   });
 
-  /** DETTE ER SELVE FEJLEN. */
-  it("forlader ikke case'en undervejs i grenkæden", () => {
-    const imellem = gren.slice(kædeStart, ordreOpdatering);
-
+  /**
+   * DEN OPRINDELIGE FEJL, PRØVET FORFRA.
+   *
+   * Spørgsmålet er ikke længere, om der står et `break` mellem to steder, men
+   * om opdateringen overhovedet kan nås.
+   */
+  it("forlader ikke case'en, før ordren er markeret betalt", () => {
+    const foer = gren.slice(0, ordreOpdatering);
+    /*
+     * Den tidlige afvisning af en UBETALT session har det ene legitime
+     * `break` — dér er der med vilje ikke noget at markere endnu, for pengene
+     * er ikke faldet. Snittet begynder EFTER netop det, så prøven handler om
+     * vejen fra "betalingen er bekræftet" til "ordren er markeret".
+     */
+    const ubetalt = foer.indexOf("stripe-afventer-betaling");
+    expect(ubetalt, "afvisningen af en ubetalt session er væk").toBeGreaterThan(
+      -1,
+    );
+    const efterUbetalt = foer.slice(
+      foer.indexOf("break;", ubetalt) + "break;".length,
+    );
     expect(
-      imellem,
-      "et `break` mellem grenkæden og ordreopdateringen springer ud af hele " +
-        "case'en, og ordren bliver aldrig markeret betalt — det var fejlen fra " +
-        "21. august 2026. Brug `else if`.",
+      efterUbetalt,
+      "et `break` før ordreopdateringen springer ud af hele case'en, og ordren " +
+        "bliver aldrig markeret betalt — det var fejlen fra 21. august 2026.",
     ).not.toMatch(/\bbreak\s*;/);
   });
 
   it("bruger én if/else if-kæde og ikke løse if-blokke", () => {
-    // Den positive formulering af prøven ovenfor: falder grenene ikke sammen
-    // i én kæde, kan en fremtidig gren igen slippe uden om ordreopdateringen.
-    const imellem = gren.slice(kædeStart, ordreOpdatering);
-    expect(imellem.match(/}\s*else if \(/g)?.length ?? 0).toBe(2);
+    // De tre udfald for kundeforholdet udelukker hinanden. Løse `if`-blokke
+    // ville lade to af dem ramme samme køb.
+    const kæde = gren.slice(kædeStart);
+    expect(kæde.match(/}\s*else if \(/g)?.length ?? 0).toBeGreaterThanOrEqual(2);
+  });
+
+  /**
+   * FØRSTE GANG AFGØRES AF SKRIVNINGEN, IKKE AF ET TIDLIGERE OPSLAG.
+   *
+   * `foersteGang` stod som `ordreDest?.status === "new"` — læst mange kald
+   * tidligere, mens opdateringen var ubetinget. To leverancer af samme
+   * hændelse kunne derfor begge læse `new`, begge sende en kundebekræftelse og
+   * begge trække fra lageret. Målt mod den kørende base: tre samtidige
+   * leverancer gav tre "første gange"; med den betingede opdatering én.
+   */
+  it("afgør første gang med en betinget opdatering", () => {
+    // UDEN kommentarer: begrundelsen over kaldet citerer selv `.eq("status",
+    // "new")`, og prøven ville ellers bestå på forklaringen alene.
+    const kode = betalingsGrenenUdenKommentarer();
+    expect(kode).toMatch(/\.eq\("status",\s*"new"\)/);
+    expect(kode).toContain(
+      "const foersteGang = Boolean(opdateretOrdre?.length)",
+    );
+    expect(kode).not.toMatch(/foersteGang\s*=\s*ordreDest\?\.status/);
   });
 
   it("siger fra, når ordreopdateringen ikke rammer en række", () => {
