@@ -252,3 +252,28 @@ describe("find mit kort", () => {
     });
   }
 });
+
+/**
+ * SALGSTEKSTEN MÅ IKKE VENDE LØFTET OM.
+ *
+ * Hele kæden hviler på, at kortet virker UDEN konto: `selfEnroll()` opretter
+ * et medlem uden bruger, tokenet er adgangen, og kontoen er det frivillige
+ * lag ovenpå (`loyalty_members.user_id`, 0007). Sælger vi "alle dine kort ét
+ * sted" som et KRAV om en konto, har vi solgt et andet produkt end det, der
+ * står i koden — og modsagt "uden app · uden konto" på samme side.
+ */
+describe("kontoen er stadig frivillig i salgsteksten", () => {
+  for (const sti of ["src/app/stempelkort/page.tsx", "src/app/page.tsx"]) {
+    it(`${sti} gør ikke kontoen til et krav`, () => {
+      const s = kilde(sti);
+      expect(s, sti).not.toMatch(/kræver en konto|skal oprette en konto/i);
+    });
+  }
+
+  it("siger udtrykkeligt, at kontoen er valgfri, dér hvor den nævnes", () => {
+    const s = kilde("src/app/stempelkort/page.tsx");
+    const i = s.indexOf("Kan kunden have stempelkort hos flere butikker?");
+    expect(i).toBeGreaterThan(-1);
+    expect(s.slice(i, i + 700)).toMatch(/frivillig/i);
+  });
+});

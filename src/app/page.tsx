@@ -148,6 +148,14 @@ const NEW_CUSTOMERS = [
 const RETURNING_CUSTOMERS = [
   "Digitale stempelkort",
   "Belønninger og tilbud",
+  /*
+   * KORTET SKAL KUNNE OVERLEVE EN NY TELEFON, ellers er stemplerne kun et
+   * løfte indtil næste gang mobilen bliver skiftet. Kortet virker UDEN konto
+   * — den er det frivillige lag, der samler kortene på tværs af butikker
+   * (`/mine-kort`). Linjen siger derfor "med ét login" og ikke "kræver en
+   * konto".
+   */
+  "Alle kundens kort ét sted med ét login",
   "Privat feedback du kan handle på",
   "Stærkere kunderelationer",
   "Flere genbesøg pr. kunde",

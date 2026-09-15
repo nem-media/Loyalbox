@@ -264,6 +264,16 @@ const FAQ = [
   },
   {
     /*
+     * MÅ IKKE LOVE, AT KONTOEN ER NØDVENDIG — eller at den er automatisk.
+     * Kortet virker uden; kontoen er det frivillige lag ovenpå
+     * (`loyalty_members.user_id`, 0007), og den samler på tværs af butikker,
+     * fordi `getCardsForUser()` henter alle medlemsrækker for brugeren.
+     */
+    q: "Kan kunden have stempelkort hos flere butikker?",
+    a: "Ja. Hver forretning har sit eget kort med sine egne stempler og sin egen belønning — de blandes ikke sammen. Opretter kunden en gratis konto, ligger alle hendes kort samlet på ét sted og kan åbnes fra enhver telefon. Hun kan også nøjes med linket til det enkelte kort; kontoen er frivillig.",
+  },
+  {
+    /*
      * DET HER SPØRGSMÅL BLIVER STILLET OVER DISKEN, og indtil vi havde
      * /kort/find kunne vi ikke svare ordentligt på det: kortet KUNNE hentes
      * tilbage, men kun ved at stå i butikken. Svaret må sige begge veje — og
@@ -696,6 +706,15 @@ export default function StempelkortPage() {
                 </h3>
                 <ul className="mt-4 space-y-2 text-sm text-muted">
                   <li>Ligger på kundens telefon og kan hentes frem igen</li>
+                  {/* KONTOEN ER FRIVILLIG, og sætningen siger det. Kortet
+                      virker uden — men vælger kunden en konto, ligger kortene
+                      fra alle hendes butikker samlet, og så overlever de en
+                      ny telefon. Det er svaret på papkortets "bliver glemt
+                      eller væk" i kolonnen ved siden af. */}
+                  <li>
+                    Med en gratis konto ligger kundens kort fra alle butikker
+                    samlet — også på en ny telefon
+                  </li>
                   <li>Ingen tryk, intet oplag, ingen genoptryk</li>
                   <li>Du ændrer belønning og regler ét sted</li>
                   <li>
