@@ -22,9 +22,15 @@ import { EKSTRA_STANDER_SLUG } from "@/components/bestil-stander";
  *  - **Nyt design** — kunden har ikke bestilt før, eller vil have noget andet.
  *    Går til designeren, hvor farve, front og logo vælges.
  *  - **Genbrug et design** — kunden har allerede betalt for opsætningen af et
- *    design og skal bare have det trykt igen, nu med en anden QR-adresse.
+ *    design og skal bare have det trykt igen. SAMME QR-adresse: begge veje
+ *    herfra bærer `?stand=`, så skiltet peger på den side, kunden står på.
  *    Betaler IKKE for frontfarven igen; det sidder på designet og ikke på
  *    ordren (se `frontfarve_betalt` i design.ts).
+ *
+ * ET SKILT MERE ER IKKE EN ADRESSE MERE. Statistikken deles pr. QR-adresse
+ * (`stand_id`) og aldrig pr. skilt — tyve skilte på samme adresse tæller i
+ * samme kasse, og det er meningen. Skal to steder tælles hver for sig, er
+ * det en adresse mere, ikke et skilt mere; se `adresseSpaerre()`.
  *
  * SPÆRREN SKJULER IKKE LÆNGERE BOKSEN. Den returnerede `null` ved
  * `ikke-aabnet`, og så fordampede hele afsnittet: en kunde stod på sin egen
@@ -129,9 +135,20 @@ export async function BestilTilStander({
       {designs && designs.length ? (
         <div className="mt-6">
           <p className="etiket">Eller genbrug et design, du har</p>
+          {/*
+            "NY QR-KODE" VAR FORKERT — OG FORKERT PÅ DEN DYRE MÅDE.
+            Begge veje herfra bærer samme `?stand=`, så skiltet trykkes med
+            DENNE standers kode og peger på den side, kunden allerede har sat
+            op. Teksten lovede det modsatte, og den, der ville have to steder
+            talt hver for sig, kunne tro, at et genbestilt skilt gav dem en ny
+            adresse. Det gør det ikke: statistikken deles pr. QR-adresse
+            (`stand_id`), ikke pr. skilt — se `grupperPrAdresse()`.
+          */}
           <p className="mt-1.5 text-sm leading-relaxed text-muted">
-            Samme udseende, ny QR-kode. Har du betalt for en egen frontfarve på
-            designet, betaler du ikke for den igen.
+            Samme udseende og <strong>samme QR-kode</strong> som ovenfor, så
+            skiltet fører hen til den side, du allerede har sat op. Har du
+            betalt for en egen frontfarve på designet, betaler du ikke for den
+            igen.
           </p>
 
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
