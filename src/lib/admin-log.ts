@@ -51,7 +51,25 @@ export type AdminHandling =
    * begrundelse som resten af loggen.
    */
   | "adresse-solgt"
-  | "adresse-givet";
+  | "adresse-givet"
+  /*
+   * DE MANUELLE RETTELSER I KUNDENS EGNE DATA.
+   *
+   * `admin_log` er bygget på løftet om, at HVER manuel ændring noteres — men
+   * tre af dem gjorde det ikke, og hullet var usynligt, fordi loggen så
+   * komplet ud. Alle tre rører noget, kunden mærker:
+   *
+   *  - `virksomhed-rettet`: navn, kontaktmail, telefon og leveringsadresse.
+   *    Det er dét, en pakke sendes efter og en faktura bærer.
+   *  - `qr-maal-rettet`: hvor kundens TRYKTE QR-kode peger hen. Ændres det,
+   *    ændres noget, der står ude i en butik, og kunden har ikke bedt om det.
+   *  - `ordrestatus-skiftet`: afgør om noget bliver trykt og sendt. Det er
+   *    den linje, man vil slå op, når en kunde spørger, hvorfor skiltet
+   *    aldrig kom.
+   */
+  | "virksomhed-rettet"
+  | "qr-maal-rettet"
+  | "ordrestatus-skiftet";
 
 /** Det, hver handling hedder på skærmen. */
 export const HANDLING_TEKST: Record<AdminHandling, string> = {
@@ -63,6 +81,9 @@ export const HANDLING_TEKST: Record<AdminHandling, string> = {
   "support-adgang-lukket": "Forlod kundens dashboard",
   "adresse-solgt": "Solgte en QR-adresse mere (abonnementet hævet)",
   "adresse-givet": "Oprettede en QR-adresse uden at ændre abonnementet",
+  "virksomhed-rettet": "Rettede virksomhedens oplysninger",
+  "qr-maal-rettet": "Ændrede hvor QR-koden peger hen",
+  "ordrestatus-skiftet": "Skiftede en ordres status",
 };
 
 export interface AdminLogRaekke {
@@ -85,7 +106,15 @@ export interface AdminLogRaekke {
 export async function noterAdminHandling(opts: {
   actorId: string | null;
   actorEmail: string;
-  companyId: string;
+  /**
+   * Hvilken kunde det handler om.
+   *
+   * MÅ VÆRE NULL, præcis som kolonnen: `orders.company_id` er nullable, og en
+   * ordrestatus, der skiftes på en ordre uden virksomhed, skal stadig noteres.
+   * Signaturen krævede før en streng, hvilket ville have tvunget et `??  ""`
+   * — altså et id, der ikke findes, frem for et ærligt "vi ved det ikke".
+   */
+  companyId: string | null;
   handling: AdminHandling;
   foer?: Record<string, unknown> | null;
   efter?: Record<string, unknown> | null;

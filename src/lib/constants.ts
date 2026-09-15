@@ -1059,6 +1059,22 @@ export const DESTINATION_LABELS: Record<string, string> = {
   custom: "Eget link",
 };
 
+/**
+ * Ordrens mulige tilstande — LISTEN, ikke bare etiketterne.
+ *
+ * Den fandtes før som en løs `as const` inde i `order-status.tsx` og som en
+ * enum i basen, mens server-handlingen kastede en vilkårlig streng til
+ * `OrderStatus` uden at prøve den. Står listen ét sted, kan brugerfladen,
+ * valideringen og etiketterne ikke komme til at være uenige.
+ */
+export const ORDER_STATUSSER = [
+  "new",
+  "needs_onboarding",
+  "ready_for_production",
+  "shipped",
+  "cancelled",
+] as const;
+
 export const ORDER_STATUS_LABELS: Record<string, string> = {
   new: "Ny ordre",
   needs_onboarding: "Mangler onboarding",
