@@ -35,7 +35,7 @@ export function SelfEnrollForm({ slug }: { slug: string }) {
   return (
     <form action={action} className="space-y-4">
       <input type="hidden" name="slug" value={slug} />
-      <Field label="Navn">
+      <Field label="Navn (valgfrit)">
         <Input
           name="name"
           placeholder="Dit navn"
@@ -43,6 +43,19 @@ export function SelfEnrollForm({ slug }: { slug: string }) {
           onChange={(e) => setNavn(e.target.value)}
         />
       </Field>
+
+      {/*
+        E-MAIL ELLER TELEFON ER KRÆVET, OG SÆTNINGEN SIGER HVORFOR.
+        Det er de to felter, der kan finde kortet frem igen — navnet kan ikke.
+        Står der bare "påkrævet", ligner det endnu en butik, der vil have en
+        e-mail; står der hvad den bruges til, er der en grund til at give den.
+        Serveren afviser det samme, se `selfEnroll()`.
+      */}
+      <p className="text-sm text-muted">
+        Udfyld e-mail eller telefon. Det er dét, der gør, at du kan få kortet
+        frem igen, hvis du mister linket — også uden at oprette en konto.
+      </p>
+
       <Field label="E-mail">
         <Input
           type="email"
@@ -52,7 +65,7 @@ export function SelfEnrollForm({ slug }: { slug: string }) {
           onChange={(e) => setEmail(e.target.value)}
         />
       </Field>
-      <Field label="Telefon (valgfri)">
+      <Field label="Telefon">
         <Input
           name="phone"
           value={telefon}

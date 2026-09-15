@@ -75,8 +75,27 @@ export async function selfEnroll(
   });
 
   if (!slug) return fejl("Ugyldig stander.");
-  if (!name && !email && !phone) {
-    return fejl("Udfyld mindst dit navn, din e-mail eller dit telefonnummer.");
+
+  /*
+   * E-MAIL ELLER TELEFON ER NØGLEN TIL AT FÅ KORTET IGEN — OG DERFOR KRÆVET.
+   *
+   * Før rakte et NAVN. Det lyder venligt og var det modsatte: navnet bruges
+   * ikke til at genkende nogen (genbrugsopslaget nedenfor slår kun op på
+   * e-mail og telefon), så et kort oprettet med bare et fornavn kunne kun
+   * åbnes med den hemmelige adresse. Mistede kunden linket, var kortet og
+   * stemplerne væk — uden at nogen kunne hjælpe, heller ikke butikken.
+   *
+   * Sitet lover "uden app · uden konto", og dét løfte holder KUN, fordi man
+   * kan tilmelde sig igen med de samme oplysninger og få sit eget kort
+   * tilbage. Uden en nøgle er løftet ikke sandt.
+   *
+   * NAVNET ER STADIG FRIVILLIGT: det står på kortet og er en venlighed ved
+   * disken, men det er ikke dét, der finder kortet frem igen.
+   */
+  if (!email && !phone) {
+    return fejl(
+      "Skriv din e-mail eller dit telefonnummer — det er dét, der gør, at du kan få kortet frem igen, hvis du mister linket.",
+    );
   }
   if (!bool(formData.get("consent_terms"))) {
     return fejl("Du skal acceptere vilkårene for at oprette et stempelkort.");

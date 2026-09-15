@@ -51,6 +51,8 @@ export default async function MyCardsPage() {
                   rewardName={card.rewardName}
                   cardText={card.cardText}
                   companyName={card.companyName}
+                  startDato={card.startDato}
+                  slutDato={card.slutDato}
                 />
               ) : (
                 <div className="box-shape border border-border bg-card p-5">

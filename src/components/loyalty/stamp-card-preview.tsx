@@ -1,5 +1,7 @@
 import { stampProgress } from "@/lib/loyalty/balance";
 import { stempelKolonner } from "@/lib/loyalty/stamp-layout";
+import { gyldighed, gyldighedTekst } from "@/lib/loyalty/program-status";
+import { formatDate } from "@/lib/utils";
 
 /**
  * Visuel stempelkort-forhåndsvisning. Bruges i program-wizarden og på kundens
@@ -14,6 +16,8 @@ export function StampCardPreview({
   cardText,
   companyName,
   beholderOverskydende,
+  startDato = null,
+  slutDato = null,
 }: {
   name: string;
   color?: string;
@@ -28,12 +32,24 @@ export function StampCardPreview({
    * hvad der sker med dem — bedre end at gætte forkert på kundens vegne.
    */
   beholderOverskydende?: boolean;
+  /**
+   * Kortets datovindue (`loyalty_programs.start_date` / `end_date`).
+   *
+   * STÅR PÅ KORTET, FORDI DET ER KUNDENS LØFTE DER UDLØBER. Vinduet
+   * håndhæves i `giveStamp()`, men dén besked går til personalet ved disken —
+   * her stod der intet, og en kunde kunne samle mod en belønning, der stille
+   * løb ud. Udelades de, siges der ingenting; det er stadig det rigtige for
+   * et kort uden slutdato.
+   */
+  startDato?: string | null;
+  slutDato?: string | null;
 }) {
   const total = Math.max(1, Math.min(requiredStamps, 30));
   const p = stampProgress(filled, requiredStamps);
   // Kolonner efter antal, så et kort med fx 7 eller 9 stempler står flot
   // fordelt frem for en fyldt række med en stump under. Se stempelKolonner.
   const kolonner = stempelKolonner(total);
+  const gyldig = gyldighed({ start_date: startDato, end_date: slutDato });
 
   return (
     <div
@@ -73,6 +89,24 @@ export function StampCardPreview({
             );
           })}
         </div>
+
+        {/*
+          GYLDIGHEDEN STÅR OVER STEMPLERNE OG IKKE UNDER DEM.
+          Er kortet udløbet, er tælleren ligegyldig — så er beskeden dét, der
+          skal læses først. Og haster det, skal det ses, før øjet går videre.
+        */}
+        {gyldig ? (
+          <p
+            className={`mt-3 box-shape px-3 py-2 text-xs font-medium ${
+              gyldig.slags === "udloebet" || gyldig.slags === "snart"
+                ? "bg-white/20 text-white"
+                : "text-white/70"
+            }`}
+          >
+            {gyldig.slags === "udloebet" ? "⚠ " : null}
+            {gyldighedTekst(gyldig, formatDate(gyldig.dato))}
+          </p>
+        ) : null}
 
         <div className="mt-4 flex items-center justify-between text-sm">
           {/*
