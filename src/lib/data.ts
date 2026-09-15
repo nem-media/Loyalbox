@@ -134,22 +134,12 @@ export interface AdresseStat {
 }
 
 /**
- * DET SAMLEDE TAL SIGER IKKE HVILKEN BUTIK DER TRÆKKER DET.
+ * Rækkerne, grupperingen har brug for. Med vilje minimale.
  *
- * `getCompanyStats()` tæller alt på `company_id`, og for en kunde med flere
- * steder er svaret derfor ubrugeligt: 70 scanninger kan være 64 det ene sted
- * og 3 det andet. Det er præcis dét, en kæde vil vide.
- *
- * DER SKAL INGEN MIGRATION TIL. `scans` og `feedback` har båret `stand_id`
- * med indeks siden 0001 — der er bare aldrig blevet læst på det.
- *
- * TO FORESPØRGSLER, UANSET HVOR MANGE ADRESSER. Rækkerne hentes for
- * perioden og grupperes her; en tælling pr. adresse ville være fire kald
- * gange antallet af butikker, og en kæde med tyve ville betale for det ved
- * hver sideindlæsning. Til gengæld hentes der RÆKKER og ikke tal, så
- * vinduet skal være en periode og aldrig 'alle tider'.
+ * (Begrundelsen for hele opdelingen stod her OG over `getAdresseStats()` —
+ * samme tekst to steder, hvoraf den ene sad over det forkerte symbol. Den
+ * hører til funktionen, der henter, og står nu kun dér.)
  */
-/** Rækkerne, grupperingen har brug for. Med vilje minimale. */
 export interface AdresseRaekker {
   stands: { id: string; name: string }[];
   scans: { stand_id: string }[];
@@ -215,32 +205,74 @@ export async function getAdresseStats(
   const supabase = await createClient();
   const nu = periodRange(period);
 
-  const [{ data: stands }, { data: scans }, { data: feedback }] =
-    await Promise.all([
-      supabase
-        .from("stands")
-        .select("id, name")
-        .eq("company_id", companyId)
-        .order("created_at", { ascending: true }),
+  /**
+   * HENT ALLE RÆKKER — POSTGREST SVARER HØJST 1000 AD GANGEN.
+   *
+   * Loftet er en indstilling på serveren (`max-rows`), ikke noget vi beder om,
+   * og det ses ikke: svaret er et helt almindeligt array, bare afkortet.
+   *
+   * MÅLT PÅ DEN KØRENDE BASE 2026-09-15: med 1274 scanninger på én virksomhed
+   * svarede tælleopslaget 1274, mens rækkeopslaget gav præcis 1000. Samme side
+   * ville altså vise **1274 i kassen øverst og 1000 fordelt på adresserne** —
+   * og fordelingen ville oven i købet være forkert på en vilkårlig måde, fordi
+   * det er tilfældigt, hvilke tusind der kom med. Et sted kunne se dødt ud,
+   * mens et andet så travlt ud.
+   *
+   * Der SKAL derfor sides igennem. Det koster kun et kald ekstra dér, hvor der
+   * faktisk er mere end tusind rækker — altså hos den kunde, hvor tallet
+   * begyndte at betyde noget. Stille kunder betaler ingenting for det.
+   *
+   * Alternativet var at tælle pr. adresse i basen, men det er fire kald gange
+   * antallet af butikker ved hver sideindlæsning — og så ville `grupperPrAdresse`
+   * ikke længere kunne prøves uden netværk.
+   */
+  const SIDE = 1000;
+  async function alle<T>(
+    byg: (fra: number, til: number) => PromiseLike<{ data: T[] | null }>,
+  ): Promise<T[]> {
+    const ud: T[] = [];
+    for (let side = 0; ; side++) {
+      const { data } = await byg(side * SIDE, (side + 1) * SIDE - 1);
+      const batch = data ?? [];
+      ud.push(...batch);
+      // Kom der mindre end en fuld side, er der ikke mere. Kom der præcis en
+      // fuld side, SKAL der spørges igen — også selv om det var den sidste.
+      if (batch.length < SIDE) return ud;
+    }
+  }
+
+  const [stands, scans, feedback] = await Promise.all([
+    supabase
+      .from("stands")
+      .select("id, name")
+      .eq("company_id", companyId)
+      .order("created_at", { ascending: true })
+      .then(({ data }) => data ?? []),
+    alle<AdresseRaekker["scans"][number]>((fra, til) =>
       supabase
         .from("scans")
         .select("stand_id")
         .eq("company_id", companyId)
         .gte("created_at", nu.from)
-        .lte("created_at", nu.to),
+        .lte("created_at", nu.to)
+        // Rækkefølgen skal være fast, ellers kan en række komme med to gange
+        // eller slet ikke, når der sides.
+        .order("id", { ascending: true })
+        .range(fra, til),
+    ),
+    alle<AdresseRaekker["feedback"][number]>((fra, til) =>
       supabase
         .from("feedback")
         .select("stand_id, rating, is_public_review_clicked")
         .eq("company_id", companyId)
         .gte("created_at", nu.from)
-        .lte("created_at", nu.to),
-    ]);
+        .lte("created_at", nu.to)
+        .order("id", { ascending: true })
+        .range(fra, til),
+    ),
+  ]);
 
-  return grupperPrAdresse({
-    stands: stands ?? [],
-    scans: scans ?? [],
-    feedback: feedback ?? [],
-  });
+  return grupperPrAdresse({ stands, scans, feedback });
 }
 export function efterAktivitet(a: AdresseStat, b: AdresseStat): number {
   return b.scans - a.scans || b.feedback - a.feedback;

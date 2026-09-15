@@ -124,20 +124,40 @@ describe("den daglige grænse måler en dansk dag", () => {
    * modulet har hele tiden regnet i dansk tid — to definitioner af "en dag" i
    * samme fil er en fejl, der venter.
    */
-  it("bruger københavnerdagen og ikke UTC", () => {
-    const i = src.indexOf("const todayStartIso");
-    const krop = src.slice(i, src.indexOf("\n};", i));
-    expect(krop).toContain("iDagDatoKoebenhavn");
-    expect(krop).not.toMatch(/toISOString\(\)\.slice\(0,\s*10\)/);
+  /**
+   * PRØVER EGENSKABEN, IKKE IMPLEMENTATIONEN.
+   *
+   * Prøven krævede før, at funktionens krop indeholdt `iDagDatoKoebenhavn` og
+   * `longOffset`. Det bandt den til ÉN måde at regne på, og den fejlede, da
+   * udregningen — helt korrekt — blev flyttet til `@/lib/dansk-dag`, hvor
+   * statistikken også skulle bruge den. En prøve, der går i stykker af en
+   * forbedring, presser til at lade være.
+   *
+   * Det, der skal holde, er at grænsen måles fra den danske dags begyndelse og
+   * ikke fra midnat UTC. Selve udregningen — sommertid, skiftedage — prøves
+   * med RIGTIGE datoer i `period.test.ts`, hvor den kan kaldes direkte.
+   */
+  it("måler fra den danske dags begyndelse og ikke fra midnat UTC", () => {
+    expect(src).toContain("dagStartKoebenhavn");
+    expect(src).toContain('from "@/lib/dansk-dag"');
+
+    /*
+     * UDEN KOMMENTARER. Begrundelsen over funktionen citerer selve fejlen
+     * (`toISOString().slice(0,10)`) for at forklare, hvad der stod før — og en
+     * prøve, der leder i den rå tekst, ville derfor fejle på forklaringen og
+     * bestå på koden. Samme fælde som i `webhook-ordrestatus.test.ts`.
+     */
+    const kode = src
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/(^|[^:])\/\/.*$/gm, "$1");
+    expect(kode).not.toMatch(/toISOString\(\)\.slice\(0,\s*10\)/);
   });
 
-  /** Sommer- og vintertid skifter forskydningen; et fast tal ville være
-   *  forkert det halve år. */
-  it("slår tidsforskydningen op frem for at hardcode den", () => {
-    const i = src.indexOf("const todayStartIso");
-    const krop = src.slice(i, src.indexOf("\n};", i));
-    expect(krop).toContain("longOffset");
-    expect(krop).not.toMatch(/\+0[12]:00"/);
+  /** Og grænsen skal faktisk bruge den. */
+  it("den daglige grænse spørger om dagens begyndelse", () => {
+    const i = src.indexOf("max_stamps_per_day != null");
+    expect(i).toBeGreaterThan(-1);
+    expect(src.slice(i, i + 500)).toContain("todayStartIso()");
   });
 });
 
