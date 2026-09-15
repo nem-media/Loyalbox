@@ -12,7 +12,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { CompanyAccess } from "@/lib/loyalty/access";
 import { stampProgress, redemptionStampDelta, type StampProgress } from "@/lib/loyalty/balance";
-import { programVindue } from "@/lib/loyalty/program-status";
+import { programVindue, iDagDatoKoebenhavn } from "@/lib/loyalty/program-status";
 import type { TxnSource, TxnType } from "@/lib/loyalty/constants";
 
 type Admin = ReturnType<typeof createAdminClient>;
@@ -34,7 +34,33 @@ export type SimpleResult =
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
-const todayStartIso = () => new Date().toISOString().slice(0, 10) + "T00:00:00.000Z";
+/**
+ * Midnat i DANSK tid, som et tidspunkt den daglige grænse kan måles fra.
+ *
+ * DER STOD FØR `new Date().toISOString().slice(0,10)`, altså midnat UTC. Om
+ * sommeren rykker det dagsskiftet til kl. 02 dansk tid, og for en forretning,
+ * der har åbent hen over midnat — en bar, en natcafé — betyder det, at den
+ * daglige grænse nulstilles MIDT i aftenen: samme kunde kan få sin ration to
+ * gange på én vagt, én gang før kl. 02 og én gang efter.
+ *
+ * Resten af modulet har hele tiden regnet i dansk tid — `programVindue()`
+ * sammenligner mod `iDagDatoKoebenhavn()` netop for ikke at tælle en dag
+ * forkert ved midnat. To definitioner af "en dag" i samme fil er en fejl, der
+ * venter på at blive fundet af en butik og ikke af os.
+ */
+const todayStartIso = (now: Date = new Date()) => {
+  const dag = iDagDatoKoebenhavn(now);
+  // Forskydningen slås OP frem for at hardcodes: Danmark er UTC+1 om vinteren
+  // og UTC+2 om sommeren, og et fast tal ville være forkert det halve år.
+  const forskydning = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Europe/Copenhagen",
+    timeZoneName: "longOffset",
+  })
+    .formatToParts(now)
+    .find((d) => d.type === "timeZoneName")!
+    .value.replace("GMT", "");
+  return `${dag}T00:00:00.000${forskydning || "+00:00"}`;
+};
 
 /** Genberegner saldo fra ledgeren og opdaterer cachen. */
 async function recompute(admin: Admin, membershipId: string): Promise<number> {
@@ -253,27 +279,49 @@ export async function giveStamp(params: GiveStampParams): Promise<StampResult> {
       const expiresAt = reward.validity_days
         ? new Date(Date.now() + reward.validity_days * 86400000).toISOString()
         : null;
-      await admin.from("customer_rewards").insert({
-        company_id: access.companyId,
-        program_id: program.id,
-        membership_id: membershipId,
-        member_id: membership.member_id,
-        reward_id: reward.id,
-        status: "available",
-        expires_at: expiresAt,
-      });
-      await admin.from("loyalty_transactions").insert({
-        company_id: access.companyId,
-        program_id: program.id,
-        membership_id: membershipId,
-        member_id: membership.member_id,
-        type: "reward_earned",
-        stamps: 0,
-        source: "system",
-        reward_id: reward.id,
-      });
-      rewardEarned = true;
-      rewardName = reward.name;
+      /*
+       * OPSLAGET OVENFOR ER IKKE REGLEN — INDEKSET ER (migration 0038).
+       *
+       * To samtidige stempler læser begge "ingen udestående belønning", før
+       * nogen af dem har skrevet, og udsteder hver sin. Målt på demodata: to
+       * gratis kaffe på ét kort. `customer_rewards_en_udestaaende_idx` gør
+       * "kun én ad gangen" til noget databasen afgør, og så er `23505` her
+       * ikke en fejl, men svaret: en anden anmodning nåede det først.
+       *
+       * Kunden er IKKE snydt i det tilfælde — belønningen ligger der, den er
+       * bare udstedt af den anden tråd. Derfor meldes der ikke fejl; der
+       * meldes bare, at DENNE stempling ikke var den, der udløste den.
+       */
+      const { error: rewardErr } = await admin
+        .from("customer_rewards")
+        .insert({
+          company_id: access.companyId,
+          program_id: program.id,
+          membership_id: membershipId,
+          member_id: membership.member_id,
+          reward_id: reward.id,
+          status: "available",
+          expires_at: expiresAt,
+        });
+
+      if (!rewardErr) {
+        await admin.from("loyalty_transactions").insert({
+          company_id: access.companyId,
+          program_id: program.id,
+          membership_id: membershipId,
+          member_id: membership.member_id,
+          type: "reward_earned",
+          stamps: 0,
+          source: "system",
+          reward_id: reward.id,
+        });
+        rewardEarned = true;
+        rewardName = reward.name;
+      } else if (rewardErr.code !== "23505") {
+        // Andre fejl skal kunne ses. Stemplet ER gemt, så købet står ved magt,
+        // men butikken må ikke tro, at belønningen er udstedt.
+        return { ok: false, error: "Stemplet blev gemt, men belønningen kunne ikke udstedes. Prøv igen." };
+      }
     }
   }
 
@@ -375,15 +423,41 @@ export async function redeemReward(
     return { ok: false, error: "Programmet blev ikke fundet." };
   }
 
-  // Markér indløst
-  await admin
+  /*
+   * OVERGANGEN AFGØRES AF DATABASEN, IKKE AF OPSLAGET OVENFOR.
+   *
+   * `cr.status !== "available"` er læst for et øjeblik siden, og to samtidige
+   * indløsninger passerer begge. Målt på demodata: begge tråde markerede
+   * indløst, begge skrev en `reward_redeemed`-linje, og begge nulstillede
+   * kortet med -11 — saldoen endte på **-11**. Kunden skulle så optjene elleve
+   * stempler bare for at komme tilbage til nul, og ville ikke kunne se hvorfor:
+   * `stampProgress()` klamper til nul og viser "0 af 10".
+   *
+   * `.eq("status", "available")` gør opdateringen til den betingede overgang,
+   * den hele tiden var ment som — samme greb som `.is("user_id", null)` i
+   * aktiveringen og `.eq("adresser_tilladt", foer)` i adressekøbet. Taber man
+   * kapløbet, rammes nul rækker, og så skal INTET af det følgende ske.
+   */
+  const { data: vundet, error: markErr } = await admin
     .from("customer_rewards")
     .update({
       status: "redeemed",
       redeemed_at: new Date().toISOString(),
       redeemed_by: access.employeeId,
     })
-    .eq("id", customerRewardId);
+    .eq("id", customerRewardId)
+    .eq("status", "available")
+    .select("id");
+
+  if (markErr) {
+    return { ok: false, error: "Belønningen kunne ikke indløses lige nu. Prøv igen." };
+  }
+  if (!vundet?.length) {
+    // En anden anmodning nåede det først. Beskeden er den samme, som hvis
+    // status var læst som indløst ovenfor — for kunden ved disken ER det det
+    // samme: belønningen er brugt.
+    return { ok: false, error: "Belønningen er allerede indløst." };
+  }
 
   await admin.from("loyalty_transactions").insert({
     company_id: access.companyId,

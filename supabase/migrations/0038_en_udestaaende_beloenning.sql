@@ -1,0 +1,42 @@
+-- ---------------------------------------------------------------------------
+-- 0038 — ÉN UDESTÅENDE BELØNNING PR. KORT, HÅNDHÆVET I BASEN
+--
+-- REGLEN FANDTES I FORVEJEN, DEN VAR BARE KUN EN IF-SÆTNING. `giveStamp()`
+-- slår op, om der allerede ligger en belønning med status `available`, og
+-- udsteder kun én, hvis der ikke gør. `balance.ts` bygger videre på det og
+-- forklarer de overskydende stempler med netop dén regel: "der udstedes kun ÉN
+-- udestående belønning ad gangen".
+--
+-- MEN ET OPSLAG EFTERFULGT AF EN INDSÆTTELSE ER IKKE EN REGEL. Serverfunktionen
+-- kører i mange eksemplarer, præcis som `skalOpretteFoersteStander()` og
+-- lagertrækket, og to samtidige stempler læser begge "ingen udestående" FØR
+-- nogen af dem har skrevet.
+--
+-- MÅLT, IKKE FORMODET (2026-09-15, Testcafes demodata): en testkunde på 9 af 10
+-- stempler fik to samtidige stempler efter den nøjagtige rækkefølge, koden
+-- bruger. Begge tråde udstedte en belønning. Resultatet var **to gratis kaffe
+-- på ét kort**, og saldoen gik fra 9 til 11 med to stempler.
+--
+-- DET ER IKKE NOGET, KUNDEN KAN UDLØSE — kun personale kan stemple. Det er to
+-- ansatte ved samme disk, en gensendt formular efter en netværkshikke eller et
+-- POST, der kommer to gange. Butikken opdager det som en vare, der er givet væk
+-- to gange, og har ingen måde at se hvorfor.
+--
+-- ET PARTIELT UNIKT INDEKS ER HELE KUREN. Det gælder uanset hvilken vej der
+-- skrives ad, det kan ikke glemmes i en ny kaldesti, og det koster ingenting at
+-- have. Nøjagtig samme greb som `loyalty_txn_ref_idx` i 0004, der gør
+-- referencens idempotens til en DB-garanti frem for en høflighed.
+--
+-- `where status = 'available'` er nødvendigt og ikke en optimering: en kunde
+-- SKAL kunne have mange INDLØSTE belønninger over tid. Det er kun de
+-- UDESTÅENDE, der må være én ad gangen.
+--
+-- Efterprøvet før oprettelsen: ingen række i drift har to udestående
+-- belønninger på samme kort, så indekset kan lægges på uden at fejle.
+--
+-- Kør manuelt i Supabase → SQL Editor. Idempotent.
+-- ---------------------------------------------------------------------------
+
+create unique index if not exists customer_rewards_en_udestaaende_idx
+  on public.customer_rewards (membership_id)
+  where status = 'available';
