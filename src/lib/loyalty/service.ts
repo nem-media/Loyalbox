@@ -12,7 +12,8 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { CompanyAccess } from "@/lib/loyalty/access";
 import { stampProgress, redemptionStampDelta, type StampProgress } from "@/lib/loyalty/balance";
-import { programVindue, iDagDatoKoebenhavn } from "@/lib/loyalty/program-status";
+import { programVindue } from "@/lib/loyalty/program-status";
+import { dagStartKoebenhavn } from "@/lib/dansk-dag";
 import type { TxnSource, TxnType } from "@/lib/loyalty/constants";
 
 type Admin = ReturnType<typeof createAdminClient>;
@@ -47,20 +48,14 @@ export type ActionResult = { ok: true } | { ok: false; error: string };
  * sammenligner mod `iDagDatoKoebenhavn()` netop for ikke at tælle en dag
  * forkert ved midnat. To definitioner af "en dag" i samme fil er en fejl, der
  * venter på at blive fundet af en butik og ikke af os.
+ *
+ * UDREGNINGEN LÅ HER SOM SIN EGEN og er flyttet til `@/lib/dansk-dag`, fordi
+ * statistikkens "I dag" viste sig at have præcis samme fejl — og fordi min
+ * egen første udgave tog fejl på de to dage om året, hvor uret stilles: på et
+ * døgn med 25 timer er forskydningen ved middag en anden end ved midnat, og
+ * svaret blev kl. 01:00. Ét sted, én prøve, ét svar.
  */
-const todayStartIso = (now: Date = new Date()) => {
-  const dag = iDagDatoKoebenhavn(now);
-  // Forskydningen slås OP frem for at hardcodes: Danmark er UTC+1 om vinteren
-  // og UTC+2 om sommeren, og et fast tal ville være forkert det halve år.
-  const forskydning = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Europe/Copenhagen",
-    timeZoneName: "longOffset",
-  })
-    .formatToParts(now)
-    .find((d) => d.type === "timeZoneName")!
-    .value.replace("GMT", "");
-  return `${dag}T00:00:00.000${forskydning || "+00:00"}`;
-};
+const todayStartIso = dagStartKoebenhavn;
 
 /** Genberegner saldo fra ledgeren og opdaterer cachen. */
 async function recompute(admin: Admin, membershipId: string): Promise<number> {

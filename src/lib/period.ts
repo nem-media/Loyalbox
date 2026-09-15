@@ -6,6 +6,8 @@
  * med tiden komme til at betyde noget forskelligt de to steder.
  */
 
+import { dagStartKoebenhavn } from "@/lib/dansk-dag";
+
 export type Period = "today" | "7" | "30" | "90";
 
 export const PERIODS: Period[] = ["today", "7", "30", "90"];
@@ -32,11 +34,28 @@ export function parsePeriod(value: string | undefined): Period {
     : "30";
 }
 
-export function periodRange(period: Period): { from: string; to: string } {
-  const now = new Date();
+/**
+ * "I DAG" ER BUTIKKENS DAG OG IKKE SERVERENS.
+ *
+ * Der stod før `now.toISOString().slice(0, 10) + "T00:00:00.000Z"`, altså
+ * midnat UTC. Om sommeren er det kl. 02 dansk tid, og virkningen var værst
+ * netop dér, hvor tallet bliver læst: **åbnede en cafeejer dashboardet kl.
+ * 00:30 efter lukketid, begyndte "I dag" kl. 02:00 DAGEN FØR** — så stod
+ * næsten hele gårsdagen under overskriften "I dag". I almindelig åbningstid
+ * manglede til gengæld de første to timer af døgnet, hvilket rammer enhver,
+ * der har åbent hen over midnat.
+ *
+ * Målt: kl. 00:30 dansk den 16. begyndte vinduet den 15. kl. 02:00.
+ *
+ * `now` kan gives med, så vinduerne kan prøves uden at vente på et døgnskifte.
+ */
+export function periodRange(
+  period: Period,
+  now: Date = new Date(),
+): { from: string; to: string } {
   const to = now.toISOString();
   if (period === "today") {
-    return { from: now.toISOString().slice(0, 10) + "T00:00:00.000Z", to };
+    return { from: dagStartKoebenhavn(now), to };
   }
   const days = parseInt(period, 10);
   return { from: new Date(now.getTime() - days * 86400000).toISOString(), to };
@@ -48,16 +67,22 @@ export function periodRange(period: Period): { from: string; to: string } {
  * "I dag" sammenlignes med i går og ikke med de seneste 24 timer: en café
  * sammenligner en formiddag med gårsdagens formiddag, ikke med i nat.
  */
-export function previousRange(period: Period): { from: string; to: string } {
-  const { from, to } = periodRange(period);
+export function previousRange(
+  period: Period,
+  now: Date = new Date(),
+): { from: string; to: string } {
+  const { from, to } = periodRange(period, now);
   const start = new Date(from);
 
   if (period === "today") {
-    const igaar = new Date(start.getTime() - 86400000);
-    return {
-      from: igaar.toISOString().slice(0, 10) + "T00:00:00.000Z",
-      to: from,
-    };
+    /*
+     * I GÅR ER DAGEN FØR I DANSK TID. Et døgn trukket fra dagens begyndelse
+     * lander på gårsdagens begyndelse — undtagen de to gange om året, hvor
+     * sommertiden skifter og døgnet er 23 eller 25 timer. Derfor spørges der
+     * om dagens begyndelse for et tidspunkt midt i går, frem for at regne.
+     */
+    const midtIGaar = new Date(start.getTime() - 12 * 3_600_000);
+    return { from: dagStartKoebenhavn(midtIGaar), to: from };
   }
 
   const laengde = new Date(to).getTime() - start.getTime();

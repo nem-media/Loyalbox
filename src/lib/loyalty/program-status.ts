@@ -23,13 +23,14 @@ export interface ProgramStatusFelter extends ProgramVindueFelter {
   status: string;
 }
 
-/** Dagens dato (YYYY-MM-DD) i Europe/Copenhagen. */
-export function iDagDatoKoebenhavn(now: Date = new Date()): string {
-  // en-CA formaterer som YYYY-MM-DD.
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Copenhagen",
-  }).format(now);
-}
+/*
+ * Dagens dato i dansk tid boede her, indtil to andre steder viste sig at have
+ * hver sin udgave af den — og den ene af dem regnede i UTC. Den ligger nu i
+ * `@/lib/dansk-dag` sammen med begyndelsen af dagen som tidspunkt.
+ * Genudgives herfra, så alt, der allerede henter den her, bliver ved at virke.
+ */
+export { iDagDatoKoebenhavn } from "@/lib/dansk-dag";
+import { iDagDatoKoebenhavn } from "@/lib/dansk-dag";
 
 export type Vindue = "foer" | "aktiv" | "efter";
 
