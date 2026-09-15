@@ -17,6 +17,20 @@ type Stand = Database["public"]["Tables"]["stands"]["Row"];
 
 const DESTINATIONS = ["google", "trustpilot", "facebook", "custom"] as const;
 
+/**
+ * EKSEMPLERNE I NAVNEFELTET.
+ *
+ * Stod som "Fx jameda" i begge rækker. Jameda er en TYSK lægeportal — den
+ * siger ingenting til en dansk café eller et hotel, og en pladsholder, man
+ * ikke genkender, forklarer ikke hvad feltet er til. To forskellige og
+ * velkendte navne gør samtidig noget, én ikke kan: de viser, at der er plads
+ * til mere end ét sted.
+ *
+ * Falder listen kortere end `MAKS_EGNE_PLATFORME`, bruges en neutral tekst —
+ * så kan tallet hæves uden at en række står med en tom pladsholder.
+ */
+const EGEN_PLATFORM_EKSEMPLER = ["Fx Tripadvisor.dk", "Fx Booking.com"];
+
 export function EditStand({
   stand,
   canDynamicLinks,
@@ -81,40 +95,23 @@ export function EditStand({
                 placeholder="https://facebook.com/…"
               />
             </Field>
-            <Field
-              label="Eget link (fx menukort)"
-              hint="Står på hovedsiden ved siden af “Anmeld os” — ikke blandt anmeldelsesknapperne."
-            >
-              <Input
-                name="custom_url"
-                defaultValue={stand.custom_url ?? ""}
-                placeholder="https://…"
-              />
-            </Field>
-            <Field
-              label="Tekst på eget link"
-              hint="Fx “Se menukort” eller “Booke bord”. Hovedsiden spørger “Hvad vil du gerne?”, så teksten skal kunne svare på det."
-            >
-              <Input
-                name="custom_label"
-                defaultValue={stand.custom_label ?? ""}
-                placeholder="Se menukort"
-              />
-            </Field>
           </div>
 
           {/*
-            DINE EGNE ANMELDELSESPLATFORME (0032).
+            ANDRE ANMELDELSESPLATFORME (0032).
             Google, Trustpilot og Facebook har hver sin kolonne, fordi vi
             kender deres navne. Her skriver butikken selv både navn og
-            adresse — en tandlæge vil på jameda, et værksted på en
-            brancheportal, og dem kan vi ikke forudse.
+            adresse — et hotel vil på Booking.com, en restaurant på
+            Tripadvisor, en tandlæge på en brancheportal, og dem kan vi ikke
+            forudse alle sammen.
 
-            IKKE DET SAMME SOM "eget link" ovenfor: dét er menukortet eller
-            bookingen og hedder aldrig "Anmeld os på".
+            IKKE DET SAMME SOM "eget link" NEDENFOR: dét er menukortet eller
+            bookingen og hedder aldrig "Anmeld os på". Netop derfor står de to
+            ting hver for sig nu — de blev læst som det samme, da feltet lå
+            oppe mellem anmeldelseslinkene.
           */}
           <div className="mt-6">
-            <p className="etiket">Dine egne anmeldelsesplatforme</p>
+            <p className="etiket">Andre anmeldelsesplatforme</p>
             <p className="mt-1 text-sm leading-relaxed text-muted">
               Bruger dine kunder en anden portal end Google, Trustpilot og
               Facebook? Skriv den her. De står som “Anmeld os på …” på den
@@ -135,7 +132,7 @@ export function EditStand({
                         name={`egen_navn_${i}`}
                         defaultValue={p?.navn ?? ""}
                         maxLength={EGEN_PLATFORM_NAVN_MAKS}
-                        placeholder="Fx jameda"
+                        placeholder={EGEN_PLATFORM_EKSEMPLER[i] ?? "Fx en brancheportal"}
                       />
                     </Field>
                     <Field label={`Link ${i + 1}`}>
@@ -149,6 +146,49 @@ export function EditStand({
                   </div>
                 );
               })}
+            </div>
+          </div>
+
+          {/*
+            EGET LINK STÅR FOR SIG SELV OG TIL SIDST.
+
+            Felterne lå før oppe i gitteret mellem Google-, Trustpilot- og
+            Facebook-linkene, og dét var to fejl på én gang. Dels blev de læst
+            som endnu en anmeldelsesplatform — og eget link er præcis dét
+            modsatte: det er menukortet eller bookingen, det står på
+            HOVEDsiden ved siden af “Anmeld os”, og det hedder aldrig “Anmeld
+            os på …”. Dels delte gitterets to kolonner dem op på hver sin
+            række, så adressen og teksten til den samme knap stod med et helt
+            felt imellem sig.
+
+            De hører sammen og står derfor side om side i deres eget gitter.
+          */}
+          <div className="mt-6">
+            <p className="etiket">Eget link</p>
+            <p className="mt-1 text-sm leading-relaxed text-muted">
+              Vil du sende kunden et helt andet sted hen end en anmeldelse —
+              fx menukortet eller en booking? Linket står på hovedsiden ved
+              siden af “Anmeld os” og tæller ikke som en anmeldelse.
+            </p>
+
+            <div className="mt-4 grid gap-5 sm:grid-cols-2">
+              <Field label="Eget link (fx menukort)">
+                <Input
+                  name="custom_url"
+                  defaultValue={stand.custom_url ?? ""}
+                  placeholder="https://…"
+                />
+              </Field>
+              <Field
+                label="Tekst på eget link"
+                hint="Hovedsiden spørger “Hvad vil du gerne?”, så teksten skal kunne svare på det."
+              >
+                <Input
+                  name="custom_label"
+                  defaultValue={stand.custom_label ?? ""}
+                  placeholder="Se menukort"
+                />
+              </Field>
             </div>
           </div>
         </>
