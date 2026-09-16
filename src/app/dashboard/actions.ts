@@ -16,7 +16,7 @@ import {
 } from "@/lib/stands";
 import { adresseSpaerre, ADRESSE_TEKSTER } from "@/lib/abonnement";
 import { begraens, TEKST_MAKS } from "@/lib/tekstgraenser";
-import type { CompanyPlan, DestinationType } from "@/lib/types/database";
+import type { DestinationType } from "@/lib/types/database";
 
 export interface FormResult {
   ok?: boolean;
@@ -135,8 +135,18 @@ export async function changePlan(
     };
   }
 
-  const plan = String(formData.get("plan") ?? "") as CompanyPlan;
-  if (!TIER_ORDER.includes(plan as Tier)) return { error: "Ugyldig plan." };
+  /*
+   * KONTROLLEN PRODUCERER TYPEN — DEN FØLGER IKKE EFTER EN PÅSTAND.
+   *
+   * Der stod `... as CompanyPlan` og derefter et `includes(plan as Tier)`.
+   * Tjekket var rigtigt, så der var ingen fejl her — men formen er den samme
+   * som de tretten andre steder, hvor der IKKE stod et tjek, og et `as` ser
+   * ud som en typeoplysning frem for som en påstand om noget udefra. Nu er
+   * det `TIER_ORDER`, der afgør det, og typen er en følge af kontrollen.
+   */
+  const raaPlan = String(formData.get("plan") ?? "");
+  const plan = TIER_ORDER.find((t) => t === raaPlan);
+  if (!plan) return { error: "Ugyldig plan." };
 
   const admin = createAdminClient();
   const { error } = await admin

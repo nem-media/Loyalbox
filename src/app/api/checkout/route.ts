@@ -619,7 +619,7 @@ export async function POST(request: NextRequest) {
   // sendes en stander mere. Ellers ville admin-oversigten bede om at pakke en
   // vare, kunden allerede har stående på disken.
   if (!genoptag) {
-    await admin.from("orders").insert({
+    const { error: ordreFejl } = await admin.from("orders").insert({
       company_id: company.id,
       product_name: product.name,
       product_slug: product.slug,
@@ -636,6 +636,35 @@ export async function POST(request: NextRequest) {
       frontfarve_beloeb: pricing.frontfarve,
       stripe_session_id: session.id,
     });
+
+    /*
+     * SVARET SKAL LÆSES — OG AFVISNINGEN SKAL SKE FØR BETALINGSLINKET GIVES.
+     *
+     * Indsættelsen stod uden fejltjek. Gik den galt, fik kunden alligevel sit
+     * betalingslink returneret nedenfor, betalte, og så fandtes ordren ikke:
+     * admin havde intet at pakke, og kunden havde betalt.
+     *
+     * Webhooken opdager det i dag ("Betaling uden ordrerække", #210) — men
+     * FØRST efter at pengene er taget. Her er de ikke taget endnu:
+     * checkout-sessionen er oprettet, men ingen har betalt, og en session,
+     * ingen åbner, udløber af sig selv. Derfor afvises der her.
+     *
+     * Præcis samme fejl som i `bestilUdenKonto` (#221) — i søsterkodestien.
+     */
+    if (ordreFejl) {
+      await noterFejl(
+        "checkout",
+        `Ordren kunne ikke oprettes for virksomhed ${company.id} ` +
+          `(session ${session.id}): ${ordreFejl.message}`,
+      );
+      return NextResponse.json(
+        {
+          error:
+            "Bestillingen kunne ikke gemmes. Prøv igen, eller skriv til os — du er ikke blevet opkrævet noget.",
+        },
+        { status: 500 },
+      );
+    }
   }
 
   return NextResponse.json({ url: session.url });
