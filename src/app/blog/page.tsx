@@ -15,7 +15,7 @@ export default function BlogIndexPage() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-3xl px-4 py-16">
+      <main id="indhold" className="mx-auto max-w-3xl px-4 py-16">
         <div className="mb-10">
           <p className="text-sm font-semibold text-accent">Blog</p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">

@@ -255,7 +255,7 @@ export default function ReviewstanderPage() {
       />
       <SiteHeader />
 
-      <main>
+      <main id="indhold">
         {/* ---------------------------------------------------------- hero */}
         <section className="relative isolate overflow-hidden border-b border-border bg-dark text-dark-fg">
           {/* eslint-disable-next-line @next/next/no-img-element */}

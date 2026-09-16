@@ -64,7 +64,7 @@ export default async function ProductPage({
         }}
       />
       <SiteHeader />
-      <main className="mx-auto max-w-6xl px-4 py-12 sm:py-16">
+      <main id="indhold" className="mx-auto max-w-6xl px-4 py-12 sm:py-16">
         <nav className="mb-8 text-sm text-muted">
           <Link href="/produkter" className="hover:text-foreground">
             Produkter

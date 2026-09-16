@@ -45,6 +45,33 @@ export function Label({
  *
  * `fejl` vinder over `hint`, står i rødt og har `role="alert"`, så en
  * skærmlæser siger den uden at man skal lede efter den.
+ *
+ * ETIKETTEN OMSLUTTER FELTET — DEN STOD FØR VED SIDEN AF DET.
+ *
+ * `<Label>` og feltet var søskende, uden `htmlFor` og uden omslutning. Visuelt
+ * så det rigtigt ud, og derfor kunne det stå: etiketten stod jo lige over.
+ * Programmatisk var de ikke forbundet, og det koster to ting.
+ *
+ * MÅLT PÅ TILMELDINGSSIDEN 2026-09-16 — den formular, hver eneste slutkunde
+ * møder: `name` og `email` havde kun en `placeholder` at give en skærmlæser,
+ * og **`phone` havde ingenting overhovedet**. Feltet blev annonceret uden
+ * navn. En pladsholder er heller ikke en etiket: den forsvinder, så snart der
+ * skrives i feltet, og den er netop væk, når man vil kontrollere, hvad man
+ * udfyldte.
+ *
+ * Og det rammer alle: et klik på etiketten satte ikke markøren i feltet.
+ * Etiketten er et større trykmål end feltet på en telefon, og det er dér
+ * kunderne er.
+ *
+ * DER ER 90 `Field` i tyve filer, og hver eneste har præcis ÉN kontrol
+ * indeni — efterprøvet — så en omsluttende etiket er sikker hele vejen rundt
+ * og kræver ingen id'er, der kan komme i utakt.
+ *
+ * TILBAGE STÅR: `hint` og `fejl` er ikke bundet til feltet med
+ * `aria-describedby`, og feltet får ikke `aria-invalid` ved en fejl. Det ville
+ * kræve, at `Field` klonede sit barn for at sætte attributter på det, og dét
+ * er skrøbeligt med vilkårlige børn. Fejlen siges i forvejen af sig selv via
+ * `role="alert"`.
  */
 export function Field({
   label,
@@ -59,8 +86,9 @@ export function Field({
   children: React.ReactNode;
 }) {
   return (
-    <div>
-      <Label>{label}</Label>
+    <label className="block">
+      {/* Teksten bærer etikettens udseende; selve <label> er nu beholderen. */}
+      <span className="mb-1.5 block text-sm font-medium">{label}</span>
       {children}
       {fejl ? (
         <p role="alert" className="mt-1 text-xs font-medium text-danger">
@@ -69,6 +97,6 @@ export function Field({
       ) : hint ? (
         <p className="mt-1 text-xs text-muted">{hint}</p>
       ) : null}
-    </div>
+    </label>
   );
 }

@@ -368,7 +368,7 @@ export default function StempelkortPage() {
       />
       <SiteHeader />
 
-      <main>
+      <main id="indhold">
         {/* ---------------------------------------------------------- hero */}
         {/* `overflow-hidden` er IKKE pynt: skæret bag kortet er et absolut
             felt, der stikker 4 rem ud til hver side. På en telefon ligger

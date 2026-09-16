@@ -141,7 +141,7 @@ export default async function BlogPostPage({
         />
       ) : null}
       <SiteHeader />
-      <main className="mx-auto max-w-3xl px-4 py-12 sm:py-16">
+      <main id="indhold" className="mx-auto max-w-3xl px-4 py-12 sm:py-16">
         <nav className="mb-8 text-sm text-muted">
           <Link href="/blog" className="hover:text-foreground">
             Blog

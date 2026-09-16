@@ -58,7 +58,7 @@ export default async function OrderThanksPage({
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-2xl px-4 py-20">
+      <main id="indhold" className="mx-auto max-w-2xl px-4 py-20">
         <div className="box-shape border border-accent/30 bg-accent/5 p-8 text-center">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
             Tak for din bestilling

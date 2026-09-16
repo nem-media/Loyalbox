@@ -34,7 +34,7 @@ export default function ProductsPage() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-6xl px-4 py-16">
+      <main id="indhold" className="mx-auto max-w-6xl px-4 py-16">
         <div className="mb-12 text-center">
           <p className="text-sm font-semibold text-accent">Materialer</p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">

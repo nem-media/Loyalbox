@@ -46,7 +46,7 @@ export default async function UdenKontoPage({
           `max-w-lg` gjorde den til én bane på en halv skærm. Overskriften er
           venstrestillet over gitteret frem for centreret — den hører til
           venstre spalte, hvor man begynder. */}
-      <main className="mx-auto max-w-5xl px-4 py-12 sm:py-16">
+      <main id="indhold" className="mx-auto max-w-5xl px-4 py-12 sm:py-16">
         <h1 className="text-3xl font-bold tracking-tight">
           Bestil din {product.name.toLowerCase()}
         </h1>
