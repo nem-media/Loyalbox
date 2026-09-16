@@ -21,7 +21,7 @@ export default async function MyCardsPage() {
   const cards = await getCardsForUser(user.id);
 
   return (
-    <div className="min-h-screen bg-background px-4 py-8">
+    <main id="indhold" className="min-h-screen bg-background px-4 py-8">
       <div className="mx-auto max-w-md space-y-6">
         <div>
           <h1 className="text-lg font-bold tracking-tight">Mine stempelkort</h1>
@@ -96,6 +96,6 @@ export default async function MyCardsPage() {
           <Logo image="dark" className="opacity-70" />
         </div>
       </div>
-    </div>
+    </main>
   );
 }

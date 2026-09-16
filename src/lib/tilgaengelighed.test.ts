@@ -106,6 +106,53 @@ describe("springlink", () => {
    * ikke er der, sender brugeren ingen steder — og det ses ikke, før nogen
    * prøver med et tastatur.
    */
+  /**
+   * PRØVEN HAVDE SELV HULLET, DEN SKULLE DÆKKE.
+   *
+   * Den kontrollerede kun sider, der HAVDE et `<main>` — og bestod derfor
+   * tomt for dem, der ingen havde. Målt i produktion bagefter: `/kort/find`,
+   * `/kort/tilmeld/[slug]`, `/mine-kort`, `/kort/[token]` og `/r/[slug]`
+   * havde intet `<main>` overhovedet, så springlinket pegede på et id, der
+   * ikke fandtes — netop på slutkundens egne sider.
+   *
+   * Dashboardet og admin er dækket af deres skaller (`DashboardShell`), så
+   * prøven godtager et `<main>` i en `layout.tsx` eller en shell-komponent
+   * på vejen op.
+   */
+  it("hver side har et skipmål — enten selv eller via sin skal", () => {
+    /*
+     * En `layout.tsx` giver et skipmål enten ved selv at tegne `<main>` eller
+     * ved at bruge en skal, der gør — fx `DashboardShell`. Derfor slås
+     * komponenterne op først, og layoutet tælles med, hvis det importerer en
+     * af dem.
+     */
+    const skalFiler = filer("src/components")
+      .filter((f) => /<main\b/.test(udenKommentarer(readFileSync(f, "utf8"))))
+      .map((f) => f.split(/[\\/]/).pop()!.replace(/\.tsx$/, ""));
+
+    const skaller = filer("src/app")
+      .filter((f) => /layout\.tsx$/.test(f))
+      .filter((f) => {
+        const s = udenKommentarer(readFileSync(f, "utf8"));
+        return /<main\b/.test(s) || skalFiler.some((k) => s.includes(k));
+      })
+      .map((f) => f.replace(/[\\/]layout\.tsx$/, ""));
+
+    const uden: string[] = [];
+    for (const sti of filer("src/app").filter((f) => /page\.tsx$/.test(f))) {
+      const s = udenKommentarer(readFileSync(sti, "utf8"));
+      if (/<main\b/.test(s)) continue;
+      // Dækket af en skal længere oppe i træet?
+      if (skaller.some((m) => sti.startsWith(m))) continue;
+      uden.push(sti);
+    }
+    expect(
+      uden,
+      "siden har intet <main id=\"indhold\"> og ingen skal, der giver den et " +
+        "— springlinket peger så på ingenting",
+    ).toEqual([]);
+  });
+
   it("hver <main> bærer id=\"indhold\"", () => {
     const uden: string[] = [];
     let antal = 0;

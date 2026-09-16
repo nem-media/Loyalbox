@@ -139,7 +139,7 @@ export default async function CardPage({
   const qr = await qrDataUrl(`${getSiteUrl()}/kort/${token}`);
 
   return (
-    <div className="min-h-screen bg-background px-4 py-8">
+    <main id="indhold" className="min-h-screen bg-background px-4 py-8">
       <div className="mx-auto max-w-md space-y-6">
         {/* Virksomhed */}
         <div className="flex items-center gap-3">
@@ -372,6 +372,6 @@ export default async function CardPage({
           <Logo image="dark" className="opacity-70" />
         </div>
       </div>
-    </div>
+    </main>
   );
 }

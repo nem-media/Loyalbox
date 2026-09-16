@@ -41,7 +41,7 @@ export default async function EnrollCardPage({
     .maybeSingle();
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-dark px-4 py-10">
+    <main id="indhold" className="flex min-h-screen flex-col items-center justify-center bg-dark px-4 py-10">
       <div className="box-shape w-full max-w-md border border-border bg-card p-6 shadow-[0_30px_60px_-25px_rgba(0,0,0,0.5)] sm:p-8">
         <div className="mb-6 text-center">
           {company.logo_url ? (
@@ -91,6 +91,6 @@ export default async function EnrollCardPage({
       <div className="mt-8">
         <Logo image="light" className="opacity-80" />
       </div>
-    </div>
+    </main>
   );
 }
