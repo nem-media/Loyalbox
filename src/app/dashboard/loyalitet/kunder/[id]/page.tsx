@@ -23,10 +23,13 @@ const REVERSIBLE: TxnType[] = ["stamp_manual", "stamp_earned", "bonus_stamp"];
 
 export default async function MemberPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ besked?: string }>;
 }) {
   const { id } = await params;
+  const { besked } = await searchParams;
   const access = await getCompanyAccess();
   if (!access) notFound();
 
@@ -99,6 +102,18 @@ export default async function MemberPage({
         title={member.name || "Kunde"}
         description={[member.email, member.phone].filter(Boolean).join(" · ") || undefined}
       />
+
+      {/*
+        Tilmeldingen fandt en kunde, butikken havde i forvejen, og brugte
+        hendes kort. Uden linjen her ser skærmen ud, som om der lige blev
+        oprettet en ny — med et andet navn, end der blev tastet.
+      */}
+      {besked === "fandtes" ? (
+        <p className="mb-6 rounded-[0_6px_6px_6px] border border-border bg-background px-4 py-3 text-sm">
+          Kunden var tilmeldt butikken i forvejen, så det er hendes eget kort,
+          der bruges her. Oplysningerne nedenfor er dem, der stod i forvejen.
+        </p>
+      ) : null}
 
       <div className="space-y-6">
         {(memberships ?? []).map((ms) => {

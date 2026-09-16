@@ -26,6 +26,19 @@ import { begraens, TEKST_MAKS } from "@/lib/tekstgraenser";
 export interface FormResult {
   ok?: boolean;
   error?: string;
+  /**
+   * Det, der stod i felterne — så formularen kan lægge det tilbage.
+   *
+   * REACT NULSTILLER EN FORMULAR, NÅR EN SERVER ACTION SVARER. Ved disken
+   * betyder det, at en afvist tilmelding tømmer navn, mail og telefon, mens
+   * kunden står og venter — og personalet skal spørge om det hele igen.
+   * Samme kur som i `kontakt-form.tsx` og `signup-form.tsx`.
+   *
+   * SAMTYKKEFELTERNE ER BEVIDST IKKE MED. Et kryds er en aktiv handling, og
+   * det skal blive ved med at være det; sættes det tilbage af os, er det
+   * ikke længere kundens eget.
+   */
+  udfyldt?: Record<string, string>;
 }
 
 const str = (v: FormDataEntryValue | null) => String(v ?? "").trim();
@@ -47,6 +60,28 @@ function numOrNull(v: FormDataEntryValue | null): number | null {
 const loyaltyInPlan = stempelkortIPlan;
 
 /**
+ * ET VINDUE, DER SLUTTER FØR DET BEGYNDER, ER ET KORT, DER ALDRIG VIRKER.
+ *
+ * `programVindue()` svarer "foer", så længe startdatoen ligger fremme, og
+ * "efter" bagefter — er slutdatoen den tidligste, findes der ikke en eneste
+ * dag, hvor svaret er "aktiv". **Målt i brugerfladen 2026-09-16:** et kort
+ * med start 1. jan. 2027 og slut 1. jan. 2026 blev gemt uden en lyd, og
+ * forhåndsvisningen skrev "Kortet gælder fra 1. jan. 2027" — altså et løfte
+ * om en dag, hvor kortet i virkeligheden er udløbet. Butikken ville sætte
+ * kortet i drift, tro at det kørte, og først opdage det ved disken.
+ *
+ * Datoerne sammenlignes som tekst, fordi de ER tekst (`yyyy-mm-dd` fra
+ * `<input type="date">`), og den form sorterer rigtigt af sig selv. En
+ * `Date` ville hertil tilføje en tidszone, som spørgsmålet ikke handler om.
+ */
+function datoVinduetVendtOm(formData: FormData): string | null {
+  const start = String(formData.get("start_date") ?? "").trim();
+  const slut = String(formData.get("end_date") ?? "").trim();
+  if (!start || !slut || slut >= start) return null;
+  return "Slutdatoen ligger før startdatoen, og så er der ingen dage, hvor kortet gælder. Byt om på dem, eller lad det ene felt stå tomt.";
+}
+
+/**
  * Opretter et stempelkort (program + primær belønning). Config skrives af ejer
  * via RLS. Kun brugere med canManage må oprette.
  */
@@ -58,6 +93,9 @@ export async function createProgram(
   if (!access || !access.permissions.canManage) {
     return { error: "Du har ikke adgang til at oprette stempelkort." };
   }
+
+  const vindueFejl = datoVinduetVendtOm(formData);
+  if (vindueFejl) return { error: vindueFejl };
   if (!(await loyaltyInPlan(access.companyId))) {
     return { error: "Stempelkort er ikke med i dit abonnement." };
   }
@@ -147,6 +185,9 @@ export async function updateProgram(
   if (!access || !access.permissions.canManage) {
     return { error: "Du har ikke adgang til at rette stempelkort." };
   }
+
+  const vindueFejl = datoVinduetVendtOm(formData);
+  if (vindueFejl) return { error: vindueFejl };
   if (!(await loyaltyInPlan(access.companyId))) {
     return { error: "Stempelkort er ikke med i dit abonnement." };
   }
@@ -323,12 +364,14 @@ export async function enrollMember(
   const email = str(formData.get("email"));
   const phone = str(formData.get("phone"));
   const programId = str(formData.get("program_id"));
+  const udfyldt = { name, email, phone, program_id: programId };
+
   if (!name && !email && !phone) {
-    return { error: "Udfyld mindst navn, e-mail eller telefon." };
+    return { error: "Udfyld mindst navn, e-mail eller telefon.", udfyldt };
   }
-  if (!programId) return { error: "Vælg et stempelkort." };
+  if (!programId) return { error: "Vælg et stempelkort.", udfyldt };
   if (!bool(formData.get("consent_terms"))) {
-    return { error: "Kunden skal acceptere vilkårene." };
+    return { error: "Kunden skal acceptere vilkårene.", udfyldt };
   }
 
   const admin = createAdminClient();
@@ -340,10 +383,25 @@ export async function enrollMember(
     .eq("id", programId)
     .maybeSingle();
   if (!program || program.company_id !== access.companyId) {
-    return { error: "Ugyldigt stempelkort." };
+    return { error: "Ugyldigt stempelkort.", udfyldt };
   }
 
-  const { data: member, error: memberErr } = await admin
+  /**
+   * KUNDEN KAN FINDES I FORVEJEN — OG SÅ ER DET HENDES KORT, DER SKAL BRUGES.
+   *
+   * Siden 0042 er der et unikt indeks på (company_id, email) og (company_id,
+   * phone), og det er netop dét, der gør "ét kort pr. kunde pr. butik" sandt.
+   * Men indsættelsen her læste kun `error.message` videre, så personalet ved
+   * disken fik databasens rå tekst at se — målt: *duplicate key value violates
+   * unique constraint "loyalty_members_en_mail_pr_firma_idx"*. Kunden står ved
+   * siden af, og der er ingen vej frem i beskeden.
+   *
+   * En dublet er ikke en fejl her, men et SVAR: butikken har hende allerede.
+   * Så slås hun op og bruges — samme greb som i `selfEnroll`, og det er også
+   * dét, personalet ville gøre i hånden. Navnet i formularen skrives IKKE
+   * oven i det, der står: en tilmelding må ikke kunne omdøbe en anden kunde.
+   */
+  let { data: member, error: memberErr } = await admin
     .from("loyalty_members")
     .insert({
       company_id: access.companyId,
@@ -353,15 +411,45 @@ export async function enrollMember(
     })
     .select("id")
     .single();
+
+  let fandtes = false;
+  if (memberErr?.code === "23505") {
+    const noegle = email
+      ? { felt: "email" as const, vaerdi: email }
+      : { felt: "phone" as const, vaerdi: phone };
+    const { data: eksisterende } = await admin
+      .from("loyalty_members")
+      .select("id")
+      .eq("company_id", access.companyId)
+      .eq(noegle.felt, noegle.vaerdi)
+      .maybeSingle();
+    if (eksisterende) {
+      member = eksisterende;
+      memberErr = null;
+      fandtes = true;
+    }
+  }
   if (memberErr || !member) {
-    return { error: memberErr?.message ?? "Kunne ikke oprette kunden." };
+    return { error: memberErr?.message ?? "Kunne ikke oprette kunden.", udfyldt };
   }
 
-  await admin.from("loyalty_memberships").insert({
+  /**
+   * OG MEDLEMSKABET KAN OGSÅ FINDES: `unique (program_id, member_id)` har
+   * stået i 0004 hele tiden. Svaret blev bare ikke læst, så en kunde, der
+   * allerede var på kortet, fik "tilmeldt" at vide, uden at noget skete —
+   * og en hvilken som helst ANDEN fejl forsvandt samme vej.
+   */
+  const { error: msFejl } = await admin.from("loyalty_memberships").insert({
     company_id: access.companyId,
     program_id: programId,
     member_id: member.id,
   });
+  if (msFejl && msFejl.code !== "23505") {
+    return {
+      error: "Kunden blev oprettet, men ikke tilmeldt stempelkortet.",
+      udfyldt,
+    };
+  }
 
   // Samtykke: vilkår (påkrævet) + markedsføring (valgfrit, aldrig obligatorisk).
   await admin.from("consent_records").insert({
@@ -384,7 +472,12 @@ export async function enrollMember(
   }
 
   revalidatePath("/dashboard/loyalitet/kunder");
-  redirect(`/dashboard/loyalitet/kunder/${member.id}`);
+  // Personalet skal kunne se, at det er en kunde, butikken HAVDE — ellers
+  // ligner den udfyldte formular en ny oprettelse, og navnet, de tastede,
+  // står der ikke.
+  redirect(
+    `/dashboard/loyalitet/kunder/${member.id}${fandtes ? "?besked=fandtes" : ""}`,
+  );
 }
 
 export interface StampActionState {
@@ -479,7 +572,26 @@ export async function createDiscount(
     return { error: "Rabatter er en del af LoyalSum Komplet." };
   }
   const name = begraens(formData.get("name"), TEKST_MAKS.navn);
-  if (!name) return { error: "Giv rabatten et navn." };
+
+  /**
+   * Otte felter og ÉT påkrævet: manglede navnet, tømte svaret resten med sig
+   * — beløb, grænser og beskrivelse. Se `FormResult.udfyldt`.
+   */
+  const udfyldt = Object.fromEntries(
+    [
+      "name",
+      "description",
+      "type",
+      "value",
+      "min_purchase",
+      "max_discount",
+      "per_customer_limit",
+      "total_limit",
+      "status",
+    ].map((felt) => [felt, str(formData.get(felt))]),
+  );
+
+  if (!name) return { error: "Giv rabatten et navn.", udfyldt };
 
   const supabase = await createClient();
   const { error } = await supabase.from("discounts").insert({
@@ -495,7 +607,7 @@ export async function createDiscount(
     requires_approval: bool(formData.get("requires_approval")),
     status: laesValg(formData.get("status"), DISCOUNT_STATUS_LABELS, "active"),
   });
-  if (error) return { error: error.message };
+  if (error) return { error: error.message, udfyldt };
 
   revalidatePath("/dashboard/loyalitet/rabatter");
   redirect("/dashboard/loyalitet/rabatter");

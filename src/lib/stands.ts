@@ -168,3 +168,45 @@ export function resolveExtraLink(
   if (!stand.custom_url) return null;
   return { url: stand.custom_url, label: stand.custom_label?.trim() || "Se mere" };
 }
+
+/**
+ * LINKFELTERNE PÅ EN STANDER — OG HVAD DE HEDDER FOR BUTIKKEN.
+ *
+ * Ét sted, fordi BEGGE veje til de samme fire kolonner skal prøve det samme:
+ * butikkens egen side og admins supportformular. Admin er den betroede af de
+ * to, men også den, der RETTER en kundes link — en tastefejl dér er præcis
+ * lige så dyr, for adressen bliver trykt på et skilt, der ikke kan kaldes
+ * tilbage.
+ */
+export const STANDER_LINKFELTER = [
+  ["google_review_url", "Google-linket"],
+  ["trustpilot_url", "Trustpilot-linket"],
+  ["facebook_url", "Facebook-linket"],
+  ["custom_url", "dit eget link"],
+] as const;
+
+/**
+ * Svarer med en besked, hvis et af linkfelterne ikke er en http(s)-adresse —
+ * ellers `null`.
+ *
+ * **Målt i brugerfladen 2026-09-16:** `ikke-en-url-overhovedet` blev gemt
+ * uden en lyd. Adressen er relativ, så kunden, der trykkede "Anmeld os på
+ * Google", landede på `/r/ikke-en-url-overhovedet` — en 404 på VORES eget
+ * domæne. Kontrollen fandtes i forvejen, men kun på "egne platforme", altså
+ * det felt der kom sidst til; de fire oprindelige ved siden af havde den ikke.
+ *
+ * Den hyppigste rigtige fejl er en glemt `https://`, og derfor siger beskeden
+ * præcis dét — og hvilket felt det drejer sig om.
+ */
+export function tjekStanderLinks(
+  laes: (felt: string) => string,
+  erGyldigUrl: (v: string) => boolean,
+): string | null {
+  for (const [felt, navn] of STANDER_LINKFELTER) {
+    const v = laes(felt).trim();
+    if (v && !erGyldigUrl(v)) {
+      return `Tjek ${navn} — det skal begynde med http:// eller https://`;
+    }
+  }
+  return null;
+}
