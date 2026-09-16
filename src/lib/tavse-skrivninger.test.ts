@@ -107,6 +107,61 @@ describe("bestillingen uden konto afviser, før der betales", () => {
   });
 });
 
+describe("webhooken skriver ikke kundeforholdet i blinde", () => {
+  const WEBHOOK = kilde("src/app/api/stripe/webhook/route.ts");
+
+  /**
+   * DEN ALVORLIGSTE AF FEJNINGENS FUND. Alle tre grene i kæden skrev uden at
+   * se på svaret. En virksomhed, der ikke fandtes — slettet mellem betaling
+   * og webhook, eller et forkert id i metadataen — gav **penge ind og ingen
+   * adgang**: webhooken svarede 200, Stripe prøvede aldrig igen, og ingen
+   * opdagede det, før kunden skrev.
+   *
+   * Ordren lige ved siden af blev gjort betinget i #210; virksomheden blev
+   * stående. Det er dén halvhed, tjekket lukker.
+   */
+  it("alle tre grene rapporterer, om de ramte en række", () => {
+    const i = WEBHOOK.indexOf("let kundeforhold");
+    expect(i, "kundeforhold-variablen findes ikke").toBeGreaterThan(-1);
+    const kaede = WEBHOOK.slice(i, WEBHOOK.indexOf("traekLagerForOrdre", i));
+
+    // Tre tildelinger, én pr. gren.
+    const tildelinger = kaede.match(/\(\{ data: kundeforhold \} = await admin/g) ?? [];
+    expect(tildelinger.length, "en gren skriver stadig i blinde").toBe(3);
+
+    // Og hver af dem skal bede om rækkerne.
+    const selects = kaede.match(/\.select\("id"\)\)/g) ?? [];
+    expect(selects.length).toBe(3);
+  });
+
+  /**
+   * 500 OG IKKE BARE EN NOTE: pengene ER hjemme, og et gentaget forsøg koster
+   * ingenting — men det holder hændelsen åben hos Stripe, til nogen har set
+   * på den. Ordren er allerede markeret betalt, så gentagelsen sender hverken
+   * bekræftelsen eller trækker lageret igen.
+   */
+  it("alarmerer og svarer 500, når ingen række blev ramt", () => {
+    const i = WEBHOOK.indexOf("kundeforhold.length === 0");
+    expect(i).toBeGreaterThan(-1);
+    const blok = WEBHOOK.slice(i, i + 900);
+    expect(blok).toContain("noterFejl");
+    expect(blok).toMatch(/status:\s*500/);
+  });
+});
+
+describe("\"ingen belønning\" slår den faktisk fra", () => {
+  it("arkiveringen kontrolleres og siger fra", () => {
+    const k = kilde("src/app/dashboard/loyalitet/actions.ts");
+    const i = k.indexOf('status: "archived"');
+    expect(i).toBeGreaterThan(-1);
+    const efter = k.slice(i, i + 700);
+    expect(efter).toContain('.select("id")');
+    expect(efter).toMatch(/!arkiveret\?\.length/);
+    // Butikken skal FÅ at vide, at den stadig er aktiv.
+    expect(efter).toMatch(/stadig aktiv/);
+  });
+});
+
 describe("medarbejderen får en menneskelig besked", () => {
   it("en dublet oversættes i stedet for at vise databasens tekst", () => {
     const k = krop(kilde("src/app/dashboard/personale/actions.ts"), "addEmployee");

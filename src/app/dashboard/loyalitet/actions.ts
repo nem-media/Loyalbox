@@ -209,10 +209,26 @@ export async function updateProgram(
     // Ingen automatisk belønning længere — tag den primære ud af spil, men
     // slet den ikke (den kan hænge på allerede udstedte belønninger).
     if (primaer) {
-      await supabase
+      /*
+       * "INGEN BELØNNING" SKAL FAKTISK SLÅ DEN FRA.
+       *
+       * Skrivningen var ubetinget og dens svar blev ikke læst. Rammer den nul
+       * rækker, bliver belønningen ved med at stå som `active` — og
+       * `giveStamp()` udsteder den videre, mens butikken har fået at vide, at
+       * den er slået fra. Kunderne får altså en belønning, butikken tror, de
+       * har fjernet.
+       */
+      const { data: arkiveret, error: arkFejl } = await supabase
         .from("loyalty_rewards")
         .update({ status: "archived" })
-        .eq("id", primaer.id);
+        .eq("id", primaer.id)
+        .select("id");
+      if (arkFejl || !arkiveret?.length) {
+        return {
+          error:
+            "Belønningen kunne ikke slås fra. Prøv igen — den er stadig aktiv.",
+        };
+      }
     }
   } else {
     const rewardFelter = {

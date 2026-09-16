@@ -643,11 +643,16 @@ export async function POST(request: NextRequest) {
          * Kæden er derfor ÉN `if/else if`-kæde: uanset hvilket udfald der
          * rammer, falder vi igennem til ordreopdateringen.
          */
+        // Sættes af den gren, der kører. `null` betyder, at ingen gren rørte
+        // virksomheden — fx et engangskøb hos en kunde, der allerede har et
+        // kundenummer, og dér er der intet at kontrollere.
+        let kundeforhold: { id: string }[] | null = null;
+
         if (erAbonnement && typeof session.subscription === "string") {
           // ABONNEMENTSKØB. Det er her kundeforholdet sættes eller genoptages:
           // niveau, vare og abonnement følger den vare, der lige blev betalt,
           // og enhver suspension ophæves — købet er nyere end alt det gamle.
-          await admin
+          ({ data: kundeforhold } = await admin
             .from("companies")
             .update({
               product_slug: productSlug,
@@ -661,7 +666,8 @@ export async function POST(request: NextRequest) {
               sletning_token: null,
               sletning_udfoeres_den: null,
             })
-            .eq("id", companyId);
+            .eq("id", companyId)
+            .select("id"));
         } else if (!bestaaende?.product_slug) {
           // ENGANGSKØB UDEN BESTÅENDE KUNDEFORHOLD — købet ETABLERER det.
           //
@@ -670,21 +676,54 @@ export async function POST(request: NextRequest) {
           // mere: niveauet faldt til basic (varen har ingen månedspris),
           // `stripe_status` blev sat til null, og en igangværende suspension
           // blev ophævet, selvom det manglende abonnement ikke var betalt.
-          await admin
+          ({ data: kundeforhold } = await admin
             .from("companies")
             .update({
               product_slug: productSlug,
               plan: planForProduct(productSlug),
               stripe_customer_id: kundeId,
             })
-            .eq("id", companyId);
+            .eq("id", companyId)
+            .select("id"));
         } else if (kundeId && !bestaaende.stripe_customer_id) {
           // ENGANGSKØB HOS EN BESTÅENDE KUNDE. Forholdet røres ikke; kun
           // kundenummeret gemmes, så kvitteringerne hænger sammen.
-          await admin
+          ({ data: kundeforhold } = await admin
             .from("companies")
             .update({ stripe_customer_id: kundeId })
-            .eq("id", companyId);
+            .eq("id", companyId)
+            .select("id"));
+        }
+
+        /*
+         * RAMTE KÆDEN OVERHOVEDET NOGET?
+         *
+         * Alle tre grene skrev før i blinde. En `update` mod PostgREST svarer
+         * glad uden at have ramt en række, og `error` er da null — så en
+         * virksomhed, der ikke fandtes (slettet imellem betaling og webhook,
+         * et forkert id i metadataen), gav **penge ind og ingen adgang**:
+         * webhooken svarede 200, Stripe prøvede aldrig igen, og ingen
+         * opdagede det før kunden skrev.
+         *
+         * Ordren ved siden af blev gjort betinget i #210; virksomheden lige
+         * her blev stående. Det er dén halvhed, tjekket lukker.
+         *
+         * 500 og ikke bare en note: pengene ER hjemme, og et gentaget forsøg
+         * koster ingenting — men det holder hændelsen åben hos Stripe, til
+         * nogen har set på den. Ordren er allerede markeret betalt, så en
+         * gentagelse sender hverken bekræftelsen eller trækker lageret igen.
+         */
+        if (kundeforhold && kundeforhold.length === 0) {
+          await noterFejl(
+            "stripe-webhook",
+            `Betaling gennemført, men kundeforholdet blev ikke skrevet for ` +
+              `virksomhed ${companyId} (session ${session.id}). Kunden har ` +
+              "betalt uden at få adgang — ret det i hånden.",
+          );
+          return NextResponse.json(
+            { error: "kundeforhold ikke skrevet" },
+            { status: 500 },
+          );
         }
 
         /*
