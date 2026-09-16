@@ -3,6 +3,7 @@
  * Beregningerne er bevidst dokumenteret, så tallene er entydige.
  */
 import { createClient } from "@/lib/supabase/server";
+import { hentAlle } from "@/lib/hent-alle";
 import { periodRange, previousRange, type Period } from "@/lib/period";
 
 export {
@@ -78,35 +79,77 @@ export async function getLoyaltyReport(
     { data: customerRewards },
     { data: customerDiscounts },
   ] = await Promise.all([
-    supabase
-      .from("loyalty_transactions")
-      .select("id, member_id, stamps, type, created_at")
-      .eq("company_id", companyId)
-      .gte("created_at", from)
-      .lte("created_at", to)
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("loyalty_members")
-      .select("id, name, created_at")
-      .eq("company_id", companyId)
-      .limit(5000),
-    supabase
-      .from("loyalty_memberships")
-      .select("member_id, program_id, balance_cache")
-      .eq("company_id", companyId),
+    /*
+     * ALLE FEM SIDES IGENNEM. Før havde `loyalty_members` som den eneste et
+     * `.limit(5000)` — nogen havde set PostgREST-loftet og dækket en femtedel
+     * af det. En rapport, hvor tre af fem lister stopper ved tusind, er ikke
+     * skæv: den er forkert på en måde, ingen kan se, for tallene ser rimelige
+     * ud hver for sig.
+     */
+    hentAlle<{
+      id: string;
+      member_id: string | null;
+      stamps: number;
+      type: string;
+      created_at: string;
+    }>((fra, til) =>
+      supabase
+        .from("loyalty_transactions")
+        .select("id, member_id, stamps, type, created_at")
+        .eq("company_id", companyId)
+        .gte("created_at", from)
+        .lte("created_at", to)
+        .order("id", { ascending: true })
+        .range(fra, til),
+    ).then((data) => ({ data })),
+    hentAlle<{ id: string; name: string | null; created_at: string }>(
+      (fra, til) =>
+        supabase
+          .from("loyalty_members")
+          .select("id, name, created_at")
+          .eq("company_id", companyId)
+          .order("id", { ascending: true })
+          .range(fra, til),
+    ).then((data) => ({ data })),
+    hentAlle<{
+      member_id: string;
+      program_id: string;
+      balance_cache: number;
+    }>((fra, til) =>
+      supabase
+        .from("loyalty_memberships")
+        .select("member_id, program_id, balance_cache")
+        .eq("company_id", companyId)
+        .order("id", { ascending: true })
+        .range(fra, til),
+    ).then((data) => ({ data })),
     supabase
       .from("loyalty_rewards")
       .select("id, program_id, required_stamps, name")
       .eq("company_id", companyId)
       .eq("is_primary", true),
-    supabase
-      .from("customer_rewards")
-      .select("reward_id, earned_at, redeemed_at")
-      .eq("company_id", companyId),
-    supabase
-      .from("customer_discounts")
-      .select("redeemed_at")
-      .eq("company_id", companyId),
+    // `reward_id` er `not null` paa customer_rewards (0004) — typen foelger
+    // skemaet og goer den ikke bredere, end den er.
+    hentAlle<{
+      reward_id: string;
+      earned_at: string | null;
+      redeemed_at: string | null;
+    }>((fra, til) =>
+      supabase
+        .from("customer_rewards")
+        .select("reward_id, earned_at, redeemed_at")
+        .eq("company_id", companyId)
+        .order("id", { ascending: true })
+        .range(fra, til),
+    ).then((data) => ({ data })),
+    hentAlle<{ redeemed_at: string | null }>((fra, til) =>
+      supabase
+        .from("customer_discounts")
+        .select("redeemed_at")
+        .eq("company_id", companyId)
+        .order("id", { ascending: true })
+        .range(fra, til),
+    ).then((data) => ({ data })),
   ]);
 
   const memberName = new Map(
@@ -253,24 +296,32 @@ export async function getLoyaltyTrend(
 
   const [{ data: txns }, { count: nyeMedlemmer }, { data: belønninger }] =
     await Promise.all([
-      supabase
-        .from("loyalty_transactions")
-        .select("member_id, stamps")
-        .eq("company_id", companyId)
-        .gte("created_at", from)
-        .lte("created_at", to),
+      hentAlle<{ member_id: string | null; stamps: number }>((fra, til) =>
+        supabase
+          .from("loyalty_transactions")
+          .select("member_id, stamps")
+          .eq("company_id", companyId)
+          .gte("created_at", from)
+          .lte("created_at", to)
+          .order("id", { ascending: true })
+          .range(fra, til),
+      ).then((data) => ({ data })),
       supabase
         .from("loyalty_members")
         .select("*", { count: "exact", head: true })
         .eq("company_id", companyId)
         .gte("created_at", from)
         .lte("created_at", to),
-      supabase
-        .from("customer_rewards")
-        .select("redeemed_at")
-        .eq("company_id", companyId)
-        .gte("redeemed_at", from)
-        .lte("redeemed_at", to),
+      hentAlle<{ redeemed_at: string | null }>((fra, til) =>
+        supabase
+          .from("customer_rewards")
+          .select("redeemed_at")
+          .eq("company_id", companyId)
+          .gte("redeemed_at", from)
+          .lte("redeemed_at", to)
+          .order("id", { ascending: true })
+          .range(fra, til),
+      ).then((data) => ({ data }))
     ]);
 
   const positive = (txns ?? []).filter((t) => t.stamps > 0);

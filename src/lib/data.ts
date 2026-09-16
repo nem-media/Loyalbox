@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { periodRange, previousRange, type Period } from "@/lib/period";
+import { hentAlle } from "@/lib/hent-alle";
 import type { Database } from "@/lib/types/database";
 
 type Feedback = Database["public"]["Tables"]["feedback"]["Row"];
@@ -90,13 +91,31 @@ export async function getCompanyStats(
     { data: ratingAlle },
     { data: recentFeedback },
   ] = await Promise.all([
-    supabase
-      .from("feedback")
-      .select("rating")
-      .eq("company_id", companyId)
-      .gte("created_at", nu.from)
-      .lte("created_at", nu.to),
-    supabase.from("feedback").select("rating").eq("company_id", companyId),
+    /*
+     * BEDØMMELSERNE SIDES OGSÅ IGENNEM — de blev hentet i blinde tyve linjer
+     * fra den fejl, der blev rettet i #211. `avgRatingTotal` er "alle tider":
+     * den dag butikken får anmeldelse nummer 1001, begynder gennemsnittet på
+     * dashboardets forside at være regnet på et vilkårligt udsnit, og der er
+     * ingen måde at se det på.
+     */
+    hentAlle<{ rating: number }>((fra, til) =>
+      supabase
+        .from("feedback")
+        .select("rating")
+        .eq("company_id", companyId)
+        .gte("created_at", nu.from)
+        .lte("created_at", nu.to)
+        .order("id", { ascending: true })
+        .range(fra, til),
+    ).then((data) => ({ data })),
+    hentAlle<{ rating: number }>((fra, til) =>
+      supabase
+        .from("feedback")
+        .select("rating")
+        .eq("company_id", companyId)
+        .order("id", { ascending: true })
+        .range(fra, til),
+    ).then((data) => ({ data })),
     supabase
       .from("feedback")
       .select("*")
@@ -226,21 +245,6 @@ export async function getAdresseStats(
    * antallet af butikker ved hver sideindlæsning — og så ville `grupperPrAdresse`
    * ikke længere kunne prøves uden netværk.
    */
-  const SIDE = 1000;
-  async function alle<T>(
-    byg: (fra: number, til: number) => PromiseLike<{ data: T[] | null }>,
-  ): Promise<T[]> {
-    const ud: T[] = [];
-    for (let side = 0; ; side++) {
-      const { data } = await byg(side * SIDE, (side + 1) * SIDE - 1);
-      const batch = data ?? [];
-      ud.push(...batch);
-      // Kom der mindre end en fuld side, er der ikke mere. Kom der præcis en
-      // fuld side, SKAL der spørges igen — også selv om det var den sidste.
-      if (batch.length < SIDE) return ud;
-    }
-  }
-
   const [stands, scans, feedback] = await Promise.all([
     supabase
       .from("stands")
@@ -248,7 +252,7 @@ export async function getAdresseStats(
       .eq("company_id", companyId)
       .order("created_at", { ascending: true })
       .then(({ data }) => data ?? []),
-    alle<AdresseRaekker["scans"][number]>((fra, til) =>
+    hentAlle<AdresseRaekker["scans"][number]>((fra, til) =>
       supabase
         .from("scans")
         .select("stand_id")
@@ -260,7 +264,7 @@ export async function getAdresseStats(
         .order("id", { ascending: true })
         .range(fra, til),
     ),
-    alle<AdresseRaekker["feedback"][number]>((fra, til) =>
+    hentAlle<AdresseRaekker["feedback"][number]>((fra, til) =>
       supabase
         .from("feedback")
         .select("stand_id, rating, is_public_review_clicked")
