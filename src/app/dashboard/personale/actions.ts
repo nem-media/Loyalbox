@@ -165,6 +165,15 @@ export async function addEmployee(
     ...readPermissions(formData),
   });
 
+  /*
+   * `employees_user_company_idx` (0004) gør dubletten umulig — men opslaget
+   * ovenfor er læst for et øjeblik siden, og taber man kapløbet, fik ejeren
+   * databasens rå besked at se ("duplicate key value violates unique
+   * constraint …"). Svaret findes to linjer længere oppe; det skal bruges.
+   */
+  if (error?.code === "23505") {
+    return { error: "Den medarbejder er allerede tilføjet." };
+  }
   if (error) return { error: error.message };
 
   revalidatePath("/dashboard/personale");

@@ -304,8 +304,22 @@ export async function bestilUdenKonto(
     }
     companyId = data.id;
   } else {
-    // Genbestilling fra samme CVR: opdatér det, der kan være ændret siden sidst.
-    await admin
+    /*
+     * Genbestilling fra samme CVR: opdatér det, der kan være ændret siden
+     * sidst.
+     *
+     * SVARET SKAL LÆSES, OG DET BLEV DET IKKE. Her skrives både accepten af
+     * handelsbetingelserne, databehandleraftalen og et NYT aktiveringstoken —
+     * altså dét, der giver køberen adgang til det, hun er ved at betale for.
+     * Rammer opdateringen nul rækker (virksomheden slettet i mellemtiden, en
+     * afvist RLS), svarer PostgREST glad med `error: null`, og så ville
+     * kunden betale for en bestilling, hvis aktiveringsmail bærer et token,
+     * der ikke findes.
+     *
+     * Der afvises FØR Stripe, så der er ikke flyttet penge endnu — og det er
+     * netop derfor, det skal fanges her og ikke opdages bagefter.
+     */
+    const { data: ramt, error: firmaFejl } = await admin
       .from("companies")
       .update({
         name: v.firmanavn,
@@ -318,7 +332,19 @@ export async function bestilUdenKonto(
         // er det, der giver adgang.
         ...aktiveringFelter,
       })
-      .eq("id", companyId);
+      .eq("id", companyId)
+      .select("id");
+
+    if (firmaFejl || !ramt?.length) {
+      await noterFejl(
+        "bestilling-uden-konto",
+        `Genbestilling på virksomhed ${companyId} kunne ikke opdateres: ` +
+          `${firmaFejl?.message ?? "ingen rækker ramt"}`,
+      );
+      return svar({
+        besked: "Bestillingen kunne ikke oprettes. Prøv igen, eller skriv til os.",
+      });
+    }
   }
 
   /* ---------------------------------------------------------------- design */
