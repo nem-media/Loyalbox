@@ -1093,6 +1093,27 @@ export interface Database {
         Args: { p_opgave: string; p_minutter: number };
         Returns: boolean;
       };
+      /**
+       * Se supabase/migrations/0041_ledger_kaploeb.sql. Låser rabatrækken,
+       * tæller grænserne og indsætter i én transaktion. Svarer med en GRUND,
+       * så personalet får en besked, der kan handles på.
+       */
+      giv_rabat: {
+        Args: {
+          p_company_id: string;
+          p_member_id: string;
+          p_discount_id: string;
+          p_granted_by: string | null;
+          p_note: string | null;
+          p_feedback_id: string | null;
+        };
+        Returns:
+          | "ok"
+          | "ikke-fundet"
+          | "ikke-aktiv"
+          | "kunde-graense"
+          | "samlet-graense";
+      };
       /** Se supabase/migrations/0012_opbevaring.sql. Kun service-role. */
       ryd_op_efter_frister: {
         Args: { p_toerloeb: boolean };
