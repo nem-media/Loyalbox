@@ -368,18 +368,40 @@ export async function reverseStamp(
     return { ok: false, error: "Transaktionen er allerede tilbageført." };
   }
 
-  await admin.from("loyalty_transactions").insert({
-    company_id: access.companyId,
-    program_id: original.program_id,
-    membership_id: original.membership_id,
-    member_id: original.member_id,
-    employee_id: access.employeeId,
-    type: "reversed",
-    stamps: -(original.stamps ?? 0),
-    source: "system",
-    reversal_of: transactionId,
-    reason: "Tilbageført af personale",
-  });
+  /*
+   * OPSLAGET OVENFOR ER EN VENLIGHED — INDEKSET ER REGLEN (migration 0041).
+   *
+   * To samtidige tilbageførsler af samme stempel læste begge "ikke
+   * tilbageført endnu" og skrev begge en negativ række. Målt på demodata:
+   * saldoen endte på **-5** i stedet for 0, altså fem stempler kunden havde
+   * optjent og nu ikke kan se hvor blev af.
+   *
+   * `loyalty_txn_en_tilbagefoersel_idx` gør "højst én tilbageførsel pr.
+   * transaktion" til noget databasen afgør. `23505` her er derfor ikke en
+   * fejl, men samme svar som opslaget ovenfor ville have givet et øjeblik
+   * senere.
+   */
+  const { error: indsaetFejl } = await admin
+    .from("loyalty_transactions")
+    .insert({
+      company_id: access.companyId,
+      program_id: original.program_id,
+      membership_id: original.membership_id,
+      member_id: original.member_id,
+      employee_id: access.employeeId,
+      type: "reversed",
+      stamps: -(original.stamps ?? 0),
+      source: "system",
+      reversal_of: transactionId,
+      reason: "Tilbageført af personale",
+    });
+
+  if (indsaetFejl) {
+    if (indsaetFejl.code === "23505") {
+      return { ok: false, error: "Transaktionen er allerede tilbageført." };
+    }
+    return { ok: false, error: "Tilbageførslen kunne ikke gemmes. Prøv igen." };
+  }
 
   const balance = await recompute(admin, original.membership_id);
   await logAudit(admin, access, "reverse_stamp", "transaction", transactionId, {
@@ -535,39 +557,45 @@ export async function grantDiscount(params: {
     return { ok: false, error: "Kunden blev ikke fundet." };
   }
 
-  // Grænser
-  if (discount.per_customer_limit != null) {
-    const { count } = await admin
-      .from("customer_discounts")
-      .select("*", { count: "exact", head: true })
-      .eq("member_id", memberId)
-      .eq("discount_id", discountId);
-    if ((count ?? 0) >= discount.per_customer_limit) {
-      return {
-        ok: false,
-        error: "Kunden har allerede fået denne rabat det maksimale antal gange.",
-      };
-    }
-  }
-  if (discount.total_limit != null) {
-    const { count } = await admin
-      .from("customer_discounts")
-      .select("*", { count: "exact", head: true })
-      .eq("discount_id", discountId);
-    if ((count ?? 0) >= discount.total_limit) {
-      return { ok: false, error: "Kampagnens samlede grænse er nået." };
-    }
+  /*
+   * GRÆNSERNE AFGØRES I BASEN — EN TÆLLING KAN ET INDEKS IKKE UDTRYKKE.
+   *
+   * Her stod to tællinger efterfulgt af en indsættelse. To samtidige kald
+   * talte begge "der er plads" og indsatte begge. **Målt på demodata: med en
+   * samlet grænse på ÉN blev der udstedt TRE rabatter.** `total_limit` er en
+   * kampagnes budget, så hver overskridelse er en vare, butikken giver væk
+   * uden at have regnet med det.
+   *
+   * `giv_rabat()` (0041) låser rabatrækken med `for update`, tæller og
+   * indsætter i samme transaktion — samme greb som `juster_lager()`. Låsen
+   * står kun om ÉN rabat, så to kampagner aldrig venter på hinanden.
+   *
+   * Grunden kommer MED tilbage: "kunden har fået den før" og "kampagnen er
+   * brugt op" er to forskellige beskeder til den, der står ved disken.
+   */
+  const { data: svar, error: rabatFejl } = await admin.rpc("giv_rabat", {
+    p_company_id: access.companyId,
+    p_member_id: memberId,
+    p_discount_id: discountId,
+    p_granted_by: access.employeeId,
+    p_note: note,
+    p_feedback_id: feedbackId,
+  });
+
+  if (rabatFejl) {
+    return { ok: false, error: "Rabatten kunne ikke gives lige nu. Prøv igen." };
   }
 
-  await admin.from("customer_discounts").insert({
-    company_id: access.companyId,
-    member_id: memberId,
-    discount_id: discountId,
-    status: "available",
-    granted_by: access.employeeId,
-    note,
-    feedback_id: feedbackId,
-  });
+  const BESKED: Record<string, string> = {
+    "ikke-fundet": "Rabatten blev ikke fundet.",
+    "ikke-aktiv": "Rabatten er ikke aktiv.",
+    "kunde-graense":
+      "Kunden har allerede fået denne rabat det maksimale antal gange.",
+    "samlet-graense": "Kampagnens samlede grænse er nået.",
+  };
+  if (svar !== "ok") {
+    return { ok: false, error: BESKED[svar as string] ?? "Rabatten kunne ikke gives." };
+  }
 
   await logAudit(admin, access, "grant_discount", "member", memberId, {
     discountId,
@@ -598,10 +626,32 @@ export async function redeemDiscount(
     return { ok: false, error: "Rabatten er allerede indløst." };
   }
 
-  await admin
+  /*
+   * BETINGET OVERGANG — PRÆCIS SOM VED BELØNNINGEN.
+   *
+   * Opslaget ovenfor er læst for et øjeblik siden. Opdateringen var UBETINGET,
+   * og målt på demodata fik **begge** af to samtidige indløsninger grønt lys:
+   * to ekspedienter ved hver sin kasse ville give samme rabat to gange.
+   *
+   * Fejlen er præcis den, `redeemReward()` fik rettet — den blev overset her,
+   * fordi rabatterne lå uden for dét, der blev gennemgået dengang, og fordi
+   * ingen af de tre rabat- og tilbageførselsfunktioner havde en eneste prøve.
+   */
+  const { data: vundet, error: markErr } = await admin
     .from("customer_discounts")
     .update({ status: "redeemed", redeemed_at: new Date().toISOString() })
-    .eq("id", customerDiscountId);
+    .eq("id", customerDiscountId)
+    .eq("status", "available")
+    .select("id");
+
+  if (markErr) {
+    return { ok: false, error: "Rabatten kunne ikke indløses lige nu. Prøv igen." };
+  }
+  if (!vundet?.length) {
+    // En anden kasse nåede det først. For kunden ved disken er det det samme
+    // som at rabatten var brugt, og beskeden er derfor den samme.
+    return { ok: false, error: "Rabatten er allerede indløst." };
+  }
 
   await logAudit(admin, access, "redeem_discount", "customer_discount", customerDiscountId, {});
   return { ok: true };
