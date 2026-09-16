@@ -14,6 +14,7 @@ import type { CompanyAccess } from "@/lib/loyalty/access";
 import { stampProgress, redemptionStampDelta, type StampProgress } from "@/lib/loyalty/balance";
 import { programVindue } from "@/lib/loyalty/program-status";
 import { dagStartKoebenhavn } from "@/lib/dansk-dag";
+import { noterFejl } from "@/lib/drift";
 import type { TxnSource, TxnType } from "@/lib/loyalty/constants";
 
 type Admin = ReturnType<typeof createAdminClient>;
@@ -254,13 +255,40 @@ export async function giveStamp(params: GiveStampParams): Promise<StampResult> {
   // Belønning: udløs hvis tærskel nået og ingen udestående belønning findes.
   let rewardEarned = false;
   let rewardName: string | null = null;
-  const { data: reward } = await admin
+  /*
+   * FEJLEN PÅ DETTE OPSLAG BLEV SLUGT — OG DET VAR DÉT, DER GJORDE DUBLETTEN
+   * FARLIG.
+   *
+   * `maybeSingle()` svarer 406/PGRST116, når der er MERE end én række. Med to
+   * primære belønninger på samme program blev `reward` derfor null, og der
+   * blev aldrig udstedt en belønning igen — stempelkortet holdt op med at
+   * virke, uden at noget fejlede nogen steder. `loyalty_rewards_en_primaer_
+   * pr_program_idx` (0042) gør dubletten umulig, men et slugt svar er stadig
+   * et slugt svar: sker der noget uventet her, skal det kunne ses, og kunden
+   * skal ikke have at vide, at alt gik godt.
+   *
+   * Stemplet ER gemt på dette tidspunkt, så det står ved magt; kun
+   * belønningsdelen melder fra.
+   */
+  const { data: reward, error: rewardErr } = await admin
     .from("loyalty_rewards")
     .select("*")
     .eq("program_id", program.id)
     .eq("is_primary", true)
     .eq("status", "active")
     .maybeSingle();
+
+  if (rewardErr) {
+    await noterFejl(
+      "loyalitet",
+      `Kunne ikke læse den primære belønning for program ${program.id}: ${rewardErr.message}`,
+    );
+    return {
+      ok: false,
+      error:
+        "Stemplet blev gemt, men belønningen kunne ikke slås op. Skriv til os, hvis det bliver ved.",
+    };
+  }
 
   if (reward && balance >= reward.required_stamps) {
     const { data: existing } = await admin
