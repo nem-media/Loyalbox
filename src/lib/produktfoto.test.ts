@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   FOTO_FARVETEKST,
   KATALOG,
@@ -139,4 +141,43 @@ describe("produktfoto og billedtekst", () => {
     expect(FOTO_FARVETEKST).toMatch(/stjerne/i);
     expect(FOTO_FARVETEKST).not.toMatch(/ramme|logofelt/i);
   });
+});
+
+/**
+ * FOTOET SKAL OGSÅ STÅ DÉR, HVOR MAN KØBER.
+ *
+ * `PRODUKT_FOTO` blev læst på `/produkter`, men `pricing.tsx` — kortene på
+ * `/bestil` — tegnede attrappen ubetinget. Resultatet var, at de samme tre
+ * varer havde et rigtigt billede på katalogsiden og badgen **"Foto på vej"**
+ * ét klik senere, på den side kunden faktisk køber fra. Badgen var altså
+ * ikke længere sand, og den stod netop dér, hvor den kostede mest: et
+ * produktkort uden foto ligner en vare, der ikke er klar.
+ *
+ * Attrappen bliver stående som RESERVE — plakater, mærkater og flyers har
+ * ingen foto endnu, og for dem er "Foto på vej" stadig det sande svar.
+ */
+describe("fotoet vises begge steder", () => {
+  const udenKommentarer2 = (s: string) =>
+    s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  const laes = (sti: string) =>
+    udenKommentarer2(readFileSync(join(process.cwd(), sti), "utf8"));
+
+  for (const sti of ["src/components/pricing.tsx", "src/app/produkter/page.tsx"]) {
+    it(`${sti.split("/").pop()} henter billedet fra PRODUKT_FOTO`, () => {
+      const k = laes(sti);
+      expect(k, "PRODUKT_FOTO importeres ikke").toContain("PRODUKT_FOTO");
+      expect(k, "billedet tegnes ikke").toMatch(/src=\{PRODUKT_FOTO\[/);
+    });
+
+    /** Attrappen må kun være det, den hedder: en reserve. */
+    it(`${sti.split("/").pop()} viser kun attrappen uden foto`, () => {
+      const k = laes(sti);
+      const i = k.indexOf("StanderPlaceholder");
+      if (i === -1) return; // ingen attrap er også i orden
+      expect(
+        k,
+        "attrappen tegnes uden at spørge, om der findes et foto",
+      ).toMatch(/PRODUKT_FOTO\[[^\]]+\]\s*\?/);
+    });
+  }
 });
