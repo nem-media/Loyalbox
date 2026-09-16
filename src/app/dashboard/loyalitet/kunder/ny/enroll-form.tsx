@@ -20,19 +20,35 @@ export function EnrollForm({
 
   return (
     <form action={action} className="max-w-lg space-y-5">
+      {/* `defaultValue` fra `state.udfyldt`: React nulstiller formularen, når
+          handlingen svarer, og ved disken betyder det, at personalet skal
+          spørge kunden om det hele igen. Se `FormResult.udfyldt` — krydsene
+          er bevidst ikke med. */}
       <Field label="Navn">
-        <Input name="name" placeholder="Kundens navn" />
+        <Input
+          name="name"
+          placeholder="Kundens navn"
+          defaultValue={state.udfyldt?.name ?? ""}
+        />
       </Field>
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="E-mail">
-          <Input type="email" name="email" />
+          <Input
+            type="email"
+            name="email"
+            defaultValue={state.udfyldt?.email ?? ""}
+          />
         </Field>
         <Field label="Telefon">
-          <Input name="phone" />
+          <Input name="phone" defaultValue={state.udfyldt?.phone ?? ""} />
         </Field>
       </div>
       <Field label="Stempelkort">
-        <select name="program_id" className={selectClass} defaultValue="">
+        <select
+          name="program_id"
+          className={selectClass}
+          defaultValue={state.udfyldt?.program_id ?? ""}
+        >
           <option value="" disabled>
             Vælg stempelkort
           </option>

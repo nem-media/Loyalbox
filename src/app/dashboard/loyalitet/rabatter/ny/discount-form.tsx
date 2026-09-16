@@ -23,8 +23,14 @@ export function DiscountForm() {
 
   return (
     <form action={action} className="max-w-lg space-y-5">
+      {/* `defaultValue` fra `state.udfyldt`: kun navnet er påkrævet, så en
+          glemt overskrift tømte ellers alle otte felter. Se `FormResult`. */}
       <Field label="Navn på rabat">
-        <Input name="name" placeholder="Fx Velkomstrabat" />
+        <Input
+          name="name"
+          placeholder="Fx Velkomstrabat"
+          defaultValue={state.udfyldt?.name ?? ""}
+        />
       </Field>
       <Field label="Type">
         <select
@@ -44,20 +50,38 @@ export function DiscountForm() {
         <Field
           label={type === "percent" ? "Værdi (procent)" : "Værdi (kroner)"}
         >
-          <Input type="number" name="value" min={0} />
+          <Input
+            type="number"
+            name="value"
+            min={0}
+            defaultValue={state.udfyldt?.value ?? ""}
+          />
         </Field>
       ) : (
         <input type="hidden" name="value" value="0" />
       )}
       <Field label="Beskrivelse (valgfri)">
-        <Textarea name="description" />
+        <Textarea
+          name="description"
+          defaultValue={state.udfyldt?.description ?? ""}
+        />
       </Field>
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="Min. køb (kr., valgfri)">
-          <Input type="number" name="min_purchase" min={0} />
+          <Input
+            type="number"
+            name="min_purchase"
+            min={0}
+            defaultValue={state.udfyldt?.min_purchase ?? ""}
+          />
         </Field>
         <Field label="Maks. pr. kunde (valgfri)">
-          <Input type="number" name="per_customer_limit" min={1} />
+          <Input
+            type="number"
+            name="per_customer_limit"
+            min={1}
+            defaultValue={state.udfyldt?.per_customer_limit ?? ""}
+          />
         </Field>
       </div>
       <label className="flex items-center gap-2 text-sm">

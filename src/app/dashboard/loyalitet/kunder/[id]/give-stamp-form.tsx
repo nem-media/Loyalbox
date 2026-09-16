@@ -6,9 +6,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 /**
- * Hurtigt giv-stempel-flow. Idempotent via en reference, der genereres på
- * klienten ved hver indsendelse — så dobbelt-klik ikke giver dobbelt stempel.
- * Viser en tydelig succesbesked med saldo og evt. udløst belønning.
+ * Hurtigt giv-stempel-flow. Viser saldo og evt. udløst belønning.
+ *
+ * REFERENCEN DÆKKER EN GENSENDT INDSENDELSE — IKKE TO KLIK. Her stod, at den
+ * gjorde, "så dobbelt-klik ikke giver dobbelt stempel", og det er ikke sandt:
+ * **målt i brugerfladen 2026-09-16 gav to klik på en kunde med 7 af 10 ni
+ * stempler.** Nøglen laves ved hver indsendelse, så to klik er to forskellige
+ * handlinger for `loyalty_txn_ref_idx` — og sådan SKAL det være: personalet
+ * kan have brug for at stemple to gange i træk.
+ *
+ * Det, nøglen faktisk beskytter mod, er dét, personalepanelet på
+ * `/kort/[token]` beskriver præcist: en POST, browseren sender igen efter en
+ * netværkshikke, og en genindlæsning med formulardata — begge bærer SAMME
+ * krop og dermed samme nøgle. Knappen er spærret, mens svaret er undervejs,
+ * og dét dækker klikket, der kommer, fordi der ikke skete noget endnu.
+ *
+ * En påstand om idempotens, der ikke passer, er værre end ingen: den næste,
+ * der læser den, holder op med at tænke over dobbeltindsendelse.
  */
 export function GiveStampForm({
   membershipId,

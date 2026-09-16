@@ -13,7 +13,23 @@ import { getSiteUrl } from "@/lib/site";
  */
 export async function POST() {
   const user = await getCurrentUser();
-  const customerId = user?.company?.stripe_customer_id;
+
+  /**
+   * EN UDLØBET SESSION ER IKKE "INGEN BETALING".
+   *
+   * Begge tilfælde faldt før i samme gren, og beskeden talte om "din
+   * virksomhed" til en, der ikke var logget ind. Det er ikke et hul —
+   * der sker ingenting — men det er den forkerte besked netop dér, hvor
+   * den betyder mest: kunden har trykket "Administrer betaling", sessionen
+   * er udløbet undervejs, og svaret siger, at hun ikke har betalt noget.
+   * Så leder hun efter en fejl i abonnementet i stedet for at logge ind.
+   * `/api/checkout` svarer allerede 401 her.
+   */
+  if (!user) {
+    return NextResponse.json({ error: "Log ind først." }, { status: 401 });
+  }
+
+  const customerId = user.company?.stripe_customer_id;
 
   if (!customerId) {
     return NextResponse.json(

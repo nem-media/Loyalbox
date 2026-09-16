@@ -63,8 +63,17 @@ export function SignupForm({
           ) : null}
           {antal ? <input type="hidden" name="antal" value={antal} /> : null}
 
+          {/*
+            `defaultValue` fra `state.udfyldt` er ikke pynt: React nulstiller
+            formularen, når handlingen svarer, og uden det her mistede en
+            tastefejl i CVR både firmanavn, mail og adgangskode. Se `AuthState`.
+          */}
           <Field label="Firmanavn">
-            <Input name="company_name" required />
+            <Input
+              name="company_name"
+              required
+              defaultValue={state.udfyldt?.company_name ?? ""}
+            />
           </Field>
           <Field
             label="CVR-nummer (valgfrit)"
@@ -75,10 +84,17 @@ export function SignupForm({
               inputMode="numeric"
               autoComplete="off"
               placeholder="12345678"
+              defaultValue={state.udfyldt?.cvr ?? ""}
             />
           </Field>
           <Field label="E-mail">
-            <Input type="email" name="email" autoComplete="email" required />
+            <Input
+              type="email"
+              name="email"
+              autoComplete="email"
+              required
+              defaultValue={state.udfyldt?.email ?? ""}
+            />
           </Field>
           <Field label="Adgangskode" hint="Mindst 6 tegn.">
             <Input

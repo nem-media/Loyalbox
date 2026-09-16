@@ -36,8 +36,16 @@ export function LoginForm({
 
         <form action={action} className="space-y-4">
           <input type="hidden" name="next" value={next} />
+          {/* Se `AuthState.udfyldt`: uden den her koster en forkert
+              adgangskode også e-mailen. Koden lægges bevidst ikke tilbage. */}
           <Field label="E-mail">
-            <Input type="email" name="email" autoComplete="email" required />
+            <Input
+              type="email"
+              name="email"
+              autoComplete="email"
+              required
+              defaultValue={state.udfyldt?.email ?? ""}
+            />
           </Field>
           <Field label="Adgangskode">
             <Input

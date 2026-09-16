@@ -14,6 +14,24 @@ export interface AuthState {
   error?: string;
   /** Sat når Supabase kræver e-mailbekræftelse før der gives en session. */
   needsConfirmation?: boolean;
+  /**
+   * Det, der blev skrevet — så formularen kan lægge det tilbage.
+   *
+   * REACT NULSTILLER EN FORMULAR, NÅR EN SERVER ACTION SVARER. Uden det her
+   * mistede en, der tastede ét ciffer forkert i CVR, BÅDE firmanavn, mail og
+   * adgangskode — og fejlbeskeden bad dem oven i købet om at "tjekke de otte
+   * cifre", altså rette ét felt, de ikke kunne se mere. Målt i brugerfladen
+   * 2026-09-16: alle fire felter stod tomme bagefter.
+   *
+   * Samme kur som i `kontakt-form.tsx`, hvor problemet blev løst først, og
+   * samme klasse som filfeltet i `/bestil/uden-konto`.
+   *
+   * ADGANGSKODEN ER IKKE MED OG SKAL ALDRIG VÆRE DET: den skulle i så fald
+   * sendes tilbage gennem svaret og stå i browserens hukommelse som en
+   * almindelig streng. Den er billig at taste igen; et firmanavn og et
+   * CVR-nummer er det ikke.
+   */
+  udfyldt?: { company_name?: string; cvr?: string; email?: string };
 }
 
 export interface CustomerAuthState {
@@ -40,8 +58,12 @@ export async function login(
   const password = String(formData.get("password") ?? "");
   const next = String(formData.get("next") ?? "").trim();
 
+  // Mailen lægges tilbage ved en fejl — koden gør ikke. Den hyppigste fejl
+  // her er en forkert adgangskode, og indtil nu kostede den også e-mailen.
+  const udfyldt = { email };
+
   if (!email || !password) {
-    return { error: "Udfyld e-mail og adgangskode." };
+    return { error: "Udfyld e-mail og adgangskode.", udfyldt };
   }
 
   const supabase = await createClient();
@@ -50,7 +72,7 @@ export async function login(
     password,
   });
   if (error || !data.user) {
-    return { error: "Forkert e-mail eller adgangskode." };
+    return { error: "Forkert e-mail eller adgangskode.", udfyldt };
   }
 
   // Uden et eksplicit `next` sendes brugeren derhen hvor de hører hjemme:
@@ -79,11 +101,13 @@ export async function signup(
   );
 
   // CVR er IKKE med i den her: feltet er frivilligt, jf. nedenfor.
+  const udfyldt = { company_name: companyName, cvr: cvrRaw, email };
+
   if (!email || !password || !companyName) {
-    return { error: "Udfyld navn, mail og adgangskode." };
+    return { error: "Udfyld navn, mail og adgangskode.", udfyldt };
   }
   if (password.length < 6) {
-    return { error: "Adgangskoden skal være mindst 6 tegn." };
+    return { error: "Adgangskoden skal være mindst 6 tegn.", udfyldt };
   }
 
   // CVR ER FRIVILLIGT ved oprettelsen, men skal være rigtigt, hvis det
@@ -91,7 +115,7 @@ export async function signup(
   // når man kan købe uden — og de konti, der blev oprettet før kravet, findes
   // i forvejen uden. Se src/lib/cvr.ts.
   if (cvrRaw && !erGyldigtCvr(cvrRaw)) {
-    return { error: CVR_FEJL };
+    return { error: CVR_FEJL, udfyldt };
   }
   const cvr = cvrRaw ? normaliserCvr(cvrRaw) : null;
 
@@ -130,10 +154,10 @@ export async function signup(
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: error.message, udfyldt };
   }
   if (!data.user) {
-    return { error: "Kontoen kunne ikke oprettes. Prøv igen." };
+    return { error: "Kontoen kunne ikke oprettes. Prøv igen.", udfyldt };
   }
 
   // Virksomheden oprettes med det samme, så onboarding har noget at hænge på.
@@ -158,6 +182,7 @@ export async function signup(
       error: /duplicate|unique/i.test(firmaFejl.message)
         ? "Der findes allerede en konto med dette CVR-nummer. Log ind i stedet, eller skriv til os."
         : "Virksomheden kunne ikke oprettes. Prøv igen, eller skriv til os.",
+      udfyldt,
     };
   }
 
