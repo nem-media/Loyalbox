@@ -11,6 +11,7 @@ import { stripe } from "@/lib/stripe";
 import { erGyldigtPostnummer, POSTNUMMER_FEJL } from "@/lib/adresse";
 import { isStripeConfigured } from "@/lib/commerce";
 import { noterAdminHandling } from "@/lib/admin-log";
+import { noterFejl } from "@/lib/drift";
 import { tilfoejAdresseAdmin } from "@/lib/ekstra-adresse";
 import { adresserTilladt } from "@/lib/abonnement";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -290,10 +291,26 @@ export async function saelgAdresseAdmin(
   // STRIPES SVAR OG IKKE `foer + 1`. Kolonnen skal blive ved at svare til
   // abonnementet, og det gør den kun, hvis den skrives af det, Stripe
   // faktisk står med bagefter.
-  await service
+  /*
+   * DENNE SKRIVNING SKER EFTER, AT STRIPE ER HÆVET — altså efter at kunden
+   * har fået en regning. Rammer den nul rækker, driver kolonnen og
+   * abonnementet fra hinanden, og det er præcis dét, hele funktionen findes
+   * for at forhindre. Så skal det råbes op, ikke gå stille forbi.
+   */
+  const { data: ramtFirma, error: firmaFejl } = await service
     .from("companies")
     .update({ adresser_tilladt: svar.adresserTilladt })
-    .eq("id", companyId);
+    .eq("id", companyId)
+    .select("id");
+
+  if (firmaFejl || !ramtFirma?.length) {
+    await noterFejl(
+      "adresse-solgt",
+      `Stripe er hævet til ${svar.adresserTilladt} adresser for ${companyId}, ` +
+        `men kolonnen blev ikke skrevet (${firmaFejl?.message ?? "ingen rækker ramt"}). ` +
+        "Ret den i hånden — ellers møder kunden \"skriv til os\" for noget, hun betaler for.",
+    );
+  }
 
   const { error: standFejl } = await service.from("stands").insert({
     company_id: companyId,
@@ -455,8 +472,20 @@ export async function setCompanyProduct(formData: FormData): Promise<void> {
     plan: planForProduct(slug || null),
   };
 
-  const { error } = await supabase.from("companies").update(efter).eq("id", id);
-  if (error) return;
+  /*
+   * NUL RÆKKER ER IKKE EN FEJL FOR POSTGREST — MEN DET ER EN FOR LOGGEN.
+   *
+   * `update` svarer glad uden at have ramt noget, og `error` er så null.
+   * Uden `select` ville linjen i `admin_log` påstå et produktskifte, der
+   * aldrig fandt sted — og en revisionslog, der kan lyve, er værre end ingen,
+   * for den bliver troet på. Samme greb som i webhooken.
+   */
+  const { data: ramt, error } = await supabase
+    .from("companies")
+    .update(efter)
+    .eq("id", id)
+    .select("id");
+  if (error || !ramt?.length) return;
 
   await noterAdminHandling({
     actorId: bruger.id,
@@ -614,8 +643,15 @@ export async function genoptagKundeforhold(
     plan: planForProduct(foer.product_slug ?? null),
   };
 
-  const { error } = await supabase.from("companies").update(efter).eq("id", id);
+  // Samme grund som ved produktskiftet: rammer opdateringen nul rækker, må
+  // loggen ikke påstå, at kundeforholdet blev genoptaget.
+  const { data: ramt, error } = await supabase
+    .from("companies")
+    .update(efter)
+    .eq("id", id)
+    .select("id");
   if (error) return { error: error.message };
+  if (!ramt?.length) return { error: "Virksomheden blev ikke opdateret." };
 
   await noterAdminHandling({
     actorId: bruger.id,
