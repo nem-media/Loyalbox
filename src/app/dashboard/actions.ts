@@ -8,15 +8,18 @@ import { generateSlug } from "@/lib/utils";
 import { tierCan, TIER_ORDER, type Tier } from "@/lib/constants";
 import { erGyldigtCvr, normaliserCvr, CVR_FEJL } from "@/lib/cvr";
 import { erGyldigtPostnummer, POSTNUMMER_FEJL } from "@/lib/adresse";
-import { erGyldigUrl } from "@/lib/bestilling-uden-konto";
+import {
+  erGyldigUrl,
+  laesDestination,
+} from "@/lib/bestilling-uden-konto";
 import {
   MAKS_EGNE_PLATFORME,
   MAKS_ANMELDELSESLINKS,
   EGEN_PLATFORM_NAVN_MAKS,
+  tjekStanderLinks,
 } from "@/lib/stands";
 import { adresseSpaerre, ADRESSE_TEKSTER } from "@/lib/abonnement";
 import { begraens, TEKST_MAKS } from "@/lib/tekstgraenser";
-import type { DestinationType } from "@/lib/types/database";
 
 export interface FormResult {
   ok?: boolean;
@@ -290,13 +293,28 @@ export async function updateStand(
     };
   }
 
+  /**
+   * ADRESSERNE PRØVES — OG DET GJORDE DE KUN FOR "EGNE PLATFORME".
+   *
+   * Kontrollen fandtes tyve linjer længere oppe, på det felt, der kom sidst
+   * til; de fire oprindelige ved siden af havde den ikke. Reglen ligger nu i
+   * `tjekStanderLinks()`, fordi admins supportformular skriver de SAMME fire
+   * kolonner og havde nøjagtig samme hul.
+   */
+  const linkFejl = tjekStanderLinks(
+    (felt) => String(formData.get(felt) ?? ""),
+    erGyldigUrl,
+  );
+  if (linkFejl) return { error: linkFejl };
+
   // Uden dynamicLinks er destinationen låst til Google og de øvrige
   // linktyper kan ikke sættes fra klienten.
   const dynamicFields = canDynamicLinks
     ? {
-        destination_type: String(
-          formData.get("destination_type") ?? "google",
-        ) as DestinationType,
+        // `as` ville være en påstand om noget udefra; listen over
+        // destinationer er i forvejen den fulde sandhed, så den bruges til at
+        // PRØVE værdien i stedet. Samme regel som `laesValg()`.
+        destination_type: laesDestination(formData.get("destination_type")),
         trustpilot_url:
           String(formData.get("trustpilot_url") ?? "").trim() || null,
         facebook_url: String(formData.get("facebook_url") ?? "").trim() || null,
@@ -304,7 +322,9 @@ export async function updateStand(
         custom_label: begraens(formData.get("custom_label"), TEKST_MAKS.etiket) || null,
         egne_platforme: egnePlatforme,
       }
-    : { destination_type: "google" as DestinationType };
+    : // En literal og ikke noget udefra — `as const` holder typen smal uden
+      // at påstå noget om en værdi, vi ikke selv har skrevet.
+      { destination_type: "google" as const };
 
   const supabase = await createClient();
   const { error } = await supabase

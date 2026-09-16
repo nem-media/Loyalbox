@@ -95,3 +95,40 @@ describe("medlemskabets indsættelse", () => {
     expect(KROP.slice(i, i + 300)).toMatch(/ikke tilmeldt stempelkortet/);
   });
 });
+
+describe("et datovindue, der slutter før det begynder", () => {
+  /**
+   * `programVindue()` svarer "foer", indtil startdatoen er nået, og "efter"
+   * bagefter — ligger slutdatoen først, findes der ikke én dag, hvor svaret
+   * er "aktiv". **Målt i brugerfladen 2026-09-16:** start 1. jan. 2027 og
+   * slut 1. jan. 2026 blev gemt uden en lyd, og forhåndsvisningen skrev
+   * "Kortet gælder fra 1. jan. 2027" — et løfte om en dag, hvor kortet i
+   * virkeligheden er udløbet.
+   */
+  const KODE = udenKommentarer(
+    readFileSync(
+      join(process.cwd(), "src/app/dashboard/loyalitet/actions.ts"),
+      "utf8",
+    ),
+  );
+
+  it("afvises ved oprettelse OG ved rettelse", () => {
+    for (const navn of ["createProgram", "updateProgram"]) {
+      const i = KODE.indexOf(`export async function ${navn}(`);
+      expect(i, `${navn} findes ikke`).toBeGreaterThan(-1);
+      const rest = KODE.slice(i);
+      const slut = rest.indexOf("\nexport ");
+      const krop = slut === -1 ? rest : rest.slice(0, slut);
+      expect(krop, `${navn} tjekker ikke datovinduet`).toContain(
+        "datoVinduetVendtOm(formData)",
+      );
+    }
+  });
+
+  /** Ét felt tomt er lovligt — og en endagsdato er det også. */
+  it("kun et omvendt vindue rammes", () => {
+    const m = /function datoVinduetVendtOm[\s\S]*?\n}/.exec(KODE);
+    expect(m).not.toBeNull();
+    expect(m![0]).toMatch(/!start \|\| !slut \|\| slut >= start/);
+  });
+});

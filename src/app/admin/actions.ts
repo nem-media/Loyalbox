@@ -14,10 +14,15 @@ import { noterAdminHandling } from "@/lib/admin-log";
 import { noterFejl } from "@/lib/drift";
 import { tilfoejAdresseAdmin } from "@/lib/ekstra-adresse";
 import { adresserTilladt } from "@/lib/abonnement";
+import { tjekStanderLinks } from "@/lib/stands";
+import {
+  erGyldigUrl,
+  laesDestination,
+} from "@/lib/bestilling-uden-konto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { justerLager, saetLager, erLagerFarve } from "@/lib/lager";
 import { SUPPORT_COOKIE } from "@/lib/support-adgang";
-import type { DestinationType, OrderStatus } from "@/lib/types/database";
+import type { OrderStatus } from "@/lib/types/database";
 
 async function requireAdmin() {
   const user = await getCurrentUser();
@@ -348,12 +353,22 @@ export async function updateStandLinks(
   const companyId = String(formData.get("company_id") ?? "");
   if (!standId) return { error: "Ugyldig stander." };
 
+  /**
+   * SAMME KONTROL SOM PÅ BUTIKKENS EGEN SIDE. Admin er den betroede af de to
+   * veje til de her fire kolonner — men også den, der RETTER en kundes link,
+   * når kunden ikke selv kan komme videre. En tastefejl her er præcis lige så
+   * dyr: adressen bliver trykt på et skilt, der ikke kan kaldes tilbage.
+   */
+  const linkFejl = tjekStanderLinks(
+    (felt) => String(formData.get(felt) ?? ""),
+    erGyldigUrl,
+  );
+  if (linkFejl) return { error: linkFejl };
+
   const supabase = await createClient();
 
   const felter = {
-    destination_type: String(
-      formData.get("destination_type") ?? "google",
-    ) as DestinationType,
+    destination_type: laesDestination(formData.get("destination_type")),
     google_review_url:
       String(formData.get("google_review_url") ?? "").trim() || null,
     trustpilot_url: String(formData.get("trustpilot_url") ?? "").trim() || null,

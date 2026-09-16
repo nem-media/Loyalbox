@@ -80,6 +80,23 @@ export function erGyldigUrl(raw: string): boolean {
   }
 }
 
+/**
+ * Læs destinationstypen fra en formular — kun en værdi, `DESTINATIONER` kender.
+ *
+ * `as DestinationType` stod to steder på et felt, der kommer udefra. Feltet er
+ * ganske vist en `<select>`, vi selv har tegnet, så en ukendt værdi er en
+ * formular på afveje og ikke en bruger, der skal have en fejlbesked — derfor
+ * faldes der tilbage på Google. Men listen er i forvejen den fulde sandhed om
+ * lovlige værdier, så den kan lige så godt bruges til at PRØVE dem. Samme
+ * regel som `laesValg()` i loyalitetsmodulet.
+ */
+export function laesDestination(raa: unknown): DestinationType {
+  const v = String(raa ?? "");
+  return DESTINATIONER.some((d) => d.vaerdi === v)
+    ? (v as DestinationType)
+    : "google";
+}
+
 /** Ser det ud som en mailadresse? Bevidst løs — Stripe og mailen er den rigtige prøve. */
 export function erGyldigEmail(raw: string): boolean {
   const v = raw.trim();

@@ -60,6 +60,28 @@ function numOrNull(v: FormDataEntryValue | null): number | null {
 const loyaltyInPlan = stempelkortIPlan;
 
 /**
+ * ET VINDUE, DER SLUTTER FØR DET BEGYNDER, ER ET KORT, DER ALDRIG VIRKER.
+ *
+ * `programVindue()` svarer "foer", så længe startdatoen ligger fremme, og
+ * "efter" bagefter — er slutdatoen den tidligste, findes der ikke en eneste
+ * dag, hvor svaret er "aktiv". **Målt i brugerfladen 2026-09-16:** et kort
+ * med start 1. jan. 2027 og slut 1. jan. 2026 blev gemt uden en lyd, og
+ * forhåndsvisningen skrev "Kortet gælder fra 1. jan. 2027" — altså et løfte
+ * om en dag, hvor kortet i virkeligheden er udløbet. Butikken ville sætte
+ * kortet i drift, tro at det kørte, og først opdage det ved disken.
+ *
+ * Datoerne sammenlignes som tekst, fordi de ER tekst (`yyyy-mm-dd` fra
+ * `<input type="date">`), og den form sorterer rigtigt af sig selv. En
+ * `Date` ville hertil tilføje en tidszone, som spørgsmålet ikke handler om.
+ */
+function datoVinduetVendtOm(formData: FormData): string | null {
+  const start = String(formData.get("start_date") ?? "").trim();
+  const slut = String(formData.get("end_date") ?? "").trim();
+  if (!start || !slut || slut >= start) return null;
+  return "Slutdatoen ligger før startdatoen, og så er der ingen dage, hvor kortet gælder. Byt om på dem, eller lad det ene felt stå tomt.";
+}
+
+/**
  * Opretter et stempelkort (program + primær belønning). Config skrives af ejer
  * via RLS. Kun brugere med canManage må oprette.
  */
@@ -71,6 +93,9 @@ export async function createProgram(
   if (!access || !access.permissions.canManage) {
     return { error: "Du har ikke adgang til at oprette stempelkort." };
   }
+
+  const vindueFejl = datoVinduetVendtOm(formData);
+  if (vindueFejl) return { error: vindueFejl };
   if (!(await loyaltyInPlan(access.companyId))) {
     return { error: "Stempelkort er ikke med i dit abonnement." };
   }
@@ -160,6 +185,9 @@ export async function updateProgram(
   if (!access || !access.permissions.canManage) {
     return { error: "Du har ikke adgang til at rette stempelkort." };
   }
+
+  const vindueFejl = datoVinduetVendtOm(formData);
+  if (vindueFejl) return { error: vindueFejl };
   if (!(await loyaltyInPlan(access.companyId))) {
     return { error: "Stempelkort er ikke med i dit abonnement." };
   }
