@@ -196,11 +196,46 @@ export async function selfEnroll(
       })
       .select("id, public_token")
       .single();
-    if (error || !member) {
+
+    /*
+     * OPSLAGET OVENFOR ER IKKE EN REGEL — INDEKSET ER (migration 0042).
+     *
+     * To samtidige tilmeldinger med samme e-mail læste begge "findes ikke" og
+     * oprettede begge. Målt på demodata: **to kort med hver sit token**.
+     * Kunden står med to, og kun det ene kan findes igen, for både
+     * `selfEnroll` og `/kort/find` slår op med `limit(1)` og rammer vilkårligt
+     * det ene — stemplerne fordeler sig så på to kort, uden at nogen kan se
+     * hvorfor.
+     *
+     * Det sker ved to tryk på "Opret mit stempelkort", og dét er der ingen
+     * grund til at tro, folk ikke gør: knappen svarer ikke med det samme, og
+     * man står ved en disk.
+     *
+     * Taber man kapløbet (`23505`), har den anden anmodning netop oprettet
+     * KUNDENS kort. Så slås det op og bruges — det er det samme kort, hun
+     * skulle have haft.
+     */
+    if (error?.code === "23505") {
+      const { data: vandt } = await admin
+        .from("loyalty_members")
+        .select("id, public_token")
+        .eq("company_id", stand.company_id)
+        .or(
+          [email ? `email.eq.${email}` : "", phone ? `phone.eq.${phone}` : ""]
+            .filter(Boolean)
+            .join(","),
+        )
+        .limit(1)
+        .maybeSingle();
+      if (!vandt) return fejl("Kunne ikke oprette kortet. Prøv igen.");
+      memberId = vandt.id;
+      token = vandt.public_token;
+    } else if (error || !member) {
       return fejl("Kunne ikke oprette kortet. Prøv igen.");
+    } else {
+      memberId = member.id;
+      token = member.public_token;
     }
-    memberId = member.id;
-    token = member.public_token;
   } else if (ejer && token) {
     // Eksisterende, endnu ikke tilknyttet kort — knyt det til den indloggede,
     // men KUN når e-mailen er den samme. Se kommentaren ved `sammeKonto`.
@@ -215,11 +250,22 @@ export async function selfEnroll(
     .eq("member_id", memberId)
     .maybeSingle();
   if (!membership) {
-    await admin.from("loyalty_memberships").insert({
-      company_id: stand.company_id,
-      program_id: program.id,
-      member_id: memberId,
-    });
+    /*
+     * `unique (program_id, member_id)` fra 0004 er vagten her, og den var der
+     * i forvejen — men svaret blev ikke set på. En dublet er ufarlig at møde:
+     * den betyder, at medlemskabet allerede findes, hvilket er præcis dét, vi
+     * ville sikre. Alt ANDET skal derimod kunne ses.
+     */
+    const { error: msFejl } = await admin
+      .from("loyalty_memberships")
+      .insert({
+        company_id: stand.company_id,
+        program_id: program.id,
+        member_id: memberId,
+      });
+    if (msFejl && msFejl.code !== "23505") {
+      return fejl("Kortet blev oprettet, men kunne ikke knyttes til stempelkortet. Prøv igen.");
+    }
   }
 
   // Samtykke

@@ -227,9 +227,41 @@ export async function updateProgram(
       is_primary: true,
       status: "active" as const,
     };
-    const { error: belErr } = primaer
-      ? await supabase.from("loyalty_rewards").update(rewardFelter).eq("id", primaer.id)
-      : await supabase.from("loyalty_rewards").insert(rewardFelter);
+    /*
+     * ÉN PRIMÆR BELØNNING PR. PROGRAM — OG DET AFGØRES AF BASEN (0042).
+     *
+     * Opslaget ovenfor er læst for et øjeblik siden. To samtidige
+     * redigeringer af samme stempelkort — to faner, eller et dobbelt tryk på
+     * "Gem" — fandt begge ingen primær og oprettede begge én.
+     *
+     * OG DET ER VÆRRE, END DET LYDER. `giveStamp()` slår den primære op med
+     * `.maybeSingle()`, og med to rækker svarer PostgREST 406/PGRST116.
+     * Fejlen blev slugt, `reward` blev null, og der blev **aldrig udstedt en
+     * belønning igen**. Butikkens stempelkort holdt op med at virke, uden at
+     * noget fejlede nogen steder. Målt på demodata.
+     *
+     * Taber man kapløbet, har den anden gemning netop oprettet belønningen —
+     * så den opdateres i stedet. Butikken har trykket "Gem" og skal se sine
+     * værdier stå der, uanset hvilken af de to der kom først.
+     */
+    let belErr = primaer
+      ? (await supabase.from("loyalty_rewards").update(rewardFelter).eq("id", primaer.id)).error
+      : (await supabase.from("loyalty_rewards").insert(rewardFelter)).error;
+
+    if (belErr?.code === "23505") {
+      const { data: vandt } = await supabase
+        .from("loyalty_rewards")
+        .select("id")
+        .eq("program_id", id)
+        .eq("is_primary", true)
+        .maybeSingle();
+      belErr = vandt
+        ? (await supabase
+            .from("loyalty_rewards")
+            .update(rewardFelter)
+            .eq("id", vandt.id)).error
+        : belErr;
+    }
     if (belErr) return { error: belErr.message };
   }
 
