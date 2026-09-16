@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { GUIDES, getGuide } from "./guides";
 import { EARN_MODEL_LABELS } from "./loyalty/constants";
@@ -44,6 +44,28 @@ describe("GUIDES", () => {
         `${g.id}: ${g.href}`,
       ).toBe(true);
     }
+  });
+
+  /**
+   * ...OG SIDEN SKAL FAKTISK FINDES.
+   *
+   * Prøven ovenfor godtager et MØNSTER, ikke en virkelighed: en vejledning
+   * kunne pege på `/dashboard/loyalitet/rabatter/ny` og bestå, længe efter at
+   * siden var flyttet eller fjernet. Kunden ville så følge en vejledning hen
+   * til en 404 — og vejledningerne er netop dét, en butik læser, når de ikke
+   * kan finde rundt i forvejen.
+   *
+   * Der læses i filsystemet, fordi en rute i Next ER en mappe med en
+   * `page.tsx`. Efterprøvet 2026-09-16: alle otte findes.
+   */
+  it("hver rute har en side på disken", () => {
+    const uden = GUIDES.filter((g) => g.href).filter(
+      (g) => !existsSync(join(process.cwd(), "src/app", g.href!, "page.tsx")),
+    );
+    expect(
+      uden.map((g) => `${g.id}: ${g.href}`),
+      "vejledningen sender kunden til en side, der ikke findes",
+    ).toEqual([]);
   });
 
   /**
