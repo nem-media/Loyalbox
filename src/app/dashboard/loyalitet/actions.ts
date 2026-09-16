@@ -13,12 +13,13 @@ import {
   grantDiscount,
   redeemDiscount,
 } from "@/lib/loyalty/service";
-import type {
-  EarnModel,
-  ProgramStatus,
-  RewardType,
-  DiscountType,
-  DiscountStatus,
+import {
+  laesValg,
+  EARN_MODEL_LABELS,
+  REWARD_TYPE_LABELS,
+  PROGRAM_STATUS_LABELS,
+  DISCOUNT_TYPE_LABELS,
+  DISCOUNT_STATUS_LABELS,
 } from "@/lib/loyalty/constants";
 import { begraens, TEKST_MAKS } from "@/lib/tekstgraenser";
 
@@ -69,9 +70,9 @@ export async function createProgram(
     return { error: "Antal stempler til belønning skal være mindst 1." };
   }
   const stampsPerEarn = Math.max(1, int(formData.get("stamps_per_earn"), 1));
-  const earnModel = str(formData.get("earn_model")) as EarnModel;
-  const rewardType = str(formData.get("reward_type")) as RewardType;
-  const status = (str(formData.get("status")) || "draft") as ProgramStatus;
+  const earnModel = laesValg(formData.get("earn_model"), EARN_MODEL_LABELS, "per_purchase");
+  const rewardType = laesValg(formData.get("reward_type"), REWARD_TYPE_LABELS, "free_product");
+  const status = laesValg(formData.get("status"), PROGRAM_STATUS_LABELS, "draft");
 
   const supabase = await createClient();
   const { data: program, error } = await supabase
@@ -160,8 +161,8 @@ export async function updateProgram(
   if (requiredStamps < 1) {
     return { error: "Antal stempler til belønning skal være mindst 1." };
   }
-  const earnModel = str(formData.get("earn_model")) as EarnModel;
-  const rewardType = str(formData.get("reward_type")) as RewardType;
+  const earnModel = laesValg(formData.get("earn_model"), EARN_MODEL_LABELS, "per_purchase");
+  const rewardType = laesValg(formData.get("reward_type"), REWARD_TYPE_LABELS, "free_product");
 
   const supabase = await createClient();
   const { data: opdateret, error } = await supabase
@@ -293,7 +294,7 @@ export async function setProgramStatus(formData: FormData): Promise<void> {
   if (!(await loyaltyInPlan(access.companyId))) return;
 
   const id = str(formData.get("program_id"));
-  const status = str(formData.get("status")) as ProgramStatus;
+  const status = laesValg(formData.get("status"), PROGRAM_STATUS_LABELS, "draft");
   if (!id) return;
 
   const supabase = await createClient();
@@ -485,14 +486,14 @@ export async function createDiscount(
     company_id: access.companyId,
     name,
     description: str(formData.get("description")) || null,
-    type: str(formData.get("type")) as DiscountType,
+    type: laesValg(formData.get("type"), DISCOUNT_TYPE_LABELS, "percent"),
     value: numOrNull(formData.get("value")) ?? 0,
     min_purchase: numOrNull(formData.get("min_purchase")),
     max_discount: numOrNull(formData.get("max_discount")),
     per_customer_limit: numOrNull(formData.get("per_customer_limit")),
     total_limit: numOrNull(formData.get("total_limit")),
     requires_approval: bool(formData.get("requires_approval")),
-    status: (str(formData.get("status")) || "active") as DiscountStatus,
+    status: laesValg(formData.get("status"), DISCOUNT_STATUS_LABELS, "active"),
   });
   if (error) return { error: error.message };
 
@@ -506,7 +507,7 @@ export async function setDiscountStatus(formData: FormData): Promise<void> {
   if (!access || !access.permissions.canManage) return;
   if (!(await loyaltyInPlan(access.companyId))) return;
   const id = str(formData.get("discount_id"));
-  const status = str(formData.get("status")) as DiscountStatus;
+  const status = laesValg(formData.get("status"), DISCOUNT_STATUS_LABELS, "active");
   if (!id) return;
   const supabase = await createClient();
   await supabase

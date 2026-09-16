@@ -210,3 +210,35 @@ export const PROGRAM_TEMPLATES: ProgramTemplate[] = [
  */
 export const REVIEW_INDEPENDENCE_NOTICE =
   "Belønningen må ikke gives mod, at kunden ændrer, sletter eller skriver en offentlig anmeldelse.";
+
+/**
+ * LÆS EN VÆRDI FRA EN FORMULAR, DER SKAL VÆRE ÉN AF DE KENDTE.
+ *
+ * Der stod `String(formData.get("x")) as EarnModel` tretten steder. `as` er en
+ * PÅSTAND, ikke en kontrol: TypeScript tror på den, og hvad der faktisk kom
+ * ind, afgøres først af databasen. En værdi uden for enum'en giver derfor en
+ * rå PostgreSQL-besked til butikken — eller, dér hvor svaret ikke blev læst,
+ * slet ingenting (se `setOrderStatus` i #212).
+ *
+ * Etiket-kortene er i forvejen den fulde liste over lovlige værdier, og de
+ * bruges til at tegne valgmulighederne. Så kan de også bruges til at prøve
+ * dem: én kilde, og en ny værdi kan ikke glide ind uden en etiket.
+ *
+ * FALDER TILBAGE frem for at afvise. Felterne kommer fra en `<select>`, vi
+ * selv har tegnet, så en ukendt værdi er ikke en bruger, der skal have en
+ * fejlbesked — det er en formular, der er kommet på afveje. Standardværdien
+ * er den, der er sikrest at lande på.
+ */
+export function laesValg<T extends string>(
+  raa: FormDataEntryValue | null,
+  lovlige: Record<T, unknown>,
+  // `NoInfer` er ikke pynt: uden den udleder TypeScript `T` af STANDARDVÆRDIEN
+  // og snævrer typen til netop dén ene streng — så `rewardType === "none"`
+  // bagefter ser ud som en sammenligning, der aldrig kan være sand, og
+  // oversætteren afviser gyldig kode. Listen er kilden; standarden er et valg
+  // inde i den.
+  standard: NoInfer<T>,
+): T {
+  const v = String(raa ?? "");
+  return Object.prototype.hasOwnProperty.call(lovlige, v) ? (v as T) : standard;
+}

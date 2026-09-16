@@ -5,6 +5,7 @@ import { getCompanyAccess } from "@/lib/loyalty/access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { stempelkortIPlan } from "@/lib/loyalty/plan";
 import type { ProgramStatus } from "@/lib/loyalty/constants";
+import { laesValg, PROGRAM_STATUS_LABELS } from "@/lib/loyalty/constants";
 
 /**
  * Medarbejderens egne stempelkort-handlinger.
@@ -57,7 +58,7 @@ export async function opretStempelkort(
 
   // Kun de tre statusser en medarbejder må vælge. Alt andet bliver til kladde,
   // så et forkert felt aldrig kan udgive et kort, ingen mente at udgive.
-  const oensket = tekst(formData.get("status")) as ProgramStatus;
+  const oensket = laesValg(formData.get("status"), PROGRAM_STATUS_LABELS, "draft");
   const status: ProgramStatus = MEDARBEJDER_STATUS.includes(oensket)
     ? oensket
     : "draft";
@@ -120,7 +121,7 @@ export async function saetStempelkortStatus(
   }
 
   const id = tekst(formData.get("program_id"));
-  const oensket = tekst(formData.get("status")) as ProgramStatus;
+  const oensket = laesValg(formData.get("status"), PROGRAM_STATUS_LABELS, "draft");
   if (!id) return { error: "Ukendt stempelkort." };
   if (!MEDARBEJDER_STATUS.includes(oensket)) {
     return { error: "Ugyldig status." };
