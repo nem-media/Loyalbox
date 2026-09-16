@@ -255,9 +255,30 @@ export type StripeMode = "test" | "live";
 
 export interface StripeIds {
   productId: string;
-  /** Engangsbeløbet (standeren). */
+  /**
+   * Engangsbeløbet (standeren) som et GEMT prisobjekt hos Stripe.
+   *
+   * DET BRUGES IKKE TIL AT OPKRÆVE NOGET, og det er vigtigt at vide, før man
+   * gør det. Standerlinjen sendes som `price_data` med en enhedspris, der
+   * REGNES UD af `priceFor()` — fordi beløbet afhænger af antallet
+   * (`VOLUME_DISCOUNTS`) og af standerfarven (`SORT_STANDER_TILLAEG`), og et
+   * fast prisobjekt kan ikke bære en mængderabat. Kun `productId` bruges fra
+   * denne blok ved et engangskøb, så varens NAVN står rigtigt på fakturaen.
+   *
+   * MÅLT 2026-09-16: prisobjekterne i testtilstand står på **399 kr**, mens
+   * kataloget — og den offentlige produktside, og det kunden opkræves — står
+   * på **499 kr**. Tallet i Stripe er efterladt fra dengang standeren kostede
+   * 399, og det er harmløst netop så længe ingen tager det i brug.
+   *
+   * SKIFTER NOGEN LINJEN TIL `price: ids.priceId`, ville hver eneste kunde
+   * blive opkrævet 100 kr for lidt, uden at noget som helst fejlede.
+   * `pris-graenseflade.test.ts` er sat til at fange præcis dét.
+   *
+   * `monthlyPriceId` er en anden sag: den BRUGES, og live-priserne er
+   * efterprøvet i Stripes dashboard (Pro 99 kr/md, Komplet 399 kr/md).
+   */
   priceId: string;
-  /** Det månedlige abonnement. Kun på abonnementsvarer. */
+  /** Det månedlige abonnement. Kun på abonnementsvarer. BRUGES ved købet. */
   monthlyPriceId?: string;
 }
 
