@@ -57,7 +57,7 @@ export default async function AktiverPage({
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-xl px-4 py-20">
+      <main id="indhold" className="mx-auto max-w-xl px-4 py-20">
         <h1 className="text-2xl font-bold tracking-tight">
           {firma?.name ? `Velkommen, ${firma.name}` : "Opret din adgang"}
         </h1>

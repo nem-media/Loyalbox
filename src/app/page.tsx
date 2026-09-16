@@ -183,7 +183,7 @@ export default function LandingPage() {
       />
       <SiteHeader />
 
-      <main>
+      <main id="indhold">
         {/* ---------------------------------------------------------- hero */}
         {/* Ingen baggrundsfoto her: hero-cafe.jpg viser en reviewstander og
             hører hjemme på /reviewstander. En ren gradient holder heroen om

@@ -114,7 +114,7 @@ export function DashboardShell({
 
       {/* `bg-app-bg` og ikke `bg-background`: kortene er hvide, så grunden
           skal være noget andet end hvid, ellers ligger de ikke PÅ noget. */}
-      <main className="panel flex-1 bg-app-bg">
+      <main id="indhold" className="panel flex-1 bg-app-bg">
         {/*
           SUPPORTBANNERET LIGGER UDEN FOR max-w-5xl og i fuld bredde, så det
           ikke kan forveksles med sidens eget indhold. Det er en advarsel om,

@@ -66,6 +66,24 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full">
+        {/*
+          SPRINGLINK — FØRSTE TABSTOP PÅ HVER SIDE.
+
+          Målt 2026-09-16: første tabstop var menupunktet "Platform". En, der
+          bruger tastatur eller skærmlæser, skulle altså igennem hele menuen
+          på HVER side, før indholdet begyndte — på et dashboard med tolv
+          menupunkter er det tolv tryk hver eneste gang.
+
+          Linket er skjult, indtil det får fokus; så springer det frem øverst.
+          Det er dét, der gør, at det ikke koster noget for alle andre.
+          `#indhold` findes på hver enkelt `<main>` — efterprøvet: alle 18.
+        */}
+        <a
+          href="#indhold"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:box-shape focus:bg-dark focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus:outline-none focus:ring-2 focus:ring-accent"
+        >
+          Spring til indhold
+        </a>
         {children}
         <PwaRegister />
         <Analytics />

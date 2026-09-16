@@ -245,7 +245,7 @@ export default async function OrderPage({
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-6xl px-4 py-16">
+      <main id="indhold" className="mx-auto max-w-6xl px-4 py-16">
         {selected ? (
           /*
            * BREDDEN FØLGER INDHOLDET. Designeren er to spalter fra `lg`, og

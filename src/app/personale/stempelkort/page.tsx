@@ -106,7 +106,7 @@ export default async function StaffProgramsPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl px-4 py-8">
+      <main id="indhold" className="mx-auto max-w-2xl px-4 py-8">
         <Link href="/personale" className="text-sm text-accent">
           ← Tilbage
         </Link>
