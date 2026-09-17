@@ -520,6 +520,30 @@ export async function POST(request: NextRequest) {
       integration_identifier: INTEGRATION_ID,
       client_reference_id: company.id,
       locale: "da",
+      /*
+       * RABATKODEFELTET. Uden dette ene ord findes feltet slet ikke i
+       * betalingsvinduet, og en kampagnekode kan hverken tastes eller
+       * indløses — koden ville findes hos Stripe og være umulig at bruge.
+       *
+       * KODERNE LAVES I STRIPE (Produkter → Kuponer), ikke her. Det er med
+       * vilje: en kampagne er en forretningsbeslutning, der skal kunne
+       * ændres og stoppes uden en udrulning, og priserne i KATALOG skal
+       * blive ved med at være listeprisen.
+       *
+       * ET NUL-BELØB ER EN GYLDIG BETALING. Giver koden 100 % rabat,
+       * svarer sessionen `no_payment_required` i stedet for `paid`, og der
+       * findes ingen `payment_intent`. Begge dele er der taget højde for:
+       * BETALTE_SESSIONER indeholder `no_payment_required`, og
+       * `paymentIntentFor()` giver null frem for at kaste. Ordren flyttes
+       * derfor til `needs_onboarding` som ethvert andet køb — den bliver
+       * pakket og sendt, og designet bliver ikke ryddet som forladt.
+       *
+       * BEMÆRK: ordrens `total_amount` er vores listepris, skrevet FØR
+       * kunden har set betalingsvinduet. Den kan ikke kende en rabat, der
+       * tastes bagefter. Stripe er sandheden om, hvad der faktisk blev
+       * betalt; ordren i admin linker derhen.
+       */
+      allow_promotion_codes: true,
       billing_address_collection: "required",
       // Leveringsadressen indsamles KUN ved et fysisk køb. Ved en genoptagelse
       // sendes der ikke noget — standeren står allerede på disken.
