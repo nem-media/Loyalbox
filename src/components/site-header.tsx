@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand";
-import { ButtonLink } from "@/components/ui/button";
-import { MobileNav, type NavLink } from "@/components/mobile-nav";
-import { getCurrentUser } from "@/lib/auth";
+import { HeaderKonto } from "@/components/header-konto";
+import { type NavLink } from "@/components/mobile-nav";
 
 /**
  * Platform først: LoyalSum er en samlet platform, og reviewstanderen er ét
@@ -18,10 +17,16 @@ const NAV_LINKS: NavLink[] = [
   { href: "/kontakt", label: "Kontakt" },
 ];
 
-export async function SiteHeader() {
-  const user = await getCurrentUser();
-  const dashboardHref = user?.role === "admin" ? "/admin" : "/dashboard";
-
+/**
+ * HEADEREN LÆSER IKKE LÆNGERE SESSIONEN — og det er derfor, ti
+ * marketingsider nu kan være statiske. Det ene `getCurrentUser()`, der stod
+ * her, gjorde hver eneste side, der bærer headeren, dynamisk og dermed
+ * `no-store`. Begrundelsen og de tre valg bag opdelingen står i
+ * `HeaderKonto`; her er kun tilbage, at komponenten IKKE er `async` — bliver
+ * den det igen, forsvinder gevinsten uden at nogen opdager det, og
+ * `statiske-sider.test.ts` er sat til at fejle netop dér.
+ */
+export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-dark/90 text-dark-fg backdrop-blur">
       <div className="mx-auto flex h-[90px] max-w-6xl items-center justify-between px-4">
@@ -37,39 +42,7 @@ export async function SiteHeader() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
-          <div className="hidden items-center gap-2 lg:flex">
-            {user ? (
-              <ButtonLink variant="secondary" href={dashboardHref} size="md">
-                Dashboard
-              </ButtonLink>
-            ) : (
-              <>
-                <ButtonLink
-                  href="/login"
-                  variant="ghost-invert"
-                  size="md"
-                  className="whitespace-nowrap"
-                >
-                  Log ind
-                </ButtonLink>
-                <ButtonLink
-                  href="/signup"
-                  size="md"
-                  className="whitespace-nowrap"
-                >
-                  Kom i gang
-                </ButtonLink>
-              </>
-            )}
-          </div>
-
-          <MobileNav
-            links={NAV_LINKS}
-            loggedIn={Boolean(user)}
-            dashboardHref={dashboardHref}
-          />
-        </div>
+        <HeaderKonto links={NAV_LINKS} />
       </div>
     </header>
   );
