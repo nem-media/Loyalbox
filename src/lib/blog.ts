@@ -1560,10 +1560,7 @@ export const POSTS: BlogPost[] = [
     image: "/blog/trustpilot-anmeldelser.svg",
     imageAlt:
       "Anmeldelsesprofil med stjernebedømmelse ved siden af en stander med QR-kode på en disk",
-    related: [
-      "saadan-faar-du-flere-google-anmeldelser",
-      "google-review-stander-guide",
-    ],
+    related: ["saadan-faar-du-flere-google-anmeldelser", "google-review-stander-guide", "flere-anmeldelser-butik", "flere-anmeldelser-autovaerksted"],
     body: [
       {
         type: "p",
@@ -1808,7 +1805,7 @@ export const POSTS: BlogPost[] = [
     image: "/blog/stempelkort-tre-slags.svg",
     imageAlt:
       "Tre stempelkort side om side: et slidt papkort, en telefon med et app-ikon og en telefon der viser et stempelkort i browseren",
-    related: ["hvor-mange-stempler-stempelkort", "kundeklub-uden-app-guide"],
+    related: ["hvor-mange-stempler-stempelkort", "kundeklub-uden-app-guide", "stempelkort-til-takeaway"],
     body: [
       {
         type: "p",
@@ -2034,7 +2031,7 @@ export const POSTS: BlogPost[] = [
     image: "/blog/stempelkort-antal-stempler.svg",
     imageAlt:
       "Digitalt stempelkort med ti felter, hvor syv er stemplet og det tiende felt er belønningen",
-    related: ["stempelkort-app-eller-papkort", "kundeklub-uden-app-guide"],
+    related: ["stempelkort-app-eller-papkort", "kundeklub-uden-app-guide", "stempelkort-til-takeaway", "fastholde-medlemmer-fitness"],
     body: [
       {
         type: "p",
@@ -2171,10 +2168,7 @@ export const POSTS: BlogPost[] = [
     image: "/blog/kundeklub-uden-app.svg",
     imageAlt:
       "Skilt med QR-kode på en disk ved siden af en telefon, der viser kundens stempelkort i browseren",
-    related: [
-      "stempelkort-app-eller-papkort",
-      "hvor-mange-stempler-stempelkort",
-    ],
+    related: ["stempelkort-app-eller-papkort", "hvor-mange-stempler-stempelkort", "fastholde-medlemmer-fitness"],
     body: [
       {
         type: "p",
@@ -2293,11 +2287,7 @@ export const POSTS: BlogPost[] = [
     image: "/blog/flere-google-anmeldelser.svg",
     imageAlt:
       "Kunde ved disken der giver fem stjerner på sin telefon efter at have scannet en stander",
-    related: [
-      "flere-trustpilot-anmeldelser",
-      "google-review-stander-guide",
-      "nfc-tag",
-    ],
+    related: ["flere-trustpilot-anmeldelser", "google-review-stander-guide", "nfc-tag", "flere-anmeldelser-restaurant", "anmeldelser-klinik"],
     body: [
       {
         type: "p",
@@ -2444,11 +2434,7 @@ export const POSTS: BlogPost[] = [
     image: "/blog/review-stander-qr-nfc.svg",
     imageAlt:
       "Reviewstander med QR-kode og NFC-felt, mens en telefon holdes hen til NFC-feltet",
-    related: [
-      "nfc-tag",
-      "qr-kode-til-google-anmeldelser",
-      "saadan-faar-du-flere-google-anmeldelser",
-    ],
+    related: ["nfc-tag", "qr-kode-til-google-anmeldelser", "saadan-faar-du-flere-google-anmeldelser", "flere-anmeldelser-restaurant", "flere-anmeldelser-butik"],
     body: [
       {
         type: "p",
@@ -2570,11 +2556,7 @@ export const POSTS: BlogPost[] = [
     image: "/blog/qr-kode-anmeldelser.svg",
     imageAlt:
       "QR-kode der scannes med en telefons kamera og fører direkte til virksomhedens anmeldelsesside",
-    related: [
-      "google-review-stander-guide",
-      "nfc-tag",
-      "saadan-faar-du-flere-google-anmeldelser",
-    ],
+    related: ["google-review-stander-guide", "nfc-tag", "saadan-faar-du-flere-google-anmeldelser", "anmeldelser-klinik", "flere-anmeldelser-autovaerksted"],
     body: [
       {
         type: "p",

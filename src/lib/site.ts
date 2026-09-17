@@ -84,3 +84,37 @@ export function isoTidspunkt(dato: string): string {
   const offset = zone?.replace("GMT", "") || "+01:00";
   return `${dato}T09:00:00${offset}`;
 }
+
+/**
+ * KORT NOK TIL ET SØGERESULTAT — OG ALDRIG KLIPPET MIDT I EN SÆTNING.
+ *
+ * Produktsiderne brugte `product.description` direkte som meta description, og
+ * den tekst er skrevet til at stå PÅ siden. Målt mod produktion 2026-09-17:
+ * Reviewstander Pro sendte **401 tegn** ud, LoyalSum Komplet 269 og
+ * Reviewstander 230. Google klipper omkring 155-160, og det, der bliver klippet
+ * væk, er slutningen — altså dét, der skulle få nogen til at klikke.
+ *
+ * DER OPFINDES INGEN TEKST HER. Funktionen tager hele sætninger, så længe de
+ * er plads til, og stopper. Et produkt uden en håndskrevet `metaDescription`
+ * får derfor stadig noget sandt og velformet — aldrig en halv sætning med "…".
+ *
+ * Grænsen er 155: Google måler i pixels og ikke tegn, så tallet er et skøn,
+ * men det er skønnet, alle bruger, og det er rigeligt til et fuldt uddrag.
+ */
+export function kortMetabeskrivelse(tekst: string, maks = 155): string {
+  const helSaetning = tekst.trim();
+  if (helSaetning.length <= maks) return helSaetning;
+
+  let ud = "";
+  for (const saetning of helSaetning.split(/(?<=[.!?]) /)) {
+    if (ud.length + saetning.length + 1 > maks) break;
+    ud = ud ? `${ud} ${saetning}` : saetning;
+  }
+  // Er selv den første sætning for lang, klippes der på et ORDskel frem for
+  // midt i et ord — stadig uden at love noget, teksten ikke sagde.
+  if (!ud) {
+    ud = helSaetning.slice(0, maks);
+    ud = ud.slice(0, ud.lastIndexOf(" ")).trimEnd();
+  }
+  return ud;
+}

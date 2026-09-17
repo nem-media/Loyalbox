@@ -284,3 +284,42 @@ describe("blogindhold", () => {
     }
   });
 });
+
+/**
+ * FJERDE REGEL: INGEN ARTIKEL MÅ VÆRE ET BLAD.
+ *
+ * `related` er håndholdt, og det viste sig at gå én vej. **Målt 2026-09-17:**
+ * seks af nitten artikler — de otte brancheartiklers flertal — blev nævnt af
+ * INGEN, mens de hver nævnte to andre. De linkede altså væk uden at modtage
+ * noget, og de eneste indgående links kom fra bloggens forside. Værre:
+ * stempelkort-guiderne pegede kun på hinanden, så der var ingen vej ud af
+ * trekanten til brancheartiklerne overhovedet.
+ *
+ * Det ses ikke ved at læse en artikel — kun ved at tegne hele grafen. Derfor
+ * står det som en prøve: den næste artikel skal også linkes TIL, ikke kun fra.
+ */
+describe("bloggens interne linkgraf", () => {
+  it("hver artikel nævnes af mindst én anden", () => {
+    const indgaaende = new Map(POSTS.map((p) => [p.slug, 0]));
+    for (const p of POSTS) {
+      for (const r of p.related ?? []) {
+        indgaaende.set(r, (indgaaende.get(r) ?? 0) + 1);
+      }
+    }
+    const blade = [...indgaaende]
+      .filter(([, n]) => n === 0)
+      .map(([slug]) => slug);
+    expect(
+      blade,
+      "disse artikler står kun på bloglisten — skriv dem ind i `related` " +
+        "på en artikel, de fagligt hører sammen med",
+    ).toEqual([]);
+  });
+
+  /** En artikel må ikke pege på sig selv — det ville vise sig som et link i ring. */
+  it("ingen artikel nævner sig selv", () => {
+    for (const p of POSTS) {
+      expect(p.related ?? [], p.slug).not.toContain(p.slug);
+    }
+  });
+});

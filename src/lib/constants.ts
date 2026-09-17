@@ -290,6 +290,17 @@ export interface Product {
   keyword: string;
   /** Valgfri override til <title>; ellers bruges name. */
   metaTitle?: string;
+  /**
+   * Valgfri override til meta description.
+   *
+   * `description` er skrevet til at stå PÅ siden og er derfor for lang til et
+   * søgeresultat — Reviewstander Pro fyldte 401 tegn, hvor Google klipper ved
+   * omkring 155. Uden en override afkortes der på hele sætninger
+   * (`kortMetabeskrivelse`), så et nyt produkt aldrig står med en halv
+   * sætning. Teksten her må sige det samme som `description`, kortere — ikke
+   * noget andet.
+   */
+  metaDescription?: string;
   /** Pris pr. stander (engangs, DKK ex moms). Ganges med antal + mængderabat. */
   price: number;
   interval: "one_time" | "month";
@@ -412,10 +423,20 @@ export const PRICES_EX_VAT = true;
 export const PRODUCTS: Product[] = [
   {
     slug: "reviewstander",
+    metaDescription:
+      "Elegant bordstander i sort eller hvid akryl med QR og NFC. Du sætter selv linket — til Google, Trustpilot, Tripadvisor, Facebook eller din egen side.",
     platform: "multi",
     name: "Reviewstander",
     keyword: "reviewstander",
-    metaTitle: "Reviewstander med selvvalgt link (QR + NFC)",
+    /*
+      KANNIBALISERING MED `/reviewstander`. Begge titler åbnede med
+      "Reviewstander" og nævnte QR og NFC, og så konkurrerer de om samme
+      søgeresultat. Landingssiden er hovedsiden for ordet — den har flest
+      indgående links, FAQ-strukturdata og hele forklaringen. DENNE side er
+      den bestemte VARE, og det, der adskiller den fra Pro og Komplet, er, at
+      den er et engangskøb. Det står nu først.
+    */
+    metaTitle: "Reviewstander uden abonnement — vælg selv linket",
     price: 499,
     interval: "one_time",
     includesLoyalSum: false,
@@ -445,10 +466,14 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "reviewstander-pro",
+    metaDescription:
+      "Stander med din egen anmeldelsesside: vælg selv platformene (Google, Trustpilot, Facebook), skift links når som helst, og få feedback privat i stedet.",
     platform: "multi",
     name: "Reviewstander Pro",
     keyword: "reviewstander abonnement",
-    metaTitle: "Reviewstander Pro — din egen anmeldelsesside & dynamiske links",
+    // 80 tegn med sitenavnet var for langt: Google klipper omkring 60, og
+    // "& dynamiske links" forsvandt alligevel. Det står i beskrivelsen.
+    metaTitle: "Reviewstander Pro — din egen anmeldelsesside",
     price: 499,
     interval: "one_time",
     monthlyPrice: 99,
@@ -482,10 +507,14 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "loyalsum-komplet",
+    metaDescription:
+      "Alt i Reviewstander Pro plus digitalt stempelkort uden app: kunderne tilmelder sig selv, personalet stempler med ét scan, og du laver opslag af anmeldelser.",
     platform: "multi",
     name: "LoyalSum Komplet",
     keyword: "digitalt stempelkort og anmeldelser",
-    metaTitle: "LoyalSum Komplet — stempelkort, anmeldelser & opslag",
+    // Samme grund. Stempelkortet er dét, der adskiller Komplet fra Pro, så
+    // det står først; opslagene står i beskrivelsen.
+    metaTitle: "LoyalSum Komplet — stempelkort & anmeldelser",
     price: 499,
     interval: "one_time",
     monthlyPrice: 399,

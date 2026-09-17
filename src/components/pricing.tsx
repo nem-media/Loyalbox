@@ -74,7 +74,14 @@ export function Pricing() {
             </StanderPlaceholder>
           )}
           <div className="flex flex-1 flex-col p-5">
-            <h3 className="font-bold tracking-tight">{p.name}</h3>
+            {/*
+              H2 OG IKKE H3. Kortene er `/bestil`s primære indhold og står
+              direkte under sidens H1 — der er ingen H2 imellem, så et h3
+              sprang et niveau over. Målt 2026-09-17: siden gik h1 → h3.
+              Udseendet ligger i klassen og ikke i elementet (`.panel`-reglen
+              i globals.css rammer kun dashboardet), så intet skifter visuelt.
+            */}
+            <h2 className="font-bold tracking-tight">{p.name}</h2>
             <p className="mt-1 text-sm text-muted">{p.tagline}</p>
             <div className="mt-4">
               <ProductPrice product={p} />

@@ -37,9 +37,16 @@ export async function generateMetadata({
       description: post.description,
       url: `/blog/${post.slug}`,
       publishedTime: isoTidspunkt(post.date),
-      images: [
-        { url: post.image, width: 1200, height: 630, alt: post.imageAlt },
-      ],
+      /*
+        BILLEDET SÆTTES IKKE HER. Her stod artiklens egen illustration —
+        `/blog/nfc-tag.svg` og lignende — oplyst som 1200 × 630, hvilket var et
+        gæt og ikke filens mål. Værre: Facebook, LinkedIn og Slack gengiver
+        ikke SVG, så et delt link stod uden billede.
+
+        `opengraph-image.tsx` i samme mappe tegner nu et kort med artiklens
+        egen overskrift. Sætter vi `images` her, vinder det over filen — så
+        feltet er bevidst væk. Illustrationen bliver stående PÅ siden.
+      */
     },
   };
 }

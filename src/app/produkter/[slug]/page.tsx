@@ -14,6 +14,7 @@ import {
 } from "@/lib/constants";
 import { toProductJsonLd } from "@/lib/commerce";
 import { formatCurrency } from "@/lib/utils";
+import { getSiteUrl, kortMetabeskrivelse } from "@/lib/site";
 import { QuantityOrder } from "@/components/quantity-order";
 import { StanderPlaceholder } from "@/components/product-placeholder";
 import { FluebenListe } from "@/components/ui/flueben-liste";
@@ -30,16 +31,29 @@ export async function generateMetadata({
   const { slug } = await params;
   const product = getProduct(slug);
   if (!product) return { title: "Produkt" };
+  /**
+   * OG:IMAGE SKAL VÆRE ET FOTO OG IKKE EN SVG. `product.image` er
+   * mockup-tegningen, som siden bruger — men **Facebook, LinkedIn og Slack
+   * gengiver ikke SVG**, så et delt produktlink stod uden billede. Fotoet i
+   * `PRODUKT_FOTO` er en JPG af den rigtige stander og findes i forvejen.
+   * Falder tilbage på mockup'en, hvis en vare en dag ikke har et foto.
+   */
+  const delebilled = PRODUKT_FOTO[product.slug] ?? product.image;
+  // `description` er skrevet til at stå PÅ siden; her klippes den til et
+  // søgeresultat på hele sætninger. Se `kortMetabeskrivelse`.
+  const beskrivelse =
+    product.metaDescription ?? kortMetabeskrivelse(product.description);
+
   return {
     title: product.metaTitle ?? product.name,
-    description: product.description,
+    description: beskrivelse,
     alternates: { canonical: `/produkter/${product.slug}` },
     openGraph: {
       type: "website",
       title: `${product.name} – ${formatCurrency(product.price)}`,
-      description: product.description,
+      description: beskrivelse,
       url: `/produkter/${product.slug}`,
-      images: [{ url: product.image }],
+      images: [{ url: delebilled }],
     },
   };
 }
@@ -56,12 +70,45 @@ export default async function ProductPage({
   // uden konto kan bruge til noget.
   if (!product || product.addon) notFound();
 
+  /**
+   * BRØDKRUMMER — SAMME FORM SOM `/stempelkort` OG BLOGGEN.
+   *
+   * Produktsiderne er de eneste i sitets hierarki med to niveauer over sig og
+   * havde som de eneste ingen. Google viser stien i stedet for den rå adresse
+   * i søgeresultatet, og "loyalsum.dk › Produkter › Reviewstander" siger mere
+   * om siden end en URL gør. Hierarkiet er sandt: kataloget ligger faktisk på
+   * `/produkter`, og der linkes derop fra siden.
+   */
+  const base = getSiteUrl();
+  const jsonLd = [
+    toProductJsonLd(product),
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Forside", item: base },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Produkter",
+          item: `${base}/produkter`,
+        },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: product.name,
+          item: `${base}/produkter/${product.slug}`,
+        },
+      ],
+    },
+  ];
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(toProductJsonLd(product)),
+          __html: JSON.stringify(jsonLd),
         }}
       />
       <SiteHeader />

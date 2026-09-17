@@ -396,7 +396,12 @@ export default function StempelkortPage() {
                   centimeter læses som udfyldning, ikke som vægt. */}
               <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
                 Få nye kunder til at blive til{" "}
-                <span className="text-secondary">faste kunder</span>
+                <span className="text-secondary">faste kunder</span>{" "}
+                {/* Mellemrummet er ikke til øjet — den anden linje er `block`
+                    og står i forvejen for sig selv. Det er til TEKSTEN: uden
+                    det læser Google og en skærmlæser overskriften som
+                    "faste kundermed et digitalt stempelkort", altså et ord,
+                    der ikke findes, midt i sidens vigtigste signal. */}
                 <span className="mt-3 block text-xl font-semibold text-white/60 sm:text-2xl">
                   med et digitalt stempelkort
                 </span>

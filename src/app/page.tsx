@@ -5,7 +5,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { HeroVisual } from "@/components/home/hero-visual";
 import { LoyalsumLoop } from "@/components/home/loyalsum-loop";
 import { PlatformShowcase } from "@/components/home/platform-showcase";
-import { SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
+import { COMPANY, SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import { getSiteUrl, organisationsLogo } from "@/lib/site";
 import {
   SetupIcon,
@@ -165,21 +165,53 @@ const RETURNING_CUSTOMERS = [
 
 export default function LandingPage() {
   const base = getSiteUrl();
-  const orgJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: SITE_NAME,
-    url: base,
-    // Mørk variant: strukturdata-logoer vises på hvid baggrund hos Google.
-    logo: organisationsLogo(),
-    description: SITE_TAGLINE,
-  };
+  /**
+   * TO STYKKER STRUKTURDATA, OG DE GØR HVER SIT.
+   *
+   * `Organization` fortæller hvem vi er. `WebSite` er dét, Google bruger til
+   * **sitets navn i søgeresultatet** — uden den står der "loyalsum.dk" som en
+   * rå adresse over hvert resultat, med den står der "LoyalSum.dk". Det er et
+   * af de få steder, hvor strukturdata ændrer, hvad brugeren faktisk SER.
+   *
+   * Der er BEVIDST ingen `SearchAction`: den lover en søgefunktion på sitet,
+   * og der er ingen. Og intet `sameAs` — vi har ingen profiler at pege på,
+   * og et gæt ville være en påstand.
+   *
+   * `legalName`, `email` og CVR står i forvejen i footeren og på
+   * `/handelsbetingelser`; det er et lovkrav, at de gør. Her gentages de i
+   * maskinlæsbar form, ikke som noget nyt.
+   */
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: SITE_NAME,
+      legalName: COMPANY.legalName,
+      url: base,
+      // Mørk variant: strukturdata-logoer vises på hvid baggrund hos Google.
+      logo: organisationsLogo(),
+      description: SITE_TAGLINE,
+      email: COMPANY.email,
+      identifier: {
+        "@type": "PropertyValue",
+        propertyID: "CVR",
+        value: COMPANY.cvr,
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: SITE_NAME,
+      url: base,
+      inLanguage: "da-DK",
+    },
+  ];
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <SiteHeader />
 

@@ -22,10 +22,19 @@ import {
   UPCOMING_ICONS,
 } from "@/components/product-placeholder";
 
+/**
+ * KATALOGET SKAL IKKE JAGTE SAMME ORD SOM BESTILLINGEN.
+ *
+ * Begge sider åbnede deres meta description med "Bestil din … stander … med
+ * mængderabat", og så konkurrerer de om det samme søgeresultat. De to sider
+ * gør ikke det samme: **her sammenligner man**, og på `/bestil` vælger man
+ * antal og går til betaling. Teksten siger nu dét — samme oplysninger,
+ * samme priser, men den hensigt siden faktisk dækker.
+ */
 export const metadata = {
   title: "Standere og materialer til din forretning",
   description:
-    "Bestil din LoyalSum-reviewstander med QR og NFC — med mængderabat fra 3 stk. Plakater, selvklæbende plakater, mærkater og flyers er på vej.",
+    "Se de tre LoyalSum-standere med QR og NFC side om side — hvad de koster, og hvad der følger med. Plakater, mærkater og flyers er på vej.",
   alternates: { canonical: "/produkter" },
 };
 
