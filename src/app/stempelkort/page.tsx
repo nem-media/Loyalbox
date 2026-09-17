@@ -533,10 +533,13 @@ export default function StempelkortPage() {
             </h2>
             <p className="mt-4 leading-relaxed text-foreground/90">
               Et <strong>digitalt stempelkort</strong> er den digitale udgave af
-              det klassiske papstempelkort. I stedet for et fysisk kort, kunden
-              skal huske at have med, registreres stemplerne digitalt og ligger
-              på kundens telefon. Når kunden har samlet det antal stempler, du
-              har bestemt, kan de hente den belønning, du har valgt.
+              det klassiske papstempelkort. Det kaldes også et{" "}
+              <strong>elektronisk stempelkort</strong>, et bonuskort eller et
+              digitalt loyalitetskort — det er det samme. I stedet for et fysisk
+              kort, kunden skal huske at have med, registreres stemplerne
+              digitalt og ligger på kundens telefon. Når kunden har samlet det
+              antal stempler, du har bestemt, kan de hente den belønning, du har
+              valgt.
             </p>
             <p className="mt-4 leading-relaxed text-foreground/90">
               Princippet er det samme som altid — det er kun kortet, der har

@@ -169,8 +169,16 @@ const PLACES: { name: string; branche: Branche; where: string }[] = [
 
 const FAQ = [
   {
+    /*
+     * SYNONYMERNE STÅR I SVARET, IKKE I EN METATAG. `keywords`-taggen listede
+     * "anmeldelsesstander", men Google har ignoreret den i femten år, og ordet
+     * stod ingen steder i den synlige tekst. Målt i danske søgeresultater
+     * 2026-09-17 sælger konkurrenterne netop under "anmeldelsesstander" og
+     * "bordstander". Det er en oplysning om ORDBRUG og ikke en ny påstand om
+     * produktet — standeren er den samme.
+     */
     q: "Hvad er en reviewstander?",
-    a: "En reviewstander er en lille fysisk stander til disken, bordet eller receptionen. Den har både en QR-kode og NFC, så kunden kan komme videre til din anmeldelsesside med et enkelt scan eller tap — uden selv at skulle finde din forretning frem.",
+    a: "En reviewstander — også kaldet en anmeldelsesstander eller en bordstander — er en lille fysisk stander til disken, bordet eller receptionen. Den har både en QR-kode og NFC, så kunden kan komme videre til din anmeldelsesside med et enkelt scan eller tap — uden selv at skulle finde din forretning frem.",
   },
   {
     q: "Hvordan virker NFC?",
