@@ -21,7 +21,19 @@ import { Button } from "@/components/ui/button";
  *   - Allerede lagt på (kører i standalone) → intet vises; kortet ER appen.
  *   - Chrome/Edge (Android + desktop) → browserens egen installationsdialog
  *     via `beforeinstallprompt`.
- *   - iOS Safari og alt andet → ingen API findes; knappen folder skridtene ud.
+ *   - iOS og alt andet → ingen API findes; knappen folder skridtene ud.
+ *
+ * VEJLEDNINGEN MÅ IKKE NÆVNE ÉN BROWSER. På iOS er ALLE browsere WebKit, og
+ * ingen af dem fyrer `beforeinstallprompt` — så hver eneste iPhone-kunde ser
+ * skridtene her, uanset om de bruger Safari, Chrome eller Firefox. Teksten
+ * sagde "Del-ikonet nederst i Safari", og det er forkert på to måder for en
+ * Chrome-bruger: den nævner en browser, de ikke er i, og knappen sidder ikke
+ * dér. Meldt af brugeren 2026-09-17.
+ *
+ * DET FÆLLES ER IKONET OG MENUPUNKTET, ikke placeringen: alle tre går gennem
+ * iOS' egen delingsflade, hvor punktet hedder det samme. Derfor beskrives
+ * ikonet (firkanten med pilen op) frem for hvor det sidder — og placeringen
+ * nævnes kun som den korte forskel, den er.
  */
 
 interface InstallPromptEvent extends Event {
@@ -40,7 +52,8 @@ function subscribeDisplayMode(onChange: () => void) {
 function isStandaloneSnapshot() {
   return (
     window.matchMedia(STANDALONE_QUERY).matches ||
-    // iOS Safari kender ikke display-mode og sætter sit eget flag i stedet.
+    // iOS kender ikke display-mode og sætter sit eget flag i stedet. Det
+    // gælder alle browsere dér, fordi de alle er WebKit.
     (window.navigator as Navigator & { standalone?: boolean }).standalone ===
       true
   );
@@ -138,17 +151,14 @@ export function PwaInstall({
           {isIos ? (
             <ol className="list-decimal space-y-1 pl-5">
               <li>
-                Tryk på <span className="font-medium">Del</span>-ikonet nederst
-                i Safari (firkanten med pilen op).
+                Tryk på <span className="font-medium">Del</span> (firkanten med
+                pilen op) — nederst i Safari, i &#8943;-menuen i Chrome og
+                Firefox.
               </li>
               <li>
-                Rul ned, og vælg{" "}
-                <span className="font-medium">&laquo;Føj til hjemmeskærm&raquo;</span>
-                .
-              </li>
-              <li>
-                Tryk <span className="font-medium">Tilføj</span> — så ligger{" "}
-                {hvad} som et ikon sammen med dine apps.
+                Vælg{" "}
+                <span className="font-medium">&laquo;Føj til hjemmeskærm&raquo;</span>{" "}
+                og tryk <span className="font-medium">Tilføj</span>.
               </li>
             </ol>
           ) : (
