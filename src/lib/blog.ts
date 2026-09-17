@@ -1180,6 +1180,151 @@ export const POSTS: BlogPost[] = [
     ],
   },
   {
+    slug: "stempelkort-til-bageri",
+    title:
+      "Stempelkort til bageri: rundstykket og kransekagen er ikke det samme køb",
+    metaTitle: "Stempelkort til bageri — pr. køb eller efter beløb?",
+    description:
+      "I bageriet svinger kurven fra 12 til 350 kroner i samme kø. Her er valget mellem stempel pr. køb og stempel efter beløb, og hvorfor lørdag morgen afgør det.",
+    keyword: "stempelkort til bageri",
+    date: "2026-09-17",
+    readingMinutes: 7,
+    excerpt:
+      "Et bageri har caféens hyppighed, men ikke dens ensartede kurv. Det ene valg, der afgør, om kortet føles fair — og hvorfor det skal træffes med lørdag morgen for øje.",
+    image: "/blog/stempelkort-bageri.svg",
+    imageAlt:
+      "Kurv med tre rundstykker på en bagerdisk ved siden af et lille skilt med QR-kode og en telefon, der viser et stempelkort med ti felter",
+    related: [
+      "stempelkort-til-cafe",
+      "hvor-mange-stempler-stempelkort",
+      "stempelkort-app-eller-papkort",
+    ],
+    body: [
+      {
+        type: "p",
+        html: "Bageriet har alt det, et stempelkort lever af: kunderne kommer ofte, købet er en vane, og de fleste bor eller arbejder i nærheden. På papiret er det den samme branche som caféen.",
+      },
+      {
+        type: "p",
+        html: "Men der er én forskel, og den afgør, hvordan kortet skal sættes op. I en café koster næsten alt det samme. I et bageri står den samme kunde i den samme kø og køber ét rundstykke til tolv kroner om torsdagen og en kransekage til tre hundrede om lørdagen. Samme kunde, samme disk — og to køb, der ikke har noget med hinanden at gøre.",
+      },
+
+      { type: "h2", text: "Pr. køb eller efter beløb?" },
+      {
+        type: "p",
+        html: "Det er valget. Alt andet i opsætningen kan rettes bagefter, uden at nogen opdager det; det her mærker kunden med det samme.",
+      },
+      {
+        type: "table",
+        head: ["", "Pr. køb", "Efter beløb"],
+        rows: [
+          [
+            "Sådan virker det",
+            "1 køb giver 1 stempel",
+            "1 stempel for hvert bestemt beløb, fx 100 kr.",
+          ],
+          ["Rundstykket til 12 kr.", "Et stempel", "Intet stempel"],
+          ["Kransekagen til 350 kr.", "Et stempel", "Tre stempler"],
+          ["Ved disken", "Ét tryk, uanset hvad", "Beløbet skal tastes"],
+          ["Belønner", "At komme ofte", "At købe for meget"],
+        ],
+      },
+      {
+        type: "p",
+        html: "<strong>Vælg pr. køb, hvis du sælger morgenbrød.</strong> Det er hverdagskunden, der bærer et bageri, og hende belønner du for at komme — ikke for at fylde posen. Hun kommer måske fire gange om ugen med en kurv på tyve kroner. Efter beløb ville hun samle sit første stempel efter fem besøg.",
+      },
+      {
+        type: "p",
+        html: "<strong>Vælg efter beløb, hvis kagerne fylder mest.</strong> Har du overvægt af fødselsdagskager, bestillinger og det store weekendindkøb, er kurven det, der betyder noget — og så bliver pr. køb urimeligt den anden vej: kransekagen tæller som rundstykket.",
+      },
+      {
+        type: "note",
+        title: "Du behøver ikke gætte",
+        html: "Kig i kassen på en helt almindelig uge. Ligger de fleste bonner under halvtreds kroner, er svaret pr. køb. Er der en tydelig hale af store bonner, der bærer omsætningen, er det efter beløb. Det tager et kvarter og er mere værd end en mavefornemmelse.",
+      },
+
+      { type: "h2", text: "Lørdag morgen er prøven" },
+      {
+        type: "p",
+        html: "Et bageri har den hårdeste kø i detailhandlen. Klokken ni lørdag står der tolv mennesker, og ekspedienten har halvandet minut pr. kunde. Alt, hvad du lægger oveni, bliver mærket dér — og et stempelkort, der gør køen længere, bliver ikke brugt. Det bliver sprunget over, og efter to uger er det holdt op med at eksistere.",
+      },
+      {
+        type: "p",
+        html: "Derfor er det værd at kende de to steder, det koster tid. <strong>Tilmeldingen</strong> tager længst: kunden skal scanne og skrive sin mail eller sit telefonnummer. Den skal ikke ske lørdag klokken ni. Sæt skiltet, hvor der er ventetid — ved bordene, ved kaffen, på posen — og lad hverdagskunden melde sig ind, når hun ikke har nogen bag sig.",
+      },
+      {
+        type: "p",
+        html: "<strong>Selve stemplet</strong> er ét tryk og koster ingenting, hvis du har valgt pr. køb. Har du valgt efter beløb, skal beløbet tastes, og det er præcis dét, der er svært at nå lørdag morgen. Det er en grund mere til, at et morgenbrødsbageri skal vælge pr. køb.",
+      },
+
+      { type: "h2", text: "Hvad belønningen må koste" },
+      {
+        type: "p",
+        html: 'Regn den ud som en rabat på hele kortet, ikke som en gratis ting. Ti rundstykker à 12 kroner er 120 kroner, og et gratis rundstykke oveni er ti procent — en pæn loyalitetsrabat. Giver du en hel wienerstang til 45 kroner efter ti rundstykker, er du oppe på næsten 30 procent, og det er mere, end nogen branche kan bære. <a href="/blog/hvor-mange-stempler-stempelkort">Regnemetoden</a> er den samme uanset branche.',
+      },
+      {
+        type: "p",
+        html: "Bageriet har til gengæld en fordel, de fleste brancher ikke har: kostprisen på brød er lav, og det, der ikke er solgt klokken to, er alligevel tabt. En belønning, der kan hentes om eftermiddagen, koster dig mindre end den samme belønning om morgenen. Det er ikke noget, der skal stå på skiltet — men det er værd at vide, når du vælger, hvad kunden får.",
+      },
+
+      { type: "h2", text: "De tre regler, du bør sætte fra start" },
+      {
+        type: "p",
+        html: "Et bageri er den branche, hvor det er lettest at samle stempler, man ikke har fortjent — kunden er der hver dag, og køen gør, at ingen når at kigge efter. Tre grænser lukker det, og de sættes på kortet og ikke ved disken:",
+      },
+      {
+        type: "ul",
+        items: [
+          "Højst ét stempel pr. kunde pr. dag. Så tæller to ture til bageriet samme morgen som én.",
+          "En mindste tid mellem to stempler. Fanger det samme, når to ekspedienter står ved hver sin kasse.",
+          "Højst et bestemt antal stempler pr. køb. Vigtigst hvis du har valgt efter beløb, hvor en enkelt stor bestilling ellers kan fylde kortet på én gang.",
+        ],
+      },
+      {
+        type: "p",
+        html: "Ingen af dem er noget, kunden mærker. De rammer kun det, du alligevel ikke ville have belønnet.",
+      },
+
+      { type: "h2", text: "Sådan kommer du i gang" },
+      {
+        type: "ol",
+        items: [
+          "Kig i kassen på en almindelig uge, og beslut pr. køb eller efter beløb.",
+          "Opret kortet. Start fra caféskabelonen — ti felter og et gratis produkt — og ret antal og belønning til dit eget.",
+          "Sæt de tre grænser ovenfor.",
+          "Stil skiltet, hvor der er ventetid, og ikke kun ved kassen.",
+          "Kig efter et kvartal på, hvor mange af de tilmeldte der faktisk nåede belønningen.",
+        ],
+      },
+      {
+        type: "p",
+        html: 'Kortet er en helt almindelig webside, så kunden skal hverken hente en app eller oprette en konto for at komme i gang. <a href="/stempelkort">Sådan virker det digitale stempelkort</a>, og hvad det koster, står samlet ét sted.',
+      },
+
+      {
+        type: "faq",
+        items: [
+          {
+            q: "Pr. køb eller efter beløb i et bageri?",
+            a: "Pr. køb, hvis morgenbrødet bærer butikken — så belønner du hverdagskunden for at komme ofte, og ekspedienten skal kun trykke én gang. Efter beløb, hvis kager og bestillinger fylder mest, for så er det kurven og ikke besøget, der betyder noget.",
+          },
+          {
+            q: "Hvor mange felter skal et bageris stempelkort have?",
+            a: "Ti er et fornuftigt udgangspunkt, fordi en hverdagskunde når det på to-tre uger. Kommer dine kunder mest i weekenden, er otte bedre — ti ville tage over to måneder, og et kort, der føles uendeligt, bliver lagt væk.",
+          },
+          {
+            q: "Sinker et stempelkort køen lørdag morgen?",
+            a: "Selve stemplet er ét tryk og koster ingenting, hvis du har valgt pr. køb. Det er tilmeldingen, der tager tid, fordi kunden skal scanne og skrive sin mail eller sit telefonnummer — så stil skiltet, hvor der er ventetid, frem for kun ved kassen.",
+          },
+          {
+            q: "Hvad hvis kunden mister linket til sit kort?",
+            a: 'Kortet hænger på den mail eller det telefonnummer, kunden skrev ved tilmeldingen, så det kan findes frem igen på <a href="/kort/find">find dit stempelkort</a>. Derfor kræver tilmeldingen en af delene — et kort uden nøgle kan ikke hentes tilbage.',
+          },
+        ],
+      },
+    ],
+  },
+  {
     slug: "stempelkort-til-cafe",
     title: "Stempelkort til café: sådan får du gæsterne til at komme oftere",
     metaTitle: "Stempelkort til café — antal, belønning og regnestykket",
@@ -1193,10 +1338,7 @@ export const POSTS: BlogPost[] = [
     image: "/blog/stempelkort-cafe.svg",
     imageAlt:
       "Kaffekop på en cafédisk ved siden af et lille skilt med QR-kode og en telefon, der viser et stempelkort med ti felter",
-    related: [
-      "hvor-mange-stempler-stempelkort",
-      "stempelkort-app-eller-papkort",
-    ],
+    related: ["hvor-mange-stempler-stempelkort", "stempelkort-app-eller-papkort", "stempelkort-til-bageri"],
     body: [
       {
         type: "p",
@@ -2031,7 +2173,7 @@ export const POSTS: BlogPost[] = [
     image: "/blog/stempelkort-antal-stempler.svg",
     imageAlt:
       "Digitalt stempelkort med ti felter, hvor syv er stemplet og det tiende felt er belønningen",
-    related: ["stempelkort-app-eller-papkort", "kundeklub-uden-app-guide", "stempelkort-til-takeaway", "fastholde-medlemmer-fitness"],
+    related: ["stempelkort-app-eller-papkort", "kundeklub-uden-app-guide", "stempelkort-til-takeaway", "fastholde-medlemmer-fitness", "stempelkort-til-bageri"],
     body: [
       {
         type: "p",

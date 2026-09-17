@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Kurv med tre rundstykker på en bagerdisk ved siden af et lille skilt med QR-kode og en telefon, der viser et stempelkort med ti felter">
+  <rect width="1200" height="630" fill="#f6f4ee"/>
+
+  <!-- Diskplade -->
+  <rect x="70" y="500" width="1060" height="16" rx="8" fill="#1e1c1a" opacity="0.18"/>
+  <rect x="70" y="516" width="1060" height="10" rx="5" fill="#1e1c1a" opacity="0.08"/>
+
+  <!-- ===================================== Brodkurv med rundstykker -->
+  <g>
+    <!-- Skygge under kurven -->
+    <ellipse cx="238" cy="498" rx="152" ry="20" fill="#1e1c1a" opacity="0.12"/>
+
+    <!-- Rundstykker: to bagerst, et forrest — tydeligt adskilte -->
+    <g>
+      <ellipse cx="176" cy="374" rx="54" ry="38" fill="#1e1c1a" opacity="0.5"/>
+      <ellipse cx="300" cy="374" rx="54" ry="38" fill="#1e1c1a" opacity="0.5"/>
+      <ellipse cx="238" cy="346" rx="56" ry="40" fill="#1e1c1a" opacity="0.62"/>
+    </g>
+    <!-- Snit paa toppen af hvert rundstykke -->
+    <g fill="none" stroke="#f6f4ee" stroke-width="4" stroke-linecap="round" opacity="0.8">
+      <path d="M150 368 q26 -16 52 0"/>
+      <path d="M274 368 q26 -16 52 0"/>
+      <path d="M211 338 q27 -17 54 0"/>
+    </g>
+
+    <!-- Kurven: forrest, saa rundstykkerne staar OP af den -->
+    <path d="M110 400 h256 l-26 86 a14 14 0 0 1 -14 10 h-176 a14 14 0 0 1 -14 -10 z" fill="#1e1c1a" opacity="0.3"/>
+    <!-- Flet -->
+    <g fill="none" stroke="#f6f4ee" stroke-width="3" opacity="0.6">
+      <path d="M122 428 h232"/>
+      <path d="M130 458 h216"/>
+      <path d="M170 402 l-14 92"/>
+      <path d="M238 402 l0 94"/>
+      <path d="M306 402 l14 92"/>
+    </g>
+    <!-- Kurvekant -->
+    <rect x="102" y="390" width="272" height="18" rx="9" fill="#1e1c1a" opacity="0.42"/>
+  </g>
+
+  <!-- ================================ Lille skilt ved betalingen med QR -->
+  <g>
+    <!-- Signaturform: skarpt oeverste venstre hjoerne -->
+    <path d="M436 250 h214 a12 12 0 0 1 12 12 v214 a12 12 0 0 1 -12 12 h-214 a12 12 0 0 1 -12 -12 v-226 z" fill="#ffffff"/>
+    <path d="M436 250 h214 a12 12 0 0 1 12 12 v214 a12 12 0 0 1 -12 12 h-214 a12 12 0 0 1 -12 -12 v-226 z" fill="none" stroke="#1e1c1a" stroke-width="3" opacity="0.18"/>
+    <!-- Fod -->
+    <path d="M486 488 h114 l20 12 h-154 z" fill="#1e1c1a" opacity="0.2"/>
+
+    <!-- Overskrift paa skiltet -->
+    <rect x="456" y="278" width="104" height="13" rx="6.5" fill="#26616e"/>
+    <rect x="456" y="300" width="150" height="10" rx="5" fill="#1e1c1a" opacity="0.22"/>
+
+    <!-- QR -->
+    <g>
+      <rect x="456" y="328" width="174" height="132" rx="8" fill="#ffffff"/>
+      <g fill="#1e1c1a">
+        <rect x="470" y="342" width="34" height="34" rx="4"/>
+        <rect x="582" y="342" width="34" height="34" rx="4"/>
+        <rect x="470" y="412" width="34" height="34" rx="4"/>
+        <g fill="#ffffff">
+          <rect x="478" y="350" width="18" height="18" rx="2"/>
+          <rect x="590" y="350" width="18" height="18" rx="2"/>
+          <rect x="478" y="420" width="18" height="18" rx="2"/>
+        </g>
+        <rect x="524" y="342" width="10" height="10"/>
+        <rect x="548" y="342" width="10" height="10"/>
+        <rect x="524" y="364" width="10" height="10"/>
+        <rect x="560" y="364" width="10" height="10"/>
+        <rect x="470" y="388" width="10" height="10"/>
+        <rect x="500" y="388" width="10" height="10"/>
+        <rect x="536" y="388" width="10" height="10"/>
+        <rect x="572" y="388" width="10" height="10"/>
+        <rect x="606" y="388" width="10" height="10"/>
+        <rect x="524" y="412" width="10" height="10"/>
+        <rect x="560" y="424" width="10" height="10"/>
+        <rect x="596" y="412" width="10" height="10"/>
+        <rect x="524" y="436" width="10" height="10"/>
+        <rect x="596" y="436" width="10" height="10"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- ============================== Telefon med stempelkort (ti felter) -->
+  <g>
+    <rect x="754" y="128" width="242" height="372" rx="30" fill="#1e1c1a"/>
+    <rect x="768" y="146" width="214" height="336" rx="18" fill="#ffffff"/>
+    <rect x="836" y="138" width="78" height="7" rx="3.5" fill="#ffffff" opacity="0.5"/>
+
+    <!-- Butiksnavn -->
+    <rect x="792" y="176" width="112" height="14" rx="7" fill="#1e1c1a" opacity="0.75"/>
+    <rect x="792" y="200" width="72" height="10" rx="5" fill="#1e1c1a" opacity="0.25"/>
+
+    <!-- Ti felter: 7 stemplet, sidste er beloenningen -->
+    <g>
+      <g fill="none" stroke="#1e1c1a" stroke-width="2.5" opacity="0.22">
+        <circle cx="812" cy="264" r="22"/>
+        <circle cx="874" cy="264" r="22"/>
+        <circle cx="936" cy="264" r="22"/>
+        <circle cx="812" cy="324" r="22"/>
+        <circle cx="874" cy="324" r="22"/>
+        <circle cx="936" cy="324" r="22"/>
+        <circle cx="812" cy="384" r="22"/>
+        <circle cx="874" cy="384" r="22"/>
+        <circle cx="936" cy="384" r="22"/>
+      </g>
+      <g fill="#26616e">
+        <circle cx="812" cy="264" r="16"/>
+        <circle cx="874" cy="264" r="16"/>
+        <circle cx="936" cy="264" r="16"/>
+        <circle cx="812" cy="324" r="16"/>
+        <circle cx="874" cy="324" r="16"/>
+        <circle cx="936" cy="324" r="16"/>
+        <circle cx="812" cy="384" r="16"/>
+      </g>
+      <!-- Beloenningsfeltet -->
+      <circle cx="936" cy="384" r="22" fill="none" stroke="#f59e0b" stroke-width="3"/>
+      <path d="M936 373 l4.2 8.6 9.5 1.4 -6.9 6.7 1.6 9.5 -8.4 -4.4 -8.4 4.4 1.6 -9.5 -6.9 -6.7 9.5 -1.4 z" fill="#f59e0b"/>
+    </g>
+
+    <rect x="792" y="428" width="158" height="11" rx="5.5" fill="#1e1c1a" opacity="0.15"/>
+  </g>
+
+  <!-- Scanningsbue fra skilt til telefon -->
+  <path d="M676 356 q34 -20 50 0" fill="none" stroke="#26616e" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+  <path d="M684 380 q26 -15 38 0" fill="none" stroke="#26616e" stroke-width="4" stroke-linecap="round" opacity="0.28"/>
+
+  <!-- Hvedeaks som lille detalje paa disken -->
+  <g transform="rotate(-24 1074 466)" opacity="0.55">
+    <path d="M1074 442 v50" fill="none" stroke="#1e1c1a" stroke-width="3" stroke-linecap="round"/>
+    <g fill="#1e1c1a">
+      <ellipse cx="1063" cy="450" rx="9" ry="5" transform="rotate(-32 1063 450)"/>
+      <ellipse cx="1085" cy="450" rx="9" ry="5" transform="rotate(32 1085 450)"/>
+      <ellipse cx="1063" cy="464" rx="9" ry="5" transform="rotate(-32 1063 464)"/>
+      <ellipse cx="1085" cy="464" rx="9" ry="5" transform="rotate(32 1085 464)"/>
+      <ellipse cx="1063" cy="478" rx="9" ry="5" transform="rotate(-32 1063 478)"/>
+      <ellipse cx="1085" cy="478" rx="9" ry="5" transform="rotate(32 1085 478)"/>
+    </g>
+  </g>
+</svg>
