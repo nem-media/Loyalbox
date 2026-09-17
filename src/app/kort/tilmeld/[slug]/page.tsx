@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -45,10 +46,17 @@ export default async function EnrollCardPage({
       <div className="box-shape w-full max-w-md border border-border bg-card p-6 shadow-[0_30px_60px_-25px_rgba(0,0,0,0.5)] sm:p-8">
         <div className="mb-6 text-center">
           {company.logo_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            // BUTIKKENS LOGO SKAL KUNNE TRYKKES — DERFOR ER FILEN STOR.
+            // Profilsiden beder med rette om mindst 1000 px, fordi SAMME fil
+            // også havner på skiltet. Indtil nu blev hele filen sendt til en
+            // telefon for at fylde 56 × 56 px: målt 2026-09-17 var det 60 KB,
+            // hvoraf 59 var spildt. Målene her er boksens, så udsnittet er
+            // uændret — `object-contain` gør resten.
+            <Image
               src={company.logo_url}
               alt={company.name}
+              width={56}
+              height={56}
               className="mx-auto mb-3 h-14 w-14 rounded-xl object-contain"
             />
           ) : null}

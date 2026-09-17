@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { designFrontfarve } from "@/lib/design";
@@ -188,10 +189,14 @@ export default async function AdminOrdersPage({
                           }}
                         >
                           {o.design.logo_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
+                            // Trykminiature i ordrelisten. Filen er
+                            // trykkvalitet; her fylder den under 40 px, og der
+                            // står en pr. ordre på siden.
+                            <Image
                               src={o.design.logo_url}
                               alt=""
+                              width={40}
+                              height={40}
                               className="max-h-full max-w-full object-contain"
                             />
                           ) : null}

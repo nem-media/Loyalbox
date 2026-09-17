@@ -25,7 +25,7 @@ export async function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-dark/90 text-dark-fg backdrop-blur">
       <div className="mx-auto flex h-[90px] max-w-6xl items-center justify-between px-4">
-        <Logo image="light" className="-translate-y-[6px]" />
+        <Logo image="light" className="-translate-y-[6px]" prioritet />
 
         {/* Skiftet sker ved lg, ikke md: logo + fem links + to knapper kan ikke
             være der på en 768px-tablet uden at brække. */}

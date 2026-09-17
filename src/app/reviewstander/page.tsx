@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
@@ -258,12 +259,18 @@ export default function ReviewstanderPage() {
       <main id="indhold">
         {/* ---------------------------------------------------------- hero */}
         <section className="relative isolate overflow-hidden border-b border-border bg-dark text-dark-fg">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          {/* Baggrundsfoto i fuld bredde: `fill` + `sizes="100vw"`, og
+              `priority`, fordi den står over folden og ellers ville komme
+              efter alt andet. `aria-hidden` bevares — den er stemning, ikke
+              indhold, og teksten står ovenpå. */}
+          <Image
             src="/hero-reviewstander.jpg"
             alt=""
             aria-hidden="true"
-            className="absolute inset-0 -z-10 h-full w-full object-cover object-center"
+            fill
+            sizes="100vw"
+            priority
+            className="absolute inset-0 -z-10 object-cover object-center"
           />
           {/* Fotoet er nu REN café-stemning UDEN en stander. Det gamle
               hero-foto viste en fysisk stander af den GAMLE model (sort akryl,
@@ -682,12 +689,14 @@ export default function ReviewstanderPage() {
                   ikke beskåret, for standeren fylder næsten hele højden, og en
                   bredere beskæring ville klippe top eller bund af den. */}
               <div className="box-shape overflow-hidden border border-border shadow-[var(--hoejde-2)]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                {/* Spalten er højst 22rem (352 px); `sizes` siger det, så en
+                    telefon ikke henter 1000 px bredt for at vise 350. */}
+                <Image
                   src="/reviewstander-boutique.jpg"
                   alt="Hvid LoyalSum reviewstander på en marmordisk i en lys butik"
                   width={1000}
                   height={1250}
+                  sizes="(min-width: 1024px) 22rem, 100vw"
                   className="block h-auto w-full"
                 />
               </div>

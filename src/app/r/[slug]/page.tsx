@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { harAbonnement } from "@/lib/abonnement";
@@ -153,10 +154,17 @@ export default async function ReviewPage({
             forskellen ses først, når man har begge dele foran sig.
           */}
           {company.logo_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            // BUTIKKENS LOGO SKAL KUNNE TRYKKES — DERFOR ER FILEN STOR.
+            // Profilsiden beder med rette om mindst 1000 px, fordi SAMME fil
+            // også havner på skiltet. Indtil nu blev hele filen sendt til en
+            // telefon for at fylde 96 × 96 px: målt 2026-09-17 var det 60 KB,
+            // hvoraf 59 var spildt. Målene her er boksens, så udsnittet er
+            // uændret — `object-contain` gør resten.
+            <Image
               src={company.logo_url}
               alt={company.name}
+              width={96}
+              height={96}
               className="mb-3 h-24 w-24 rounded-xl object-contain"
             />
           ) : (

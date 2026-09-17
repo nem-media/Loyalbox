@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -59,7 +60,7 @@ export default function ProductsPage() {
 
 
           <div className="grid gap-6 md:grid-cols-3">
-            {KATALOG.map((p) => (
+            {KATALOG.map((p, nr) => (
               <Link
                 key={p.slug}
                 href={`/produkter/${p.slug}`}
@@ -67,11 +68,14 @@ export default function ProductsPage() {
               >
                 {PRODUKT_FOTO[p.slug] ? (
                   <div className="relative aspect-[4/5] overflow-hidden">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    {/* Se `pricing.tsx`: samme gitter, samme `sizes`. */}
+                    <Image
                       src={PRODUKT_FOTO[p.slug]}
                       alt={`${p.name} — reviewstander i brug`}
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      fill
+                      priority={nr === 0}
+                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                     {/* SOLIDT mærke, ikke <Badge>: den er bg-accent/10
                         (næsten gennemsigtig) og forsvinder over et foto. Her

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -80,12 +81,16 @@ export default async function ProductPage({
               varens egen først, dernæst det, der gælder alle tre skilte. */}
           <div>
             {PRODUKT_FOTO[product.slug] ? (
-              <div className="box-shape aspect-[4/5] overflow-hidden border border-border">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+              <div className="box-shape relative aspect-[4/5] overflow-hidden border border-border">
+                {/* `relative` er tilføjet, fordi `fill` måler sig mod nærmeste
+                    positionerede forælder. Spalten er halv bredde fra `md` og
+                    hel derunder. */}
+                <Image
                   src={PRODUKT_FOTO[product.slug]}
                   alt={`${product.name} — reviewstander i brug`}
-                  className="h-full w-full object-cover"
+                  fill
+                  sizes="(min-width: 768px) 50vw, 100vw"
+                  className="object-cover"
                 />
               </div>
             ) : (

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { KATALOG, PRODUKT_FOTO } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +19,11 @@ import { StanderPlaceholder } from "@/components/product-placeholder";
 export function Pricing() {
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {KATALOG.map((p) => (
+      {/* FØRSTE KORT ER IKKE DOVENT. På en telefon er det det eneste over
+          folden og dermed sidens LCP-element — og et LCP-element, der venter
+          på dovenskab, forsinker præcis dét, målingen handler om. De to andre
+          er dovne: de står til højre på en skærm og langt nede på en telefon. */}
+      {KATALOG.map((p, nr) => (
         <Link
           key={p.slug}
           href={`/produkter/${p.slug}`}
@@ -35,11 +40,18 @@ export function Pricing() {
           */}
           {PRODUKT_FOTO[p.slug] ? (
             <div className="relative aspect-[4/5] overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              {/* `fill` + `sizes`: kortet er en kolonne i et gitter, der går
+                  fra ét til tre spor, så den viste bredde er ikke ét tal.
+                  Uden `sizes` ville hele filen på 109 KB blive hentet til en
+                  telefon — målt 2026-09-17 gjorde den dét, og LCP på netop
+                  købssiden lå på 4,7 s. */}
+              <Image
                 src={PRODUKT_FOTO[p.slug]}
                 alt={`${p.name} — reviewstander i brug`}
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                fill
+                priority={nr === 0}
+                sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
               />
               {/* SOLIDT mærke og ikke <Badge>: den er bg-accent/10 og
                   forsvinder over et foto. Samme greb som på /produkter. */}

@@ -9,7 +9,42 @@ const OLD_STAND_SLUGS = [
   "alt-i-en-stander",
 ];
 
+/**
+ * VÆRTEN FOR KUNDERNES EGNE LOGOER.
+ *
+ * Butikkens logo ligger i Supabase Storage og vises på kortet, på
+ * tilmeldingssiden og på anmeldelsessiden — altså de tre sider, hver eneste
+ * slutkunde møder. `next/image` henter og omkoder kun fra værter, der står
+ * her; uden linjen ville billedet fejle i stilhed.
+ *
+ * Værten UDLEDES af den variabel, klienten alligevel bruger, så de to ikke
+ * kan komme i utakt ved et projektskifte. Mangler den (fx en linting-kørsel
+ * uden miljø), falder listen tilbage til tom frem for at vælte byggeriet —
+ * og så er det kun billedoptimeringen, der er slået fra.
+ */
+function supabaseVaert(): string | null {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").hostname;
+  } catch {
+    return null;
+  }
+}
+
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: (() => {
+      const vaert = supabaseVaert();
+      return vaert
+        ? [
+            {
+              protocol: "https" as const,
+              hostname: vaert,
+              pathname: "/storage/v1/object/public/**",
+            },
+          ]
+        : [];
+    })(),
+  },
   experimental: {
     serverActions: {
       /**
@@ -79,6 +114,37 @@ const nextConfig: NextConfig = {
           {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=(), payment=()",
+          },
+        ],
+      },
+      /**
+       * FILER I `public/` BLEV GENVALIDERET VED HVER ENESTE SIDEVISNING.
+       *
+       * Next giver sine EGNE filer (`/_next/static/…`) et år og `immutable`,
+       * fordi navnet indeholder en hash. Alt i `public/` fik derimod
+       * `max-age=0, must-revalidate` — altså en betinget rundtur pr. billede
+       * pr. sidevisning. **Målt mod produktion 2026-09-17:** logoet (to
+       * varianter på hver side) og produktfotoene blev hentet igen hver gang,
+       * på en mobilforbindelse hvor rundturen er hele prisen.
+       *
+       * EN TIME OG IKKE ET ÅR. Navnene her er ikke hashede: skiftes logoet,
+       * bliver filnavnet det samme. `immutable` ville derfor betyde, at en
+       * fejl ikke kunne rettes for dem, der havde set siden. En time fjerner
+       * rundturen for et helt besøg, og `stale-while-revalidate` lader det
+       * næste døgn vise den gamle fil med det samme, mens den nye hentes i
+       * baggrunden — hurtigt OG rettbart.
+       *
+       * KUN MEDIEFILER. `sw.js` er en service worker og SKAL kunne skiftes
+       * med det samme; den er `.js` og rammes derfor ikke. Det samme gælder
+       * `robots.txt`, `sitemap.xml` og manifestet, som i forvejen er ruter og
+       * ikke filer.
+       */
+      {
+        source: "/:sti*.(png|jpg|jpeg|gif|webp|avif|svg|ico|woff|woff2)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=3600, stale-while-revalidate=86400",
           },
         ],
       },

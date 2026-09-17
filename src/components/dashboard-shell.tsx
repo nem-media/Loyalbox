@@ -41,7 +41,7 @@ export function DashboardShell({
     <div className="flex min-h-screen flex-col md:flex-row">
       <aside className="flex shrink-0 flex-col border-b border-white/10 bg-dark text-dark-fg md:w-64 md:border-b-0 md:border-r">
         <div className="flex items-center justify-between p-4 md:pb-6">
-          <Logo image="light" />
+          <Logo image="light" prioritet />
 
           {/* På mobil er brugerblokken i bunden skjult, og dermed var der
               INGEN vej ud af sin egen konto på en telefon. Niveau og Log ud

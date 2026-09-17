@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useActionState, useRef, useState } from "react";
 import { updateCompany, type FormResult } from "../actions";
 import { createClient } from "@/lib/supabase/client";
@@ -136,10 +137,17 @@ export function ProfileForm({
                   <div className="flex items-center gap-4">
                     <div className="box-shape grid h-16 w-16 place-items-center overflow-hidden border border-border bg-background">
                       {logoUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                        // Forhåndsvisningen er 64 px; filen bag er
+                        // trykkvalitet. `logoUrl` er ALTID en adresse i
+                        // Supabase Storage — også lige efter en upload, hvor
+                        // den sættes til `data.publicUrl` og aldrig til en
+                        // `blob:`. Var den det, kunne `next/image` ikke hente
+                        // den fra serveren.
+                        <Image
                           src={logoUrl}
                           alt="Logo"
+                          width={64}
+                          height={64}
                           className="h-full w-full object-contain"
                         />
                       ) : (

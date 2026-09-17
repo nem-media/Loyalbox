@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { TIDSZONE } from "@/lib/dansk-dag";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -144,10 +145,17 @@ export default async function CardPage({
         {/* Virksomhed */}
         <div className="flex items-center gap-3">
           {company?.logo_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            // BUTIKKENS LOGO SKAL KUNNE TRYKKES — DERFOR ER FILEN STOR.
+            // Profilsiden beder med rette om mindst 1000 px, fordi SAMME fil
+            // også havner på skiltet. Indtil nu blev hele filen sendt til en
+            // telefon for at fylde 48 × 48 px: målt 2026-09-17 var det 60 KB,
+            // hvoraf 59 var spildt. Målene her er boksens, så udsnittet er
+            // uændret — `object-contain` gør resten.
+            <Image
               src={company.logo_url}
               alt={company.name}
+              width={48}
+              height={48}
               className="h-12 w-12 rounded-xl object-contain"
             />
           ) : null}
