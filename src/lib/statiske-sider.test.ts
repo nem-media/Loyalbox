@@ -66,12 +66,33 @@ describe("headeren holder marketingsiderne statiske", () => {
   it("det personlige stykke er en klientkomponent", () => {
     const KONTO = kilde("src/components/header-konto.tsx");
     expect(KONTO.trimStart().startsWith('"use client"')).toBe(true);
-    // Sessionen læses lokalt. `getUser()` ville koste en rundtur for at pynte
-    // på en knap, der ikke giver adgang til noget.
-    expect(KONTO).toContain("getSession()");
-    expect(KONTO, "getUser() er en rundtur, knappen ikke har brug for").not.toContain(
-      "getUser(",
-    );
+  });
+
+  /**
+   * DEN DYRE UDGAVE BLEV PRØVET FØRST. Supabases browserklient er korrekt og
+   * læser endda udløbstiden — men den trak **64 KB JavaScript** ind på hver
+   * eneste marketingside, og forsiden faldt fra 88 til 81 i produktion.
+   * Billedgevinsten fra samme dag blev ædt af en knap. Et opslag i cookien
+   * koster nul afhængigheder, og knappen er kosmetik.
+   */
+  it("knappen trækker ikke et auth-bibliotek med sig", () => {
+    const KONTO = kilde("src/components/header-konto.tsx");
+    for (const dyrt of ["@supabase", "supabase/client", "createClient"]) {
+      expect(KONTO, `${dyrt} i headeren koster ~64 KB pr. besøgende`).not.toContain(
+        dyrt,
+      );
+    }
+    expect(KONTO, "sessionen aflæses ikke af cookien").toContain("document.cookie");
+  });
+
+  /**
+   * EFTER AT BFCACHE VIRKER, ER DEN HER IKKE VALGFRI: en gendannet side
+   * beholder sin gamle tilstand, så en, der loggede ud og trykkede tilbage,
+   * ville stadig se "Dashboard".
+   */
+  it("tilstanden genlæses, når siden gendannes fra bfcache", () => {
+    const KONTO = kilde("src/components/header-konto.tsx");
+    expect(KONTO).toContain('addEventListener("pageshow"');
   });
 
   /**

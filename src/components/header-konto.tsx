@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { ButtonLink } from "@/components/ui/button";
 import { MobileNav, type NavLink } from "@/components/mobile-nav";
-import { createClient } from "@/lib/supabase/client";
 
 /**
  * HEADERENS ENESTE PERSONLIGE STYKKE — OG DERFOR DET ENESTE, DER ER KLIENT.
@@ -19,23 +18,41 @@ import { createClient } from "@/lib/supabase/client";
  * siden igen i stedet for at vise den med det samme. Det koster mest for dem,
  * der er længst væk — og vi har en kunde i Nuuk.
  *
- * DER ER INGEN BILLIG MELLEMVEJ. Man kan ikke sætte cache-headere på en side,
- * der indeholder noget personligt, uden at risikere at en fælles cache
- * serverer den ene brugers header til den næste. Delingen ER rettelsen.
+ * DER ER INGEN BILLIG MELLEMVEJ PÅ SERVEREN. Man kan ikke sætte cache-headere
+ * på en side, der indeholder noget personligt, uden at risikere at en fælles
+ * cache serverer den ene brugers header til den næste. Delingen ER rettelsen.
  *
- * TRE VALG, DER GØR DEN BILLIG:
+ * MEN DER ER EN DYR MÅDE AT LAVE DEN PÅ, OG DEN PRØVEDE JEG FØRST. Første
+ * udgave brugte Supabases browserklient til at slå sessionen op. Den er
+ * korrekt og læser endda udløbstiden — men den trak **64 KB JavaScript** ind
+ * på hver eneste marketingside, og målt i produktion faldt forsiden fra 88 til
+ * 81. Billedgevinsten fra samme dag blev ædt op af en knap.
+ *
+ * DERFOR KIGGES DER KUN EFTER COOKIEN. Supabase gemmer sessionen i
+ * `sb-<projekt>-auth-token`, og den er med vilje læsbar fra JavaScript —
+ * browserklienten har selv brug for den. At se, at den er der, kræver ingen
+ * afhængigheder overhovedet.
+ *
+ * PRISEN ER ÆRLIG: en cookie, der findes, er ikke det samme som en gyldig
+ * session. Er tokenet udløbet, står der "Dashboard", og et klik ender på
+ * loginsiden — hvilket er nøjagtig dét, en udløbet session SKAL føre til.
+ * Knappen er kosmetik; adgangen afgøres serverside i `/dashboard`, præcis som
+ * før. Et rigtigt sessionsopslag ville koste 64 KB for at flytte en fejl fra
+ * ét klik til nul.
+ *
+ * `pageshow` ER IKKE VALGFRI, EFTER AT BFCACHE VIRKER. En side, der gendannes
+ * fra bfcache, beholder sin gamle tilstand — så uden den her ville en, der
+ * loggede ud og trykkede tilbage, stadig se "Dashboard". Det er den slags
+ * fejl, man selv laver, når man slår en cache til.
+ *
+ * TO VALG MERE, DER GØR DEN BILLIG:
  *
  *  1. **Der linkes altid til `/dashboard`.** Rollen ligger i `public.users` og
- *     ville kræve et databaseopslag i browseren ved hver sidevisning. Den er
- *     ikke nødvendig: `/dashboard` sender selv en admin videre til `/admin`,
- *     og det er efterprøvet. Ét opslag sparet for hver eneste besøgende.
+ *     ville kræve et databaseopslag i browseren. Den er ikke nødvendig:
+ *     `/dashboard` sender selv en admin videre til `/admin`, og det er
+ *     efterprøvet.
  *
- *  2. **Sessionen læses af cookien og ikke over netværket.** `getSession()`
- *     slår op lokalt. Det er nok, fordi knappen er KOSMETIK — den giver ingen
- *     adgang til noget. Adgangen afgøres serverside i `/dashboard`, præcis som
- *     før. Et `getUser()` ville koste en rundtur for at pynte på en knap.
- *
- *  3. **Udgangspunktet er "ikke logget ind".** Næsten alle på en
+ *  2. **Udgangspunktet er "ikke logget ind".** Næsten alle på en
  *     marketingside er det, og "Kom i gang" er sidens vigtigste knap — den må
  *     ikke komme for sent. Prisen er, at en logget ind bruger ser knapperne
  *     skifte et øjeblik efter. Det er den rigtige vej at tage fejl.
@@ -45,28 +62,29 @@ import { createClient } from "@/lib/supabase/client";
  * gang en logget ind bruger åbnede en side. Det ville bytte en cache-gevinst
  * for en layout-forskydning.
  */
+
+/** Ligger der en Supabase-sessionscookie? Se hovedet for hvorfor det er nok. */
+function harSessionsCookie(): boolean {
+  return document.cookie
+    .split(";")
+    .some((c) => /^sb-.*-auth-token(\.\d+)?$/.test(c.split("=")[0].trim()));
+}
+
 export function HeaderKonto({ links }: { links: NavLink[] }) {
   const [loggetInd, setLoggetInd] = useState(false);
 
   useEffect(() => {
-    const supabase = createClient();
-    let aktiv = true;
+    const opdater = () => setLoggetInd(harSessionsCookie());
+    opdater();
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (aktiv) setLoggetInd(Boolean(data.session));
-    });
-
-    // Logger nogen ud i en anden fane, skal knappen følge med — ellers står
-    // der "Dashboard" til en, der ikke længere har et.
-    const { data: abonnement } = supabase.auth.onAuthStateChange(
-      (_hændelse, session) => {
-        if (aktiv) setLoggetInd(Boolean(session));
-      },
-    );
-
+    // Gendannes siden fra bfcache, er tilstanden den gamle — og efter en
+    // udlogning ville der stadig stå "Dashboard".
+    window.addEventListener("pageshow", opdater);
+    // Skiftes der tilbage til fanen, kan der være logget ud i en anden.
+    document.addEventListener("visibilitychange", opdater);
     return () => {
-      aktiv = false;
-      abonnement.subscription.unsubscribe();
+      window.removeEventListener("pageshow", opdater);
+      document.removeEventListener("visibilitychange", opdater);
     };
   }, []);
 
