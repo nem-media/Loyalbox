@@ -46,7 +46,7 @@ import {
 
 const title = "Digitalt stempelkort til virksomheder";
 const description =
-  "Få et digitalt stempelkort, der får kunderne til at komme igen. Kunden samler stempler på mobilen uden app, du bestemmer selv antal stempler og belønning. Se hvordan det virker.";
+  "Få et digitalt stempelkort, der får kunderne til at komme igen. Kunden samler stempler på mobilen uden app, og du bestemmer antal og belønning.";
 
 export const metadata: Metadata = {
   title,

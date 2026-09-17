@@ -622,7 +622,7 @@ export const POSTS: BlogPost[] = [
     title:
       "Fastholde medlemmer i fitnesscentret: fremmøde er det tal, der afgør det",
     metaTitle:
-      "Fastholde medlemmer i fitness — sådan bruger du fremmøde mod frafald",
+      "Fastholde medlemmer i fitness — brug fremmøde mod frafald",
     description:
       "Medlemmet siger ikke op, når de holder op med at komme — de siger op måneder senere. Her er hvorfor fremmøde er dit varslingssignal, og hvordan du belønner det uden at give abonnementet væk.",
     keyword: "fastholde medlemmer fitness",
@@ -812,7 +812,7 @@ export const POSTS: BlogPost[] = [
     slug: "flere-anmeldelser-restaurant",
     title: "Flere anmeldelser til din restaurant: timingen, gruppen og svaret",
     metaTitle:
-      "Flere anmeldelser til restauranten — hvornår du spørger og hvordan",
+      "Flere anmeldelser til restauranten — hvornår og hvordan",
     description:
       "En restaurant får flere kritiske anmeldelser end de fleste brancher, og de ældes hurtigere. Her er det rigtige øjeblik at spørge, gruppen du overser, og hvordan du svarer.",
     keyword: "flere anmeldelser restaurant",
@@ -1368,7 +1368,7 @@ export const POSTS: BlogPost[] = [
     slug: "flere-anmeldelser-frisor",
     title: "Flere anmeldelser som frisør: sådan bliver du valgt af nye kunder",
     metaTitle:
-      "Flere anmeldelser til frisører — hvornår du spørger, og hvad du må",
+      "Flere anmeldelser til frisører — hvornår, og hvad du må",
     description:
       "En ny kunde vælger frisør på anmeldelser, fordi de ikke kan prøve sig frem. Her er det rigtige øjeblik at spørge, hvad du aldrig må gøre, og hvordan du svarer på kritik af en klipning.",
     keyword: "flere anmeldelser frisør",
@@ -1794,7 +1794,7 @@ export const POSTS: BlogPost[] = [
     slug: "stempelkort-app-eller-papkort",
     title: "Stempelkort til din forretning: papkort, app eller digitalt kort?",
     metaTitle:
-      "Stempelkort app, papkort eller digitalt kort — hvad skal du vælge?",
+      "Stempelkort: app, papkort eller digitalt — hvad vælger du?",
     description:
       "Papkortet bliver væk, appen bliver aldrig hentet. Her er den reelle forskel på de tre slags stempelkort, hvad de koster i drift, og hvornår et stempelkort tjener sig hjem.",
     keyword: "stempelkort app",
@@ -2275,7 +2275,7 @@ export const POSTS: BlogPost[] = [
     slug: "saadan-faar-du-flere-google-anmeldelser",
     title: "Sådan får du flere Google-anmeldelser",
     metaTitle:
-      "Sådan får du flere Google-anmeldelser — guide til lokale forretninger",
+      "Sådan får du flere Google-anmeldelser til din forretning",
     description:
       "Dine tilfredse kunder anmelder dig sjældent — de bliver ikke mindet om det. Her er de metoder der virker for en lokal forretning, og de tre ting du aldrig må gøre.",
     keyword: "få flere google anmeldelser",

@@ -50,8 +50,10 @@ import {
  */
 
 const title = "Reviewstander med NFC og QR";
+// 209 tegn blev klippet ved ~155 i søgeresultatet, og det, der forsvandt, var
+// slutningen. Samme betydning, kortere: kunden gør det nemt, vi viser prisen.
 const description =
-  "Gør det nemt for kunderne at anmelde dig på Google, Trustpilot eller Facebook. Kunden holder mobilen hen til standeren eller scanner QR-koden og kommer direkte videre. Se hvordan den virker og hvad den koster.";
+  "Gør det nemt for kunderne at anmelde dig på Google, Trustpilot eller Facebook — de scanner QR-koden eller holder mobilen hen til standeren. Se prisen.";
 
 export const metadata: Metadata = {
   title,
