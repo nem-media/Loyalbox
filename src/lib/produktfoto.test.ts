@@ -8,15 +8,15 @@ import {
   PRODUKT_FOTO,
   PRODUKT_FOTO_TEKST,
 } from "./constants";
+import { harFysiskSkilt } from "./constants";
 import { ACCENT_TEKSTER, FRONT_TEKSTER } from "./stander-tilvalg";
 
 describe("produktfoto og billedtekst", () => {
-  it("hver vare i kataloget har både foto og billedtekst", () => {
+  it("hver vare i kataloget har en billedtekst", () => {
     // Siderne falder tilbage på en pladsholder og en tom tekst uden at fejle.
     // En ny vare ville derfor stå med et ikon og ingen forklaring, og det
     // ville ingen opdage før en kunde stod på siden.
     for (const p of KATALOG) {
-      expect(PRODUKT_FOTO[p.slug], `foto mangler for ${p.slug}`).toBeTruthy();
       expect(
         PRODUKT_FOTO_TEKST[p.slug],
         `billedtekst mangler for ${p.slug}`,
@@ -24,11 +24,26 @@ describe("produktfoto og billedtekst", () => {
     }
   });
 
+  /*
+   * FOTOET KRÆVES KUN AF DE FYSISKE VARER.
+   *
+   * LoyalSum Komplet Online har ingen ting at fotografere, og et lånt
+   * standerfoto ville vise præcis dét, varen IKKE indeholder — den slags
+   * billede er værre end pladsholderen, fordi det ikke ligner en fejl.
+   */
+  it("hver FYSISK vare har et foto", () => {
+    for (const p of KATALOG.filter(harFysiskSkilt)) {
+      expect(PRODUKT_FOTO[p.slug], `foto mangler for ${p.slug}`).toBeTruthy();
+    }
+  });
+
   it("Basic og Pro deler foto — Komplet har sit eget", () => {
     // De to første er den samme akryl med det samme tryk, og forskellen
     // mellem dem kan et foto ikke vise; tre miljøer fik dem til at ligne tre
     // produkter. Komplet KAN ses: klistermærket sidder på skiltet.
-    const uden = KATALOG.filter((p) => !p.includesLoyalSum).map(
+    const uden = KATALOG.filter(
+      (p) => !p.includesLoyalSum && PRODUKT_FOTO[p.slug],
+    ).map(
       (p) => PRODUKT_FOTO[p.slug],
     );
     expect(new Set(uden).size).toBe(1);
@@ -39,7 +54,9 @@ describe("produktfoto og billedtekst", () => {
     // Mærket siger "Indeholder stempelkort", og det er præcis dét, der skiller
     // Komplet fra Pro. Havnede det på Pro, lovede fotoet en funktion, kunden
     // ikke har købt.
-    for (const p of KATALOG) {
+    // Kun de varer, der HAR et foto: den digitale udgave har ingen, og et
+    // manglende foto kan ikke love noget forkert.
+    for (const p of KATALOG.filter((v) => PRODUKT_FOTO[v.slug])) {
       const harMaerke = PRODUKT_FOTO[p.slug].includes("-komplet");
       expect(harMaerke, `${p.slug} har forkert foto`).toBe(
         Boolean(p.includesLoyalSum),

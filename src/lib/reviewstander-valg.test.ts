@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { PLATFORM_VALG, prisTekst } from "./reviewstander-valg";
-import { KATALOG, PRODUCTS, getProduct } from "./constants";
+import { KATALOG, PRODUCTS, getProduct, harFysiskSkilt } from "./constants";
 
 /**
  * Sammenligningen på /reviewstander skal beskrive DE VARER, VI FAKTISK SÆLGER.
@@ -29,10 +29,33 @@ describe("PLATFORM_VALG", () => {
    * sammenligningen eller bevidst udelades — og det valg skal træffes her,
    * ikke opdages af en kunde, der undrer sig over, hvorfor den ikke står der.
    */
-  it("dækker hele det offentlige katalog", () => {
+  it("dækker alle varer MED en stander", () => {
+    /*
+     * VALGET ER TRUFFET FOR LoyalSum Komplet Online: den står IKKE i denne
+     * sammenligning, og det er ikke en forglemmelse. Tabellen svarer på
+     * spørgsmålet "hvilken stander skal jeg vælge?" — den sammenligner
+     * platforme, hvad kunden ser på skiltet, og om linket kan skiftes uden et
+     * nyt tryk. En vare uden stander har ingen af de celler, og en række med
+     * fire tankestreger ville få den til at ligne en ringere stander frem for
+     * et andet produkt. Online sammenlignes i stedet med Komplet på sin egen
+     * side og i produktoversigten.
+     */
     const iSammenligningen = PLATFORM_VALG.map((v) => v.slug).sort();
-    const iKataloget = KATALOG.map((p) => p.slug).sort();
-    expect(iSammenligningen).toEqual(iKataloget);
+    const medStander = KATALOG.filter(harFysiskSkilt)
+      .map((p) => p.slug)
+      .sort();
+    expect(iSammenligningen).toEqual(medStander);
+  });
+
+  it("holder de digitale varer ude", () => {
+    const digitale = KATALOG.filter((p) => !harFysiskSkilt(p)).map((p) => p.slug);
+    expect(digitale.length).toBeGreaterThan(0);
+    for (const slug of digitale) {
+      expect(
+        PLATFORM_VALG.some((v) => v.slug === slug),
+        `${slug} hører ikke til i standersammenligningen`,
+      ).toBe(false);
+    }
   });
 
   it("holder tilkøb ude — de har ingen egen side at sammenligne", () => {

@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { Badge } from "@/components/ui/badge";
 import {
   FOTO_FARVETEKST,
+  harFysiskSkilt,
   KATALOG,
   PRODUKT_FOTO,
   PRODUKT_FOTO_TEKST,
@@ -16,7 +17,10 @@ import { toProductJsonLd } from "@/lib/commerce";
 import { formatCurrency } from "@/lib/utils";
 import { getSiteUrl, kortMetabeskrivelse } from "@/lib/site";
 import { QuantityOrder } from "@/components/quantity-order";
-import { StanderPlaceholder } from "@/components/product-placeholder";
+import {
+  StanderPlaceholder,
+  DigitalPlaceholder,
+} from "@/components/product-placeholder";
 import { FluebenListe } from "@/components/ui/flueben-liste";
 
 export function generateStaticParams() {
@@ -38,7 +42,18 @@ export async function generateMetadata({
    * `PRODUKT_FOTO` er en JPG af den rigtige stander og findes i forvejen.
    * Falder tilbage på mockup'en, hvis en vare en dag ikke har et foto.
    */
-  const delebilled = PRODUKT_FOTO[product.slug] ?? product.image;
+  /*
+   * EN VARE UDEN FOTO FALDER TILBAGE PÅ SITETS EGET KORT — ikke på mockup'en.
+   *
+   * `product.image` er en SVG, og hverken Facebook, LinkedIn eller Slack
+   * gengiver SVG: et delt link stod uden billede. Det gjaldt før alle varer og
+   * blev løst med fotoet; LoyalSum Komplet Online har ingen fysisk ting at
+   * fotografere, og så er det genererede LoyalSum-kort (`/opengraph-image`)
+   * det rigtige — det er en rigtig PNG og siger det rigtige om afsenderen.
+   */
+  const delebilled =
+    PRODUKT_FOTO[product.slug] ??
+    (harFysiskSkilt(product) ? product.image : "/opengraph-image");
   // `description` er skrevet til at stå PÅ siden; her klippes den til et
   // søgeresultat på hele sætninger. Se `kortMetabeskrivelse`.
   const beskrivelse =
@@ -50,7 +65,18 @@ export async function generateMetadata({
     alternates: { canonical: `/produkter/${product.slug}` },
     openGraph: {
       type: "website",
-      title: `${product.name} – ${formatCurrency(product.price)}`,
+      /*
+       * PRISEN I DELETITLEN SKAL VÆRE DEN, VAREN KOSTER. En vare uden
+       * engangspris ville ellers blive delt som "0 kr." — og det er den
+       * eneste pris, der er værre end ingen.
+       */
+      title: `${product.name} – ${
+        product.price > 0
+          ? formatCurrency(product.price)
+          : product.monthlyPrice
+            ? `${formatCurrency(product.monthlyPrice)}/md`
+            : ""
+      }`.trim(),
       description: beskrivelse,
       url: `/produkter/${product.slug}`,
       images: [{ url: delebilled }],
@@ -140,8 +166,15 @@ export default async function ProductPage({
                   className="object-cover"
                 />
               </div>
-            ) : (
+            ) : harFysiskSkilt(product) ? (
               <StanderPlaceholder
+                className="box-shape aspect-[2/3] overflow-hidden border border-border"
+                iconClassName="h-32 w-32"
+              />
+            ) : (
+              /* Ingen stander at tegne og intet foto på vej — se
+                 DigitalPlaceholder for hvorfor badgen ikke må stå her. */
+              <DigitalPlaceholder
                 className="box-shape aspect-[2/3] overflow-hidden border border-border"
                 iconClassName="h-32 w-32"
               />
@@ -151,7 +184,16 @@ export default async function ProductPage({
                 {PRODUKT_FOTO_TEKST[product.slug]}
               </p>
             ) : null}
-            <p className="mt-2 text-sm text-muted">{FOTO_FARVETEKST}</p>
+            {/*
+              FARVETEKSTEN HØRER TIL TRYKKET. Den lover et gratis farvevalg på
+              stjernerne og en egen baggrundsfarve mod tillæg — altså to valg,
+              man træffer om et SKILT. På LoyalSum Komplet Online er der intet
+              at trykke, så linjen ville sælge et tilvalg, varen ikke har, og
+              oven i købet et der koster penge.
+            */}
+            {harFysiskSkilt(product) ? (
+              <p className="mt-2 text-sm text-muted">{FOTO_FARVETEKST}</p>
+            ) : null}
           </div>
 
           {/* Detaljer */}

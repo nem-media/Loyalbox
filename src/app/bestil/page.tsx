@@ -293,9 +293,16 @@ export default async function OrderPage({
             ) : spaerre === null ? (
               <div className="box-shape border border-accent/30 bg-accent/5 p-4">
                 <p className="text-sm font-medium">Klar til betaling</p>
+                {/*
+                  TEKSTEN SKAL PASSE PÅ DEN VARE, DER ER VALGT. En digital vare
+                  har ingen stander at betale for, og sætningen "du betaler
+                  standeren nu" ville være det første, kunden læste — lige før
+                  de betalte for noget andet.
+                */}
                 <p className="mt-1 mb-3 text-sm text-muted">
-                  Du betaler standeren nu. Abonnementet trækkes den 20. hver
-                  måned for den kommende måned.
+                  {harFysiskSkilt(selected)
+                    ? "Du betaler standeren nu. Abonnementet trækkes den 20. hver måned for den kommende måned."
+                    : "Der er ingen stander og ingen engangspris. Abonnementet trækkes den 20. hver måned for den kommende måned."}
                 </p>
                 <CheckoutButton
                   slug={selected.slug}
@@ -309,8 +316,11 @@ export default async function OrderPage({
                   </p>
                 ) : null}
                 <p className="mt-2 text-xs leading-relaxed text-muted">
-                  Vi leverer i {LEVERINGSLAND_NAVN}. Priserne er ex moms, og der
-                  er ikke fortrydelsesret ved erhvervskøb.
+                  {harFysiskSkilt(selected)
+                    ? `Vi leverer i ${LEVERINGSLAND_NAVN}. `
+                    : ""}
+                  Priserne er ex moms, og der er ikke fortrydelsesret ved
+                  erhvervskøb.
                 </p>
               </div>
             ) : spaerre === "nedgradering" || spaerre === "har-den-allerede" ? (
@@ -330,13 +340,10 @@ export default async function OrderPage({
               />
             ) : spaerre === "ikke-aabnet" ? (
               <KanIkkeBestilles />
-            ) : (
+            ) : selected.addon ? (
               /*
                 EN GREN FOR HVER GRUND. Grunden til at spærren svarer nej
                 er ikke den samme, og beskeden må ikke være det heller.
-                Hertil kommer man kun med "ingen-virksomhed" på en vare, der
-                IKKE kan købes uden konto, altså tilkøbet: alle andre er
-                viderestillet til /bestil/uden-konto længere oppe.
               */
               <div className="box-shape border border-border bg-card p-4">
                 <p className="text-sm font-medium">
@@ -345,6 +352,37 @@ export default async function OrderPage({
                 <p className="mt-1 text-sm text-muted">
                   Tilkøb hører til en butik, der allerede er kunde, og bestilles
                   fra dit dashboard.
+                </p>
+                <ButtonLink href="/login" size="sm" className="mt-3">
+                  Log ind
+                </ButtonLink>
+              </div>
+            ) : (
+              /*
+                EN VARE, DER KRÆVER EN KONTO — MEN IKKE ER ET TILKØB.
+                Her stod tilkøbets besked for ALLE, og den var sand, så længe
+                kataloget havde tre varer: hertil kom man kun med
+                "ingen-virksomhed" på noget, der ikke kan købes uden konto, og
+                dét var kun "Ekstra stander". LoyalSum Komplet Online brød
+                antagelsen — den er en helt almindelig vare for en helt ny
+                kunde, og den kan ikke købes gennem skiltflowet, fordi der
+                ikke er noget at trykke og sende.
+
+                MÅLT som udlogget gæst: siden sagde "Tilkøb hører til en
+                butik, der allerede er kunde" til netop den kunde, varen er
+                lavet til — en, der endnu ikke HAR en butik hos os. Beskeden
+                sendte dem til login, som de ikke kan bruge.
+
+                Grenen spørger `addon` og ikke varens navn, så den næste
+                digitale vare ikke arver fejlen.
+              */
+              <div className="box-shape border border-border bg-card p-4">
+                <p className="text-sm font-medium">Opret din butik først</p>
+                <p className="mt-1 text-sm text-muted">
+                  Der er ingen stander at sende — hele varen er din egen side
+                  hos os, og den skal findes, før abonnementet kan sættes i
+                  gang. Opret butikken nedenfor, eller log ind, hvis du
+                  allerede har en.
                 </p>
                 <ButtonLink href="/login" size="sm" className="mt-3">
                   Log ind

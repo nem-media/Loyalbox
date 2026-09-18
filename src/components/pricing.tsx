@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { KATALOG, PRODUKT_FOTO } from "@/lib/constants";
+import { KATALOG, PRODUKT_FOTO, harFysiskSkilt } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { ProductPrice } from "@/components/product-price";
 import { StanderPlaceholder } from "@/components/product-placeholder";
@@ -23,7 +23,16 @@ export function Pricing() {
           folden og dermed sidens LCP-element — og et LCP-element, der venter
           på dovenskab, forsinker præcis dét, målingen handler om. De to andre
           er dovne: de står til højre på en skærm og langt nede på en telefon. */}
-      {KATALOG.map((p, nr) => (
+      {/*
+        KUN VARERNE MED EN STANDER.
+        Sektionen står på /bestil under overskriften "Bestil din stander", og
+        hele blokken handler om antal og mængderabat pr. stk. LoyalSum Komplet
+        Online har ingen stander at tælle og ingen mængderabat at få — den
+        ville stå som et fjerde kort, hvor både prisen og antalsvælgeren
+        betød noget andet end på de tre andre. Den købes fra sin egen
+        produktside, og kataloget (/produkter) viser begge familier.
+      */}
+      {KATALOG.filter(harFysiskSkilt).map((p, nr) => (
         <Link
           key={p.slug}
           href={`/produkter/${p.slug}`}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   MAX_QTY,
   VOLUME_DISCOUNTS,
+  harFysiskSkilt,
   priceFor,
   type Product,
 } from "@/lib/constants";
@@ -13,6 +14,9 @@ import { formatCurrency } from "@/lib/utils";
 /**
  * Buy-box med antal-vælger og live mængderabat. Kun standerprisen ganges
  * med antal; abonnement og opsætning er faste — uafhængigt af antal.
+ *
+ * En vare UDEN fysisk skilt får en anden boks: kun abonnementet, ingen
+ * antalsvælger og ingen mængderabat — se grenen i kroppen.
  * Bruges på produktsiden (mode="order" → /bestil) og bestil-siden
  * (mode="checkout" → /signup). Product er et rent objekt (server → client OK).
  */
@@ -38,6 +42,67 @@ export function QuantityOrder({
     Math.max(1, Math.min(MAX_QTY, Math.floor(n) || 1));
   const [qty, setQty] = useState(clamp(initialQty));
   const p = priceFor(product, qty);
+
+  /*
+   * EN DIGITAL VARE HAR INGENTING AT TÆLLE.
+   *
+   * Hele boksen er bygget op om standerprisen: antalsvælgeren, "Pris pr.
+   * stander", mængderabatten og "I alt i dag" handler alle om et emne, der
+   * skal pakkes og sendes. LoyalSum Komplet Online har ingen stander, og
+   * derfor svarede apparatet ikke bare på et spørgsmål, kunden ikke havde
+   * stillet — det svarede **0 kr.**
+   *
+   * MÅLT på /bestil og på produktsiden, før denne gren: "Antal standere",
+   * "Pris pr. stander 0 kr.", "Standere (1 stk.) 0 kr.", "I alt i dag 0 kr."
+   * og "Køb flere, spar mere: 3+ stk. − 10%" — fire linjer, der læses som
+   * gratis, lige over "+ abonnement 399 kr./md". Et nul er den værste måde at
+   * mangle en pris på, fordi det ser ud som et svar.
+   *
+   * GRENEN LIGGER HER OG IKKE HOS KALDERNE. Både produktsiden og /bestil
+   * tegner denne boks, og en udeladelse hvert sted ville være to steder at
+   * huske det — den tredje kalder ville arve fejlen. Reglen er `harFysiskSkilt`
+   * og ikke et nyt flag, så en vare afgør det selv, præcis som i checkout,
+   * i kataloget og i ordrebekræftelsen.
+   *
+   * KNAPPEN SIGER NOGET ANDET: "Tilpas og bestil" lover farvevalg, logo og
+   * link på et skilt, og der er ingen designer på denne vej (StanderDesigner
+   * er spærret af samme regel). Der er intet at tilpasse, så der står
+   * "Bestil".
+   */
+  if (!harFysiskSkilt(product)) {
+    const digitalHref =
+      mode === "order"
+        ? `/bestil?produkt=${product.slug}`
+        : `/signup?produkt=${product.slug}`;
+    return (
+      <div className="box-shape border border-border bg-card p-5">
+        <div className="space-y-1.5 text-sm">
+          {p.setup > 0 ? (
+            <div className="flex items-baseline justify-between">
+              <span className="text-muted">Opsætning (engangs)</span>
+              <span className="font-medium">{formatCurrency(p.setup)}</span>
+            </div>
+          ) : null}
+          <div className="flex items-baseline justify-between">
+            <span className="font-medium">Abonnement</span>
+            <span className="text-2xl font-bold tracking-tight">
+              {formatCurrency(p.monthly)}
+              <span className="text-sm font-normal text-muted">/md</span>
+            </span>
+          </div>
+          <p className="text-right text-xs text-muted">Alle priser ex moms</p>
+        </div>
+        {mode === "kun-pris" ? null : (
+          <Link
+            href={digitalHref}
+            className="btn-shape mt-4 flex h-12 w-full items-center justify-center gap-2 bg-accent px-7 text-base font-medium text-accent-fg transition-colors hover:bg-accent-hover"
+          >
+            {ctaLabel ?? (mode === "order" ? "Bestil" : "Opret konto")}
+          </Link>
+        )}
+      </div>
+    );
+  }
 
   /*
    * VALGET FØLGER MED VIDERE — begge veje.

@@ -2,7 +2,7 @@ import { NextResponse, after, type NextRequest } from "next/server";
 import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { planForProduct, getProduct } from "@/lib/constants";
+import { planForProduct, getProduct, harFysiskSkilt } from "@/lib/constants";
 import { sendIntern, sendKundeMail } from "@/lib/mail";
 import { ordrevarsel, type Koebstype } from "@/lib/ordrevarsel";
 import { ordrebekraeftelse } from "@/lib/ordrebekraeftelse";
@@ -213,6 +213,9 @@ async function varslOmKoeb(
       cvr: firma?.cvr ?? session.customer_details?.tax_ids?.[0]?.value ?? null,
       email: session.customer_details?.email ?? null,
       leveringslinjer,
+      // Er varen digital? Udledt af PRODUKTET, så en manglende adresse
+      // ikke kan blive forvekslet med "der skal ikke sendes noget".
+      digital: vare ? !harFysiskSkilt(vare) : false,
       sessionId: session.id,
       qrAdresse: qr.adresse,
       qrFast: qr.fast,

@@ -357,20 +357,31 @@ export async function POST(request: NextRequest) {
   // Standeren sendes som price_data med den rabatterede enhedspris, så
   // mængderabatten kun findes ét sted (VOLUME_DISCOUNTS). Produktet peger på
   // det rigtige Stripe-produkt, så fakturaen viser varens navn.
-  const lineItems: Record<string, unknown>[] = genoptag
-    ? []
-    : [
-        {
-          quantity: qty,
-          tax_rates: [taxRate],
-          price_data: {
-            currency: "dkk",
-            product: ids.productId,
-            unit_amount: Math.round(pricing.standUnit * 100),
-            tax_behavior: "exclusive",
+  /*
+   * EN DIGITAL VARE HAR INGEN STANDERLINJE.
+   *
+   * LoyalSum Komplet Online er software uden en fysisk ting: engangsprisen er
+   * 0, og en linje på nul kroner ville stå på fakturaen som en vare, kunden
+   * ikke har købt. Abonnementslinjen længere nede er hele betalingen.
+   *
+   * Betingelsen er `harFysiskSkilt` og ikke "er prisen nul": en pris på nul
+   * kan også være en fejl i kataloget, og den skal ikke stilles tavst.
+   */
+  const lineItems: Record<string, unknown>[] =
+    genoptag || !harFysiskSkilt(product)
+      ? []
+      : [
+          {
+            quantity: qty,
+            tax_rates: [taxRate],
+            price_data: {
+              currency: "dkk",
+              product: ids.productId,
+              unit_amount: Math.round(pricing.standUnit * 100),
+              tax_behavior: "exclusive",
+            },
           },
-        },
-      ];
+        ];
   // Tillægget er ÉN linje, ikke en del af standerprisen: kunden skal kunne se
   // på fakturaen, hvad de betalte for, og bogholderiet skal kunne kende det
   // igen. Det sendes som price_data uden et Stripe-produkt, fordi det ikke ER
@@ -551,7 +562,17 @@ export async function POST(request: NextRequest) {
       // Uden dette blev der aldrig spurgt om en leveringsadresse nogen steder,
       // mens handelsbetingelserne lovede levering "til den adresse, du oplyser".
       // Landet er låst til Danmark; se LEVERINGSLANDE for hvorfor.
-      ...(genoptag
+      /*
+       * LEVERINGSADRESSEN SPØRGES DER KUN OM, NÅR DER SKAL SENDES NOGET.
+       *
+       * Ved en genoptagelse er der ingen ny pakke, og ved en DIGITAL vare er
+       * der aldrig en. At bede om en adresse til ingenting er ikke bare et
+       * felt for meget: handelsbetingelserne lover levering "til den adresse,
+       * du oplyser", og den sætning skal ikke stå over en vare, der ikke
+       * sendes. Fakturaadressen spørger Stripe stadig om
+       * (`billing_address_collection`), fordi den er et krav på fakturaen.
+       */
+      ...(genoptag || !harFysiskSkilt(product)
         ? {}
         : {
             shipping_address_collection: {

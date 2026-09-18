@@ -319,9 +319,25 @@ function schemaAvailability(): string {
 /**
  * Product JSON-LD (schema.org) til produktsiden. Giver Google struktureret data
  * om pris, tilgængelighed og brand → mulighed for rich results i søgeresultater.
+ *
+ * PRISEN ER ENGANGSPRISEN — UNDTAGEN NÅR DER IKKE ER EN.
+ *
+ * De tre skilte betales med et beløb ved købet, og dét er tallet, der står
+ * her; abonnementet oveni er en anden sag og har aldrig været med. LoyalSum
+ * Komplet Online har ingen engangspris, og feltet stod derfor med **0**:
+ * målt på produktsiden 2026-09-18 sendte vi `"price": 0` til Google om en
+ * vare til 399 kr./md. Det er værre end en manglende pris, for et nul er et
+ * gyldigt tal — det kan ende som "0,00 kr." i et søgeresultat, og kunden
+ * møder først den rigtige pris efter klikket.
+ *
+ * Månedsprisen ledsages af en `UnitPriceSpecification`, så tallet ikke bare
+ * bliver et mindre nul: uden den ville 399 stå som en engangspris, og så
+ * havde vi byttet en for lav pris ud med en, der ser for billig ud.
  */
 export function toProductJsonLd(product: Product) {
   const base = getSiteUrl();
+  /* Ingen engangspris at oplyse — så er månedsprisen den eneste sande. */
+  const kunAbonnement = !product.price && !!product.monthlyPrice;
   return {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -334,10 +350,25 @@ export function toProductJsonLd(product: Product) {
     category: product.productType,
     offers: {
       "@type": "Offer",
-      price: product.price,
+      price: kunAbonnement ? product.monthlyPrice : product.price,
       priceCurrency: COMMERCE.currency,
       availability: schemaAvailability(),
       url: `${base}/produkter/${product.slug}`,
+      ...(kunAbonnement
+        ? {
+            priceSpecification: {
+              "@type": "UnitPriceSpecification",
+              price: product.monthlyPrice,
+              priceCurrency: COMMERCE.currency,
+              /* MON = måned i UN/CEFACT, dét schema.org forventer her. */
+              referenceQuantity: {
+                "@type": "QuantitativeValue",
+                value: 1,
+                unitCode: "MON",
+              },
+            },
+          }
+        : {}),
     },
   };
 }

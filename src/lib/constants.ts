@@ -547,6 +547,73 @@ export const PRODUCTS: Product[] = [
     mpn: "LS-KOMPLET",
     productType: "LoyalSum > Abonnement > LoyalSum Komplet",
   },
+  {
+    /*
+     * SAMME SOFTWARE SOM KOMPLET — UDEN DET FYSISKE SKILT.
+     *
+     * Adgangen til platformen afgøres ÉT sted: `includesLoyalSum`, som
+     * `hasLoyaltyAccess()` spørger, og som `KOMPLET_FUNKTIONER` hænger på.
+     * Den er sat her, og dermed har Online nøjagtig de samme funktioner som
+     * Komplet — stempelkort, pointprogram, opslag og medarbejderadgang — uden
+     * at en eneste af de fire ruter skal lære et produktnavn at kende. Havde
+     * adgangen været en liste af slugs, ville en ny vare kræve en rettelse
+     * hvert sted, og den næste funktion ville blive glemt for Online.
+     *
+     * `kunDigital` er det eneste, der skiller dem, og flaget fandtes i
+     * forvejen: det slår farvevalg, logo-upload og leveringsadresse fra. Indtil
+     * nu var der ingen vare, der brugte det.
+     *
+     * PRISEN ER SOFTWAREPRISEN FRA KOMPLET. Komplet er 499 kr. for standeren
+     * (engangs) + 399 kr./md. for platformen. Uden stander står månedsprisen
+     * alene — den er ikke gættet, den er den samme linje.
+     *
+     * STRIPE-ID'ERNE MANGLER MED VILJE. De oprettes med
+     * `scripts/setup-stripe-products.mjs`, og indtil de står her, svarer
+     * `canSell()` nej: købsknappen vises ikke, og `/api/checkout` afviser.
+     * Det er den rigtige tilstand at levere i — et opdigtet pris-id ville give
+     * en kunde en betaling, der fejler.
+     */
+    slug: "loyalsum-komplet-online",
+    metaDescription:
+      "Hele LoyalSum-platformen uden fysisk stander. Del dit loyalitetsprogram via hjemmeside, webshop, e-mail, QR-kode eller et direkte link.",
+    platform: "multi",
+    name: "LoyalSum Komplet Online",
+    keyword: "loyalitetsprogram til webshop",
+    // 65 tegn er loftet MED " — LoyalSum.dk"; se metadata-kvalitet.test.ts.
+    metaTitle: "LoyalSum Komplet Online — uden fysisk stander",
+    // Ingen engangspris: der er ingen stander at betale for.
+    price: 0,
+    interval: "month",
+    monthlyPrice: 399,
+    includesLoyalSum: true,
+    kunDigital: true,
+    tagline: "Hele platformen — uden fysisk stander",
+    description:
+      "Hele LoyalSum-platformen uden en fysisk stander. Du får dit eget LoyalSum-link og en QR-kode, som du selv deler — på din hjemmeside, i din webshop, i mails eller hvor du ellers møder dine kunder. Softwaren er den samme som i LoyalSum Komplet: digitalt stempelkort, pointprogram, feedback, kundescore og opslag af dine bedste anmeldelser.",
+    /*
+     * IKKE STANDER-MOCKUPPEN. `image` går i JSON-LD (og i Google Shopping-
+     * feedet, hvis det bygges), og det lånte billede tegner en stander — altså
+     * præcis dét, varen IKKE indeholder. Målt på produktsiden 2026-09-18 stod
+     * `"image": ".../mockups/stander-loyalsum-komplet.svg"` i den struktu-
+     * rerede data for varen "uden fysisk stander".
+     *
+     * `/opengraph-image` er sitets eget genererede kort — en rigtig PNG i
+     * 1200 × 630, ikke et pladsholderikon, og den viser ikke noget, kunden
+     * ikke får. Den er samtidig dét, delebilledet falder tilbage på, så
+     * søgeresultat og delt link viser det samme.
+     */
+    image: "/opengraph-image",
+    features: [
+      "Alle funktioner fra LoyalSum Komplet",
+      "Dit eget LoyalSum-link og QR-kode",
+      "Digitalt stempelkort og pointprogram",
+      "Feedback, kundescore og opslag",
+      "Uden fysisk stander",
+    ],
+    shoppable: false,
+    mpn: "LS-KOMPLET-ONLINE",
+    productType: "LoyalSum > Abonnement > LoyalSum Komplet Online",
+  },
 
   // -------------------------------------------------------------- TILKØB --
   // Står i PRODUCTS og ikke for sig selv, fordi hele betalingsmaskineriet —
@@ -690,6 +757,20 @@ export const KORT_PUNKTER: Record<string, string[]> = {
     "Opslag af dine anmeldelser — klar til at dele",
     "Statistik og omdømme i realtid",
   ],
+  /*
+   * ONLINE SIGER DET SAMME OM SOFTWAREN — og ét punkt om forskellen.
+   *
+   * Punkterne må ikke gøre den til en mindre pakke: den ENESTE forskel er
+   * standeren. Derfor står "Alle funktioner fra LoyalSum Komplet" først og
+   * ikke en opremsning, der ved et uheld kunne komme til at mangle noget.
+   */
+  "loyalsum-komplet-online": [
+    "Alle funktioner fra LoyalSum Komplet",
+    "Dit eget LoyalSum-link og QR-kode",
+    "Digitalt stempelkort og pointprogram",
+    "Feedback, statistik og omdømme i realtid",
+    "Uden fysisk stander",
+  ],
 };
 
 /**
@@ -704,6 +785,13 @@ export const PRODUKT_FOTO_TEKST: Record<string, string> = {
     "Vælg flere anmeldelsesplatforme på din egen anmeldelsesside — og et eget link til fx dit menukort eller booking.",
   "loyalsum-komplet":
     "Alt i Pro — plus digitalt stempelkort uden app, som kunderne tilmelder sig selv på standeren.",
+  /*
+   * INGEN FOTO, MEN EN BILLEDTEKST. Der er ingen fysisk ting at fotografere,
+   * og et lånt standerfoto ville vise præcis dét, varen ikke indeholder.
+   * Kortet tegner pladsholderen, og teksten her siger, hvad man får.
+   */
+  "loyalsum-komplet-online":
+    "Samme platform som LoyalSum Komplet — men delt via dit eget link, en QR-kode, din hjemmeside eller dine mails i stedet for en stander.",
 };
 
 /**
@@ -1085,6 +1173,20 @@ export function priceFor(
  */
 export function harFysiskSkilt(product: Pick<Product, "kunDigital">): boolean {
   return !product.kunDigital;
+}
+
+/**
+ * Varerne, der giver hele LoyalSum-platformen — uanset om der følger en
+ * stander med.
+ *
+ * DEN FINDES FOR AT KUNNE PRØVES, ikke for at blive spurgt i en if-sætning:
+ * adgangen afgøres fortsat af `hasLoyaltyAccess()` på ÉT sted. Listen her gør
+ * det muligt for en prøve at kræve, at de to Komplet-varer har nøjagtig de
+ * samme softwarefunktioner — så den dag en ny funktion kommer til, kan den
+ * ikke stille blive glemt for den digitale udgave.
+ */
+export function komplette(): Product[] {
+  return PRODUCTS.filter((p) => p.includesLoyalSum && !p.addon);
 }
 
 /*

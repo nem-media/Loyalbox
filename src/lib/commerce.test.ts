@@ -12,6 +12,7 @@ import {
 } from "./commerce";
 import {
   getProduct,
+  harFysiskSkilt,
   PRODUCTS,
   STRIPE_TAX_RATES,
   type Product,
@@ -115,17 +116,46 @@ describe("alle varer kan sælges i LIVE", () => {
     Prøven dækker PRODUCTS og ikke KATALOG, fordi tilkøbet netop ikke står i
     kataloget — og det var dét, der gjorde, at ingen opdagede hullet.
   */
-  it("hver vare har hele sættet af live-id'er", () => {
+  /*
+   * ENTEN ER EN VARE HELT OPSAT — ELLER SLET IKKE.
+   *
+   * Den farlige tilstand er den HALVE: id'er i test og ikke i live giver en
+   * købsknap, der virker for os og fejler for enhver rigtig kunde. Det var
+   * præcis dét, tilkøbet "Ekstra stander" stod og gjorde indtil 13. september.
+   *
+   * En vare UDEN `stripe` overhovedet er derimod en vare, der endnu ikke er
+   * oprettet hos Stripe: `canSell()` svarer nej i BEGGE tilstande, købsknappen
+   * vises ikke, og `/api/checkout` afviser. Den tilstand er sikker og
+   * nødvendig — et nyt produkt findes i kataloget, før nogen har kørt
+   * `scripts/setup-stripe-products.mjs`. Prøven kræver derfor, at varen så
+   * ER spærret, frem for at kræve, at den kan sælges.
+   */
+  const KLAR = PRODUCTS.filter((p) => p.stripe);
+  const IKKE_OPRETTET = PRODUCTS.filter((p) => !p.stripe);
+
+  it("hver OPSAT vare har hele sættet af live-id'er", () => {
     process.env.STRIPE_SECRET_KEY = "sk_live_abc";
-    for (const p of PRODUCTS) {
+    for (const p of KLAR) {
       expect(canSell(p), `${p.slug} kan ikke sælges i live`).toBe(true);
     }
   });
 
   it("og i test, så begge verdener er hele", () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_abc";
-    for (const p of PRODUCTS) {
+    for (const p of KLAR) {
       expect(canSell(p), `${p.slug} kan ikke sælges i test`).toBe(true);
+    }
+  });
+
+  it("en vare uden Stripe-id'er er spærret i BEGGE tilstande", () => {
+    for (const noegle of ["sk_test_abc", "sk_live_abc"]) {
+      process.env.STRIPE_SECRET_KEY = noegle;
+      for (const p of IKKE_OPRETTET) {
+        expect(
+          canSell(p),
+          `${p.slug} har ingen id'er og må ikke kunne købes (${noegle})`,
+        ).toBe(false);
+      }
     }
   });
 
@@ -370,11 +400,31 @@ describe("kanBestillesUdenKonto", () => {
    * Prøven står tilbage som det MODSATTE af den, den var: går den i stykker,
    * er hele det nye flow lukket ned uden at nogen har sagt det.
    */
-  it("lukker abonnementsvarerne ind", () => {
-    const abonnementer = PRODUCTS.filter((p) => p.monthlyPrice && !p.addon);
+  it("lukker de FYSISKE abonnementsvarer ind", () => {
+    const abonnementer = PRODUCTS.filter(
+      (p) => p.monthlyPrice && !p.addon && harFysiskSkilt(p),
+    );
     expect(abonnementer.length).toBeGreaterThan(0);
     for (const p of abonnementer) {
       expect(kanBestillesUdenKonto(p), p.slug).toBe(true);
+    }
+  });
+
+  /*
+   * EN DIGITAL VARE KØBES MED EN KONTO — og det er ikke en forglemmelse.
+   *
+   * Flowet uden konto findes, fordi et TRYKT skilt skal kunne bestilles af en,
+   * der ikke skal administrere noget bagefter: formularen spørger om farve,
+   * logo og leveringsadresse og sender en pakke. LoyalSum Komplet Online har
+   * ingen af delene — den ER adgangen til platformen, og adgang kræver en
+   * konto at hænge på. Uden dette led ville siden bede om et logo til et
+   * skilt, der ikke findes, og en adresse, der ikke skal bruges til noget.
+   */
+  it("holder den digitale vare ude", () => {
+    const digitale = PRODUCTS.filter((p) => !harFysiskSkilt(p) && !p.addon);
+    expect(digitale.length).toBeGreaterThan(0);
+    for (const p of digitale) {
+      expect(kanBestillesUdenKonto(p), p.slug).toBe(false);
     }
   });
 

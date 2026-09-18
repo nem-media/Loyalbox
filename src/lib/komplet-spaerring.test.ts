@@ -148,9 +148,38 @@ describe("abonnementsoversigten viser Komplet-funktionerne", () => {
 });
 
 describe("hasLoyaltyAccess", () => {
-  it("giver kun adgang til varen med stempelkort", () => {
-    const medAdgang = PRODUCTS.filter((p) => hasLoyaltyAccess(p.slug));
-    expect(medAdgang.map((p) => p.slug)).toEqual(["loyalsum-komplet"]);
+  /*
+   * BEGGE KOMPLET-VARER — OG KUN DEM.
+   *
+   * LoyalSum Komplet og LoyalSum Komplet Online er den SAMME software; den
+   * ene har en stander med, den anden ikke. Adgangen hænger derfor på
+   * `includesLoyalSum` og ikke på et navn, og prøven læser kataloget frem for
+   * en håndskrevet liste: kommer der en femte vare med hele platformen, skal
+   * den med af sig selv — og kommer der en uden, må den ikke slippe ind.
+   */
+  it("giver adgang til præcis de varer, der indeholder platformen", () => {
+    const medAdgang = PRODUCTS.filter((p) => hasLoyaltyAccess(p.slug))
+      .map((p) => p.slug)
+      .sort();
+    const komplette = PRODUCTS.filter((p) => p.includesLoyalSum)
+      .map((p) => p.slug)
+      .sort();
+    expect(medAdgang).toEqual(komplette);
+    expect(medAdgang).toContain("loyalsum-komplet");
+    expect(medAdgang).toContain("loyalsum-komplet-online");
+  });
+
+  /*
+   * OG DE TO HAR NØJAGTIG SAMME SOFTWAREFUNKTIONER.
+   *
+   * Det er hele produktreglen: Online er ikke en light-udgave. Fordi adgangen
+   * afgøres ét sted (`hasLoyaltyAccess`), kan de to ikke komme i utakt — men
+   * prøven siger det højt, så en fremtidig undtagelse skal skrives med vilje.
+   */
+  it("de to Komplet-varer har de samme funktioner", () => {
+    const svar = (slug: string) =>
+      KOMPLET_FUNKTIONER.map((f) => `${f.rute}:${hasLoyaltyAccess(slug)}`);
+    expect(svar("loyalsum-komplet-online")).toEqual(svar("loyalsum-komplet"));
   });
 
   it("lukker Reviewstander Pro ude — den er også niveau pro", () => {

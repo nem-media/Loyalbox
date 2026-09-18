@@ -134,10 +134,19 @@ export default async function StandDetailPage({
           </Card>
         </div>
 
-        {/* QR + link */}
+        {/*
+          DEL LOYALSUM.
+          Kortet hed "QR / NFC-link" og handlede om det fysiske skilt. Linket og
+          QR-koden er de samme, uanset om de sidder på en stander eller står på
+          en hjemmeside — og for en LoyalSum Komplet Online-kunde er DETTE kort
+          hele produktets adgangsvej. Overskriften siger derfor, hvad man kan
+          bruge det til, frem for hvor det plejer at sidde. Der er BEVIDST ikke
+          lavet en Online-only side: to steder med det samme link ville før
+          eller siden vise hver sit.
+        */}
         <Card className="h-fit">
           <CardHeader>
-            <CardTitle>QR / NFC-link</CardTitle>
+            <CardTitle>Del LoyalSum</CardTitle>
           </CardHeader>
           <CardBody className="space-y-4">
             <div className="box-shape border border-border p-3">
@@ -164,6 +173,12 @@ export default async function StandDetailPage({
                 Download QR (PNG)
               </a>
             </div>
+            <p className="text-xs leading-relaxed text-muted">
+              Brug linket på din hjemmeside, i din webshop, i mails eller andre
+              steder, hvor du møder dine kunder — og QR-koden på tryk. Det er
+              den samme adresse som på et skilt, og du kan skifte, hvor den
+              fører hen, uden at lave en ny kode.
+            </p>
           </CardBody>
         </Card>
       </div>

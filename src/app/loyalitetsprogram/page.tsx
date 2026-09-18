@@ -443,6 +443,33 @@ export default function LoyalitetsprogramPage() {
           </div>
         </section>
 
+        {/* ------------------------------- fysisk eller online adgang */}
+        <section className="px-4 py-16">
+          <div className="mx-auto max-w-3xl">
+            <h2 className="text-2xl font-bold tracking-tight">
+              Brug loyalitetsprogrammet fysisk eller online
+            </h2>
+            <p className="mt-4 leading-relaxed text-muted">
+              Programmet er det samme; det er adgangsvejen, der er forskellig.
+              <strong> Med en stander</strong> scanner kunden QR-koden på
+              disken — det er LoyalSum Komplet.{" "}
+              <strong>Uden stander</strong> deler du i stedet dit eget
+              LoyalSum-link eller din QR-kode på hjemmesiden, i webshoppen, i
+              mails eller i et opslag — det er LoyalSum Komplet Online.
+            </p>
+            <p className="mt-4 leading-relaxed text-muted">
+              Begge veje fører til den samme LoyalSum-side, og du kan bruge dem
+              side om side: en stander i butikken og linket online.
+            </p>
+            <Link
+              href="/loyalsum-komplet-online"
+              className="mt-4 inline-block font-medium text-accent hover:underline"
+            >
+              Se LoyalSum Komplet Online →
+            </Link>
+          </div>
+        </section>
+
         {/* ------------------------------------------ samme kundekonto */}
         <section className="px-4 py-16">
           <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-2 lg:items-center">

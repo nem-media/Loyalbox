@@ -71,6 +71,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
     },
     {
+      // Salgssiden for den digitale udgave. Den svarer på "loyalitetsprogram
+      // til webshop" og beslægtede søgninger, som hverken /stempelkort eller
+      // /loyalitetsprogram rammer — produktsiden under /produkter/ er
+      // prisssiden, denne er forklaringen.
+      url: `${base}/loyalsum-komplet-online`,
+      changeFrequency: "monthly",
+      priority: 0.9,
+      lastModified,
+    },
+    {
       url: `${base}/bestil`,
       changeFrequency: "monthly",
       priority: 0.5,

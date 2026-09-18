@@ -40,13 +40,59 @@ describe("rangordenen", () => {
    * DET ER PRISEN, DER ER STIGEN. Kommer der en vare til, som koster mere uden
    * at indeholde mere, holder reglen op med at passe — og så skal rangen have
    * sin egen liste i stedet for at blive udledt. Prøven fanger dagen, det sker.
+   *
+   * TO VARER MÅ DELE EN PLADS, NÅR DE INDEHOLDER DET SAMME. LoyalSum Komplet
+   * og LoyalSum Komplet Online har nøjagtig samme software til nøjagtig samme
+   * månedspris; forskellen er en fysisk stander, som ikke er et trin på
+   * softwarestigen. Det, der IKKE må ske, er to varer med FORSKELLIGT indhold
+   * på samme trin — for så kan et skifte hverken være op eller ned.
    */
-  it("giver hver abonnementsvare sin egen plads", () => {
+  it("giver hver softwarepakke sin egen plads", () => {
     const abonnementer = KATALOG.filter((p) => p.monthlyPrice);
-    const rang = abonnementer.map(abonnementsRang);
-    expect(new Set(rang).size, "to varer deler plads på stigen").toBe(
-      rang.length,
+    const prPlads = new Map<number, string[]>();
+    for (const p of abonnementer) {
+      const r = abonnementsRang(p);
+      prPlads.set(r, [...(prPlads.get(r) ?? []), p.slug]);
+    }
+
+    for (const [r, slugs] of prPlads) {
+      if (slugs.length === 1) continue;
+      // Deler de plads, skal de indeholde det samme software.
+      const software = new Set(
+        slugs.map((s) =>
+          JSON.stringify(
+            Boolean(KATALOG.find((p) => p.slug === s)?.includesLoyalSum),
+          ),
+        ),
+      );
+      expect(
+        software.size,
+        `varer med forskelligt indhold deler plads ${r}: ${slugs.join(", ")}`,
+      ).toBe(1);
+    }
+  });
+
+  /*
+   * OG ET SKIFTE MELLEM TO VARER PÅ SAMME TRIN ER SPÆRRET.
+   *
+   * Ikke fordi det ville være en nedgradering, men fordi et køb ville lave
+   * ABONNEMENT NUMMER TO på samme virksomhed — og der er kun ét
+   * `stripe_subscription_id` at gemme det i, så det andet ville trække penge
+   * uden at kunne ses. En kunde, der vil skifte mellem Komplet og Komplet
+   * Online, skal igennem os; en Online-kunde, der vil have et fysisk skilt,
+   * køber tilkøbet i stedet og beholder sit abonnement.
+   */
+  it("spærrer et skifte mellem to varer på samme trin", () => {
+    const paaSammeTrin = KATALOG.filter(
+      (p) => abonnementsRang(p) === abonnementsRang(KOMPLET),
     );
+    for (const p of paaSammeTrin) {
+      if (p.slug === KOMPLET.slug) continue;
+      expect(
+        abonnementsSkifteSpaerre(betaler("loyalsum-komplet"), p),
+        p.slug,
+      ).not.toBeNull();
+    }
   });
 });
 

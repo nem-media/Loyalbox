@@ -27,6 +27,8 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
     links: [
       { href: "/#platform", label: "Alt i LoyalSum" },
       { href: "/stempelkort", label: "Digitalt stempelkort" },
+      { href: "/loyalitetsprogram", label: "Loyalitetsprogram" },
+      { href: "/loyalsum-komplet-online", label: "LoyalSum uden stander" },
       { href: "/reviewstander", label: "Reviewstander" },
       { href: "/#saadan", label: "Sådan virker det" },
     ],
