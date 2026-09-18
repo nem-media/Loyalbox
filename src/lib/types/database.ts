@@ -1141,7 +1141,7 @@ export interface Database {
           virksomheder: string[];
         };
       };
-      /** Se supabase/migrations/0021_forladte_designs.sql. Kun service-role. */
+      /** Se 0021 + 0037. Kun service-role, håndhævet med grants i 0043. */
       ryd_forladte_designs: {
         Args: { p_toerloeb: boolean };
         Returns: {
@@ -1150,6 +1150,22 @@ export interface Database {
           forladte: number;
           /** Deres logofiler, saa ruten kan fjerne dem fra lageret. */
           logoer: string[];
+        };
+      };
+      /**
+       * Se supabase/migrations/0043_forladte_standere.sql.
+       *
+       * Kun service-role — OG DET ER HÅNDHÆVET DÉR, ikke kun skrevet her.
+       * Samme linje stod over `ryd_forladte_designs`, mens funktionen i
+       * virkeligheden svarede enhver med den offentlige anon-nøgle; 0043
+       * lukker dem begge.
+       */
+      ryd_forladte_standere: {
+        Args: { p_toerloeb: boolean };
+        Returns: {
+          toerloeb: boolean;
+          /** Standere fra afbrudte køb, uden scanninger og uden feedback. */
+          forladte: number;
         };
       };
       /** Se supabase/migrations/0014_suspension_og_ophoer.sql. Kun service-role. */

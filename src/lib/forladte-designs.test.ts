@@ -46,7 +46,16 @@ function senesteDefinition(): string {
   let fundet = "";
   for (const fil of filer) {
     const sql = readFileSync(`${MAPPE}/${fil}`, "utf8");
-    const i = sql.indexOf("function public.ryd_forladte_designs");
+    /*
+     * DER SØGES PÅ SELVE DEFINITIONEN OG IKKE PÅ NAVNET.
+     *
+     * Prøven læste før "function public.ryd_forladte_designs" — og dét
+     * matcher også `revoke all on function public.ryd_forladte_designs`.
+     * Da 0043 gav funktionen sine rettigheder, blev revoke-linjen dermed
+     * "den seneste definition", og tre prøver faldt på en fil, der ikke
+     * indeholder en eneste linje af funktionens krop.
+     */
+    const i = sql.indexOf("create or replace function public.ryd_forladte_designs");
     if (i !== -1) fundet = sql.slice(i);
   }
   return fundet;
