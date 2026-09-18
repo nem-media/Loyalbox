@@ -27,7 +27,7 @@ export function FindKortForm() {
 
   if (state.sendt) {
     return (
-      <div className="box-shape border border-success/30 bg-success/10 p-4 text-sm text-success">
+      <div className="box-shape border border-success/30 bg-success/10 p-4 text-sm text-success-tekst">
         {FIND_KORT_KVITTERING}
       </div>
     );

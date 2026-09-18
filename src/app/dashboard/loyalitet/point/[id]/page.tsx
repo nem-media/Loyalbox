@@ -119,7 +119,7 @@ export default async function PointProgramPage({
       {fejl === "ingen-beloenninger" ? (
         <p
           role="alert"
-          className="box-shape mb-6 border border-danger/30 bg-danger/5 p-4 text-sm text-danger"
+          className="box-shape mb-6 border border-danger/30 bg-danger/5 p-4 text-sm text-danger-tekst"
         >
           Programmet kan ikke aktiveres, før der er mindst én belønning. Ellers
           optjener kunderne point, de ikke kan bruge til noget.
@@ -129,7 +129,7 @@ export default async function PointProgramPage({
       {tal?.uenighed ? (
         <p
           role="alert"
-          className="box-shape mb-6 border border-danger/30 bg-danger/5 p-4 text-sm text-danger"
+          className="box-shape mb-6 border border-danger/30 bg-danger/5 p-4 text-sm text-danger-tekst"
         >
           Der er forskel på summen af kundernes saldi og summen af
           transaktionerne. Skriv til os — vi kan afstemme det, og tallene
@@ -392,7 +392,7 @@ function Trin({
           aria-hidden="true"
           className={
             "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold " +
-            (faerdig ? "bg-success/15 text-success" : "bg-muted-bg text-muted")
+            (faerdig ? "bg-success/15 text-success-tekst" : "bg-muted-bg text-muted")
           }
         >
           {faerdig ? "✓" : nummer}

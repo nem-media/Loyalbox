@@ -122,7 +122,7 @@ export function ReviewFlow({
   if (step === "done") {
     return (
       <div className="text-center">
-        <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-success/10 text-success">
+        <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-success/10 text-success-tekst">
           <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="m5 13 4 4L19 7" />
           </svg>

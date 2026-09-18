@@ -115,7 +115,7 @@ export default async function MyCardsPage() {
               )}
 
               {card.availableRewards > 0 ? (
-                <div className="box-shape border border-success/30 bg-success/10 p-3 text-center text-sm font-medium text-success">
+                <div className="box-shape border border-success/30 bg-success/10 p-3 text-center text-sm font-medium text-success-tekst">
                   🎉 Du har en belønning klar hos {card.companyName}.
                 </div>
               ) : null}

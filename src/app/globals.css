@@ -59,6 +59,30 @@
   --success: #16a34a;
   --danger: #dc2626;
   --star: #f59e0b;
+
+  /* SIGNALFARVER SOM TEKST PÅ DERES EGEN TONEDE CHIP.
+     De tre ovenfor er FLADEFARVER — de virker som fyld, som en stjerne eller
+     som en 1px streg, og de er valgt til at kunne ses, ikke til at kunne
+     læses. Lægges de som tekst oven på deres egen farve i 10-15 %, er der
+     næsten ingen forskel tilbage: MÅLT på /produkter 2026-09-18 stod badgen
+     "På vej" med #f59e0b på #f6e7cc — **1,76:1**, hvor WCAG AA kræver 4,5.
+     Grøn lå på 2,70 og rød på 3,77; kun accenten (5,47) klarede den.
+
+     Derfor EGNE tokens frem for at gøre `--success`/`--danger`/`--star`
+     mørkere: de tre bruges 100+ steder som fyld og som streger, og en
+     mørkere `--star` ville gøre stjernerne på anmeldelseskortene brune —
+     altså ødelægge dét, der virker, for at rette dét, der ikke gør. Her
+     ændres KUN forgrunden; chippens tonede bund er urørt, så badgen ser ud
+     som før på afstand og kan læses tæt på.
+
+     Værdierne er valgt som den LYSESTE tone, der klarer 4,5 med luft (≥5,0)
+     på den mørkeste bund, en badge står på (råhvid #f6f4ee) — ellers ville
+     de holde op med at være gule, grønne og røde. Måles de efter, er tallene
+     amber 5,81 · grøn 5,85 · rød 5,05. Rør dem ikke uden at regne igen:
+     `badge-kontrast.test.ts` regner forholdet ud og fejler under 4,5. */
+  --success-tekst: #166534;
+  --danger-tekst: #b91c1c;
+  --star-tekst: #92400e;
   --radius: 0.75rem; /* fallback til bokse der endnu ikke bruger .box-shape */
   --radius-shape: 0 6px 6px 6px; /* delt form: skarp øverste venstre, 6px på de tre øvrige hjørner */
 
@@ -97,6 +121,9 @@
   --color-success: var(--success);
   --color-danger: var(--danger);
   --color-star: var(--star);
+  --color-success-tekst: var(--success-tekst);
+  --color-danger-tekst: var(--danger-tekst);
+  --color-star-tekst: var(--star-tekst);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --radius-app: var(--radius);
