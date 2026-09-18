@@ -56,6 +56,29 @@ export interface BestillingFelter {
   accepterVilkaar: boolean;
 }
 
+/**
+ * DET, KUNDEN HAVDE LAVET, DA DE FORTRØD HOS STRIPE.
+ *
+ * Hentes af `/bestil/uden-konto`, når fortryd-adressen bærer en gyldig nøgle
+ * (se `gendan-noegle.ts`), og bruges til at tegne formularen, som den stod.
+ * Logoet er en ADRESSE og ikke en fil: et filfelt kan ikke forudfyldes, så
+ * filen bliver liggende i lageret og hæftes på igen ved indsendelsen.
+ */
+export interface FortrudtBestilling {
+  /** Nøglen selv — den skal med tilbage til serveren for at kunne genbruge logoet. */
+  noegle: string;
+  firmanavn: string;
+  cvr: string;
+  email: string;
+  standerFarve: StanderFarve;
+  egenFrontfarve: boolean;
+  frontHex: string | null;
+  accentHex: string | null;
+  logoUrl: string | null;
+  logoNavn: string | null;
+  destination?: { type: DestinationType; url: string };
+}
+
 export type Fejl = Partial<Record<keyof BestillingFelter, string>>;
 
 export interface Laest {

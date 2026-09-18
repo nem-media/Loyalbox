@@ -21,6 +21,7 @@ export function LogoFelt({
   onChange,
   onFjern,
   valgt,
+  gemt,
   fejl,
   advarsler,
 }: {
@@ -37,6 +38,16 @@ export function LogoFelt({
   onFjern: () => void;
   /** Er der valgt et logo lige nu? Afgør, om der er noget at fjerne. */
   valgt: boolean;
+  /**
+   * Navnet på et logo, der ALLEREDE ligger i lageret — kun bestillingen uden
+   * konto, når kunden er kommet tilbage fra en fortrudt betaling.
+   *
+   * Feltet står tomt, og det kan det ikke lade være med: et filfelt kan ikke
+   * forudfyldes. Uden denne linje ville kunden se sit logo i previewet ved
+   * siden af og et tomt felt her — og så ville det eneste rigtige at gøre
+   * være at uploade det igen, netop dét, vi lige har sparet dem for.
+   */
+  gemt?: string | null;
   fejl?: string | null;
   advarsler: string[];
 }) {
@@ -86,6 +97,13 @@ export function LogoFelt({
           </button>
         ) : null}
       </div>
+
+      {gemt !== null && gemt !== undefined ? (
+        <p className="mt-2 text-sm text-accent">
+          Dit logo er gemt{gemt ? ": " + gemt : ""}. Du behøver ikke vælge filen
+          igen — vil du skifte det, så vælg en ny.
+        </p>
+      ) : null}
 
       {fejl ? <p className="mt-2 text-sm text-danger">{fejl}</p> : null}
 
