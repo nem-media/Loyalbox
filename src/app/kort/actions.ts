@@ -12,7 +12,7 @@ import {
 } from "@/lib/loyalty/member-account";
 import { giveStamp, redeemReward } from "@/lib/loyalty/service";
 import {
-  hentPointProgram,
+  hentAktivePointProgrammer,
   sikrePointKonto,
 } from "@/lib/loyalty/point-service";
 import { begraens, TEKST_MAKS } from "@/lib/tekstgraenser";
@@ -143,10 +143,11 @@ export async function selfEnroll(
     .limit(1)
     .maybeSingle();
 
-  const pointProgram = await hentPointProgram(stand.company_id, admin);
-  const pointAktivt = pointProgram?.status === "active" ? pointProgram : null;
+  // ALLE aktive pointprogrammer — en butik kan have op til fem (0045), og
+  // kunden melder sig ind i dem med ét tryk, præcis som med stempelkortet.
+  const pointProgrammer = await hentAktivePointProgrammer(stand.company_id, admin);
 
-  if (!program && !pointAktivt) {
+  if (!program && pointProgrammer.length === 0) {
     return fejl("Der er endnu ikke noget aktivt kundeprogram her.");
   }
 
@@ -295,8 +296,8 @@ export async function selfEnroll(
    * idempotent i basen (`unique (program_id, member_id)`), så to tryk på
    * knappen giver én saldo.
    */
-  if (pointAktivt) {
-    await sikrePointKonto(stand.company_id, pointAktivt.id, memberId, admin);
+  for (const p of pointProgrammer) {
+    await sikrePointKonto(stand.company_id, p.id, memberId, admin);
   }
 
   // Samtykke

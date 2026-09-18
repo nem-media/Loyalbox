@@ -12,6 +12,20 @@
  * medarbejdere og rettigheder — resten er hver sin.
  */
 
+/**
+ * HØJST FEM LEVENDE POINTPROGRAMMER PR. VIRKSOMHED.
+ *
+ * Tallet står også i migration 0045, som er dét, der HÅNDHÆVER det — en
+ * trigger, der låser virksomheden og tæller. Her står det, fordi teksten på
+ * skærmen skal kunne sige tallet, og `point-graense.test.ts` kræver, at de to
+ * er ens: en brugerflade, der lover seks, og en base, der giver fem, er en
+ * fejl, butikken møder midt i en opsætning.
+ *
+ * HVORFOR EN GRÆNSE OVERHOVEDET: kunden har én saldo PR. PROGRAM, og
+ * personalet skal vælge program ved hver eneste optjening. Uden et loft kan
+ * en butik bygge en skærm, ingen kan betjene i en kø.
+ */
+export const MAKS_POINTPROGRAMMER = 5;
 export type PointEarnModel = "per_amount" | "per_visit" | "manual";
 
 export type PointTxnType =

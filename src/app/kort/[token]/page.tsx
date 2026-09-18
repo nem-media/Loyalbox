@@ -14,9 +14,8 @@ import { PwaInstall } from "@/components/pwa-install";
 import { PointKort } from "@/components/loyalty/point-kort";
 import { PointPanel } from "@/components/loyalty/point-panel";
 import {
-  hentPointProgram,
+  hentMedlemsPointkonti,
   hentPointBeloenninger,
-  hentPointSaldo,
   hentMedlemsHistorik,
 } from "@/lib/loyalty/point-service";
 import { StaffStampPanel } from "./staff-stamp-panel";
@@ -152,14 +151,15 @@ export default async function CardPage({
    * pointside. Har butikken kun stempelkort, hentes der et program, der ikke
    * er der, og resten af siden er uændret.
    */
-  const pointProgram = await hentPointProgram(member.company_id);
-  const [pointBeloenninger, pointSaldo, pointHistorik] = pointProgram
+  const pointkonti = await hentMedlemsPointkonti(member.company_id, member.id);
+  const [pointBeloenninger, pointHistorik] = pointkonti.length
     ? await Promise.all([
-        hentPointBeloenninger(pointProgram.id),
-        hentPointSaldo(pointProgram.id, member.id),
+        Promise.all(
+          pointkonti.map((k) => hentPointBeloenninger(k.program.id)),
+        ),
         hentMedlemsHistorik(member.id, 8),
       ])
-    : [[], null, []];
+    : [[], []];
 
   const qr = await qrDataUrl(`${getSiteUrl()}/kort/${token}`);
 
@@ -200,32 +200,37 @@ export default async function CardPage({
           </div>
         ) : null}
 
-        {/* Pointprogram — kundens saldo og belønninger */}
-        {pointProgram && pointSaldo !== null ? (
-          <div className="space-y-2">
-            <PointKort
-              companyName={company?.name ?? "Butik"}
-              programName={pointProgram.name}
-              saldo={pointSaldo}
-              beloenninger={pointBeloenninger}
-              historik={pointHistorik}
-              paused={pointProgram.status !== "active"}
+        {/*
+          POINTPROGRAMMER — ét kort pr. program, kunden er med i.
+          Historikken står kun ÉN gang, under det sidste kort: den er kundens
+          samlede bevægelser i butikken, ikke programmets, og gentaget under
+          hvert kort ville den se ud som forskellige lister.
+        */}
+        {pointkonti.map((k, i) => (
+          <PointKort
+            key={k.program.id}
+            companyName={company?.name ?? "Butik"}
+            programName={k.program.name}
+            saldo={k.saldo}
+            beloenninger={pointBeloenninger[i] ?? []}
+            historik={i === pointkonti.length - 1 ? pointHistorik : []}
+            paused={k.program.status !== "active"}
+          />
+        ))}
+
+        {pointkonti.length && (canStampHere || canRedeemHere) ? (
+          <div className="box-shape border border-accent/40 bg-accent/5 p-3">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+              Personale
+            </p>
+            <PointPanel
+              companyId={member.company_id}
+              memberId={member.id}
+              kanGive={canStampHere}
+              kanIndloese={canRedeemHere}
+              kanJustere={Boolean(access?.permissions.canManage)}
+              kompakt
             />
-            {canStampHere || canRedeemHere ? (
-              <div className="box-shape border border-accent/40 bg-accent/5 p-3">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-                  Personale
-                </p>
-                <PointPanel
-                  companyId={member.company_id}
-                  memberId={member.id}
-                  kanGive={canStampHere}
-                  kanIndloese={canRedeemHere}
-                  kanJustere={Boolean(access?.permissions.canManage)}
-                  kompakt
-                />
-              </div>
-            ) : null}
           </div>
         ) : null}
 
@@ -288,7 +293,7 @@ export default async function CardPage({
         })}
 
         {(!memberships || memberships.length === 0) &&
-        !(pointProgram && pointSaldo !== null) ? (
+        pointkonti.length === 0 ? (
           <div className="box-shape border border-border bg-card p-5 text-center text-sm text-muted">
             Du er endnu ikke tilmeldt et stempelkort.
           </div>

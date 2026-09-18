@@ -132,7 +132,11 @@ describe("pointtallet regnes på serveren", () => {
       ACTIONS.indexOf("export async function givPointAction"),
       ACTIONS.indexOf("export async function justerPointAction"),
     );
-    expect(giv).toMatch(/const program = await hentPointProgram\(access\.companyId\)/);
+    // Programmet slås op på BÅDE sit id og sin virksomhed — med op til fem
+    // programmer er "virksomhedens ene" hverken rigtigt eller sikkert.
+    expect(giv).toMatch(
+      /const program = await hentPointProgram\(access\.companyId, programId\)/,
+    );
     expect(giv).toMatch(/Math\.floor\(beloeb \/ Number\(program\.earn_value\)\)/);
     // Der findes ikke et felt, hvor point kan sendes ind ved en beløbsoptjening.
     expect(giv).not.toMatch(/formData\.get\("earned_points"\)/);
@@ -169,7 +173,10 @@ describe("kunden ser kun sit eget", () => {
   it("kortsiden slår kunden op på tokenet", () => {
     const side = kilde("src/app/kort/[token]/page.tsx");
     expect(side).toMatch(/\.from\("loyalty_members"\)[\s\S]{0,200}\.eq\("public_token", token\)/);
-    // Pointdelen hentes for NETOP den fundne kunde.
-    expect(side).toMatch(/hentPointSaldo\(pointProgram\.id, member\.id\)/);
+    // Pointdelen hentes for NETOP den fundne kunde — og for den butik,
+    // kortet hører til, så et medlem aldrig kan få en anden butiks saldi.
+    expect(side).toMatch(
+      /hentMedlemsPointkonti\(member\.company_id, member\.id\)/,
+    );
   });
 });

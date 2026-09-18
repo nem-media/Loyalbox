@@ -121,6 +121,8 @@ export async function pointOverblik(
 
 export interface PointHistorikRaekke {
   id: string;
+  /** Hvilket program linjen hører til — vises, når butikken har flere. */
+  program_id: string;
   created_at: string;
   type: PointTxnType;
   points: number;
@@ -153,7 +155,7 @@ export async function pointHistorik(
   const { data: txns } = await admin
     .from("loyalty_point_transactions")
     .select(
-      "id, created_at, type, points, balance_after, purchase_amount, reward_navn, reason, reversal_of, member_id, employee_id",
+      "id, program_id, created_at, type, points, balance_after, purchase_amount, reward_navn, reason, reversal_of, member_id, employee_id",
     )
     .eq("company_id", companyId)
     .eq("program_id", programId)
@@ -187,6 +189,7 @@ export async function pointHistorik(
 
   return raekker.map((t) => ({
     id: t.id,
+    program_id: t.program_id,
     created_at: t.created_at,
     type: t.type,
     points: t.points,

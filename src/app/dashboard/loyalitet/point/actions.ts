@@ -12,7 +12,10 @@ import {
   hentPointProgram,
 } from "@/lib/loyalty/point-service";
 import { laesValg, REWARD_TYPE_LABELS } from "@/lib/loyalty/constants";
-import { POINT_EARN_MODEL_LABELS } from "@/lib/loyalty/point";
+import {
+  POINT_EARN_MODEL_LABELS,
+  MAKS_POINTPROGRAMMER,
+} from "@/lib/loyalty/point";
 import { begraens, TEKST_MAKS } from "@/lib/tekstgraenser";
 import type { FormResult } from "@/app/dashboard/loyalitet/actions";
 
@@ -104,17 +107,35 @@ export async function opretPointProgram(
     .single();
 
   if (error) {
-    // 23505: `loyalty_point_programs_et_levende_idx` — der er allerede et
-    // program, der ikke er arkiveret. Det er ikke en fejl, brugeren har lavet;
-    // de har bare to faner åbne eller trykket to gange.
+    /*
+     * GRÆNSEN KOMMER FRA BASEN (0045), ikke herfra. Triggeren låser
+     * virksomheden og tæller, så to faner ikke begge kan slippe forbi — og
+     * beskeden bærer en stabil kode, brugerfladen kan oversætte.
+     */
+    /*
+     * OVERGANGEN: indtil 0045 er kørt, står 0044's unikke indeks stadig i
+     * basen og tillader kun ÉT levende program. Koden deployes før SQL'en
+     * køres i hånden, så den tilstand findes i et vindue — og en butik, der
+     * rammer den, skal have en besked, der er sand dér og umulig bagefter.
+     */
     if (error.code === "23505") {
-      return { error: "Der findes allerede et pointprogram. Ret det i stedet." };
+      return {
+        error: "Der findes allerede et pointprogram. Ret det i stedet.",
+        udfyldt,
+      };
+    }
+    if (error.message?.includes("for-mange-pointprogrammer")) {
+      return {
+        error: `Du kan have op til ${MAKS_POINTPROGRAMMER} pointprogrammer ad gangen. Arkivér et af dem, hvis du vil lave et nyt.`,
+        udfyldt,
+      };
     }
     return { error: "Pointprogrammet kunne ikke oprettes. Prøv igen.", udfyldt };
   }
 
-  revalidatePath("/dashboard/loyalitet/point");
-  redirect(`/dashboard/loyalitet/point?oprettet=${data.id}`);
+  revalidatePath("/dashboard/loyalitet/point", "layout");
+  // Direkte ind i det nye program, hvor de tre trin står.
+  redirect(`/dashboard/loyalitet/point/${data.id}`);
 }
 
 export async function opdaterPointProgram(
@@ -164,7 +185,7 @@ export async function opdaterPointProgram(
     return { error: "Ændringerne kunne ikke gemmes. Prøv igen.", udfyldt };
   }
 
-  revalidatePath("/dashboard/loyalitet/point");
+  revalidatePath("/dashboard/loyalitet/point", "layout");
   return { ok: true };
 }
 
@@ -204,8 +225,8 @@ export async function saetPointProgramStatus(formData: FormData): Promise<void> 
       .eq("company_id", access.companyId)
       .eq("status", "active");
     if (!count) {
-      revalidatePath("/dashboard/loyalitet/point");
-      redirect("/dashboard/loyalitet/point?fejl=ingen-beloenninger");
+      revalidatePath(`/dashboard/loyalitet/point/${id}`);
+      redirect(`/dashboard/loyalitet/point/${id}?fejl=ingen-beloenninger`);
     }
   }
 
@@ -215,7 +236,7 @@ export async function saetPointProgramStatus(formData: FormData): Promise<void> 
     .eq("id", id)
     .eq("company_id", access.companyId);
 
-  revalidatePath("/dashboard/loyalitet/point");
+  revalidatePath("/dashboard/loyalitet/point", "layout");
   revalidatePath("/dashboard/loyalitet");
 }
 
@@ -276,7 +297,7 @@ export async function opretPointBeloenning(
       forsoeg,
     };
 
-  revalidatePath("/dashboard/loyalitet/point");
+  revalidatePath("/dashboard/loyalitet/point", "layout");
   // Uden tælleren ville felterne ikke blive tegnet forfra, og den næste
   // belønning skulle skrives oven i den forrige.
   return { ok: true, forsoeg };
@@ -322,7 +343,7 @@ export async function opdaterPointBeloenning(
    * (`reward_navn`, `reward_point`), så en kvittering fra i går bliver ved med
    * at sige det, kunden betalte.
    */
-  revalidatePath("/dashboard/loyalitet/point");
+  revalidatePath("/dashboard/loyalitet/point", "layout");
   return { ok: true };
 }
 
@@ -351,7 +372,7 @@ export async function saetPointBeloenningStatus(formData: FormData): Promise<voi
     .eq("id", id)
     .eq("company_id", access.companyId);
 
-  revalidatePath("/dashboard/loyalitet/point");
+  revalidatePath("/dashboard/loyalitet/point", "layout");
 }
 
 /* ============================================ point på en bestemt kunde */
@@ -376,10 +397,15 @@ export async function givPointAction(
   const beloeb = tal(formData.get("amount"));
   const manuellePoint = tal(formData.get("points"));
 
-  const program = await hentPointProgram(access.companyId);
-  if (!program || program.id !== programId) {
-    return { error: "Pointprogrammet blev ikke fundet." };
-  }
+  /*
+   * PROGRAMMET SLÅS OP PÅ SIT ID — MED virksomheden i forespørgslen.
+   *
+   * Før hentede den "virksomhedens ene program" og sammenlignede id'et
+   * bagefter. Med op til fem programmer er det ikke bare forkert, det er
+   * usikkert: opslaget skal afgøre BÅDE hvilket program og om det er vores.
+   */
+  const program = await hentPointProgram(access.companyId, programId);
+  if (!program) return { error: "Pointprogrammet blev ikke fundet." };
 
   /*
    * TALLET REGNES PÅ SERVEREN OG KOMMER ALDRIG FRA BROWSEREN.
@@ -423,7 +449,7 @@ export async function givPointAction(
   if (!svar.ok) return { error: svar.error };
 
   revalidatePath(`/dashboard/loyalitet/kunder/${memberId}`);
-  revalidatePath("/dashboard/loyalitet/point");
+  revalidatePath("/dashboard/loyalitet/point", "layout");
   return { ok: true };
 }
 
@@ -462,7 +488,7 @@ export async function justerPointAction(
   if (!svar.ok) return { error: svar.error };
 
   revalidatePath(`/dashboard/loyalitet/kunder/${memberId}`);
-  revalidatePath("/dashboard/loyalitet/point");
+  revalidatePath("/dashboard/loyalitet/point", "layout");
   return { ok: true };
 }
 
@@ -484,7 +510,7 @@ export async function indloesPointAction(
   if (!svar.ok) return { error: svar.error };
 
   revalidatePath(`/dashboard/loyalitet/kunder/${str(formData.get("member_id"))}`);
-  revalidatePath("/dashboard/loyalitet/point");
+  revalidatePath("/dashboard/loyalitet/point", "layout");
   return { ok: true, udfyldt: { navn: svar.navn ?? "" } };
 }
 
@@ -503,7 +529,7 @@ export async function annullerPointAction(
 
   if (!svar.ok) return { error: svar.error };
 
-  revalidatePath("/dashboard/loyalitet/point");
+  revalidatePath("/dashboard/loyalitet/point", "layout");
   revalidatePath("/dashboard/loyalitet/point/transaktioner");
   const memberId = str(formData.get("member_id"));
   if (memberId) revalidatePath(`/dashboard/loyalitet/kunder/${memberId}`);
