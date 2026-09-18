@@ -39,6 +39,16 @@ export interface FormResult {
    * ikke længere kundens eget.
    */
   udfyldt?: Record<string, string>;
+  /**
+   * Hvilket forsøg i rækken svaret hører til.
+   *
+   * Bruges som `key` på felter, der skal tegnes FORFRA efter et svar — fx en
+   * formular, der skal stå tom igen, når den er gemt. Alternativet var at
+   * kalde `setState` inde i selve handlingen, og dét afviser React Compiler
+   * med rette: en tilstandsændring hører til i en hændelse, ikke i en
+   * gengivelse.
+   */
+  forsoeg?: number;
 }
 
 const str = (v: FormDataEntryValue | null) => String(v ?? "").trim();

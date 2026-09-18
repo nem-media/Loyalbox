@@ -11,6 +11,10 @@ import {
   maaKnyttesAutomatisk,
 } from "@/lib/loyalty/member-account";
 import { giveStamp, redeemReward } from "@/lib/loyalty/service";
+import {
+  hentPointProgram,
+  sikrePointKonto,
+} from "@/lib/loyalty/point-service";
 import { begraens, TEKST_MAKS } from "@/lib/tekstgraenser";
 import {
   kortLinkMail,
@@ -106,7 +110,7 @@ export async function selfEnroll(
     );
   }
   if (!bool(formData.get("consent_terms"))) {
-    return fejl("Du skal acceptere vilkårene for at oprette et stempelkort.");
+    return fejl("Du skal acceptere vilkårene for at blive medlem.");
   }
 
   const admin = createAdminClient();
@@ -119,7 +123,17 @@ export async function selfEnroll(
     .maybeSingle();
   if (!stand || !stand.is_active) return fejl("Standeren blev ikke fundet.");
 
-  // Aktivt stempelkort for virksomheden
+  /*
+   * BUTIKKEN KAN HAVE ET STEMPELKORT, ET POINTPROGRAM ELLER BEGGE.
+   *
+   * Før krævede tilmeldingen et aktivt STEMPELKORT, og det var rigtigt, så
+   * længe der kun fandtes én loyalitetsform. Med pointprogrammet ville den
+   * samme linje have lukket en café ude, der kun kører point: kunden scanner
+   * standeren, skriver sin mail og får at vide, at der ikke er noget kort.
+   *
+   * Der er ÉN tilmelding til begge former — kunden tilmelder sig BUTIKKEN, og
+   * hvad hun så kommer med i, følger af, hvad butikken har åbent.
+   */
   const { data: program } = await admin
     .from("loyalty_programs")
     .select("id")
@@ -128,8 +142,12 @@ export async function selfEnroll(
     .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle();
-  if (!program) {
-    return fejl("Der er endnu ikke noget aktivt stempelkort her.");
+
+  const pointProgram = await hentPointProgram(stand.company_id, admin);
+  const pointAktivt = pointProgram?.status === "active" ? pointProgram : null;
+
+  if (!program && !pointAktivt) {
+    return fejl("Der er endnu ikke noget aktivt kundeprogram her.");
   }
 
   const visitor = await getCurrentUser();
@@ -242,14 +260,16 @@ export async function selfEnroll(
     await claimCardForUser(token, ejer.id);
   }
 
-  // Sikr medlemskab til programmet (idempotent).
-  const { data: membership } = await admin
-    .from("loyalty_memberships")
-    .select("id")
-    .eq("program_id", program.id)
-    .eq("member_id", memberId)
-    .maybeSingle();
-  if (!membership) {
+  // Sikr medlemskab til stempelkortet (idempotent) — kun hvis der er et.
+  const { data: membership } = program
+    ? await admin
+        .from("loyalty_memberships")
+        .select("id")
+        .eq("program_id", program.id)
+        .eq("member_id", memberId)
+        .maybeSingle()
+    : { data: null };
+  if (program && !membership) {
     /*
      * `unique (program_id, member_id)` fra 0004 er vagten her, og den var der
      * i forvejen — men svaret blev ikke set på. En dublet er ufarlig at møde:
@@ -266,6 +286,17 @@ export async function selfEnroll(
     if (msFejl && msFejl.code !== "23505") {
       return fejl("Kortet blev oprettet, men kunne ikke knyttes til stempelkortet. Prøv igen.");
     }
+  }
+
+  /*
+   * POINTKONTOEN OPRETTES I SAMME TILMELDING.
+   *
+   * Kunden skal ikke tilmelde sig to gange, og der er kun ét kort. Kontoen er
+   * idempotent i basen (`unique (program_id, member_id)`), så to tryk på
+   * knappen giver én saldo.
+   */
+  if (pointAktivt) {
+    await sikrePointKonto(stand.company_id, pointAktivt.id, memberId, admin);
   }
 
   // Samtykke

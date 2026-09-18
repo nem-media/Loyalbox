@@ -43,6 +43,13 @@ const TABELLER = [
   "loyalty_members",
   "loyalty_memberships",
   "loyalty_transactions",
+  // Pointprogrammet (0044). Rækkefølgen følger fremmednøglerne: programmet
+  // først, så belønningerne og kontiene, og til sidst ledgeren, der peger på
+  // dem alle tre. Kontoen peger desuden på loyalty_members, som står ovenfor.
+  "loyalty_point_programs",
+  "loyalty_point_rewards",
+  "loyalty_point_accounts",
+  "loyalty_point_transactions",
   "customer_rewards",
   "customer_discounts",
   "campaigns",

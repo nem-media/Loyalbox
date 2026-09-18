@@ -5,10 +5,13 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { Logo } from "@/components/brand";
 import { SelfEnrollForm } from "./self-enroll-form";
 import { PRIVAT_SIDE } from "@/lib/site";
+import { hentPointProgram } from "@/lib/loyalty/point-service";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "Opret stempelkort",
+  // "Bliv medlem" og ikke "Opret stempelkort": siden dækker nu begge
+  // loyalitetsformer, og butikken kan have den ene, den anden eller begge.
+  title: "Bliv medlem",
   ...PRIVAT_SIDE,
 };
 
@@ -41,6 +44,15 @@ export default async function EnrollCardPage({
     .limit(1)
     .maybeSingle();
 
+  /*
+   * BUTIKKEN KAN KØRE BEGGE FORMER. Siden skal derfor sige, hvad kunden
+   * faktisk kommer med i — ikke love et stempelkort, hvor der er point, og
+   * ikke lade en café med kun point stå med en side, der siger nej.
+   */
+  const pointProgram = await hentPointProgram(stand.company_id, admin);
+  const point = pointProgram?.status === "active" ? pointProgram : null;
+  const harNoget = Boolean(program || point);
+
   return (
     <main id="indhold" className="flex min-h-screen flex-col items-center justify-center bg-dark px-4 py-10">
       <div className="box-shape w-full max-w-md border border-border bg-card p-6 shadow-[0_30px_60px_-25px_rgba(0,0,0,0.5)] sm:p-8">
@@ -61,18 +73,49 @@ export default async function EnrollCardPage({
             />
           ) : null}
           <h1 className="text-xl font-semibold tracking-tight">
-            {program ? `Få dit stempelkort hos ${company.name}` : company.name}
+            {harNoget ? `Bliv medlem hos ${company.name}` : company.name}
           </h1>
           <p className="mt-1 text-sm text-muted">
-            Saml stempler og få belønninger — helt uden app.
+            {program && point
+              ? "Saml point og stempler — helt uden app."
+              : point
+                ? "Optjen point, når du handler — helt uden app."
+                : "Saml stempler og få belønninger — helt uden app."}
           </p>
         </div>
 
-        {program ? (
+        {/*
+          DINE FORDELER FØRST, formularen bagefter. Kunden skal kunne se, hvad
+          hun siger ja til, før hun taster sin mail — og med to former skal
+          forskellen kunne læses på to linjer.
+        */}
+        {harNoget ? (
+          <div className="mb-5 space-y-2">
+            {point ? (
+              <div className="box-shape border border-border bg-background p-3">
+                <p className="text-sm font-medium">{point.name}</p>
+                <p className="text-xs text-muted">
+                  {point.description ||
+                    "Optjen point, når du handler, og vælg selv din belønning."}
+                </p>
+              </div>
+            ) : null}
+            {program ? (
+              <div className="box-shape border border-border bg-background p-3">
+                <p className="text-sm font-medium">{program.name}</p>
+                <p className="text-xs text-muted">
+                  Saml stempler og få en belønning.
+                </p>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
+        {harNoget ? (
           <SelfEnrollForm slug={slug} />
         ) : (
           <p className="text-center text-sm text-muted">
-            Der er endnu ikke noget aktivt stempelkort her.
+            Der er endnu ikke noget aktivt kundeprogram her.
           </p>
         )}
 
@@ -84,7 +127,7 @@ export default async function EnrollCardPage({
           Linjen her er den billige måde at fange det på, netop i det øjeblik
           hun står med telefonen.
         */}
-        {program ? (
+        {harNoget ? (
           <p className="mt-6 border-t border-border pt-5 text-center text-sm text-muted">
             Har du et kort her i forvejen og mistet linket?{" "}
             <Link

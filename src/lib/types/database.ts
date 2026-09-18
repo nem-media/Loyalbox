@@ -15,6 +15,10 @@ import type {
   DiscountStatus,
   CustomerDiscountStatus,
 } from "@/lib/loyalty/constants";
+import type {
+  PointEarnModel,
+  PointTxnType,
+} from "@/lib/loyalty/point";
 
 export type ConsentType = "terms" | "marketing";
 
@@ -26,6 +30,27 @@ export type OrderStatus =
   "new" | "needs_onboarding" | "ready_for_production" | "shipped" | "cancelled";
 export type SubscriptionStatus =
   "active" | "trialing" | "past_due" | "canceled" | "incomplete";
+
+/**
+ * Svaret fra pointprogrammets SQL-funktioner.
+ *
+ * Fejl kommer som en KODE og ikke som en besked: teksten hører til i
+ * brugerfladen (`pointFejlTekst()`), så den kan skrives om uden en migration,
+ * og så den samme kode kan få forskellig ordlyd til personale og kunde.
+ */
+export interface PointSvar {
+  ok: boolean;
+  fejl?: string;
+  /** Sand, når nøglen er set før — dobbeltklik, ikke en ny transaktion. */
+  gentagelse?: boolean;
+  saldo?: number;
+  txn?: string;
+  point?: number;
+  pris?: number;
+  navn?: string;
+  status?: string;
+  kraever?: number;
+}
 
 export interface Database {
   public: {
@@ -804,6 +829,138 @@ export interface Database {
         >;
         Relationships: [];
       };
+      /* ------------------------------------------------ Pointprogram (0044) */
+      loyalty_point_programs: {
+        Row: {
+          id: string;
+          company_id: string;
+          name: string;
+          description: string | null;
+          status: ProgramStatus;
+          earn_model: PointEarnModel;
+          earn_value: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          company_id: string;
+          name: string;
+          description?: string | null;
+          status?: ProgramStatus;
+          earn_model?: PointEarnModel;
+          earn_value?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["loyalty_point_programs"]["Insert"]
+        >;
+        Relationships: [];
+      };
+      loyalty_point_rewards: {
+        Row: {
+          id: string;
+          company_id: string;
+          program_id: string;
+          name: string;
+          description: string | null;
+          points_cost: number;
+          type: RewardType;
+          sort_order: number;
+          status: ProgramStatus;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          company_id: string;
+          program_id: string;
+          name: string;
+          description?: string | null;
+          points_cost: number;
+          type?: RewardType;
+          sort_order?: number;
+          status?: ProgramStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["loyalty_point_rewards"]["Insert"]
+        >;
+        Relationships: [];
+      };
+      loyalty_point_accounts: {
+        Row: {
+          id: string;
+          company_id: string;
+          program_id: string;
+          member_id: string;
+          balance: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          company_id: string;
+          program_id: string;
+          member_id: string;
+          balance?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["loyalty_point_accounts"]["Insert"]
+        >;
+        Relationships: [];
+      };
+      loyalty_point_transactions: {
+        Row: {
+          id: string;
+          company_id: string;
+          program_id: string;
+          account_id: string;
+          member_id: string;
+          type: PointTxnType;
+          points: number;
+          balance_after: number;
+          purchase_amount: number | null;
+          reward_id: string | null;
+          /** Aftryk af belønningen, så historikken ikke ændrer sig bagefter. */
+          reward_navn: string | null;
+          reward_point: number | null;
+          reversal_of: string | null;
+          performed_by: string | null;
+          employee_id: string | null;
+          reference: string | null;
+          reason: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          company_id: string;
+          program_id: string;
+          account_id: string;
+          member_id: string;
+          type: PointTxnType;
+          points: number;
+          balance_after: number;
+          purchase_amount?: number | null;
+          reward_id?: string | null;
+          reward_navn?: string | null;
+          reward_point?: number | null;
+          reversal_of?: string | null;
+          performed_by?: string | null;
+          employee_id?: string | null;
+          reference?: string | null;
+          reason?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["loyalty_point_transactions"]["Insert"]
+        >;
+        Relationships: [];
+      };
       loyalty_audit_log: {
         Row: {
           id: string;
@@ -1166,6 +1323,61 @@ export interface Database {
           toerloeb: boolean;
           /** Standere fra afbrudte køb, uden scanninger og uden feedback. */
           forladte: number;
+        };
+      };
+      /**
+       * Pointprogrammets skrivninger (0044). Saldo og ledger flyttes i SAMME
+       * transaktion, og kontoen låses imens — derfor ligger de i basen og
+       * ikke i TypeScript. Kun service-role; grants står i migrationen.
+       */
+      point_giv: {
+        Args: {
+          p_company: string;
+          p_program: string;
+          p_member: string;
+          p_points: number;
+          p_type: PointTxnType;
+          p_purchase_amount?: number | null;
+          p_reference?: string | null;
+          p_employee?: string | null;
+          p_user?: string | null;
+          p_reason?: string | null;
+        };
+        Returns: PointSvar;
+      };
+      point_indloes: {
+        Args: {
+          p_company: string;
+          p_program: string;
+          p_member: string;
+          p_reward: string;
+          p_reference?: string | null;
+          p_employee?: string | null;
+          p_user?: string | null;
+        };
+        Returns: PointSvar;
+      };
+      point_annuller: {
+        Args: {
+          p_company: string;
+          p_txn: string;
+          p_employee?: string | null;
+          p_user?: string | null;
+          p_reason?: string | null;
+        };
+        Returns: PointSvar;
+      };
+      point_afstem: {
+        Args: { p_company?: string | null };
+        Returns: {
+          afvigende: number;
+          konti: {
+            id: string;
+            company_id: string;
+            member_id: string;
+            saldo: number;
+            ledger: number;
+          }[];
         };
       };
       /** Se supabase/migrations/0014_suspension_og_ophoer.sql. Kun service-role. */
