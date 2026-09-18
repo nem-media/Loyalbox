@@ -37,7 +37,7 @@ export function SaveCardPanel({ token }: { token: string }) {
 
   if (state.ok) {
     return (
-      <div className="box-shape border border-success/30 bg-success/10 p-4 text-center text-sm font-medium text-success">
+      <div className="box-shape border border-success/30 bg-success/10 p-4 text-center text-sm font-medium text-success-tekst">
         Kortet er gemt på din konto. Du finder det nu under &laquo;Mine
         stempelkort&raquo;.
       </div>

@@ -89,7 +89,7 @@ function FeedbackMock() {
           &ldquo;Der var lang ventetid, da jeg kom forbi i frokostpausen.&rdquo;
         </p>
         <div className="mt-3 flex items-center gap-2">
-          <span className="rounded-full bg-success/10 px-2.5 py-1 text-xs font-medium text-success">
+          <span className="rounded-full bg-success/10 px-2.5 py-1 text-xs font-medium text-success-tekst">
             Besvaret
           </span>
           <span className="rounded-full bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent">
