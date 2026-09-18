@@ -29,6 +29,7 @@ import { getSiteUrl } from "@/lib/site";
 import { requiresDpa, DPA_VERSION } from "@/lib/dpa";
 import { generateSlug } from "@/lib/utils";
 import { aktiveringUdloeber } from "@/lib/aktivering";
+import { lavGendanNoegle, laesGendanNoegle } from "@/lib/gendan-noegle";
 import { randomBytes } from "node:crypto";
 import { noterFejl } from "@/lib/drift";
 import { findKonto } from "@/lib/konto-opslag";
@@ -53,6 +54,13 @@ export interface BestillingResultat {
    */
   forsoeg?: number;
 }
+
+/**
+ * Siges ÉT sted, fordi den er svaret på to forskellige fejl med samme
+ * betydning for kunden: det gemte logo kunne ikke hentes frem igen.
+ */
+const GEMT_LOGO_FEJL =
+  "Vi kunne ikke genbruge dit gemte logo. Vælg filen igen, så er du videre.";
 
 /** Destinationstypen bestemmer, hvilken kolonne adressen havner i. */
 function destinationKolonne(type: DestinationType, url: string) {
@@ -193,6 +201,78 @@ export async function bestilUdenKonto(
     logoBredde = hoved?.bredde ?? null;
     logoHoejde = hoved?.hoejde ?? null;
     logoTransparent = hoved?.harAlfa ?? null;
+  } else if (formData.get("behold_logo") === "1") {
+    /*
+     * KUNDEN ER KOMMET TILBAGE FRA STRIPE MED ET LOGO, DER ALLEREDE ER OPPE.
+     *
+     * Et filfelt kan ikke forudfyldes — browseren giver ingen vej til det, og
+     * derfor er „behold logoet“ et flag og ikke en fil i formulardataene.
+     *
+     * NØGLEN ER BEVISET. Der er ingen konto at kontrollere ejerskabet imod, så
+     * uden signaturen ville et gættet design-id være nok til at hæfte en
+     * fremmed butiks logo på sin egen bestilling. Ejerskabet ligger i selve
+     * FORESPØRGSLEN nedenfor og ikke i et tjek bagefter — samme mønster som
+     * `hentDesign()` på /bestil.
+     */
+    const gendan = laesGendanNoegle(String(formData.get("gendan") ?? ""));
+
+    const { data: gemt } = gendan
+      ? await admin
+          .from("designs")
+          .select(
+            "logo_url, logo_filnavn, logo_mime, logo_bytes, logo_bredde, logo_hoejde, logo_transparent",
+          )
+          .eq("id", gendan.designId)
+          .eq("company_id", gendan.companyId)
+          .maybeSingle()
+      : { data: null };
+
+    if (gemt?.logo_url) {
+      /*
+       * FILEN KOPIERES — DEN DELES IKKE.
+       *
+       * Kladden fra det afbrudte forsøg bliver ryddet syv dage efter, OG DENS
+       * LOGOFIL SLETTET FRA LAGERET (migration 0037 + `sletLogofiler`). Pegede
+       * den nye bestilling på den samme fil, ville en BETALT kunde miste sit
+       * logo en uge senere — nøjagtig den fejl, 0037 er skrevet om, bare ind ad
+       * en anden dør. En kopi koster nogle kilobytes; den anden vej kostede et
+       * logo, der ikke kunne skaffes igen.
+       */
+      const fra = gemt.logo_url.split("/logos/")[1];
+
+      if (!fra) {
+        await noterFejl(
+          "bestilling-uden-konto",
+          `Gemt logo uden sti: ${gemt.logo_url}`,
+        );
+        return svar({ besked: GEMT_LOGO_FEJL });
+      }
+
+      const ext = fra.split(".").pop()?.toLowerCase() || "png";
+      const til = `uden-konto/${crypto.randomUUID()}.${ext}`;
+      const { error } = await admin.storage.from("logos").copy(fra, til);
+
+      if (error) {
+        await noterFejl(
+          "bestilling-uden-konto",
+          `Gemt logo kunne ikke kopieres: ${error.message}`,
+        );
+        /*
+         * DER SIGES FRA FREM FOR AT KØRE VIDERE. Kunden har lige set sit logo
+         * i previewet; en bestilling, der stille blev til et skilt UDEN det,
+         * ville først blive opdaget, når skiltet lå i kuverten.
+         */
+        return svar({ besked: GEMT_LOGO_FEJL });
+      }
+
+      logoUrl = admin.storage.from("logos").getPublicUrl(til).data.publicUrl;
+      logoNavn = gemt.logo_filnavn;
+      logoMime = gemt.logo_mime;
+      logoBytes = gemt.logo_bytes;
+      logoBredde = gemt.logo_bredde;
+      logoHoejde = gemt.logo_hoejde;
+      logoTransparent = gemt.logo_transparent;
+    }
   }
 
   /* ------------------------------------------------------------ virksomhed */
@@ -462,6 +542,15 @@ export async function bestilUdenKonto(
 
   let session;
   try {
+    /*
+     * NØGLEN TIL EN FORTRUDT BESTILLING. Udstedes her, sammen med sessionen, og
+     * lever lige så længe som den — se `gendan-noegle.ts`.
+     */
+    const gendanNoegle = lavGendanNoegle({
+      designId: design.id,
+      companyId,
+    });
+
     session = await stripe().checkout.sessions.create({
       mode: abonnement ? ("subscription" as const) : ("payment" as const),
       line_items: lineItems as never,
@@ -550,7 +639,23 @@ export async function bestilUdenKonto(
           }
         : {}),
       success_url: `${base}/bestil/tak?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${base}/bestil?produkt=${product.slug}`,
+      /*
+       * FORTRYDER KUNDEN HOS STRIPE, SKAL HELE BESTILLINGEN FØLGE MED HJEM.
+       *
+       * Adressen pegede på `/bestil`, som for en besøgende uden konto sender
+       * videre til formularen her — TOM, og med antallet sat tilbage til 1.
+       * Alt var i behold i basen (admin kunne se både logo og farvevalg); der
+       * var bare ingen vej tilbage til det, og kunden skulle taste firmanavn,
+       * CVR, mail og link forfra og uploade logoet igen.
+       *
+       * Der peges nu direkte på formularen, så der ikke er et videresend i
+       * vejen, og nøglen åbner det, kunden allerede har lavet. Uden signaturen
+       * ville adressen være en måde at læse en fremmed butiks oplysninger på —
+       * se `gendan-noegle.ts` for hvorfor det ikke kan være et rent id.
+       */
+      cancel_url:
+        `${base}/bestil/uden-konto?produkt=${product.slug}` +
+        `&antal=${v.antal}&gendan=${gendanNoegle}`,
     });
   } catch (err) {
     await noterFejl(

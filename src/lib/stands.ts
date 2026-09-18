@@ -15,7 +15,17 @@ const LABELS: Record<DestinationType, string> = {
   custom: "Skriv en anmeldelse",
 };
 
-function urlFor(stand: Stand, type: DestinationType): string | null {
+/** De fem kolonner, en destination kan læses ud af. */
+export type DestinationFelter = Pick<
+  Stand,
+  | "destination_type"
+  | "google_review_url"
+  | "trustpilot_url"
+  | "facebook_url"
+  | "custom_url"
+>;
+
+function urlFor(stand: DestinationFelter, type: DestinationType): string | null {
   switch (type) {
     case "google":
       return stand.google_review_url;
@@ -46,6 +56,27 @@ export function resolvePublicDestination(stand: Stand): Destination {
   }
 
   return { url: null, type: stand.destination_type, label: LABELS[stand.destination_type] };
+}
+
+/**
+ * DEN DESTINATION, KUNDEN FAKTISK HAR VALGT — uden fallback.
+ *
+ * `resolvePublicDestination` ovenfor er til /r/<slug>, hvor en manglende
+ * adresse skal findes et andet sted frem for at spærre en utilfreds kunde ude.
+ * Til en FORMULAR er det omvendt: forudfyldes feltet med noget andet end det,
+ * der står i den valgte kolonne, viser vi et Trustpilot-link i et felt, der
+ * siger Google — og kunden ville rette noget, de ikke havde skrevet.
+ *
+ * Den ligger her og ikke i den ene side, der først fik brug for den: valget af
+ * kolonne ud fra typen stod i forvejen to steder (`urlFor` her og en ternær i
+ * /bestil), og en tredje udgave er den slags, der først bliver forkert, når
+ * nogen tilføjer en femte destination.
+ */
+export function valgtDestination(
+  stand: DestinationFelter,
+): { type: DestinationType; url: string } | undefined {
+  const url = urlFor(stand, stand.destination_type);
+  return url ? { type: stand.destination_type, url } : undefined;
 }
 
 export interface ReviewLink {

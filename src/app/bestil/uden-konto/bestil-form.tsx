@@ -32,7 +32,10 @@ import {
 } from "@/lib/stander-tilvalg";
 import { LOGO_TEKSTER, laesPngHoved, validerLogo } from "@/lib/logo";
 import { LogoFelt } from "@/components/logo-felt";
-import { DESTINATIONER } from "@/lib/bestilling-uden-konto";
+import {
+  DESTINATIONER,
+  type FortrudtBestilling,
+} from "@/lib/bestilling-uden-konto";
 import { kraeverDestination } from "@/lib/commerce";
 import { requiresDpa } from "@/lib/dpa";
 import { DESTINATION_INTRO } from "@/components/destination-felt";
@@ -41,6 +44,18 @@ import { formatCurrency } from "@/lib/utils";
 /** Sender browseren til Stripe. Uden for komponenten — se stander-designer.tsx. */
 function gaaTil(url: string): void {
   window.location.href = url;
+}
+
+/**
+ * Giver en preview-adresse fri — men KUN vores egen.
+ *
+ * Previewet viser enten en blob af den fil, kunden lige har valgt, eller
+ * https-adressen på et logo, der allerede ligger i lageret (en fortrudt
+ * bestilling). `revokeObjectURL` på den sidste er meningsløs, og det er
+ * netop den slags linje, der en dag bliver til en fejl.
+ */
+function frigiv(url: string | null): void {
+  if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
 }
 
 /**
@@ -82,10 +97,19 @@ function visFoersteFejl(fejl: Record<string, string | undefined>): void {
 export function BestilUdenKontoForm({
   product,
   initialQty = 1,
+  fortrudt = null,
 }: {
   product: Product;
   /** Antallet, kunden valgte på produktsiden. Se `/bestil/uden-konto/page.tsx`. */
   initialQty?: number;
+  /**
+   * Det, kunden havde udfyldt, da de fortrød hos Stripe.
+   *
+   * Hentet af siden med nøglen fra fortryd-adressen. Alt herfra er
+   * STARTVÆRDIER og ikke låste felter: kunden er på vej tilbage for at ændre
+   * noget — ellers havde de ikke fortrudt.
+   */
+  fortrudt?: FortrudtBestilling | null;
 }) {
   const [state, action, pending] = useActionState<BestillingResultat, FormData>(
     async (prev, formData) => {
@@ -101,11 +125,18 @@ export function BestilUdenKontoForm({
     Math.max(1, Math.min(MAX_QTY, Math.floor(n) || 1));
   const [qty, setQty] = useState(clamp(initialQty));
   const [standerFarve, setStanderFarve] = useState<StanderFarve>(
-    STANDARD_STANDERFARVE,
+    fortrudt?.standerFarve ?? STANDARD_STANDERFARVE,
   );
-  const [egenFront, setEgenFront] = useState(false);
-  const [hex, setHex] = useState("#26616e");
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [egenFront, setEgenFront] = useState(fortrudt?.egenFrontfarve ?? false);
+  const [hex, setHex] = useState(fortrudt?.frontHex ?? "#26616e");
+  /*
+   * PREVIEWET STARTER MED DET GEMTE LOGO — en almindelig https-adresse fra
+   * lageret og ikke en blob. Derfor må oprydningen kun kalde
+   * `revokeObjectURL` på de adresser, komponenten selv har lavet; se `frigiv()`.
+   */
+  const [logoUrl, setLogoUrl] = useState<string | null>(
+    fortrudt?.logoUrl ?? null,
+  );
   /*
    * SELVE FILEN, ikke kun previewets blob-adresse.
    *
@@ -119,12 +150,21 @@ export function BestilUdenKontoForm({
    * serveren kræver `logo.size > 0`, og der var ingenting at læse.
    */
   const [logoFil, setLogoFil] = useState<File | null>(null);
+  /*
+   * LOGOET LIGGER ALLEREDE I LAGERET, og et filfelt kan ikke forudfyldes.
+   * Flaget er derfor det eneste, der kan bede serveren om at genbruge filen
+   * fra det design, nøglen peger på. Vælger kunden en ny fil — eller fjerner
+   * den gemte — falder flaget, og så er det kundens nye valg, der gælder.
+   */
+  const [beholdLogo, setBeholdLogo] = useState(Boolean(fortrudt?.logoUrl));
   // Accenten er gratis at skifte — se STANDARD_ACCENT i stander-tilvalg.ts.
-  const [egenAccent, setEgenAccent] = useState(false);
-  const [accent, setAccent] = useState(STANDARD_ACCENT);
+  const [egenAccent, setEgenAccent] = useState(Boolean(fortrudt?.accentHex));
+  const [accent, setAccent] = useState(fortrudt?.accentHex ?? STANDARD_ACCENT);
   const [logoFejl, setLogoFejl] = useState<string | null>(null);
   const [advarsler, setAdvarsler] = useState<string[]>([]);
-  const [destination, setDestination] = useState(DESTINATIONER[0].vaerdi);
+  const [destination, setDestination] = useState(
+    fortrudt?.destination?.type ?? DESTINATIONER[0].vaerdi,
+  );
 
   /*
    * TEKSTFELTERNE ER STYREDE. React nulstiller formularen, når en server
@@ -132,10 +172,12 @@ export function BestilUdenKontoForm({
    * e-mail og linket. Det er den side, hvor en fremmed kunde taster mest, og
    * fejlen ramte netop den, der var tættest på at betale.
    */
-  const [firmanavn, setFirmanavn] = useState("");
-  const [cvr, setCvr] = useState("");
-  const [email, setEmail] = useState("");
-  const [destinationUrl, setDestinationUrl] = useState("");
+  const [firmanavn, setFirmanavn] = useState(fortrudt?.firmanavn ?? "");
+  const [cvr, setCvr] = useState(fortrudt?.cvr ?? "");
+  const [email, setEmail] = useState(fortrudt?.email ?? "");
+  const [destinationUrl, setDestinationUrl] = useState(
+    fortrudt?.destination?.url ?? "",
+  );
 
   /*
    * Vilkårsfeltet var som det eneste helt ustyret. En `key` alene hjælper
@@ -193,7 +235,13 @@ export function BestilUdenKontoForm({
     const valgt = e.target.files?.[0] ?? null;
     setLogoFejl(null);
     setAdvarsler([]);
-    if (logoUrl) URL.revokeObjectURL(logoUrl);
+    /*
+     * ET NYT VALG AFLØSER DET GEMTE — også når kunden fortryder valget igen og
+     * står tilbage uden fil. Så er logoet fravalgt og ikke genbrugt, og
+     * skiltet trykkes med LoyalSums eget mærke, præcis som feltet lover.
+     */
+    setBeholdLogo(false);
+    frigiv(logoUrl);
 
     if (!valgt) {
       setLogoUrl(null);
@@ -225,7 +273,8 @@ export function BestilUdenKontoForm({
 
   /** Fortryd et valgt logo. Feltet tømmes, så filen heller ikke sendes med. */
   function fjernLogo() {
-    if (logoUrl) URL.revokeObjectURL(logoUrl);
+    setBeholdLogo(false);
+    frigiv(logoUrl);
     setLogoUrl(null);
     setLogoFil(null);
     setLogoFejl(null);
@@ -295,6 +344,19 @@ export function BestilUdenKontoForm({
       <input type="hidden" name="standerFarve" value={standerFarve} />
       <input type="hidden" name="accentHex" value={brugtAccent ?? ""} />
       <input type="hidden" name="frontHex" value={egenFront ? hex : ""} />
+      {/*
+        NØGLEN OG FLAGET FØLGES AD. Nøglen alene genbruger ingenting: serveren
+        tager kun det gemte logo, når kunden hverken har valgt en ny fil eller
+        fjernet den gamle. Se `behold_logo` i actions.ts.
+      */}
+      {fortrudt ? (
+        <input type="hidden" name="gendan" value={fortrudt.noegle} />
+      ) : null}
+      <input
+        type="hidden"
+        name="behold_logo"
+        value={beholdLogo && !logoFil ? "1" : "0"}
+      />
 
       {/* ================================================ venstre: valgene */}
       <div className="space-y-5 lg:col-span-7">
@@ -424,6 +486,7 @@ export function BestilUdenKontoForm({
               onChange={vaelgFil}
               onFjern={fjernLogo}
               valgt={Boolean(logoUrl)}
+              gemt={beholdLogo && !logoFil ? (fortrudt?.logoNavn ?? "") : null}
               fejl={logoFejl}
               advarsler={advarsler}
             />

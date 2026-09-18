@@ -18,6 +18,7 @@ import {
 import { createAdminClient } from "@/lib/supabase/admin";
 import { kraeverDestination, kanBestillesUdenKonto } from "@/lib/commerce";
 import { enesteAdresse } from "@/lib/abonnement";
+import { valgtDestination } from "@/lib/stands";
 import type { DestinationType } from "@/lib/types/database";
 import { designFrontfarve } from "@/lib/design";
 import { Badge } from "@/components/ui/badge";
@@ -110,18 +111,9 @@ async function hentStandDestination(
     .eq("company_id", companyId)
     .maybeSingle();
 
-  if (!data) return undefined;
-  const type = data.destination_type as DestinationType;
-  const url =
-    type === "google"
-      ? data.google_review_url
-      : type === "trustpilot"
-        ? data.trustpilot_url
-        : type === "facebook"
-          ? data.facebook_url
-          : data.custom_url;
-
-  return url ? { type, url } : undefined;
+  // Kolonnevalget ligger i `valgtDestination` — ét sted for begge de to
+  // bestillingsveje. Her stod den samme ternær i sin egen udgave.
+  return data ? valgtDestination(data) : undefined;
 }
 
 export default async function OrderPage({
