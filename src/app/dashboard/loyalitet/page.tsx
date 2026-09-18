@@ -103,37 +103,6 @@ export default async function LoyaltyOverviewPage({
 
       <PeriodPicker basePath="/dashboard/loyalitet" current={period} />
 
-      {/* De fire man kom for. De otte stod før side om side i samme
-          størrelse, og så læses siden som en rapport frem for et overblik. */}
-      <Sektion titel="Nøgletal">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Stat
-            label="Nye medlemmer"
-            value={r.newMembers}
-            sub={`${r.totalMembers} i alt`}
-            trend={{ previous: forrige.newMembers, label: siden }}
-          />
-          <Stat
-            label="Aktive medlemmer"
-            value={r.activeMembers}
-            sub="Med stempel i perioden"
-            trend={{ previous: forrige.activeMembers, label: siden }}
-          />
-          <Stat
-            label="Stempler givet"
-            value={r.stampsGiven}
-            sub={r.stampsRemoved ? `${r.stampsRemoved} fjernet` : undefined}
-            trend={{ previous: forrige.stampsGiven, label: siden }}
-          />
-          <Stat
-            label="Belønninger indløst"
-            value={r.rewardsRedeemed}
-            sub={`${r.rewardsEarned} optjent`}
-            trend={{ previous: forrige.rewardsRedeemed, label: siden }}
-          />
-        </div>
-      </Sektion>
-
       {pointProgram && pointTal ? (
         <Sektion titel="Pointprogram">
           <Card>
@@ -166,6 +135,39 @@ export default async function LoyaltyOverviewPage({
           </Card>
         </Sektion>
       ) : null}
+
+
+
+      {/* De fire man kom for. De otte stod før side om side i samme
+          størrelse, og så læses siden som en rapport frem for et overblik. */}
+      <Sektion titel="Stempelkort">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Stat
+            label="Nye medlemmer"
+            value={r.newMembers}
+            sub={`${r.totalMembers} i alt`}
+            trend={{ previous: forrige.newMembers, label: siden }}
+          />
+          <Stat
+            label="Aktive medlemmer"
+            value={r.activeMembers}
+            sub="Med stempel i perioden"
+            trend={{ previous: forrige.activeMembers, label: siden }}
+          />
+          <Stat
+            label="Stempler givet"
+            value={r.stampsGiven}
+            sub={r.stampsRemoved ? `${r.stampsRemoved} fjernet` : undefined}
+            trend={{ previous: forrige.stampsGiven, label: siden }}
+          />
+          <Stat
+            label="Belønninger indløst"
+            value={r.rewardsRedeemed}
+            sub={`${r.rewardsEarned} optjent`}
+            trend={{ previous: forrige.rewardsRedeemed, label: siden }}
+          />
+        </div>
+      </Sektion>
 
       {/* De fire der uddyber. Mindre, fordi de forklarer de første.
           Etiketten her stod skrevet i hånden OG sagde "Nøgletal" — altså
