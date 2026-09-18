@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { TIDSZONE } from "@/lib/dansk-dag";
 import { getCompanyAccess } from "@/lib/loyalty/access";
-import { hentPointProgram } from "@/lib/loyalty/point-service";
+import { hentPointProgrammer } from "@/lib/loyalty/point-service";
 import { pointHistorik } from "@/lib/loyalty/point-rapport";
 import { POINT_TXN_LABELS } from "@/lib/loyalty/point";
 import { PageHeader } from "@/components/dashboard-shell";
@@ -27,8 +27,8 @@ export default async function PointTransaktionerPage() {
   const access = await getCompanyAccess();
   if (!access) return null;
 
-  const program = await hentPointProgram(access.companyId);
-  if (!program) {
+  const programmer = await hentPointProgrammer(access.companyId);
+  if (programmer.length === 0) {
     return (
       <>
         <PageHeader title="Pointtransaktioner" />
@@ -49,13 +49,33 @@ export default async function PointTransaktionerPage() {
     );
   }
 
-  const raekker = await pointHistorik(access.companyId, program.id, 100);
+  /*
+   * ALLE PROGRAMMER I ÉN LISTE. Butikken leder efter "hvad skete der i dag",
+   * ikke efter et bestemt program — og med op til fem ville fem faner være
+   * fem steder at kigge. Programmet står som en kolonne, når der er mere end
+   * ét; med kun ét ville kolonnen sige det samme i hver række.
+   */
+  const raekker = (
+    await Promise.all(
+      programmer.map((p) => pointHistorik(access.companyId, p.id, 100)),
+    )
+  )
+    .flat()
+    .sort((a, b) => b.created_at.localeCompare(a.created_at))
+    .slice(0, 100);
+
+  const programNavn = new Map(programmer.map((p) => [p.id, p.name]));
+  const visProgram = programmer.length > 1;
 
   return (
     <>
       <PageHeader
         title="Pointtransaktioner"
-        description={`${program.name} — de seneste 100 bevægelser.`}
+        description={
+          visProgram
+            ? "De seneste 100 bevægelser på tværs af dine pointprogrammer."
+            : `${programmer[0].name} — de seneste 100 bevægelser.`
+        }
       />
 
       {raekker.length === 0 ? (
@@ -71,6 +91,7 @@ export default async function PointTransaktionerPage() {
               <THead>
                 <TR>
                   <TH>Dato</TH>
+                  {visProgram ? <TH>Program</TH> : null}
                   <TH>Kunde</TH>
                   <TH>Handling</TH>
                   <TH>Point</TH>
@@ -89,6 +110,9 @@ export default async function PointTransaktionerPage() {
                         timeZone: TIDSZONE,
                       })}
                     </TD>
+                    {visProgram ? (
+                      <TD>{programNavn.get(t.program_id) ?? "—"}</TD>
+                    ) : null}
                     <TD>
                       <Link
                         href={`/dashboard/loyalitet/kunder/${t.member_id}`}

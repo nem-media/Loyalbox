@@ -15,10 +15,7 @@ import {
   FORRIGE_LABEL,
   type Period,
 } from "@/lib/loyalty/report";
-import {
-  hentPointProgram,
-  hentPointBeloenninger,
-} from "@/lib/loyalty/point-service";
+import { hentPointProgrammer } from "@/lib/loyalty/point-service";
 import { pointOverblik } from "@/lib/loyalty/point-rapport";
 import { pointTekst } from "@/lib/loyalty/point";
 import { PROGRAM_STATUS_LABELS } from "@/lib/loyalty/constants";
@@ -70,10 +67,10 @@ export default async function LoyaltyOverviewPage({
     : "30";
   // Rapporten og den foregående periode hentes samtidig — den ene venter
   // ikke på den anden.
-  const [r, forrige, pointProgram] = await Promise.all([
+  const [r, forrige, pointProgrammer] = await Promise.all([
     getLoyaltyReport(access.companyId, period),
     getLoyaltyTrend(access.companyId, period),
-    hentPointProgram(access.companyId),
+    hentPointProgrammer(access.companyId),
   ]);
 
   /*
@@ -84,9 +81,9 @@ export default async function LoyaltyOverviewPage({
    * når der ER et program — en butik med bare et stempelkort betaler ikke for
    * to ekstra opslag.
    */
-  const pointTal = pointProgram
-    ? await pointOverblik(access.companyId, pointProgram.id)
-    : null;
+  const pointTal = await Promise.all(
+    pointProgrammer.map((p) => pointOverblik(access.companyId, p.id)),
+  );
   const siden = FORRIGE_LABEL[period];
 
   return (
@@ -103,43 +100,44 @@ export default async function LoyaltyOverviewPage({
 
       <PeriodPicker basePath="/dashboard/loyalitet" current={period} />
 
-      {pointProgram && pointTal ? (
+      {pointProgrammer.length > 0 ? (
         <Sektion titel="Pointprogram">
           <Card>
-            <CardBody className="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <p className="font-medium">{pointProgram.name}</p>
-                  <Badge
-                    tone={
-                      pointProgram.status === "active" ? "success" : "neutral"
-                    }
+            <CardBody className="divide-y divide-border p-0 sm:p-0">
+              {pointProgrammer.map((p, i) => (
+                <div
+                  key={p.id}
+                  className="flex flex-wrap items-center justify-between gap-4 px-5 py-4"
+                >
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-medium">{p.name}</p>
+                      <Badge
+                        tone={p.status === "active" ? "success" : "neutral"}
+                      >
+                        {PROGRAM_STATUS_LABELS[p.status]}
+                      </Badge>
+                    </div>
+                    <p className="mt-1 text-sm text-muted">
+                      {pointTal[i].medlemmer} medlemmer ·{" "}
+                      {pointTekst(pointTal[i].iOmloeb)} i omløb ·{" "}
+                      {pointTal[i].indloesninger} belønninger indløst
+                    </p>
+                  </div>
+                  <ButtonLink
+                    href={`/dashboard/loyalitet/point/${p.id}`}
+                    size="sm"
+                    variant="outline"
                   >
-                    {PROGRAM_STATUS_LABELS[pointProgram.status]}
-                  </Badge>
+                    Åbn
+                  </ButtonLink>
                 </div>
-                <p className="mt-1 text-sm text-muted">
-                  {pointTal.medlemmer} medlemmer ·{" "}
-                  {pointTekst(pointTal.iOmloeb)} i omløb ·{" "}
-                  {pointTal.indloesninger} belønninger indløst
-                </p>
-              </div>
-              <ButtonLink
-                href="/dashboard/loyalitet/point"
-                size="sm"
-                variant="outline"
-              >
-                Åbn pointprogram
-              </ButtonLink>
+              ))}
             </CardBody>
           </Card>
         </Sektion>
       ) : null}
 
-
-
-      {/* De fire man kom for. De otte stod før side om side i samme
-          størrelse, og så læses siden som en rapport frem for et overblik. */}
       <Sektion titel="Stempelkort">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Stat

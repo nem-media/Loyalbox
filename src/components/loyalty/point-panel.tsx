@@ -1,10 +1,12 @@
 import { TIDSZONE } from "@/lib/dansk-dag";
 import {
-  hentPointProgram,
+  hentAktivePointProgrammer,
+  hentPointProgrammer,
   hentPointBeloenninger,
-  hentPointSaldo,
   hentMedlemsHistorik,
+  type PointProgram,
 } from "@/lib/loyalty/point-service";
+import { createAdminClient } from "@/lib/supabase/admin";
 import {
   pointTekst,
   beloenningStatus,
@@ -24,9 +26,15 @@ import {
  * kort i personale-tilstand. Handlingen ved disken er den samme, og to udgaver
  * ville betyde, at en rettelse kun nåede den ene skærm.
  *
- * DEN HENTER SELV. Kaldestedet kender kun kunden og rettighederne; alt andet
- * er pointprogrammets eget. Det koster fire opslag på én kunde — ikke et
- * N+1-problem, fordi panelet altid vises for præcis én.
+ * ET AFSNIT PR. PROGRAM. En butik kan have op til fem (0045), og kunden har én
+ * saldo i hvert. Der er BEVIDST ingen programvælger: en dropdown ved en disk
+ * er et klik mere og en fejlkilde — man kan komme til at give point i det
+ * forkerte program uden at opdage det. Med programmerne under hinanden står
+ * navnet altid lige over det beløb, der tastes.
+ *
+ * PAUSEDE OG ARKIVEREDE PROGRAMMER VISES OGSÅ, hvis kunden har en saldo der.
+ * Ellers ville pointene se ud til at være væk — de er der, de kan bare ikke
+ * bruges, og dét skal kunne læses af den, der står med kunden.
  */
 export async function PointPanel({
   companyId,
@@ -44,121 +52,149 @@ export async function PointPanel({
   /** Kortets smalle spalte på en telefon. Skjuler historikken. */
   kompakt?: boolean;
 }) {
-  const program = await hentPointProgram(companyId);
-  if (!program) return null;
-
-  const [beloenninger, saldoRaa, historik] = await Promise.all([
-    hentPointBeloenninger(program.id),
-    hentPointSaldo(program.id, memberId),
-    kompakt
-      ? Promise.resolve([])
-      : hentMedlemsHistorik(memberId, 8),
-  ]);
-
-  const saldo = saldoRaa ?? 0;
-  const aktiv = program.status === "active";
+  const admin = createAdminClient();
 
   /*
-   * IDEMPOTENSNØGLERNE LAVES HER — én pr. handling pr. visning.
+   * TO OPSLAG TIL PROGRAMMERNE OG ÉT TIL SALDIENE — ikke ét pr. program.
+   * Aktive skal med, også når kunden ikke er meldt ind endnu (personalet må
+   * gerne give det første point; kontoen oprettes af `point_giv`), og de
+   * øvrige kun, hvis der ligger en saldo.
+   */
+  const [aktive, alle, { data: konti }] = await Promise.all([
+    hentAktivePointProgrammer(companyId, admin),
+    hentPointProgrammer(companyId, admin),
+    admin
+      .from("loyalty_point_accounts")
+      .select("program_id, balance")
+      .eq("member_id", memberId)
+      .eq("company_id", companyId),
+  ]);
+
+  const saldoPrProgram = new Map(
+    (konti ?? []).map((k) => [k.program_id, k.balance]),
+  );
+
+  const aktiveIds = new Set(aktive.map((p) => p.id));
+  const medSaldo = alle.filter(
+    (p) => !aktiveIds.has(p.id) && saldoPrProgram.has(p.id),
+  );
+  const programmer: PointProgram[] = [...aktive, ...medSaldo];
+
+  if (programmer.length === 0) return null;
+
+  const [beloenningerPrProgram, historik] = await Promise.all([
+    Promise.all(programmer.map((p) => hentPointBeloenninger(p.id, true, admin))),
+    kompakt ? Promise.resolve([]) : hentMedlemsHistorik(memberId, 8, admin),
+  ]);
+
+  /*
+   * IDEMPOTENSNØGLERNE LAVES HER — én pr. handling pr. program pr. visning.
    *
-   * Siden er `force-dynamic`, så hver indlæsning får sine egne. Efter en
-   * handling gentegner `revalidatePath` siden med nye nøgler, så næste point
-   * går igennem af sig selv. To medarbejdere på hver sin telefon får hver sin.
+   * Siderne er `force-dynamic`, så hver indlæsning får sine egne. To
+   * medarbejdere på hver sin telefon får hver sit sæt, og efter en handling
+   * gentegner `revalidatePath` siden med nye.
    */
   const noegle = (hvad: string) => `${hvad}-${crypto.randomUUID()}`;
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted">
-            {program.name}
-          </p>
-          <p className="text-2xl font-bold tracking-tight">
-            {pointTekst(saldo)}
-          </p>
-        </div>
-        {!aktiv ? (
-          <Badge tone="warning">
-            {program.status === "paused" ? "På pause" : "Ikke aktivt"}
-          </Badge>
-        ) : null}
-      </div>
+    <div className="space-y-6">
+      {programmer.map((program, i) => {
+        const saldo = saldoPrProgram.get(program.id) ?? 0;
+        const beloenninger = beloenningerPrProgram[i] ?? [];
+        const aktiv = program.status === "active";
 
-      {!aktiv ? (
-        <p className="box-shape border border-border bg-muted-bg p-3 text-sm text-muted">
-          {program.status === "paused"
-            ? "Pointprogrammet er sat på pause. Saldoen bevares, men der kan hverken gives eller bruges point."
-            : "Pointprogrammet er ikke aktivt, så der kan hverken gives eller bruges point."}
-        </p>
-      ) : null}
+        return (
+          <div key={program.id} className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted">
+                  {program.name}
+                </p>
+                <p className="text-2xl font-bold tracking-tight">
+                  {pointTekst(saldo)}
+                </p>
+              </div>
+              {!aktiv ? (
+                <Badge tone="warning">
+                  {program.status === "paused" ? "På pause" : "Ikke aktivt"}
+                </Badge>
+              ) : null}
+            </div>
 
-      {aktiv && kanGive ? (
-        <div className="box-shape border border-accent/40 bg-accent/5 p-3">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">
-            Giv point
-          </p>
-          <GivPointForm
-            programId={program.id}
-            memberId={memberId}
-            reference={noegle("giv")}
-            earnModel={program.earn_model}
-            earnValue={Number(program.earn_value)}
-            saldo={saldo}
-          />
-        </div>
-      ) : null}
+            {!aktiv ? (
+              <p className="box-shape border border-border bg-muted-bg p-3 text-sm text-muted">
+                {program.status === "paused"
+                  ? "Programmet er sat på pause. Saldoen bevares, men der kan hverken gives eller bruges point."
+                  : "Programmet er ikke aktivt, så der kan hverken gives eller bruges point."}
+              </p>
+            ) : null}
 
-      {/* ------------------------------------------------------ belønninger */}
-      {beloenninger.length > 0 ? (
-        <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">
-            Belønninger
-          </p>
-          <ul className="divide-y divide-border border-y border-border">
-            {beloenninger.map((b) => {
-              const status = beloenningStatus(saldo, b.points_cost);
-              return (
-                <li
-                  key={b.id}
-                  className="flex flex-wrap items-center justify-between gap-2 py-2"
-                >
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium">{b.name}</p>
-                    <p className="text-xs text-muted">
-                      {pointTekst(b.points_cost)}
-                      {status.kanIndloeses
-                        ? " · kan bruges nu"
-                        : ` · mangler ${status.mangler}`}
-                    </p>
-                  </div>
-                  {aktiv && kanIndloese && status.kanIndloeses ? (
-                    <IndloesKnap
-                      programId={program.id}
-                      memberId={memberId}
-                      rewardId={b.id}
-                      rewardNavn={b.name}
-                      pris={b.points_cost}
-                      saldo={saldo}
-                      reference={noegle(`indloes-${b.id}`)}
-                    />
-                  ) : null}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ) : null}
+            {aktiv && kanGive ? (
+              <div className="box-shape border border-accent/40 bg-accent/5 p-3">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">
+                  Giv point
+                </p>
+                <GivPointForm
+                  programId={program.id}
+                  memberId={memberId}
+                  reference={noegle(`giv-${program.id}`)}
+                  earnModel={program.earn_model}
+                  earnValue={Number(program.earn_value)}
+                  saldo={saldo}
+                />
+              </div>
+            ) : null}
 
-      {aktiv && kanJustere ? (
-        <div>
-          <JusterPointForm
-            programId={program.id}
-            memberId={memberId}
-            reference={noegle("juster")}
-          />
-        </div>
-      ) : null}
+            {beloenninger.length > 0 ? (
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">
+                  Belønninger
+                </p>
+                <ul className="divide-y divide-border border-y border-border">
+                  {beloenninger.map((b) => {
+                    const status = beloenningStatus(saldo, b.points_cost);
+                    return (
+                      <li
+                        key={b.id}
+                        className="flex flex-wrap items-center justify-between gap-2 py-2"
+                      >
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium">{b.name}</p>
+                          <p className="text-xs text-muted">
+                            {pointTekst(b.points_cost)}
+                            {status.kanIndloeses
+                              ? " · kan bruges nu"
+                              : ` · mangler ${status.mangler}`}
+                          </p>
+                        </div>
+                        {aktiv && kanIndloese && status.kanIndloeses ? (
+                          <IndloesKnap
+                            programId={program.id}
+                            memberId={memberId}
+                            rewardId={b.id}
+                            rewardNavn={b.name}
+                            pris={b.points_cost}
+                            saldo={saldo}
+                            reference={noegle(`indloes-${b.id}`)}
+                          />
+                        ) : null}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ) : null}
+
+            {aktiv && kanJustere ? (
+              <JusterPointForm
+                programId={program.id}
+                memberId={memberId}
+                reference={noegle(`juster-${program.id}`)}
+              />
+            ) : null}
+          </div>
+        );
+      })}
 
       {/* --------------------------------------------------------- historik */}
       {!kompakt && historik.length > 0 ? (

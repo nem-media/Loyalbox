@@ -79,20 +79,61 @@ export type PointResultat =
   | { ok: false; error: string };
 
 /**
- * Virksomhedens pointprogram — dét ene, der lever.
+ * Virksomhedens LEVENDE pointprogrammer — ældste først.
  *
- * Arkiverede tælles ikke med: et arkiveret program er historik, og
- * `loyalty_point_programs_et_levende_idx` sikrer, at der højst er ét andet.
+ * Arkiverede er historik og kommer ikke med. Der kan være op til fem (0045);
+ * grænsen håndhæves i basen, ikke her.
+ *
+ * DEN HED FØR `hentPointProgram` OG SVAREDE MED ÉT. Det var ikke bare en
+ * forkert type, da grænsen blev hævet: `.maybeSingle()` svarer 406/PGRST116,
+ * når der er mere END én række, og fejlen blev slugt til `null`. Butikken
+ * ville altså oprette program nummer to, og så ville ALLE pointdele forsvinde
+ * fra kortet, kundesiden og personalefladen på én gang — uden at noget
+ * fejlede. Nøjagtig samme fælde som de to primære belønninger i 0042.
  */
-export async function hentPointProgram(
+export async function hentPointProgrammer(
   companyId: string,
   admin: Admin = createAdminClient(),
-): Promise<PointProgram | null> {
+): Promise<PointProgram[]> {
   const { data } = await admin
     .from("loyalty_point_programs")
     .select("id, company_id, name, description, status, earn_model, earn_value")
     .eq("company_id", companyId)
     .neq("status", "archived")
+    .order("created_at", { ascending: true });
+  return (data ?? []) as PointProgram[];
+}
+
+/** Dem, kunderne faktisk kan optjene og bruge point i lige nu. */
+export async function hentAktivePointProgrammer(
+  companyId: string,
+  admin: Admin = createAdminClient(),
+): Promise<PointProgram[]> {
+  const { data } = await admin
+    .from("loyalty_point_programs")
+    .select("id, company_id, name, description, status, earn_model, earn_value")
+    .eq("company_id", companyId)
+    .eq("status", "active")
+    .order("created_at", { ascending: true });
+  return (data ?? []) as PointProgram[];
+}
+
+/**
+ * Ét bestemt program — MED ejerskabet i forespørgslen.
+ *
+ * Et id fra en anden butik giver ikke et afslag bagefter; det findes slet
+ * ikke. Arkiverede kommer med her, fordi historikken skal kunne åbnes.
+ */
+export async function hentPointProgram(
+  companyId: string,
+  programId: string,
+  admin: Admin = createAdminClient(),
+): Promise<PointProgram | null> {
+  const { data } = await admin
+    .from("loyalty_point_programs")
+    .select("id, company_id, name, description, status, earn_model, earn_value")
+    .eq("id", programId)
+    .eq("company_id", companyId)
     .maybeSingle();
   return (data as PointProgram) ?? null;
 }
@@ -331,6 +372,45 @@ export function previewPoint(
     earnValue: Number(program.earn_value),
     amount,
   });
+}
+
+export interface PointKonto {
+  program: PointProgram;
+  saldo: number;
+}
+
+/**
+ * Kundens pointkonti i ÉN butik — én pr. program, hun er meldt ind i.
+ *
+ * TO OPSLAG UANSET ANTAL PROGRAMMER. Et opslag pr. program ville være et
+ * N+1-problem på netop den side, der skal åbne på en telefon i en kø.
+ * Arkiverede programmer falder fra: de kan hverken optjene eller indløse, og
+ * en saldo, der ikke kan bruges til noget, hører ikke til på kundens kort.
+ */
+export async function hentMedlemsPointkonti(
+  companyId: string,
+  memberId: string,
+  admin: Admin = createAdminClient(),
+): Promise<PointKonto[]> {
+  const [programmer, { data: konti }] = await Promise.all([
+    hentPointProgrammer(companyId, admin),
+    admin
+      .from("loyalty_point_accounts")
+      .select("program_id, balance")
+      .eq("member_id", memberId)
+      .eq("company_id", companyId),
+  ]);
+
+  const saldoPrProgram = new Map(
+    (konti ?? []).map((k) => [k.program_id, k.balance]),
+  );
+
+  return programmer
+    .filter((p) => saldoPrProgram.has(p.id))
+    .map((program) => ({
+      program,
+      saldo: saldoPrProgram.get(program.id) ?? 0,
+    }));
 }
 
 /** Kundens egen historik — nyeste først. */

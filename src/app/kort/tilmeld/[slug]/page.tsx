@@ -5,7 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { Logo } from "@/components/brand";
 import { SelfEnrollForm } from "./self-enroll-form";
 import { PRIVAT_SIDE } from "@/lib/site";
-import { hentPointProgram } from "@/lib/loyalty/point-service";
+import { hentAktivePointProgrammer } from "@/lib/loyalty/point-service";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -49,9 +49,8 @@ export default async function EnrollCardPage({
    * faktisk kommer med i — ikke love et stempelkort, hvor der er point, og
    * ikke lade en café med kun point stå med en side, der siger nej.
    */
-  const pointProgram = await hentPointProgram(stand.company_id, admin);
-  const point = pointProgram?.status === "active" ? pointProgram : null;
-  const harNoget = Boolean(program || point);
+  const pointProgrammer = await hentAktivePointProgrammer(stand.company_id, admin);
+  const harNoget = Boolean(program) || pointProgrammer.length > 0;
 
   return (
     <main id="indhold" className="flex min-h-screen flex-col items-center justify-center bg-dark px-4 py-10">
@@ -76,9 +75,9 @@ export default async function EnrollCardPage({
             {harNoget ? `Bliv medlem hos ${company.name}` : company.name}
           </h1>
           <p className="mt-1 text-sm text-muted">
-            {program && point
+            {program && pointProgrammer.length
               ? "Saml point og stempler — helt uden app."
-              : point
+              : pointProgrammer.length
                 ? "Optjen point, når du handler — helt uden app."
                 : "Saml stempler og få belønninger — helt uden app."}
           </p>
@@ -91,15 +90,18 @@ export default async function EnrollCardPage({
         */}
         {harNoget ? (
           <div className="mb-5 space-y-2">
-            {point ? (
-              <div className="box-shape border border-border bg-background p-3">
-                <p className="text-sm font-medium">{point.name}</p>
+            {pointProgrammer.map((p) => (
+              <div
+                key={p.id}
+                className="box-shape border border-border bg-background p-3"
+              >
+                <p className="text-sm font-medium">{p.name}</p>
                 <p className="text-xs text-muted">
-                  {point.description ||
+                  {p.description ||
                     "Optjen point, når du handler, og vælg selv din belønning."}
                 </p>
               </div>
-            ) : null}
+            ))}
             {program ? (
               <div className="box-shape border border-border bg-background p-3">
                 <p className="text-sm font-medium">{program.name}</p>
