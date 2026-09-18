@@ -156,6 +156,32 @@ const PLADSHOLDERE = [
     slags: "g",
     hvad: "fligen ved QR-attrappens hjørne",
   },
+  {
+    /*
+     * OG SÅ ER DER DET SORTE STYKKE — som KUN findes i den hvide fil.
+     *
+     * Fligen ovenfor er hvid og står i begge eksporter. I den hvide fil
+     * ligger der ET STYKKE MERE oven i den, i sort, i sin egen gruppe
+     * allersidst i dokumentet: x 201.9-207.7, y 251.5-262.6 — midt i
+     * QR-feltet. Den hvide blev mærket og skåret ud; den sorte blev stående
+     * og trykt som en bjælke op ad QR-kodens øverste venstre hjørne.
+     *
+     * SET PÅ EN RIGTIG TRYKFIL, en kunde havde fået — 18. september 2026.
+     * Ikke i previewet, hvor den forsvandt i finder-mønstrets egen sorte
+     * firkant, og ikke i prøverne, som kun kiggede på stier med absolutte
+     * tal. Denne sti står i en forskudt gruppe og har lokale koordinater
+     * mellem 0 og 12; derfor så den ud til at ligge uden for feltet.
+     *
+     * `kun` fordi et anker, der ikke findes, får omslut() til at stoppe —
+     * og det SKAL den blive ved med for de andre fire.
+     */
+    kun: "hvid",
+    navn: "QRFELT",
+    anker:
+      'd="M 0.855469 0.546875 L 6.734375 0.546875 L 6.734375 11.636719 L 0.855469 11.636719 Z',
+    slags: "path",
+    hvad: "det sorte stykke i QR-feltet",
+  },
 ];
 
 /**
@@ -294,7 +320,10 @@ for (const f of FILER) {
   // 0) Attrapperne mærkes op, før farverne skiftes: ankrene er `transform`-
   //    strenge og påvirkes ikke af erstatningerne, men mærkerne skal sidde
   //    om det RÅ element, så det kan skæres ud i ét stykke.
-  for (const p of PLADSHOLDERE) s = omslut(s, p, fra);
+  for (const p of PLADSHOLDERE) {
+    if (p.kun && p.kun !== f.navnetPaaVarianten) continue;
+    s = omslut(s, p, fra);
+  }
 
   // 1) Selve skiltet. Ankret på bredden, ikke på farven: i den hvide fil har
   //    lærredet og standeren samme #ffffff.
