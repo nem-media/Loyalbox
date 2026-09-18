@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Liste, ListeRaekke } from "@/components/ui/liste";
 import { StampCardPreview } from "@/components/loyalty/stamp-card-preview";
 import { TXN_TYPE_LABELS, type TxnType } from "@/lib/loyalty/constants";
+import { PointPanel } from "@/components/loyalty/point-panel";
 import { GiveStampForm } from "./give-stamp-form";
 import { GiveDiscount } from "./give-discount";
 import {
@@ -181,6 +182,19 @@ export default async function MemberPage({
             </CardBody>
           </Card>
         )}
+
+        {/*
+          POINTPROGRAMMET STÅR VED SIDEN AF STEMPELKORTET — ikke i stedet for.
+          En butik kan køre begge, og kunden er den samme; panelet tegner
+          ingenting, hvis der ikke er et pointprogram.
+        */}
+        <PointPanel
+          companyId={access.companyId}
+          memberId={member.id}
+          kanGive={access.permissions.canStamp}
+          kanIndloese={access.permissions.canRedeem}
+          kanJustere={access.permissions.canManage}
+        />
 
         <Card>
           <CardHeader>

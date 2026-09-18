@@ -15,9 +15,17 @@ import {
   FORRIGE_LABEL,
   type Period,
 } from "@/lib/loyalty/report";
+import {
+  hentPointProgram,
+  hentPointBeloenninger,
+} from "@/lib/loyalty/point-service";
+import { pointOverblik } from "@/lib/loyalty/point-rapport";
+import { pointTekst } from "@/lib/loyalty/point";
+import { PROGRAM_STATUS_LABELS } from "@/lib/loyalty/constants";
+import { Badge } from "@/components/ui/badge";
 import { LoyaltyOnboarding } from "./onboarding";
 
-export const metadata = { title: "Stempelkort" };
+export const metadata = { title: "Loyalitet" };
 
 const PERIODS: Period[] = ["today", "7", "30", "90"];
 
@@ -62,10 +70,23 @@ export default async function LoyaltyOverviewPage({
     : "30";
   // Rapporten og den foregående periode hentes samtidig — den ene venter
   // ikke på den anden.
-  const [r, forrige] = await Promise.all([
+  const [r, forrige, pointProgram] = await Promise.all([
     getLoyaltyReport(access.companyId, period),
     getLoyaltyTrend(access.companyId, period),
+    hentPointProgram(access.companyId),
   ]);
+
+  /*
+   * POINTPROGRAMMET STÅR PÅ OVERBLIKKET, NÅR DET FINDES.
+   *
+   * Overblikket er dér, butikken lander, og et program, man kun kan se ved at
+   * klikke på en fane, er et program, der bliver glemt. Tallene hentes kun,
+   * når der ER et program — en butik med bare et stempelkort betaler ikke for
+   * to ekstra opslag.
+   */
+  const pointTal = pointProgram
+    ? await pointOverblik(access.companyId, pointProgram.id)
+    : null;
   const siden = FORRIGE_LABEL[period];
 
   return (
@@ -112,6 +133,39 @@ export default async function LoyaltyOverviewPage({
           />
         </div>
       </Sektion>
+
+      {pointProgram && pointTal ? (
+        <Sektion titel="Pointprogram">
+          <Card>
+            <CardBody className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <p className="font-medium">{pointProgram.name}</p>
+                  <Badge
+                    tone={
+                      pointProgram.status === "active" ? "success" : "neutral"
+                    }
+                  >
+                    {PROGRAM_STATUS_LABELS[pointProgram.status]}
+                  </Badge>
+                </div>
+                <p className="mt-1 text-sm text-muted">
+                  {pointTal.medlemmer} medlemmer ·{" "}
+                  {pointTekst(pointTal.iOmloeb)} i omløb ·{" "}
+                  {pointTal.indloesninger} belønninger indløst
+                </p>
+              </div>
+              <ButtonLink
+                href="/dashboard/loyalitet/point"
+                size="sm"
+                variant="outline"
+              >
+                Åbn pointprogram
+              </ButtonLink>
+            </CardBody>
+          </Card>
+        </Sektion>
+      ) : null}
 
       {/* De fire der uddyber. Mindre, fordi de forklarer de første.
           Etiketten her stod skrevet i hånden OG sagde "Nøgletal" — altså

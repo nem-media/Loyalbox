@@ -258,3 +258,106 @@ export async function userHasCards(userId: string): Promise<boolean> {
     .maybeSingle();
   return Boolean(data);
 }
+
+
+/**
+ * Kundens POINTKORT — samme konto, samme oversigt som stempelkortene.
+ *
+ * Der er ikke en pointkonto ved siden af LoyalSum-kontoen: nøglen er den
+ * samme `loyalty_members`-række, kortet ligger på den samme adresse, og
+ * "Mine fordele" viser begge former i én liste. Det er hele meningen med at
+ * bygge pointprogrammet ind i platformen frem for ved siden af.
+ */
+export interface PointKortOversigt {
+  token: string;
+  memberId: string;
+  companyName: string;
+  companyLogo: string | null;
+  programName: string;
+  saldo: number;
+  /** Den billigste belønning, kunden endnu ikke har råd til. */
+  naesteNavn: string | null;
+  naestePris: number | null;
+  /** Kan kunden bruge mindst én belønning lige nu? */
+  klarTilBrug: boolean;
+  paused: boolean;
+}
+
+export async function getPointCardsForUser(
+  userId: string,
+): Promise<PointKortOversigt[]> {
+  const admin = createAdminClient();
+
+  const { data: members } = await admin
+    .from("loyalty_members")
+    .select("id, company_id, public_token")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: true });
+
+  if (!members || members.length === 0) return [];
+
+  const memberIds = members.map((m) => m.id);
+
+  const { data: konti } = await admin
+    .from("loyalty_point_accounts")
+    .select("id, member_id, program_id, balance")
+    .in("member_id", memberIds);
+
+  if (!konti || konti.length === 0) return [];
+
+  const programIds = [...new Set(konti.map((k) => k.program_id))];
+  const companyIds = [...new Set(members.map((m) => m.company_id))];
+
+  /*
+   * TRE OPSLAG I ALT — ikke ét pr. kort. En kunde med kort i fem butikker
+   * ville ellers koste femten forespørgsler på en side, der skal åbne på en
+   * telefon i en kø.
+   */
+  const [{ data: programs }, { data: companies }, { data: rewards }] =
+    await Promise.all([
+      admin
+        .from("loyalty_point_programs")
+        .select("id, name, status")
+        .in("id", programIds),
+      admin.from("companies").select("id, name, logo_url").in("id", companyIds),
+      admin
+        .from("loyalty_point_rewards")
+        .select("id, program_id, name, points_cost, status")
+        .in("program_id", programIds)
+        .eq("status", "active"),
+    ]);
+
+  const programById = new Map((programs ?? []).map((p) => [p.id, p]));
+  const companyById = new Map((companies ?? []).map((c) => [c.id, c]));
+  const memberById = new Map(members.map((m) => [m.id, m]));
+
+  const kort: PointKortOversigt[] = [];
+  for (const k of konti) {
+    const program = programById.get(k.program_id);
+    const member = memberById.get(k.member_id);
+    if (!program || !member) continue;
+    // Et arkiveret program er historik og hører ikke til i kundens oversigt.
+    if (program.status === "archived") continue;
+
+    const company = companyById.get(member.company_id);
+    const mine = (rewards ?? []).filter((r) => r.program_id === k.program_id);
+    const naeste = mine
+      .filter((r) => r.points_cost > k.balance)
+      .sort((a, b) => a.points_cost - b.points_cost)[0];
+
+    kort.push({
+      token: member.public_token,
+      memberId: member.id,
+      companyName: company?.name ?? "Butik",
+      companyLogo: company?.logo_url ?? null,
+      programName: program.name,
+      saldo: k.balance,
+      naesteNavn: naeste?.name ?? null,
+      naestePris: naeste?.points_cost ?? null,
+      klarTilBrug: mine.some((r) => r.points_cost <= k.balance),
+      paused: program.status !== "active",
+    });
+  }
+
+  return kort;
+}

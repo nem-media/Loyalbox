@@ -62,6 +62,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
     },
     {
+      // Den anden loyalitetsform. Samme vægt som stempelkortet: de svarer på
+      // hver sin søgning ("stempelkort" og "loyalitetsprogram") og
+      // kannibaliserer derfor ikke hinanden.
+      url: `${base}/loyalitetsprogram`,
+      changeFrequency: "monthly",
+      priority: 0.9,
+      lastModified,
+    },
+    {
       url: `${base}/bestil`,
       changeFrequency: "monthly",
       priority: 0.5,

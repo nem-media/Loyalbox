@@ -8,6 +8,7 @@ import { LOYALTY_NAV } from "@/lib/loyalty/constants";
 const BUILT = new Set<string>([
   "/dashboard/loyalitet",
   "/dashboard/loyalitet/programmer",
+  "/dashboard/loyalitet/point",
   "/dashboard/loyalitet/kunder",
   "/dashboard/loyalitet/rabatter",
 ]);
@@ -22,7 +23,7 @@ export function LoyaltySubnav() {
     // derfor ikke råbe lige så højt som en grøn knap.
     <div className="mb-6">
       <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">
-        Stempelkort
+        Loyalitet
       </p>
       <nav className="box-shape inline-flex flex-wrap gap-1 border border-border bg-muted-bg p-1">
         {items.map((i) => {

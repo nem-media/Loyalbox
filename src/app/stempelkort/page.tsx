@@ -320,8 +320,13 @@ const FAQ = [
     a: "Kortet kan altid åbnes fra sit eget link. Vil kunden være sikker på at finde det igen på en ny telefon, kan de gratis oprette en konto fra kortet og samle alle deres kort ét sted.",
   },
   {
+    /*
+     * SVARET ER SKREVET OM, FORDI PRODUKTET HAR ÆNDRET SIG. Før pegede det på
+     * rabatter; nu findes der et rigtigt pointprogram ved siden af, og det er
+     * dét, spørgsmålet i virkeligheden handler om.
+     */
     q: "Hvad er forskellen på et stempelkort og et loyalitetsprogram?",
-    a: "Et stempelkort er den enkleste form for loyalitetsprogram: besøg tæller op mod én belønning, du selv har valgt. Et loyalitetsprogram kan derudover rumme rabatter og fordele, der ikke hænger på stempler — for eksempel en velkomstrabat eller en fordel til kunder, du gerne vil have tilbage. Begge dele findes i LoyalSum.",
+    a: "Et stempelkort er den enkleste form for loyalitetsprogram: besøg tæller op mod én belønning, du selv har valgt. LoyalSum har også et pointprogram, hvor kunden i stedet samler point og selv vælger mellem flere belønninger — det passer bedre, når regningerne er meget forskellige. De to kan køre samtidig, og begge dele er med i LoyalSum Komplet.",
   },
   {
     q: "Hvad koster et digitalt stempelkort?",

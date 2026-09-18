@@ -731,8 +731,8 @@ export const KOMPLET_FUNKTIONER = [
   {
     /** Ruten under /dashboard, hvor spærringen skal ligge. */
     rute: "loyalitet",
-    label: "Stempelkort og loyalitetsprogram",
-    help: "Opret stempelkort, giv stempler og belønninger, og få kunderne til at komme igen.",
+    label: "Stempelkort og pointprogram",
+    help: "Opret et stempelkort, et pointprogram eller begge dele — og få kunderne til at komme igen.",
   },
   {
     rute: "opslag",

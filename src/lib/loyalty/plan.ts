@@ -26,6 +26,22 @@ export async function stempelkortIPlan(companyId: string): Promise<boolean> {
 }
 
 /**
+ * Er POINTPROGRAMMET med i abonnementet?
+ *
+ * SAMME SVAR SOM STEMPELKORTET, OG DET ER MENINGEN. De to loyalitetsformer er
+ * den samme vare — LoyalSum Komplet — og `KOMPLET_FUNKTIONER` har allerede
+ * ruten `loyalitet` som ét punkt. Et selvstændigt tjek her ville være et sted
+ * mere, adgangen kunne komme i utakt med sig selv, og den dag prisen eller
+ * pakken ændrer sig, skulle nogen huske begge.
+ *
+ * Den har sit eget navn alligevel, fordi kaldestedet skal kunne læses: en
+ * handling i pointprogrammet, der spørger `stempelkortIPlan()`, ligner en
+ * fejl, længe før nogen når at læse kommentaren her.
+ */
+export async function pointprogramIPlan(companyId: string): Promise<boolean> {
+  return stempelkortIPlan(companyId);
+}
+/**
  * Må virksomheden administrere MEDARBEJDERE?
  *
  * SAMME SVAR SOM STEMPELKORTET, OG DET ER HELE POINTEN. En medarbejder findes

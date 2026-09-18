@@ -115,7 +115,7 @@ export function SelfEnrollForm({ slug }: { slug: string }) {
       ) : null}
 
       <Button type="submit" size="lg" className="w-full" disabled={pending}>
-        {pending ? "Opretter…" : "Opret mit stempelkort"}
+        {pending ? "Opretter…" : "Bliv medlem"}
       </Button>
     </form>
   );

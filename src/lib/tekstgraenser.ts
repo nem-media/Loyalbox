@@ -40,6 +40,12 @@ export const TEKST_MAKS = {
   etiket: 40,
   /** Adresse- og personfelter. Går i mails og på pakkelabels. */
   adresse: 120,
+  /**
+   * Den forklarende linje under et navn — en belønnings beskrivelse på
+   * kundens kort, et pointprograms egen linje. Den skal kunne læses på en
+   * telefon uden at skubbe belønningerne under den ned under kanten.
+   */
+  beskrivelse: 200,
 } as const;
 
 /**

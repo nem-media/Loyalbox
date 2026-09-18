@@ -1,6 +1,10 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
-import { getCardsForUser } from "@/lib/loyalty/member-account";
+import {
+  getCardsForUser,
+  getPointCardsForUser,
+} from "@/lib/loyalty/member-account";
+import { pointTekst } from "@/lib/loyalty/point";
 import { StampCardPreview } from "@/components/loyalty/stamp-card-preview";
 import { ButtonLink } from "@/components/ui/button";
 import { PwaInstall } from "@/components/pwa-install";
@@ -10,7 +14,15 @@ import { PRIVAT_SIDE } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "Mine stempelkort",
+  /*
+   * "MINE FORDELE" OG IKKE "MINE STEMPELKORT".
+   *
+   * Siden viser nu begge loyalitetsformer, og en kunde med et pointkort hos
+   * caféen og et stempelkort hos bageren skulle ellers lede efter sine point
+   * under en overskrift, der siger noget andet. Resten af teksterne er
+   * uændret — der skrives kun om, hvor det ellers ville være usandt.
+   */
+  title: "Mine fordele",
   ...PRIVAT_SIDE,
 };
 
@@ -18,21 +30,60 @@ export default async function MyCardsPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/mine-kort");
 
-  const cards = await getCardsForUser(user.id);
+  const [cards, pointkort] = await Promise.all([
+    getCardsForUser(user.id),
+    getPointCardsForUser(user.id),
+  ]);
+  const intet = cards.length === 0 && pointkort.length === 0;
 
   return (
     <main id="indhold" className="min-h-screen bg-background px-4 py-8">
       <div className="mx-auto max-w-md space-y-6">
         <div>
-          <h1 className="text-lg font-bold tracking-tight">Mine stempelkort</h1>
+          <h1 className="text-lg font-bold tracking-tight">Mine fordele</h1>
           <p className="text-sm text-muted">{user.email}</p>
         </div>
 
-        {cards.length === 0 ? (
+        {/* ---------------------------------------------------- pointkort */}
+        {pointkort.map((p) => (
+          <div key={`point-${p.memberId}-${p.programName}`} className="space-y-2">
+            <div className="box-shape border border-border bg-dark p-5 text-white">
+              <p className="text-xs font-semibold uppercase tracking-wider text-white/70">
+                Pointprogram
+              </p>
+              <p className="mt-1 text-2xl font-bold tracking-tight">
+                {pointTekst(p.saldo)}
+              </p>
+              <p className="mt-1 text-sm text-white/70">{p.companyName}</p>
+              {p.paused ? (
+                <p className="mt-3 text-sm text-white/80">
+                  Pointprogrammet er midlertidigt sat på pause.
+                </p>
+              ) : p.klarTilBrug ? (
+                <p className="mt-3 text-sm text-white/80">
+                  Du har point nok til en belønning.
+                </p>
+              ) : p.naestePris ? (
+                <p className="mt-3 text-sm text-white/80">
+                  Næste belønning fra {pointTekst(p.naestePris)} — {p.naesteNavn}.
+                </p>
+              ) : null}
+            </div>
+            <ButtonLink
+              href={`/kort/${p.token}`}
+              variant="outline"
+              className="w-full"
+            >
+              Se point &amp; belønninger
+            </ButtonLink>
+          </div>
+        ))}
+
+        {intet ? (
           <div className="box-shape border border-border bg-card p-5 text-center text-sm text-muted">
-            <p>Du har endnu ingen stempelkort på din konto.</p>
+            <p>Du har endnu ingen fordele på din konto.</p>
             <p className="mt-2">
-              Scan QR-koden i butikken for at få et kort — og tryk derefter
+              Scan QR-koden i butikken for at komme med — og tryk derefter
               &laquo;Gem på min konto&raquo; på kortet.
             </p>
           </div>

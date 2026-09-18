@@ -11,6 +11,14 @@ import { getSiteUrl } from "@/lib/site";
 import { StampCardPreview } from "@/components/loyalty/stamp-card-preview";
 import { ButtonLink } from "@/components/ui/button";
 import { PwaInstall } from "@/components/pwa-install";
+import { PointKort } from "@/components/loyalty/point-kort";
+import { PointPanel } from "@/components/loyalty/point-panel";
+import {
+  hentPointProgram,
+  hentPointBeloenninger,
+  hentPointSaldo,
+  hentMedlemsHistorik,
+} from "@/lib/loyalty/point-service";
 import { StaffStampPanel } from "./staff-stamp-panel";
 import { StaffRedeemPanel } from "./staff-redeem-panel";
 import { SaveCardPanel } from "./save-card-panel";
@@ -137,6 +145,22 @@ export default async function CardPage({
     (discountDefs ?? []).map((d) => [d.id, d.name]),
   );
 
+  /*
+   * POINTPROGRAMMET, HVIS BUTIKKEN HAR ET.
+   *
+   * Samme kort, samme kunde, samme adresse — der findes ikke en særskilt
+   * pointside. Har butikken kun stempelkort, hentes der et program, der ikke
+   * er der, og resten af siden er uændret.
+   */
+  const pointProgram = await hentPointProgram(member.company_id);
+  const [pointBeloenninger, pointSaldo, pointHistorik] = pointProgram
+    ? await Promise.all([
+        hentPointBeloenninger(pointProgram.id),
+        hentPointSaldo(pointProgram.id, member.id),
+        hentMedlemsHistorik(member.id, 8),
+      ])
+    : [[], null, []];
+
   const qr = await qrDataUrl(`${getSiteUrl()}/kort/${token}`);
 
   return (
@@ -173,6 +197,35 @@ export default async function CardPage({
           <div className="box-shape border border-accent/40 bg-accent/5 p-3 text-center text-sm font-medium text-accent">
             Personale-tilstand — du kan give stempler på{" "}
             {member.name ?? "kundens"} kort nedenfor.
+          </div>
+        ) : null}
+
+        {/* Pointprogram — kundens saldo og belønninger */}
+        {pointProgram && pointSaldo !== null ? (
+          <div className="space-y-2">
+            <PointKort
+              companyName={company?.name ?? "Butik"}
+              programName={pointProgram.name}
+              saldo={pointSaldo}
+              beloenninger={pointBeloenninger}
+              historik={pointHistorik}
+              paused={pointProgram.status !== "active"}
+            />
+            {canStampHere || canRedeemHere ? (
+              <div className="box-shape border border-accent/40 bg-accent/5 p-3">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                  Personale
+                </p>
+                <PointPanel
+                  companyId={member.company_id}
+                  memberId={member.id}
+                  kanGive={canStampHere}
+                  kanIndloese={canRedeemHere}
+                  kanJustere={Boolean(access?.permissions.canManage)}
+                  kompakt
+                />
+              </div>
+            ) : null}
           </div>
         ) : null}
 
@@ -234,11 +287,12 @@ export default async function CardPage({
           );
         })}
 
-        {(!memberships || memberships.length === 0) && (
+        {(!memberships || memberships.length === 0) &&
+        !(pointProgram && pointSaldo !== null) ? (
           <div className="box-shape border border-border bg-card p-5 text-center text-sm text-muted">
             Du er endnu ikke tilmeldt et stempelkort.
           </div>
-        )}
+        ) : null}
 
         {/* Aktive rabatter */}
         {memberDiscounts && memberDiscounts.length > 0 ? (

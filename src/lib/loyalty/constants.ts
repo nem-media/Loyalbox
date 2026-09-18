@@ -141,7 +141,8 @@ export const TXN_SOURCE_LABELS: Record<TxnSource, string> = {
 /** Hovednavigation for stempelkort-området (jf. spec, tilpasset dashboardet). */
 export const LOYALTY_NAV = [
   { href: "/dashboard/loyalitet", label: "Overblik" },
-  { href: "/dashboard/loyalitet/programmer", label: "Programmer" },
+  { href: "/dashboard/loyalitet/programmer", label: "Stempelkort" },
+  { href: "/dashboard/loyalitet/point", label: "Pointprogram" },
   { href: "/dashboard/loyalitet/kunder", label: "Kunder" },
   { href: "/dashboard/loyalitet/transaktioner", label: "Stempler & transaktioner" },
   { href: "/dashboard/loyalitet/beloenninger", label: "Belønninger" },
