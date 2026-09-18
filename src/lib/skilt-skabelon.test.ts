@@ -143,59 +143,129 @@ describe("attrapperne", () => {
   });
 
   /*
-   * TO OG IKKE ÉT. Attrappen har en flig i sin egen gruppe uden for den
-   * transformerede — se `PLADSHOLDERE` i generatoren. Den blev stående som en
-   * hvid firkant ved siden af QR-kodens øverste venstre hjørne, og det blev
-   * set på et TRYKT skilt.
+   * ANTALLET ER IKKE ENS I DE TO FILER, og det er hele pointen.
+   *
+   * Attrappen har en flig i sin egen gruppe uden for den transformerede —
+   * hvid, og i begge eksporter. I DEN HVIDE FIL ligger der ET STYKKE MERE
+   * oven i den, i sort. Det blev trykt som en bjælke op ad QR-kodens
+   * øverste venstre hjørne på en trykfil, en kunde havde fået.
+   *
+   * Tallene står derfor pr. variant. Et fælles tal ville skjule netop den
+   * slags forskel mellem de to eksporter.
    */
-  it.each(VARIANTER)("%s: QR-feltet er mærket i to stykker", (v) => {
-    expect(antal(SKABELONER[v], "<!--QRFELT-->")).toBe(2);
-    expect(antal(SKABELONER[v], "<!--/QRFELT-->")).toBe(2);
+  const QR_STYKKER: Record<Variant, number> = { sort: 2, hvid: 3 };
+
+  it.each(VARIANTER)("%s: QR-feltets stykker er alle mærket", (v) => {
+    expect(antal(SKABELONER[v], "<!--QRFELT-->")).toBe(QR_STYKKER[v]);
+    expect(antal(SKABELONER[v], "<!--/QRFELT-->")).toBe(QR_STYKKER[v]);
   });
 
   /*
-   * PRØVEN, DER FANGER EN GLEMT FLIG — uanset hvor mange mærker der er.
+   * PRØVEN, DER FANGER EN GLEMT REST — og som indtil 18. september 2026
+   * havde et hul, man kunne køre en trykfil igennem.
    *
-   * At tælle mærker siger kun, at der er lige så mange, som der plejer. Det,
-   * der betyder noget, er, om der står noget TILBAGE i feltet, efter at
-   * attrappen er skåret ud — for oven på det bliver den rigtige kode eller
-   * kundens logo lagt, og en rest bliver til en plet ved siden af.
+   * GRUPPENS TRANSFORM SKAL REGNES MED. Den gamle udgave kiggede kun på
+   * stier UDEN egen `transform` og læste deres tal som absolutte. Det
+   * sorte stykke står i en gruppe forskudt til (201, 251) og har lokale
+   * koordinater mellem 0 og 12 — så prøven så det som noget langt oppe i
+   * venstre hjørne af arket og lod det passere. Hullet stod BESKREVET i
+   * den gamle kommentar som en teoretisk mulighed. Det var det ikke.
    *
-   * Skærer kun på stier UDEN egen `transform`, hvis tal derfor er absolutte.
-   * En sti i en forskudt gruppe kan i teorien give et falsk udslag; i dag
-   * giver begge felter nul, og sker det en dag, SKAL nogen kigge på det —
-   * det er den samme slags fund som fligen selv.
+   * Nu følges <g>-stakken, og hvert punkt regnes om til arkets egne
+   * koordinater, før det holdes op mod feltet.
    */
+  type Matrix = [number, number, number, number, number, number];
+  const ENHED: Matrix = [1, 0, 0, 1, 0, 0];
+
+  function laesTransform(attr: string): Matrix {
+    const m = /matrix\(([^)]*)\)/.exec(attr);
+    if (m) {
+      const t = m[1].split(/[\s,]+/).map(Number);
+      if (t.length === 6 && t.every((n) => Number.isFinite(n))) return t as Matrix;
+    }
+    const t = /translate\(([^)]*)\)/.exec(attr);
+    if (t) {
+      const v = t[1].split(/[\s,]+/).map(Number);
+      return [1, 0, 0, 1, v[0] ?? 0, v[1] ?? 0];
+    }
+    return ENHED;
+  }
+
+  const gang = (A: Matrix, B: Matrix): Matrix => [
+    A[0] * B[0] + A[2] * B[1],
+    A[1] * B[0] + A[3] * B[1],
+    A[0] * B[2] + A[2] * B[3],
+    A[1] * B[2] + A[3] * B[3],
+    A[0] * B[4] + A[2] * B[5] + A[4],
+    A[1] * B[4] + A[3] * B[5] + A[5],
+  ];
+
   it.each(VARIANTER)("%s: der er intet tilbage i felterne bagefter", (v) => {
     const uden = SKABELONER[v]
       .replace(/<!--LOGOFELT-->[\s\S]*?<!--\/LOGOFELT-->/g, "")
       .replace(/<!--QRFELT-->[\s\S]*?<!--\/QRFELT-->/g, "");
-    const krop = uden.slice(uden.indexOf("</defs>"));
+    // <defs> væk: clipPath-stier har feltets mål, men tegner ingenting.
+    const krop = uden.slice(uden.indexOf("</defs>") + 7);
 
-    for (const [navn, felt] of [
-      ["logo", MAAL.logo],
-      ["qr", MAAL.qr],
-    ] as const) {
-      const rester = [...krop.matchAll(/<path[^>]*>/g)]
-        .map((m) => m[0])
-        .filter((el) => !el.includes("transform="))
-        .map((el) => el.match(/\sd="([^"]+)"/)?.[1])
-        .filter((d): d is string => Boolean(d))
-        .filter((d) => {
-          const tal = (d.match(/-?\d+(\.\d+)?/g) ?? []).map(Number);
-          if (tal.length < 4) return false;
-          const xs = tal.filter((_, i) => i % 2 === 0);
-          const ys = tal.filter((_, i) => i % 2 === 1);
-          return (
-            Math.min(...xs) >= felt.x &&
-            Math.max(...xs) <= felt.x + felt.bredde &&
-            Math.min(...ys) >= felt.y &&
-            Math.max(...ys) <= felt.y + felt.hoejde
-          );
-        });
+    const stak: Matrix[] = [ENHED];
+    const rester: string[] = [];
 
-      expect(rester, `${navn}: ${rester[0]?.slice(0, 80) ?? ""}`).toHaveLength(0);
+    for (const m of krop.matchAll(/<(\/?)([a-zA-Z]+)\b([^>]*?)(\/?)>/g)) {
+      const [hele, luk, navn, attr, selvluk] = m;
+      if (navn === "g") {
+        if (luk) {
+          if (stak.length > 1) stak.pop();
+        } else if (!selvluk) {
+          stak.push(gang(stak[stak.length - 1], laesTransform(attr)));
+        }
+        continue;
+      }
+      if (luk || !/^(path|polygon|polyline|line|rect|circle|ellipse)$/.test(navn)) continue;
+
+      /*
+       * ELEMENTETS EGEN `transform` SKAL MED. NFC-feltets streg bærer sin
+       * egen matrix og ligger i en gruppe uden. Læste vi kun gruppen, blev
+       * stregens lokale tal taget for arkets, og prøven pegede på
+       * logofeltet — et falsk udslag, der ville have kostet tilliden til
+       * hele prøven.
+       */
+      const M = gang(stak[stak.length - 1], laesTransform(attr));
+      /*
+       * TALLENE PARRES TO OG TO — og de læses KUN fra `d`.
+       *
+       * Først gik løkken ét tal ad gangen, så en y blev sat sammen med
+       * den næste x. NFC-symbolets kurver ved (79, 296) blev dermed til
+       * punktet (296, 79), som ligger midt i logofeltet, og prøven råbte
+       * op om fire rester, der ikke fandtes. Et punkt i en `d` er altid
+       * x og så y.
+       */
+      const d = /\sd="([^"]+)"/.exec(attr)?.[1];
+      if (!d) continue;
+      const tal = [...d.matchAll(/-?\d+(?:\.\d+)?/g)].map((t) => Number(t[0]));
+
+      for (const [navnetPaaFeltet, felt] of [
+        ["logo", MAAL.logo],
+        ["qr", MAAL.qr],
+      ] as const) {
+        let ramt = 0;
+        for (let i = 0; i + 1 < tal.length; i += 2) {
+          const x = M[0] * tal[i] + M[2] * tal[i + 1] + M[4];
+          const y = M[1] * tal[i] + M[3] * tal[i + 1] + M[5];
+          if (
+            x >= felt.x &&
+            x <= felt.x + felt.bredde &&
+            y >= felt.y &&
+            y <= felt.y + felt.hoejde
+          ) {
+            ramt += 1;
+          }
+        }
+        // To punkter: ét kan være et tilfældigt talpar i en lang `d`.
+        if (ramt >= 2) rester.push(`${navnetPaaFeltet}: ${hele.slice(0, 120)}`);
+      }
     }
+
+    expect(rester, rester[0] ?? "").toHaveLength(0);
   });
 
   /*
