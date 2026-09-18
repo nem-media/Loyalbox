@@ -25,9 +25,12 @@ import type { LogoUdsnit } from "./skilt-format";
  * 1. `extract` skærer den HELT gennemsigtige luft af kanterne. Så er der ikke
  *    længere et rektangel af tomhed at lægge farve på. Det er den store gevinst
  *    — på kundens fil forsvinder 68 % af fladen.
- * 2. `flatten` blander resten ned på baggrundsfarven og FJERNER alfakanalen.
- *    Inde midt i et logo kan der stadig være huller, og dem er der ingen kant
- *    at skære væk fra; de skal bære arkets egen farve.
+ * 2. `flatten` blander resten ned på baggrundsfarven, men **alfakanalen
+ *    BEVARES**. Inde midt i et logo kan der stadig være huller, og dem er
+ *    der ingen kant at skære væk fra; de skal bære arkets egen farve UDEN
+ *    at få toner. Droppede vi kanalen, ville hele logoets rektangel blive
+ *    trykt i baggrundsfarven — usynligt på hvidt, tydeligt på blåt. Se
+ *    blokken i `laegLogoPaaFront()`.
  *
  * HVORFOR BESKÆRINGEN IKKE KAN SES. `logoPlacering()` i `skilt-format.ts`
  * flytter og skalerer `<image>`-elementet med, så udsnittet lander præcis dér,
@@ -78,9 +81,56 @@ export async function laegLogoPaaFront(
       });
     }
 
-    const flad = await billede
-      // `flatten` er præcis operationen: bland mod baggrunden, drop kanalen.
+    /*
+     * FARVEN FLADES MOD BAGGRUNDEN, MEN ALFAEN LÆGGES TILBAGE.
+     *
+     * Før droppede `flatten` kanalen, og dét var fejlen: så er billedet
+     * ugennemsigtigt hele vejen ud til sit rektangel, og HELE rektanglet
+     * får toner. På et hvidt skilt ses det ikke — hvid er ingen toner — men
+     * på en blå front blev det en blå blok oven på den blå vektorflade, og
+     * den kunne ses på et trykt skilt. Målt på Nem Medias egen fil
+     * 2026-09-18: 2266 × 336 pixels, 60,8 % af dem gennemsigtige, og
+     * `extract` skar NUL af, fordi logoet rører alle fire kanter. Hele
+     * fladen blev altså farvet.
+     *
+     * Med kanalen i behold lægges der ingen toner i luften, og baggrunden
+     * står som ren vektor. Farven under transparensen er stadig frontens,
+     * så begge grunde til at flade overhovedet er der endnu:
+     *   - en fremviser, der ignorerer alfa, lægger frontens farve og ikke
+     *     den sorte eller hvide, eksportværktøjet gemte i luften;
+     *   - skaleres billedet, blander halvgennemsigtige kanter sig med
+     *     frontens farve i stedet for at give en mørk eller lys frynse.
+     */
+    const maal = await sharp(raa).metadata();
+    const bredde = udsnit ? udsnit.bredde : maal.width!;
+    const hoejde = udsnit ? udsnit.hoejde : maal.height!;
+
+    const farve = await billede
       .flatten({ background: baggrund })
+      .removeAlpha()
+      .raw()
+      .toBuffer();
+
+    // Egen instans: en Sharp-pipeline kan ikke løbes to gange.
+    let alfakilde = sharp(raa);
+    if (udsnit) {
+      alfakilde = alfakilde.extract({
+        left: udsnit.x,
+        top: udsnit.y,
+        width: udsnit.bredde,
+        height: udsnit.hoejde,
+      });
+    }
+    const alfa = await alfakilde
+      .ensureAlpha()
+      .extractChannel("alpha")
+      .raw()
+      .toBuffer();
+
+    const flad = await sharp(farve, {
+      raw: { width: bredde, height: hoejde, channels: 3 },
+    })
+      .joinChannel(alfa, { raw: { width: bredde, height: hoejde, channels: 1 } })
       .png()
       .toBuffer();
 
