@@ -16,6 +16,9 @@ import { udfoertMail } from "@/lib/sletning";
  *     for databasen og kan ikke røres fra SQL.
  *  4. `ryd_forladte_designs()` (0021) — halvfærdige kladder fra afbrudte køb,
  *     og de logofiler, de efterlod i lageret.
+ *  5. `ryd_forladte_standere()` (0043) — QR-adresserne fra de samme afbrudte
+ *     køb. De har hverken logofil eller personoplysninger, men de optager et
+ *     slug og tæller med, hver gang nogen spørger, hvor mange adresser der er.
  *
  * Opbevaringsfristerne står i src/lib/opbevaring.ts, og suspensionsmodellen i
  * src/lib/abonnement.ts. Selve sletningen ligger i databasen — se migration
@@ -123,6 +126,30 @@ export async function GET(request: NextRequest) {
       (await sletLogofiler(admin, (forladte as { logoer: string[] }).logoer))) ||
     0;
 
+  /*
+   * 5) Forladte standere. Designet og standeren oprettes af det SAMME afbrudte
+   *    køb, men kun designet blev ryddet — se 0043 for de tre vagter, der
+   *    skiller en forladt adresse fra en, butikken selv har oprettet.
+   */
+  const { data: standere, error: standerFejl } = await admin.rpc(
+    "ryd_forladte_standere",
+    { p_toerloeb: toerloeb },
+  );
+
+  /*
+   * EN MANGLENDE FUNKTION ER IKKE NOGET AT ALARMERE OM. Migrationer køres i
+   * hånden, så koden står i drift, FØR 0043 er kørt — og `noterFejl` sender en
+   * mail. Uden denne gren ville der komme én hver nat, indtil nogen huskede
+   * SQL'en, og en alarm, man forventer, er en alarm, man holder op med at
+   * læse. Samme hensyn som fallbacken i `maaAlarmere()`.
+   *
+   * PGRST202 er PostgREST's "funktionen findes ikke". Alt ANDET er en rigtig
+   * fejl og skal larme.
+   */
+  if (standerFejl && standerFejl.code !== "PGRST202") {
+    await noterFejl("oprydning", `forladte standere: ${standerFejl.message}`);
+  }
+
   const resultat = {
     ...(data as object),
     ophoer,
@@ -130,6 +157,8 @@ export async function GET(request: NextRequest) {
     kvitteret,
     forladte_designs: (forladte as { forladte?: number } | null)?.forladte ?? 0,
     slettede_logoer: logoer,
+    forladte_standere:
+      (standere as { forladte?: number } | null)?.forladte ?? 0,
   };
 
   // Også de gode kørsler noteres. Det er dét, der gør en STOPPET oprydning
