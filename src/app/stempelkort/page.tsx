@@ -288,6 +288,16 @@ const FAQ = [
     a: "Nej. Kortet er en almindelig webside, kunden får ved at scanne QR-koden på din stander. Der er ingen app at downloade og ingen App Store. Kunden kan lægge kortet på telefonens hjemmeskærm, så det ligner en app og er lige ved hånden næste gang.",
   },
   {
+    /*
+     * SPØRGSMÅLET KOM MED DEN DIGITALE UDGAVE. Stempelkortet har aldrig
+     * KRÆVET en stander — kortet er en webside — men indtil LoyalSum Komplet
+     * Online fandtes, var standeren den eneste vej ind, og teksten her lovede
+     * derfor implicit, at man skulle have en.
+     */
+    q: "Kræver et digitalt stempelkort en fysisk stander?",
+    a: "Nej. Stempelkortet er en webside, og kunden kan komme ind ad enhver vej: en QR-kode på standeren, et link på din hjemmeside eller i din webshop, en mail eller et opslag. Med LoyalSum Komplet får du standeren med; med LoyalSum Komplet Online får du den samme platform uden — og deler selv dit link.",
+  },
+  {
     q: "Hvordan får kunden sit stempelkort?",
     a: "Kunden scanner QR-koden på standeren og opretter kortet på få sekunder. Du kan også oprette en kunde manuelt fra dit dashboard, hvis det passer bedre til situationen — for eksempel når nogen står ved disken uden telefonen fremme.",
   },

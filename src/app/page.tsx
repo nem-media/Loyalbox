@@ -474,6 +474,26 @@ export default function LandingPage() {
               </Link>{" "}
               sender kunden direkte videre til det link, du vælger.
             </p>
+            {/*
+              OG DEN FJERDE VARE. Sætningen ovenfor beskrev tre varer, hvor
+              adgangsvejen altid var en stander — og efter LoyalSum Komplet
+              Online var den derfor ikke længere fuldstændig. Den står som sin
+              EGEN linje og ikke inde i sætningen: forskellen er ikke en
+              funktion, men om der følger et skilt med, og det er en anden
+              slags oplysning end de tre foran.
+            */}
+            <p className="mx-auto mt-3 max-w-2xl text-center text-sm leading-relaxed text-muted">
+              Har du ingen disk at stille et skilt på, findes hele platformen
+              også uden stander:{" "}
+              <Link
+                href="/loyalsum-komplet-online"
+                className="font-medium text-accent"
+              >
+                LoyalSum Komplet Online
+              </Link>{" "}
+              deler du selv via din hjemmeside, din webshop, dine mails eller
+              en QR-kode.
+            </p>
           </div>
         </section>
 

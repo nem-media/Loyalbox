@@ -44,8 +44,17 @@ function hvadSkerDerNu(d: Ordredetaljer): string[] {
   }
 
   if (d.maanedligt) {
+    /*
+     * UDEN ET SKILT ER DER INTET AT VENTE PÅ.
+     *
+     * Sætningen "du behøver ikke vente på skiltet" er en trøst til den, der
+     * har et skilt i posten. Til en Online-kunde er den en gåde: hvilket
+     * skilt? Derfor to sætninger — den samme besked, sagt sandt begge steder.
+     */
     linjer.push(
-      "Du kan logge ind med det samme og sætte din QR-adresse op — du behøver ikke vente på skiltet.",
+      d.digital
+        ? "Du kan logge ind med det samme. Dit LoyalSum-link og din QR-kode står klar i dashboardet under Standere, og du kan dele dem, hvor du vil."
+        : "Du kan logge ind med det samme og sætte din QR-adresse op — du behøver ikke vente på skiltet.",
     );
   }
 

@@ -58,6 +58,26 @@ export function StanderIcon({ className }: { className?: string }) {
   );
 }
 
+/**
+ * QR-kode: tre søgemønstre og et par moduler.
+ *
+ * Til varen UDEN stander. Den har ikke et emne, der kan fotograferes — den ER
+ * linket og koden — så et standerikon ville tegne præcis dét, kunden ikke får.
+ * En QR-kode kendes på de tre hjørnefirkanter alene; de er derfor det eneste,
+ * der er tegnet stort nok til at bære ikonet, og modulerne nederst til højre
+ * er kun dér, så feltet ikke ligner en tom ramme.
+ */
+export function DigitalIcon({ className }: { className?: string }) {
+  return (
+    <Svg className={className}>
+      <rect x="3.5" y="3.5" width="7" height="7" rx="1" />
+      <rect x="13.5" y="3.5" width="7" height="7" rx="1" />
+      <rect x="3.5" y="13.5" width="7" height="7" rx="1" />
+      <path d="M13.5 13.5h3M20.5 13.5h0M13.5 17h0M17 17h3.5M13.5 20.5h3M20.5 20.5h0" />
+    </Svg>
+  );
+}
+
 /** Ikon pr. kommende vare — nøglen er `UpcomingItem.key` fra constants. */
 export const UPCOMING_ICONS: Record<string, React.ReactNode> = {
   // Mærkat: firkant med et ombukket hjørne — dét, der gør et mærkat til et
@@ -142,6 +162,40 @@ export function StanderPlaceholder({
       <div className="absolute bottom-3 right-3">
         <Badge tone="warning">Foto på vej</Badge>
       </div>
+    </PlaceholderPanel>
+  );
+}
+
+/**
+ * Billedfeltet til en vare UDEN et fysisk skilt.
+ *
+ * TO TING SKILLER DEN FRA `StanderPlaceholder`, og begge er nødvendige.
+ *
+ * (1) IKONET. Standerikonet tegner et skilt med en fod — altså nøjagtig dét,
+ * LoyalSum Komplet Online ikke indeholder. Kortet og produktsiden ville vise
+ * varen som en stander, mens teksten ved siden af sagde "uden fysisk stander".
+ *
+ * (2) DER STÅR IKKE "FOTO PÅ VEJ". Badgen er et løfte: den betyder, at varen
+ * kan bestilles nu, og at det kun er billedet, der mangler. Her kommer der
+ * aldrig et foto, for der er ingen genstand at fotografere — løftet ville
+ * blive stående for evigt. Samme regel som klistermærket, der må vises på et
+ * foto, men ikke loves i en salgstekst: sig kun det, der bliver sandt.
+ */
+export function DigitalPlaceholder({
+  className,
+  iconClassName,
+  children,
+}: {
+  className?: string;
+  iconClassName?: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <PlaceholderPanel
+      className={className}
+      icon={<DigitalIcon className={iconClassName} />}
+    >
+      {children}
     </PlaceholderPanel>
   );
 }

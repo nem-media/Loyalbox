@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/dashboard-shell";
 import { Card, CardBody } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { OrderStatusSelect } from "../order-status";
+import { getProduct, harFysiskSkilt } from "@/lib/constants";
 import { designFrontfarve } from "@/lib/design";
 import { SKILT_BREDDE, SKILT_HOEJDE } from "@/lib/skilt-format";
 import { STANDARD_ACCENT, STANDER_FARVER } from "@/lib/stander-tilvalg";
@@ -118,6 +119,13 @@ export default async function AdminOrderPage({
    * findes hos os. Nu spørges den samme funktion, som tegner filen.
    */
   const qrAdresse = stand ? qrAdresseFor(stand) : null;
+  /*
+   * DIGITAL ELLER FYSISK afgøres af VAREN og ikke af, om der er et design.
+   * Et manglende design kan også være en fysisk ordre, hvor kunden aldrig
+   * nåede at vælge farver — og de to skal ikke ligne hinanden i admin.
+   */
+  const vare = getProduct(o.product_slug ?? "");
+  const erDigital = vare ? !harFysiskSkilt(vare) : false;
   const adresse = o.leveringsadresse as Record<string, string | null> | null;
 
   return (
@@ -130,7 +138,24 @@ export default async function AdminOrderPage({
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <OrderStatusSelect orderId={o.id} status={o.status} />
         {o.uden_konto ? <Badge tone="neutral">Uden konto</Badge> : null}
+        {/*
+          DER SKAL IKKE PAKKES NOGET. Mærket står ved siden af statussen, fordi
+          det er dét, der afgør, om ordren overhovedet skal gennem
+          produktionen — og fordi en digital ordre ellers ligner en fysisk, der
+          mangler både design og adresse.
+        */}
+        <Badge tone={erDigital ? "accent" : "neutral"}>
+          {erDigital ? "Digital levering" : "Fysisk levering"}
+        </Badge>
       </div>
+
+      {erDigital ? (
+        <p className="box-shape mb-6 border border-accent/30 bg-accent/5 p-4 text-sm">
+          <strong>Digital vare.</strong> Der skal hverken trykkes, pakkes eller
+          sendes noget. Kunden har fået adgang til platformen og bruger sit
+          eget LoyalSum-link og sin QR-kode fra dashboardet.
+        </p>
+      ) : null}
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* -------------------------------------------------- hvad der trykkes */}

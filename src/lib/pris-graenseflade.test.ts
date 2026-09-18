@@ -1,7 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { KATALOG, priceFor, getProduct } from "./constants";
+import {
+  KATALOG,
+  priceFor,
+  getProduct,
+  harFysiskSkilt,
+} from "./constants";
 
 /**
  * PRISEN, KUNDEN SER, SKAL VÆRE DEN, STRIPE OPKRÆVER.
@@ -89,9 +94,23 @@ describe("katalogets tal er dem, kunden ser", () => {
     expect(getProduct("loyalsum-komplet")?.monthlyPrice).toBe(399);
   });
 
-  /** Tilkøbet og engangsvarerne deler pris — det er samme fysiske stander. */
-  it("alle engangsvarer koster det samme pr. stander", () => {
-    const priser = new Set(KATALOG.map((p) => p.price));
+  /**
+   * Tilkøbet og engangsvarerne deler pris — det er samme fysiske stander.
+   *
+   * EN DIGITAL VARE HAR INGEN STANDERPRIS. LoyalSum Komplet Online koster 0
+   * i engangspris, fordi der ikke er noget at sende; den tæller derfor ikke
+   * med her. Det, prøven passer på, er, at to varer med DEN SAMME stander
+   * ikke kan komme til at koste forskelligt.
+   */
+  it("alle varer med en stander koster det samme pr. stander", () => {
+    const priser = new Set(KATALOG.filter(harFysiskSkilt).map((p) => p.price));
     expect(priser.size, `flere standerpriser: ${[...priser]}`).toBe(1);
+  });
+
+  it("den digitale vare har ingen standerpris", () => {
+    for (const p of KATALOG.filter((v) => !harFysiskSkilt(v))) {
+      expect(p.price, p.slug).toBe(0);
+      expect(p.monthlyPrice, p.slug).toBeGreaterThan(0);
+    }
   });
 });

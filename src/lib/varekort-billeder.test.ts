@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { KATALOG, PRODUKT_FOTO } from "./constants";
+import { KATALOG, PRODUKT_FOTO, harFysiskSkilt } from "./constants";
 
 /**
  * HVER SIDE, DER VISER VARER SOM KORT, SKAL VISE FOTOET — OG ALLE TRE VARER.
@@ -81,13 +81,25 @@ describe("alle tre varer vises", () => {
     expect(SIDE).not.toContain("To måder at få standeren på");
   });
 
-  /** Kataloget er sandheden om, hvor mange der er. Bliver det fire, fejler den. */
-  it("kataloget har præcis de tre, siden regner med", () => {
+  /**
+   * KATALOGET ER SANDHEDEN OM, HVOR MANGE DER ER.
+   *
+   * Listen står her, så en ny vare ikke kan glide ind, uden at nogen tager
+   * stilling til, om den hører til på de sider, der viser varer som kort.
+   * LoyalSum Komplet Online gør IKKE: de sider handler om standeren, og
+   * Online har ingen. Derfor står den i kataloget og ikke i afsnittet "Tre
+   * måder at få standeren på".
+   */
+  it("kataloget har præcis de fire, siderne regner med", () => {
     expect(KATALOG.map((p) => p.slug).sort()).toEqual([
       "loyalsum-komplet",
+      "loyalsum-komplet-online",
       "reviewstander",
       "reviewstander-pro",
     ]);
-    for (const p of KATALOG) expect(PRODUKT_FOTO[p.slug]).toBeTruthy();
+    // Fotoet kræves kun af de varer, der HAR en fysisk ting at fotografere.
+    for (const p of KATALOG.filter(harFysiskSkilt)) {
+      expect(PRODUKT_FOTO[p.slug], p.slug).toBeTruthy();
+    }
   });
 });

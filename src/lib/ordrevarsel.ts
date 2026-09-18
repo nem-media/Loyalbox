@@ -30,6 +30,17 @@ export interface Ordredetaljer {
   email: string | null;
   /** Leveringsadresse i linjer, som Stripe gav dem. Tom = ingen fysisk vare. */
   leveringslinjer: string[];
+  /**
+   * Er varen DIGITAL — altså uden et fysisk skilt?
+   *
+   * Den udledes af produktet (`kunDigital`) og ikke af, om Stripe gav os en
+   * adresse. De to falder ganske vist sammen i dag, men af hver sin grund: en
+   * manglende adresse kan også være en genoptagelse eller en fejl, og
+   * forskellen betyder, om der skal PAKKES noget. Et varsel, der siger
+   * "ingenting at sende" på en ordre, hvor adressen bare mangler, er værre end
+   * intet varsel.
+   */
+  digital?: boolean;
   /** Til opslag i Stripe. */
   sessionId: string | null;
 
