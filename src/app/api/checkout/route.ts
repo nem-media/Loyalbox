@@ -612,9 +612,25 @@ export async function POST(request: NextRequest) {
       success_url: genoptag
         ? `${base}/dashboard/abonnement?genoptaget=1`
         : `${base}/bestil/tak?session_id={CHECKOUT_SESSION_ID}`,
+      /*
+       * FORTRYDER KUNDEN HOS STRIPE, SKAL DE HAVE DERES DESIGN MED HJEM.
+       *
+       * Designet er gemt LIGE OVENFOR, før sessionen blev oprettet, så det
+       * ligger i basen med et id — admin kan se logo og farvevalg. Men
+       * adressen her bar kun vare og antal, så kunden landede på en tom
+       * designer og skulle uploade logoet og vælge farver forfra. Alt
+       * arbejdet var i behold; der var bare ingen vej tilbage til det.
+       *
+       * `?design=` findes i forvejen og henter designet MED ejerskabet i
+       * forespørgslen, så det ikke bliver en måde at læse en anden butiks
+       * logo. `fortrudt=1` er der, fordi siden ellers skriver „Du bestiller
+       * flere af“ — og det er usandt for en, der lige har fortrudt og
+       * aldrig har købt noget.
+       */
       cancel_url: genoptag
         ? `${base}/dashboard/abonnement`
-        : `${base}/bestil?produkt=${product.slug}&antal=${qty}`,
+        : `${base}/bestil?produkt=${product.slug}&antal=${qty}` +
+          (design ? `&design=${design.id}&fortrudt=1` : ``),
     });
   } catch (err) {
     /**
