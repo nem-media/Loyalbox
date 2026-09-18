@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ButtonLink } from "@/components/ui/button";
 import { StanderPlaceholder } from "@/components/product-placeholder";
-import { getProduct } from "@/lib/constants";
+import { PRODUKT_FOTO, getProduct } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 import { getSiteUrl } from "@/lib/site";
 import { IndustryBadge, type Branche } from "@/components/industry-icons";
@@ -231,6 +231,13 @@ const FAQ = [
 export default function ReviewstanderPage() {
   const basis = getProduct("reviewstander");
   const pro = getProduct("reviewstander-pro");
+  /*
+   * ALLE TRE VARER, OG IKKE TO. Sektionen viste kun Reviewstander og Pro,
+   * mens Komplet kun blev nævnt i en sætning under kortene — den vare, der
+   * er mærket `featured` i kataloget, var altså den eneste, man ikke kunne
+   * se prisen på uden at klikke videre.
+   */
+  const komplet = getProduct("loyalsum-komplet");
   const base = getSiteUrl();
 
   const jsonLd = [
@@ -838,25 +845,50 @@ export default function ReviewstanderPage() {
         <section className="border-t border-border bg-background">
           <div className="mx-auto max-w-6xl px-4 py-16">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              To måder at få standeren på
+              Tre måder at få standeren på
             </h2>
             <p className="mt-3 max-w-2xl text-muted">
-              Begge er den samme fysiske stander med QR og NFC. Forskellen er,
-              hvad der sker, når kunden har tappet.
+              Alle tre er den samme fysiske stander med QR og NFC. Forskellen
+              er, hvad der sker, når kunden har tappet.
             </p>
 
 
-            <div className="mt-6 grid gap-6 lg:grid-cols-2">
-              {[basis, pro].map((p) =>
+            <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {[basis, pro, komplet].map((p) =>
                 p ? (
                   <div
                     key={p.slug}
                     className="box-shape flex flex-col overflow-hidden border border-border bg-card"
                   >
-                    <StanderPlaceholder
-                      className="aspect-[16/9]"
-                      iconClassName="h-20 w-20"
-                    />
+                    {/*
+                      FOTOET OG IKKE TEGNINGEN. Kortene stod med
+                      `StanderPlaceholder` — pladsholderen, der findes for de
+                      varer, der IKKE har et billede — selv om alle tre har et
+                      i `PRODUKT_FOTO`. Siden viste altså en stregtegning af en
+                      stander dér, hvor forsiden og kataloget viser den
+                      rigtige. Faldet tilbage til tegningen beholdes: mangler
+                      et foto en dag, skal kortet stadig kunne tegnes.
+
+                      4:5 OG IKKE 16:9. Fotoene er 1000 × 1250. Beholdt vi
+                      16:9, ville `object-cover` skære knap to tredjedele af
+                      højden væk — altså standeren selv.
+                    */}
+                    {PRODUKT_FOTO[p.slug] ? (
+                      <div className="relative aspect-[4/5] overflow-hidden">
+                        <Image
+                          src={PRODUKT_FOTO[p.slug]}
+                          alt={`${p.name} — reviewstander i brug`}
+                          fill
+                          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <StanderPlaceholder
+                        className="aspect-[4/5]"
+                        iconClassName="h-20 w-20"
+                      />
+                    )}
                     <div className="flex flex-1 flex-col p-6">
                       <h3 className="text-lg font-bold tracking-tight">
                         {p.name}
@@ -913,17 +945,13 @@ export default function ReviewstanderPage() {
               )}
             </div>
 
+            {/* Sætningen sendte før videre til Komplet, fordi varen ikke stod
+                på siden. Nu har den sit eget kort lige ovenfor, og en
+                henvisning til noget, læseren kigger på, er støj. */}
             <p className="mt-6 text-sm text-muted">
-              Vil du også have stempelkort og opslag med, samler{" "}
-              <Link
-                href="/produkter/loyalsum-komplet"
-                className="font-medium text-accent"
-              >
-                LoyalSum Komplet
-              </Link>{" "}
-              det hele på én stander. Se{" "}
+              Se{" "}
               <Link href="/produkter" className="font-medium text-accent">
-                alle priser
+                alle priser og tilkøb
               </Link>
               .
             </p>
