@@ -49,15 +49,44 @@ async function testLogo(): Promise<Buffer> {
 }
 
 describe("logoet lægges på fronten", () => {
-  it("fjerner alfakanalen fra en PNG", async () => {
+  /*
+   * DEN BEHOLDER alfakanalen — og det er en RETTELSE af den modsatte regel,
+   * der stod her indtil 2026-09-18.
+   *
+   * Før blev kanalen droppet, så en fremviser ikke kunne ignorere den. Men
+   * uden kanal er billedet ugennemsigtigt helt ud til sit rektangel, og HELE
+   * rektanglet får toner. Nem Media printede et skilt med blå front og fik
+   * en blå blok på præcis logoets størrelse oven på den blå vektorflade.
+   * På hvidt var det usynligt hele tiden — hvid er ingen toner.
+   *
+   * `extract` reddede det ikke: logoet rører alle fire kanter (2266 × 336,
+   * 60,8 % luft), så der var nul at skære. Prøven `lader en fil være, når
+   * indholdet rører alle fire kanter` beskriver netop dén fil.
+   */
+  it("BEHOLDER alfakanalen, så luften ikke får toner", async () => {
     const raa = await testLogo();
     expect((await sharp(raa).metadata()).hasAlpha).toBe(true);
 
     const { buffer, type } = await laegLogoPaaFront(raa, "image/png", "#111111");
 
-    // DET, DER BETYDER NOGET: der er ikke længere en kanal at ignorere.
-    expect((await sharp(buffer).metadata()).hasAlpha).toBe(false);
+    expect((await sharp(buffer).metadata()).hasAlpha).toBe(true);
     expect(type).toBe("image/png");
+  });
+
+  /*
+   * DET, DER FAKTISK BETYDER NOGET PÅ TRYK: en pixel, der var gennemsigtig,
+   * skal blive ved med at være det. Ellers er vi tilbage ved blokken.
+   */
+  it("lader de gennemsigtige pixels blive gennemsigtige", async () => {
+    const { buffer } = await laegLogoPaaFront(await ringLogo(), "image/png", "#111111");
+    const { data, info } = await sharp(buffer)
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+
+    // Midten af ringen var hul i kilden.
+    const i = (5 * info.width + 5) * info.channels;
+    expect(data[i + 3]).toBe(0);
   });
 
   /**
@@ -72,7 +101,7 @@ describe("logoet lægges på fronten", () => {
       "#111111",
     );
     const p = await pixel(buffer, 5, 5);
-    expect(p.kanaler).toBe(3);
+    expect(p.kanaler).toBe(4);
     expect([p.r, p.g, p.b]).toEqual([17, 17, 17]);
   });
 
