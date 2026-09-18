@@ -62,6 +62,7 @@ export function GenbestilDesign({
   standId,
   kraeverDestination = false,
   destinationStart,
+  fortrudt = false,
 }: {
   product: Product;
   design: GemtDesign;
@@ -78,6 +79,15 @@ export function GenbestilDesign({
   kraeverDestination?: boolean;
   /** Forudfyldes fra standeren, hvis den allerede har en destination. */
   destinationStart?: { type: DestinationType; url: string };
+  /**
+   * Kom kunden tilbage fra Stripe uden at betale?
+   *
+   * SÅ ER OVERSKRIFTEN EN LØGN. „Du bestiller flere af“ passer på en
+   * genbestilling, men ikke på en, der lige har fortrudt og aldrig har
+   * købt ét. Samme blok, anden sætning — og en linje om, at designet er
+   * gemt, så det ikke bare ser ud som om siden begyndte forfra.
+   */
+  fortrudt?: boolean;
 }) {
   const clamp = (n: number) =>
     Math.max(1, Math.min(MAX_QTY, Math.floor(n) || 1));
@@ -134,7 +144,15 @@ export function GenbestilDesign({
     <div className="space-y-5">
       {/* ------------------------------------------------- hvad bestilles */}
       <div className="box-shape border border-border bg-card p-5">
-        <p className="text-sm font-medium">Du bestiller flere af</p>
+        <p className="text-sm font-medium">
+          {fortrudt ? "Dit design er gemt" : "Du bestiller flere af"}
+        </p>
+        {fortrudt ? (
+          <p className="mt-1 text-sm text-muted">
+            Betalingen blev ikke gennemført, men dit logo og dine farvevalg er
+            her stadig. Du kan fortsætte herfra.
+          </p>
+        ) : null}
         <div className="mt-3 flex items-center gap-4">
           {/* HER ER DET VIGTIGST: kunden står lige før en betaling og skal
               kunne se, at det er det rigtige skilt, de bestiller flere af.
@@ -152,7 +170,9 @@ export function GenbestilDesign({
               {design.front_beskrivelse}
             </p>
             <p className="mt-1 text-xs text-muted">
-              Samme design som sidst — du vælger kun antallet.
+              {fortrudt
+                ? "Du vælger kun antallet."
+                : "Samme design som sidst — du vælger kun antallet."}
             </p>
           </div>
         </div>

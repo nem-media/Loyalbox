@@ -131,6 +131,8 @@ export default async function OrderPage({
     produkt?: string;
     antal?: string;
     design?: string;
+    /** Sat af Stripes fortryd-adresse. Se `cancel_url` i /api/checkout. */
+    fortrudt?: string;
     /**
      * Standeren, skiltet skal trykkes med (0022).
      *
@@ -145,6 +147,7 @@ export default async function OrderPage({
     produkt,
     antal,
     design: designId,
+    fortrudt,
     stand: standId,
   } = await searchParams;
   const selected = PRODUCTS.find((p) => p.slug === produkt);
@@ -277,6 +280,7 @@ export default async function OrderPage({
               <GenbestilDesign
                 product={selected}
                 design={gemt}
+                fortrudt={fortrudt === "1"}
                 kraeverDpa={requiresDpa(selected)}
                 standId={standTilTryk}
                 kraeverDestination={skalHaveDestination}
