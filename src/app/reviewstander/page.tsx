@@ -740,7 +740,10 @@ export default function ReviewstanderPage() {
               {/* Produktfoto: standeren i et rigtigt miljø. 4:5 som kilden —
                   ikke beskåret, for standeren fylder næsten hele højden, og en
                   bredere beskæring ville klippe top eller bund af den. */}
-              <div className="box-shape overflow-hidden border border-border shadow-[var(--hoejde-2)]">
+              {/* `.produkt-loft` og ingen streg — samme behandling som
+                  produktsidens foto. Skyggen er målt i vores eget
+                  produktfoto: varm taupe, lang og blødest længst væk. */}
+              <div className="produkt-loft box-shape overflow-hidden">
                 {/* Spalten er højst 22rem (352 px); `sizes` siger det, så en
                     telefon ikke henter 1000 px bredt for at vise 350. */}
                 <Image

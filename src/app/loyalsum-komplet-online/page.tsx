@@ -205,7 +205,20 @@ export default function KompletOnlinePage() {
 
       <main id="indhold">
         {/* ------------------------------------------------------------ hero */}
-        <section className="bg-dark px-4 py-16 text-white sm:py-20">
+        {/*
+          Lyset kommer et sted fra — som i produktfotoet, hvor vinduet står
+          til venstre og bordpladen fanger det. To radiale skær: husets beige
+          som varme og logoets turkis bag panelet til højre, begge under 18 %.
+        */}
+        <section className="relative isolate overflow-hidden bg-dark px-4 py-16 text-white sm:py-20">
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 -z-10"
+            style={{
+              backgroundImage:
+                "radial-gradient(50% 55% at 76% 22%, rgba(78,164,173,0.16), transparent 64%), radial-gradient(55% 60% at 88% 4%, rgba(180,161,137,0.14), transparent 62%)",
+            }}
+          />
           <div className="mx-auto grid max-w-side gap-10 lg:grid-cols-[1.1fr_1fr] lg:items-center">
             <div>
               <p className="text-sm font-semibold uppercase tracking-wider text-white/60">
@@ -244,7 +257,10 @@ export default function KompletOnlinePage() {
             </div>
 
             {/* Linket, som kunden faktisk får at se i dashboardet. */}
-            <div className="box-shape border border-white/15 bg-white/5 p-6">
+            {/* Frostet og ikke bare gennemsigtig: en lys inderkant foroven
+                og en blød skygge under gør panelet til en flade, der ligger
+                FORAN heroen, frem for et felt malet ned i den. */}
+            <div className="box-shape border border-white/15 bg-white/[0.07] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_24px_50px_-24px_rgba(0,0,0,0.6)] backdrop-blur-sm">
               <p className="text-xs font-semibold uppercase tracking-wider text-white/60">
                 Dit LoyalSum-link
               </p>

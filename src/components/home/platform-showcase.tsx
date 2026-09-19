@@ -54,7 +54,12 @@ const TABS: { key: TabKey; label: string; headline: string; body: string }[] = [
 
 function Panel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="box-shape border border-border bg-card p-5 shadow-[0_24px_48px_-32px_rgba(0,0,0,0.45)]">
+    /* SKÆRMEN I MOCKUPPEN SKAL LIGNE EN SKÆRM.
+       Panelet lå med én bred, mørk skygge — en drop shadow. I produktfotoet
+       har den bærbare en stram kant tæt på fladen OG en lang, varm skygge
+       under; det er de to lag sammen, der gør, at noget ligger PÅ noget.
+       Her er det samme greb i CSS, tonet mod #6b5f57 som i fotoet. */
+    <div className="box-shape border border-border bg-card p-5 shadow-[0_1px_2px_rgba(107,95,87,0.08),0_16px_30px_-14px_rgba(107,95,87,0.22),0_40px_64px_-30px_rgba(107,95,87,0.28)]">
       {children}
     </div>
   );
