@@ -71,7 +71,11 @@ export default async function SubscriptionPage() {
       />
 
       {/* ------------------------------------------------------ din adgang */}
-      <div className="box-shape border border-accent/30 bg-accent/5 p-6">
+      <div className="box-shape relative overflow-hidden border border-accent/25 bg-card p-6 shadow-[var(--hoejde-1)]">
+        <span
+          aria-hidden="true"
+          className="teal-skaer pointer-events-none absolute -right-8 -top-14 h-48 w-64"
+        />
         {/*
           PAKKENS NAVN, IKKE NIVEAUET. Nielsine købte "LoyalSum Komplet", men
           hendes plan er `pro` (samme niveau som Reviewstander Pro), så siden

@@ -38,7 +38,10 @@ export function DashboardShell({
   const initialer = (companyName ?? email).trim().slice(0, 2).toUpperCase();
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row">
+    /* `app-flade` gør panelets neutraler kølige og fjerner den creme grund —
+       se globals.css. Den sidder YDERST, så sidebjælken følger med; ligger
+       den kun på indholdet, får menuen beige streger ved siden af grå. */
+    <div className="app-flade flex min-h-screen flex-col md:flex-row">
       {/*
         MENUEN ER LYS OG IKKE MØRK, OG DET ÆNDRER HVAD DER BÆRER DYBDEN.
         Den mørke menu var det eneste element på skærmen med en grund at stå

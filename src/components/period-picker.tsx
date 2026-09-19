@@ -20,7 +20,11 @@ export function PeriodPicker({
   current: Period;
 }) {
   return (
-    <div className="box-shape mb-6 inline-flex flex-wrap gap-1 border border-border bg-muted-bg p-1">
+    /* SEGMENTERET KONTROL: den ydre flade er en fordybning, det valgte er
+       et emne, der ligger OVENPÅ. Den indadgående streg foroven er det,
+       der gør ydersiden til en rille — uden den er det to rektangler i to
+       grå nuancer. */
+    <div className="box-shape mb-6 inline-flex flex-wrap gap-1 border border-border bg-muted-bg p-1 shadow-[inset_0_1px_2px_rgba(30,28,26,0.05)]">
       {PERIODS.map((p) => {
         const aktiv = p === current;
         return (
@@ -29,10 +33,10 @@ export function PeriodPicker({
             href={`${basePath}?period=${p}`}
             aria-current={aktiv ? "page" : undefined}
             className={
-              "box-shape px-3 py-1.5 text-sm transition-colors " +
+              "btn-shape px-3.5 py-2 text-sm transition-all duration-200 " +
               (aktiv
-                ? "bg-card font-medium text-foreground shadow-[0_1px_2px_rgba(30,28,26,0.06)]"
-                : "text-muted hover:text-foreground")
+                ? "bg-card font-semibold text-dark shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_1px_2px_rgba(30,28,26,0.1),0_2px_6px_-2px_rgba(30,28,26,0.12)]"
+                : "text-muted hover:bg-card/60 hover:text-foreground")
             }
           >
             {PERIOD_LABELS[p]}

@@ -7,11 +7,11 @@ import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Stat } from "@/components/ui/stat";
 import { PeriodPicker } from "@/components/period-picker";
 import {
-  NewCustomersIcon,
-  ReturningIcon,
-  StampIcon,
-  RewardIcon,
-} from "@/components/illustrations";
+  KundeDuo,
+  GenbesoegDuo,
+  StempelDuo,
+  BeloenningDuo,
+} from "@/components/duotone-ikoner";
 import { EmptyLine } from "@/components/ui/empty-state";
 import { ButtonLink } from "@/components/ui/button";
 import { TXN_TYPE_LABELS } from "@/lib/loyalty/constants";
@@ -163,28 +163,32 @@ export default async function LoyaltyOverviewPage({
       <Sektion titel="Medlemmer og stempler">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Stat
-            icon={NewCustomersIcon}
+            icon={KundeDuo}
+            farve="accent"
             label="Nye medlemmer"
             value={r.newMembers}
             sub={`${r.totalMembers} i alt`}
             trend={{ previous: forrige.newMembers, label: siden }}
           />
           <Stat
-            icon={ReturningIcon}
+            icon={GenbesoegDuo}
+            farve="groen"
             label="Aktive medlemmer"
             value={r.activeMembers}
             sub="Med stempel i perioden"
             trend={{ previous: forrige.activeMembers, label: siden }}
           />
           <Stat
-            icon={StampIcon}
+            icon={StempelDuo}
+            farve="blaa"
             label="Stempler givet"
             value={r.stampsGiven}
             sub={r.stampsRemoved ? `${r.stampsRemoved} fjernet` : undefined}
             trend={{ previous: forrige.stampsGiven, label: siden }}
           />
           <Stat
-            icon={RewardIcon}
+            icon={BeloenningDuo}
+            farve="guld"
             label="Belønninger indløst"
             value={r.rewardsRedeemed}
             sub={`${r.rewardsEarned} optjent`}

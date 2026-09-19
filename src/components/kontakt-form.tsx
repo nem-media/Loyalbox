@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useId } from "react";
+import { Besked } from "@/components/ui/besked";
 import { sendKontakt, type KontaktResultat } from "@/app/kontakt/actions";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea, Field } from "@/components/ui/input";
@@ -135,9 +136,7 @@ export function KontaktForm() {
       </Field>
 
       {state.fejlbesked ? (
-        <p role="alert" className="text-sm font-medium text-danger">
-          {state.fejlbesked}
-        </p>
+        <Besked slags="fejl">{state.fejlbesked}</Besked>
       ) : null}
 
       <div className="flex flex-wrap items-center gap-4">

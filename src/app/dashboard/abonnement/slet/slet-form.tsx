@@ -30,7 +30,7 @@ export function SletForm({ firmanavn }: { firmanavn: string }) {
 
   if (state.ok) {
     return (
-      <div className="box-shape border border-accent/40 bg-accent/5 p-5">
+      <div className="box-shape border border-accent/30 bg-card p-5 shadow-[var(--hoejde-1)]">
         <p className="font-medium">Tjek din mail</p>
         <p className="mt-1 text-sm leading-relaxed text-muted">
           {state.message}

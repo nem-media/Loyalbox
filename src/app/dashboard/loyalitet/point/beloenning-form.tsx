@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { Besked } from "@/components/ui/besked";
 import { opretPointBeloenning } from "./actions";
 import type { FormResult } from "@/app/dashboard/loyalitet/actions";
 import { Button } from "@/components/ui/button";
@@ -92,9 +93,7 @@ export function BeloenningForm({ programId }: { programId: string }) {
       </Field>
 
       {state.error ? (
-        <p role="alert" className="text-sm text-danger">
-          {state.error}
-        </p>
+        <Besked slags="fejl">{state.error}</Besked>
       ) : null}
       {state.ok ? (
         <p className="text-sm font-medium text-success">

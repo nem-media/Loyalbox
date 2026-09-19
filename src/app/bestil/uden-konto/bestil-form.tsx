@@ -429,7 +429,7 @@ export function BestilUdenKontoForm({
                     key={f.vaerdi}
                     className={`box-shape flex cursor-pointer items-center gap-3 border p-3 transition-colors ${
                       standerFarve === f.vaerdi
-                        ? "border-accent bg-accent/5"
+                        ? "border-accent bg-accent-tint/70"
                         : "border-border hover:bg-muted-bg"
                     }`}
                   >

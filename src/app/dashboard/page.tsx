@@ -5,10 +5,13 @@ import { Table, THead, TBody, TR, TH, TD } from "@/components/ui/table";
 import { PageHeader, Sektion } from "@/components/dashboard-shell";
 import { FeedbackBubbleIcon, StandIcon } from "@/components/nav-icons";
 import {
-  ScanIcon,
-  ShareExperienceIcon,
-  StarIcon,
-} from "@/components/illustrations";
+  ScanDuo,
+  FeedbackDuo,
+  KlikDuo,
+  StjerneDuo,
+  SkjoldDuo,
+} from "@/components/duotone-ikoner";
+import { IkonChip } from "@/components/ui/ikon-chip";
 import { Stat } from "@/components/ui/stat";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { FeedbackList } from "@/components/feedback-list";
@@ -214,21 +217,24 @@ export default async function DashboardPage({
               {/* Tallet er perioden, underteksten er totalen. Uden totalen ville
                 et skift til "7 dage" se ud som om noget var forsvundet. */}
               <Stat
-                icon={ScanIcon}
+                icon={ScanDuo}
+                farve="accent"
                 label="Scanninger"
                 value={stats.scans.period}
                 sub={`${stats.scans.total} i alt`}
                 trend={{ previous: stats.scans.previous, label: siden }}
               />
               <Stat
-                icon={FeedbackBubbleIcon}
+                icon={FeedbackDuo}
+                farve="violet"
                 label="Feedbacks"
                 value={stats.feedback.period}
                 sub={`${stats.feedback.total} i alt`}
                 trend={{ previous: stats.feedback.previous, label: siden }}
               />
               <Stat
-                icon={ShareExperienceIcon}
+                icon={KlikDuo}
+                farve="blaa"
                 label="Klik til anmeldelse"
                 value={stats.clicks.period}
                 sub={`${stats.clicks.total} i alt`}
@@ -237,7 +243,8 @@ export default async function DashboardPage({
               {/* Ratingen får ingen pil: et gennemsnit svinger på decimaler, og
                 en pil på 4,3 mod 4,4 ville råbe op om ingenting. */}
               <Stat
-                icon={StarIcon}
+                icon={StjerneDuo}
+                farve="guld"
                 label="Gns. rating"
                 value={stats.avgRating ? stats.avgRating.toFixed(1) : "–"}
                 sub={
@@ -255,7 +262,13 @@ export default async function DashboardPage({
                   Samme periode som ovenfor. Mest aktivitet først — så du kan
                   se, hvor der sker noget, og hvor der ikke gør.
                 </p>
-                <Table className="mt-3">
+                {/* TABELLEN FÅR EN RAMME. Den lå direkte på grunden, mens alt
+                    andet på siden lå i et kort — og en tabel uden en flade at
+                    stå på er præcis dét, der læses som "administrationsside".
+                    `overflow-hidden` klipper rækkernes hover til kortets form,
+                    så den øverste række ikke stikker ud i hjørnet. */}
+                <Card className="mt-3 overflow-hidden">
+                <Table>
                   <THead>
                     <TR className="hover:bg-transparent">
                       <TH>Sted</TH>
@@ -288,6 +301,7 @@ export default async function DashboardPage({
                     ))}
                   </TBody>
                 </Table>
+                </Card>
               </div>
             ) : null}
           </>
@@ -306,18 +320,29 @@ export default async function DashboardPage({
         sekunder, om der er noget at komme efter.
       */}
       {canSeeOmdoemme && omdoemme && omdoemme.score !== null ? (
-        <Card className="mt-6">
+        /* OMDØMMEKORTET FØRER AN PÅ SIDEN, og det skal kunne ses uden at
+           læses. Tre greb: et skær i hjørnet (meget lav opacitet, se
+           `.teal-skaer`), et FYLDT ikonfelt — det eneste på siden, netop
+           fordi der kun må være ét — og scoren i samme grad som et nøgletal.
+           Tallene, etiketten, datagrundlaget og knappen er uændrede. */
+        <Card className="relative mt-6 overflow-hidden">
+          <span
+            aria-hidden="true"
+            className="teal-skaer pointer-events-none absolute -right-10 -top-16 h-52 w-72"
+          />
           <CardHeader className="flex items-center justify-between">
             <CardTitle icon={ReputationIcon}>Dit omdømme</CardTitle>
             <ButtonLink href="/dashboard/omdoemme" size="sm" variant="outline">
               Se omdømme
             </ButtonLink>
           </CardHeader>
-          <CardBody className="pt-0">
+          <CardBody className="relative pt-0">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-              <div>
+              <div className="flex items-center gap-4">
+                <IkonChip icon={SkjoldDuo} size="xl" tone="fyldt" />
+                <div>
                 <p className="flex items-baseline gap-2">
-                  <span className="text-4xl font-bold tracking-tight">
+                  <span className="text-[2.5rem] font-semibold leading-none tracking-tight text-dark">
                     {omdoemme.score}
                   </span>
                   <span className="text-lg text-muted">/ 100</span>
@@ -330,12 +355,13 @@ export default async function DashboardPage({
                     {DATAGRUNDLAG_TEKST[omdoemme.datagrundlag]}
                   </span>
                 </p>
+                </div>
               </div>
 
               {omdoemme.kundescore !== null ? (
-                <div className="sm:text-right">
+                <div className="btn-shape border border-border bg-surface-subtle px-4 py-3 sm:text-right">
                   <p className="etiket">LoyalSum Kundescore</p>
-                  <p className="mt-1 text-2xl font-bold tracking-tight">
+                  <p className="mt-1 text-2xl font-semibold tracking-tight text-dark">
                     {omdoemme.kundescore.toFixed(1).replace(".", ",")}{" "}
                     <span className="text-base font-normal text-muted">
                       / 5

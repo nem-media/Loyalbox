@@ -13,16 +13,37 @@ import { cn } from "@/lib/utils";
  * felter", der skulle væk. Tinten er standarden, og den er dét, en række
  * nøgletal skal bære.
  */
+/**
+ * DATAFARVERNE — ét opslag, så et nøgletal har samme farve på tværs af sider.
+ *
+ * Farven sættes som en CSS-variabel og ikke som en klasse pr. farve: hele
+ * feltet blandes ud af `--chip` i globals.css, så fem farver ikke bliver til
+ * tyve regler, der skal holdes i takt. Se begrundelsen for paletten ved
+ * `--data-*`-tokens.
+ */
+const FARVER = {
+  accent: "var(--data-teal)",
+  violet: "var(--data-violet)",
+  blaa: "var(--data-blaa)",
+  guld: "var(--data-guld)",
+  groen: "var(--data-groen)",
+} as const;
+
+export type ChipFarve = keyof typeof FARVER;
+
 export function IkonChip({
   icon: Ikon,
   size = "sm",
   tone = "tint",
+  farve = "accent",
   className,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   /** `sm` i en overskrift, `lg` på et nøgletal, `xl` når feltet fører an. */
   size?: "sm" | "lg" | "xl";
   tone?: "tint" | "fyldt";
+  /** Datatypens farve. Standard er brandets teal. */
+  farve?: ChipFarve;
   className?: string;
 }) {
   const felt = {
@@ -37,14 +58,23 @@ export function IkonChip({
     xl: "h-7 w-7",
   }[size];
 
+  /* `color` på beholderen, så ikonets `currentColor` — begge duotone-lag —
+     følger med af sig selv. Den fyldte udgave har hvidt ikon og bruger kun
+     variablen til fladen. */
+  const stil = {
+    "--chip": FARVER[farve],
+    ...(tone === "fyldt" ? {} : { color: FARVER[farve] }),
+  } as React.CSSProperties;
+
   return (
     <span
       aria-hidden="true"
+      style={stil}
       className={cn(
         "grid shrink-0 place-items-center rounded-full",
         tone === "fyldt"
           ? "ikon-felt-fyldt text-white"
-          : "ikon-felt text-accent ring-1 ring-accent/10",
+          : "ikon-felt ring-1 ring-[color-mix(in_srgb,var(--chip)_14%,transparent)]",
         felt,
         className,
       )}

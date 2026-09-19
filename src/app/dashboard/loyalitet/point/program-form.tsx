@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { Besked } from "@/components/ui/besked";
 import { opretPointProgram, opdaterPointProgram } from "./actions";
 import type { FormResult } from "@/app/dashboard/loyalitet/actions";
 import { Button } from "@/components/ui/button";
@@ -93,7 +94,7 @@ export function PointProgramForm({
               className={
                 "box-shape flex cursor-pointer items-start gap-3 border p-3 transition-colors " +
                 (model === m
-                  ? "border-accent bg-accent/5"
+                  ? "border-accent bg-accent-tint/70 shadow-[var(--hoejde-1)]"
                   : "border-border hover:bg-muted-bg")
               }
             >
@@ -155,9 +156,7 @@ export function PointProgramForm({
       ) : null}
 
       {state.error ? (
-        <p role="alert" className="text-sm text-danger">
-          {state.error}
-        </p>
+        <Besked slags="fejl">{state.error}</Besked>
       ) : null}
       {state.ok ? (
         <p className="text-sm font-medium text-success">Gemt.</p>

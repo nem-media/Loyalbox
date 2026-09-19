@@ -137,6 +137,30 @@
      FARVEN ER ALDRIG DEN ENESTE BÆRER. Hver søjle står med sit antal og sin
      procent i tal ved siden af, så fordelingen kan læses uden at kunne skelne
      farverne — `fordeling-soejler.test.ts` håndhæver det. */
+  /* ---------------------------------------------------------------------
+     DATAFARVER — EN LILLE, SEMANTISK PALET VED SIDEN AF BRANDET.
+
+     Fire nøgletal i fire ens turkise felter siger ingenting om, hvad de
+     måler; øjet kan ikke bruge farven til noget, og så er den dekoration.
+     Med en farve pr. DATATYPE kan man kende kortet igen på tværs af sider —
+     feedback er den samme violette overalt, klik den samme blå.
+
+     REGLEN ER 85 % NEUTRAL, 15 % FARVE: farven sidder i ikonfeltet og i en
+     enkelt streg, aldrig i kortets flade. Teal bliver ved med at være
+     brandets farve og bærer handlinger, links og aktiv navigation — de fire
+     her bærer kun data.
+
+     De er ALLE dæmpede og trukket mod petroleum i mætning, så de står som en
+     familie. En ren violet (#7c3aed) eller en ren blå (#2563eb) ved siden af
+     #26616e ligner farver fra et andet produkt.
+     Målt mod deres egen tint (12 % på hvidt): 5,0-6,5:1, altså læsbare selv
+     hvis nogen en dag sætter dem som tekst. */
+  --data-teal: #26616e;
+  --data-violet: #5f5496;
+  --data-blaa: #36648f;
+  --data-guld: #8a6420;
+  --data-groen: #3c7355;
+
   --skala-1: #c05a4a;
   --skala-2: #d08a4a;
   --skala-3: #d7b055;
@@ -223,6 +247,11 @@
   --color-accent-tint: var(--accent-tint);
   --color-accent-tint-staerk: var(--accent-tint-staerk);
   --color-accent-lys: var(--accent-lys);
+  --color-data-teal: var(--data-teal);
+  --color-data-violet: var(--data-violet);
+  --color-data-blaa: var(--data-blaa);
+  --color-data-guld: var(--data-guld);
+  --color-data-groen: var(--data-groen);
   --color-skala-1: var(--skala-1);
   --color-skala-2: var(--skala-2);
   --color-skala-3: var(--skala-3);
@@ -362,6 +391,13 @@ body {
        dér, hvor lyset kommer fra overalt ellers — og under det den
        retningsbestemte gradient. Det er højlyset, der gør feltet rundt; uden
        det er en gradient bare en flade, der er lysere i den ene ende. */
+    /*
+      FARVEN KOMMER FRA `--chip` OG IKKE FRA EN KLASSE PR. FARVE.
+      Fem farver × fire lag ville være tyve regler, der skal holdes i takt.
+      Her blandes hele feltet ud af ÉN variabel med `color-mix`, så en ny
+      datafarve kun kræver et token — og så kan de fire lag aldrig komme til
+      at sige hver sit om, hvilken farve feltet har.
+    */
     background-image:
       radial-gradient(
         72% 62% at 30% 16%,
@@ -370,13 +406,13 @@ body {
       ),
       linear-gradient(
         155deg,
-        color-mix(in srgb, var(--accent-tint) 55%, #ffffff) 0%,
-        var(--accent-tint) 42%,
-        color-mix(in srgb, var(--accent-tint-staerk) 82%, var(--accent)) 100%
+        color-mix(in srgb, var(--chip, var(--accent)) 5%, #ffffff) 0%,
+        color-mix(in srgb, var(--chip, var(--accent)) 11%, #ffffff) 42%,
+        color-mix(in srgb, var(--chip, var(--accent)) 22%, #ffffff) 100%
       );
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.95),
-      inset 0 -2px 3px color-mix(in srgb, var(--accent) 20%, transparent),
+      inset 0 -2px 3px color-mix(in srgb, var(--chip, var(--accent)) 20%, transparent),
       0 1px 2px rgba(107, 95, 87, 0.12),
       0 5px 10px -4px rgba(107, 95, 87, 0.18);
   }
@@ -396,9 +432,9 @@ body {
       ),
       linear-gradient(
         155deg,
-        color-mix(in srgb, var(--accent-lys) 85%, #ffffff) 0%,
-        var(--accent) 55%,
-        var(--accent-hover) 100%
+        color-mix(in srgb, var(--chip, var(--accent)) 62%, #ffffff) 0%,
+        var(--chip, var(--accent)) 55%,
+        color-mix(in srgb, var(--chip, var(--accent)) 82%, #000000) 100%
       );
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.28),
@@ -476,6 +512,34 @@ body {
     );
   }
 
+  /* SKELETTET — fladen, der holder pladsen, mens der hentes.
+     Et skimmer er en gradient, der VANDRER, og ikke en flade, der blinker:
+     en puls i opacitet trækker øjet til sig og føles langsommere end den er.
+     Bevægelsen slås fra af `prefers-reduced-motion` sammen med alt andet, og
+     så står fladen roligt tilbage — den holder stadig pladsen, som er dens
+     egentlige opgave. */
+  .skelet {
+    background-color: var(--muted-bg);
+    background-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.65) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    background-repeat: no-repeat;
+    animation: skelet-skin 1.4s ease-in-out infinite;
+  }
+
+  @keyframes skelet-skin {
+    from {
+      background-position: -120% 0;
+    }
+    to {
+      background-position: 220% 0;
+    }
+  }
+
   /* Et meget svagt teal-skær bag et fremhævet element. Lav opacitet med
      vilje: det skal kunne mærkes uden at kunne ses som en farve. */
   .teal-skaer {
@@ -502,4 +566,33 @@ body {
       scroll-behavior: auto !important;
     }
   }
+}
+
+/*
+  PANELETS FLADE ER NEUTRAL — MARKETINGSITETS ER DET IKKE.
+
+  Råhvid (#f6f4ee) er sitets grund og skal blive: den er varm, den klæder
+  beigen, og den er husets ansigt udadtil. Inde i panelet gjorde den noget
+  andet. Et arbejdsredskab, man sidder i hver dag, med hvide kort på en creme
+  grund og beige streger, læses som papir — og dét er præcis afstanden mellem
+  "administrationsside" og "produkt".
+
+  LØSNINGEN ER ET OMRÅDE OG IKKE EN SØGE-OG-ERSTAT. Klassen sidder på
+  dashboardets yderste element (sidebjælke OG indhold), og CSS-variabler
+  arver nedad: hvert eneste kort, felt, tabelhoved og chip inde i panelet
+  skifter grund med det samme, uden at en eneste komponent skal vide af det.
+  Marketingsiden rører den ikke.
+
+  TALLENE: grunden er en meget lys, næsten neutral grå med et strejf varme
+  (#f5f6f7), så den ikke bliver klinisk blå ved siden af petroleumsaccenten.
+  Stregen (#e3e6e8) er kølet tilsvarende — en beige streg på en grå grund er
+  dét, der får en flade til at se sammenklistret ud. `--muted` trækkes fra
+  varm (#5f5b55) til neutral (#5c6166); begge klarer 7:1 på hvidt.
+*/
+.app-flade {
+  --app-bg: #f5f6f7;
+  --border: #e3e6e8;
+  --muted: #5c6166;
+  --muted-bg: #eef0f2;
+  --surface-subtle: #f9fafb;
 }

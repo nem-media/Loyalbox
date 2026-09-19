@@ -321,7 +321,7 @@ export function ProgramWizard({
               styrer du med knappen øverst på kortets side.
             </p>
           ) : (
-            <label className="box-shape flex items-start gap-2 border border-accent/30 bg-accent/5 p-4 text-sm">
+            <label className="box-shape flex items-start gap-2 border border-accent/25 bg-accent-tint/60 p-4 text-sm">
               <input type="checkbox" checked={publishNow} onChange={(e) => setPublishNow(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[var(--accent)]" />
               <span>Aktivér stempelkortet med det samme. Lad være markeret for at gemme som kladde.</span>
             </label>

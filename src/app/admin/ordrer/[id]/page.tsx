@@ -150,7 +150,7 @@ export default async function AdminOrderPage({
       </div>
 
       {erDigital ? (
-        <p className="box-shape mb-6 border border-accent/30 bg-accent/5 p-4 text-sm">
+        <p className="box-shape mb-6 border border-accent/25 bg-card p-4 text-sm shadow-[var(--hoejde-1)]">
           <strong>Digital vare.</strong> Der skal hverken trykkes, pakkes eller
           sendes noget. Kunden har fået adgang til platformen og bruger sit
           eget LoyalSum-link og sin QR-kode fra dashboardet.
