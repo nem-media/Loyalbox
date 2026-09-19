@@ -10,11 +10,35 @@
  * en familie og ikke som hentet et tilfældigt sted fra.
  */
 
+/**
+ * DET AKTIVE PUNKT FÅR EN FYLDT KROP — OG KUN DET.
+ *
+ * Duotone virker på et nøgletalskort, fordi feltet er 44 px. I menuen er
+ * ikonet 18, og en fyldt krop på TI punkter på én gang bliver til ti klatter
+ * i en spalte: der er ikke flade nok til både masse og detalje, når alle
+ * råber. På ÉT punkt er det omvendt præcis dét, der skal ske — markeringen
+ * skal kunne ses på en halv meters afstand, og en flade ses før en streg.
+ *
+ * Kroppen er derfor en EGEN form pr. ikon og ikke en fyldning af tegningen.
+ * En automatisk `fill` på de samme stier ville virke på kortene og boblerne,
+ * men abonnementets to buer ville blive til to linser og spørgsmålstegnet i
+ * Hjælp til en klat — begge dele læses som et ikon, der er gået i stykker.
+ *
+ * Stregen bliver samtidig en anelse kraftigere (2 mod 1,75). Det er under en
+ * kvart pixel ved 18 px og kan ikke ses som tykkelse; det, der KAN ses, er at
+ * ikonet holder sin vægt mod den fyldte krop bagved i stedet for at
+ * forsvinde i den.
+ */
 function Icon({
   children,
+  krop,
+  aktiv,
   className,
 }: {
   children: React.ReactNode;
+  /** Silhuetten, der fyldes, når punktet er aktivt. */
+  krop?: React.ReactNode;
+  aktiv?: boolean;
   className?: string;
 }) {
   return (
@@ -22,23 +46,38 @@ function Icon({
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1.75}
+      strokeWidth={aktiv ? 2 : 1.75}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
       className={className ?? "h-[18px] w-[18px] shrink-0"}
     >
+      {aktiv && krop ? (
+        <g fill="currentColor" stroke="none" opacity={0.2}>
+          {krop}
+        </g>
+      ) : null}
       {children}
     </svg>
   );
 }
 
-type P = { className?: string };
+type P = { className?: string; aktiv?: boolean };
 
 /** Oversigt — felter med tal. */
 export function OverviewIcon(p: P) {
   return (
-    <Icon {...p}>
+    <Icon
+      {...p}
+      krop={
+        <>
+          <rect x="3" y="3" width="7.5" height="7.5" rx="1.5" />
+          <rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5" />
+          <rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5" />
+          <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5" />
+        </>
+      }
+    >
       <rect x="3" y="3" width="7.5" height="7.5" rx="1.5" />
       <rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5" />
       <rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5" />
@@ -50,7 +89,10 @@ export function OverviewIcon(p: P) {
 /** Standere — skiltet på disken. */
 export function StandIcon(p: P) {
   return (
-    <Icon {...p}>
+    <Icon
+      {...p}
+      krop={<rect x="4.5" y="3" width="15" height="11" rx="1.5" />}
+    >
       <rect x="4.5" y="3" width="15" height="11" rx="1.5" />
       <path d="M9 8.5h6M9 11h3.5" />
       <path d="M9 17.5 8 21h8l-1-3.5" />
@@ -62,7 +104,7 @@ export function StandIcon(p: P) {
 /** Stempelkort — kortet med stempler. */
 export function StampCardIcon(p: P) {
   return (
-    <Icon {...p}>
+    <Icon {...p} krop={<rect x="2.5" y="5" width="19" height="14" rx="2" />}>
       <rect x="2.5" y="5" width="19" height="14" rx="2" />
       <circle cx="7.5" cy="12" r="1.75" />
       <circle cx="12" cy="12" r="1.75" />
@@ -74,7 +116,7 @@ export function StampCardIcon(p: P) {
 /** Opslag — det delbare billede. */
 export function PostIcon(p: P) {
   return (
-    <Icon {...p}>
+    <Icon {...p} krop={<rect x="3" y="4" width="18" height="14" rx="2" />}>
       <rect x="3" y="4" width="18" height="14" rx="2" />
       <path d="m3 14.5 4.5-4 4 3.5 3-2.5L21 16" />
       <circle cx="8.5" cy="8.5" r="1.25" />
@@ -85,9 +127,19 @@ export function PostIcon(p: P) {
 /** Feedback — beskeden fra kunden. */
 export function FeedbackBubbleIcon(p: P) {
   return (
-    <Icon {...p}>
+    <Icon
+      {...p}
+      krop={
+        <path d="M21 12.5a7.5 7.5 0 0 1-7.5 7.5H8l-4 3v-4.6A7.5 7.5 0 0 1 3 12.5 7.5 7.5 0 0 1 10.5 5h3A7.5 7.5 0 0 1 21 12.5Z" />
+      }
+    >
       <path d="M21 12.5a7.5 7.5 0 0 1-7.5 7.5H8l-4 3v-4.6A7.5 7.5 0 0 1 3 12.5 7.5 7.5 0 0 1 10.5 5h3A7.5 7.5 0 0 1 21 12.5Z" />
-      <path d="M8.5 12h7" />
+      {/* TO LINJER OG IKKE ÉN. Én vandret streg midt i en boble læses som et
+          MINUS ved 18 px — en besked, der er slettet, snarere end en besked.
+          To linjer i forskellig længde er tekstens egen silhuet, og det er
+          den, øjet genkender. */}
+      <path d="M8.2 10.6h7.6" />
+      <path d="M8.2 14h4.4" />
     </Icon>
   );
 }
@@ -95,7 +147,15 @@ export function FeedbackBubbleIcon(p: P) {
 /** Personale — flere mennesker. */
 export function StaffIcon(p: P) {
   return (
-    <Icon {...p}>
+    <Icon
+      {...p}
+      krop={
+        <>
+          <circle cx="9" cy="8" r="3.25" />
+          <path d="M3.5 20a5.5 5.5 0 0 1 11 0Z" />
+        </>
+      }
+    >
       <circle cx="9" cy="8" r="3.25" />
       <path d="M3.5 20a5.5 5.5 0 0 1 11 0" />
       <path d="M16 5.4a3.25 3.25 0 0 1 0 5.2" />
@@ -107,7 +167,7 @@ export function StaffIcon(p: P) {
 /** Virksomhedsprofil — butikken. */
 export function StoreIcon(p: P) {
   return (
-    <Icon {...p}>
+    <Icon {...p} krop={<path d="M4 9.5V20h16V9.5Z" />}>
       <path d="M4 9.5V20h16V9.5" />
       <path d="M3 9.5 4.8 4h14.4L21 9.5a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0Z" />
       <path d="M10 20v-5h4v5" />
@@ -118,7 +178,7 @@ export function StoreIcon(p: P) {
 /** Abonnement — kortet der betales med. */
 export function BillingIcon(p: P) {
   return (
-    <Icon {...p}>
+    <Icon {...p} krop={<rect x="2.5" y="5" width="19" height="14" rx="2" />}>
       <rect x="2.5" y="5" width="19" height="14" rx="2" />
       <path d="M2.5 9.5h19" />
       <path d="M6 14.5h4" />
@@ -133,6 +193,11 @@ export function BillingIcon(p: P) {
  * "oversigt" (se `OverviewIcon` lige ovenfor, som er præcis det), mens et led
  * kun kan betyde én ting. Betydningen her er destinationen, ikke koden.
  */
+/*
+ * LinkIcon har BEVIDST ingen fyldt krop: to åbne buer fyldt op bliver til to
+ * linser, der ikke ligner et kædeled. Punktet er heller ikke i hovedmenuen —
+ * ikonet bruges inde på en side — så der er ingen aktiv tilstand at tegne.
+ */
 export function LinkIcon(p: P) {
   return (
     <Icon {...p}>
@@ -145,7 +210,7 @@ export function LinkIcon(p: P) {
 /** Hjælp — spørgsmålet. */
 export function HelpIcon(p: P) {
   return (
-    <Icon {...p}>
+    <Icon {...p} krop={<circle cx="12" cy="12" r="9" />}>
       <circle cx="12" cy="12" r="9" />
       <path d="M9.6 9.4a2.5 2.5 0 1 1 3.3 2.4c-.6.2-.9.7-.9 1.3v.4" />
       <path d="M12 16.8h.01" />
@@ -156,7 +221,7 @@ export function HelpIcon(p: P) {
 /** Søg — den daglige handling: find kunden. */
 export function SearchIcon(p: P) {
   return (
-    <Icon {...p}>
+    <Icon {...p} krop={<circle cx="11" cy="11" r="6.5" />}>
       <circle cx="11" cy="11" r="6.5" />
       <path d="m16 16 4.5 4.5" />
     </Icon>
@@ -184,7 +249,7 @@ export function SearchIcon(p: P) {
  */
 export function SubscriptionIcon(p: P) {
   return (
-    <Icon {...p}>
+    <Icon {...p} krop={<circle cx="12" cy="12" r="8" />}>
       <path d="M20 12a8 8 0 0 1-13.6 5.7" />
       <path d="M4 12a8 8 0 0 1 13.6-5.7" />
       <path d="M17.6 3v3.3h-3.3" />
@@ -203,7 +268,12 @@ export function SubscriptionIcon(p: P) {
  */
 export function ReputationIcon(p: P) {
   return (
-    <Icon {...p}>
+    <Icon
+      {...p}
+      krop={
+        <path d="M12 2.75 4.75 5.5v5.4c0 4.4 3 8.1 7.25 9.35 4.25-1.25 7.25-4.95 7.25-9.35V5.5Z" />
+      }
+    >
       <path d="M12 2.75 4.75 5.5v5.4c0 4.4 3 8.1 7.25 9.35 4.25-1.25 7.25-4.95 7.25-9.35V5.5Z" />
       <path d="M12 8.6l1.35 2.75 3.03.44-2.19 2.13.52 3.02L12 15.51l-2.71 1.43.52-3.02-2.19-2.13 3.03-.44Z" />
     </Icon>

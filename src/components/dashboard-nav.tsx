@@ -102,9 +102,12 @@ export function DashboardNav({ sections }: { sections: NavSection[] }) {
                     : "text-foreground/70 hover:bg-accent-tint/50 hover:text-foreground",
                 )}
               >
+                {/* `aktiv` tænder ikonets fyldte krop — se `nav-icons.tsx`
+                    for hvorfor kun ét punkt ad gangen må have den. */}
                 <Ikon
+                  aktiv={aktiv}
                   className={cn(
-                    "h-[18px] w-[18px] shrink-0",
+                    "h-[19px] w-[19px] shrink-0",
                     aktiv ? "text-accent" : "text-muted",
                   )}
                 />
