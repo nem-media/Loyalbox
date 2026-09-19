@@ -448,3 +448,27 @@ export function CustomRewardIcon({ className }: IconProps) {
     </Svg>
   );
 }
+
+/**
+ * Stjerne — samme kurve som `Stars`, så et stjerneikon i et ikonfelt og
+ * stjernerne på et anmeldelseskort er den SAMME form. To forskellige stjerner
+ * på samme skærm er dét, der får et ikonsæt til at ligne noget klippet
+ * sammen; formen står derfor kun ét sted i hver af de to filer, og de to er
+ * ens ned til kontrolpunkterne.
+ */
+export function StarIcon({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={className}
+    >
+      <path d="M11.48 3.5a.56.56 0 0 1 1.04 0l2.12 5.11 5.52.44c.5.04.7.66.32.99l-4.2 3.6 1.28 5.39a.56.56 0 0 1-.84.6L12 16.98l-4.72 3.25a.56.56 0 0 1-.84-.6l1.28-5.39-4.2-3.6a.56.56 0 0 1 .32-.99l5.52-.44 2.12-5.11Z" />
+    </svg>
+  );
+}

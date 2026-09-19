@@ -6,6 +6,12 @@ import { PageHeader, Sektion } from "@/components/dashboard-shell";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Stat } from "@/components/ui/stat";
 import { PeriodPicker } from "@/components/period-picker";
+import {
+  NewCustomersIcon,
+  ReturningIcon,
+  StampIcon,
+  RewardIcon,
+} from "@/components/illustrations";
 import { EmptyLine } from "@/components/ui/empty-state";
 import { ButtonLink } from "@/components/ui/button";
 import { TXN_TYPE_LABELS } from "@/lib/loyalty/constants";
@@ -157,24 +163,28 @@ export default async function LoyaltyOverviewPage({
       <Sektion titel="Medlemmer og stempler">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Stat
+            icon={NewCustomersIcon}
             label="Nye medlemmer"
             value={r.newMembers}
             sub={`${r.totalMembers} i alt`}
             trend={{ previous: forrige.newMembers, label: siden }}
           />
           <Stat
+            icon={ReturningIcon}
             label="Aktive medlemmer"
             value={r.activeMembers}
             sub="Med stempel i perioden"
             trend={{ previous: forrige.activeMembers, label: siden }}
           />
           <Stat
+            icon={StampIcon}
             label="Stempler givet"
             value={r.stampsGiven}
             sub={r.stampsRemoved ? `${r.stampsRemoved} fjernet` : undefined}
             trend={{ previous: forrige.stampsGiven, label: siden }}
           />
           <Stat
+            icon={RewardIcon}
             label="Belønninger indløst"
             value={r.rewardsRedeemed}
             sub={`${r.rewardsEarned} optjent`}

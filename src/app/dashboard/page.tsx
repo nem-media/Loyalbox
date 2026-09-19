@@ -4,6 +4,11 @@ import { getCompanyStats, getAdresseStats, efterAktivitet } from "@/lib/data";
 import { Table, THead, TBody, TR, TH, TD } from "@/components/ui/table";
 import { PageHeader, Sektion } from "@/components/dashboard-shell";
 import { FeedbackBubbleIcon, StandIcon } from "@/components/nav-icons";
+import {
+  ScanIcon,
+  ShareExperienceIcon,
+  StarIcon,
+} from "@/components/illustrations";
 import { Stat } from "@/components/ui/stat";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { FeedbackList } from "@/components/feedback-list";
@@ -209,18 +214,21 @@ export default async function DashboardPage({
               {/* Tallet er perioden, underteksten er totalen. Uden totalen ville
                 et skift til "7 dage" se ud som om noget var forsvundet. */}
               <Stat
+                icon={ScanIcon}
                 label="Scanninger"
                 value={stats.scans.period}
                 sub={`${stats.scans.total} i alt`}
                 trend={{ previous: stats.scans.previous, label: siden }}
               />
               <Stat
+                icon={FeedbackBubbleIcon}
                 label="Feedbacks"
                 value={stats.feedback.period}
                 sub={`${stats.feedback.total} i alt`}
                 trend={{ previous: stats.feedback.previous, label: siden }}
               />
               <Stat
+                icon={ShareExperienceIcon}
                 label="Klik til anmeldelse"
                 value={stats.clicks.period}
                 sub={`${stats.clicks.total} i alt`}
@@ -229,6 +237,7 @@ export default async function DashboardPage({
               {/* Ratingen får ingen pil: et gennemsnit svinger på decimaler, og
                 en pil på 4,3 mod 4,4 ville råbe op om ingenting. */}
               <Stat
+                icon={StarIcon}
                 label="Gns. rating"
                 value={stats.avgRating ? stats.avgRating.toFixed(1) : "–"}
                 sub={

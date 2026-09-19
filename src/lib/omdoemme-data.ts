@@ -37,6 +37,15 @@ export interface OmdoemmeProfil extends EksternProfil {
 export interface OmdoemmeOverblik {
   omdoemme: Omdoemme;
   profiler: OmdoemmeProfil[];
+  /**
+   * Butikkens egne stjerner, fordelt på 1-5.
+   *
+   * Den blev i forvejen hentet for at give scoren og blev bare ikke givet
+   * videre. Et gennemsnit uden en fordeling siger ikke, hvilken forretning
+   * man driver: fyrre firestjernede og tyve femmere plus fem ettere kan give
+   * samme snit og er to vidt forskellige situationer.
+   */
+  fordeling: Stjernefordeling;
   /** Seneste snapshot FØR i dag. Null hvis der ikke er nogen historik endnu. */
   forrige: {
     score: number;
@@ -154,6 +163,11 @@ export async function hentOmdoemme(
   return {
     omdoemme,
     profiler,
+    /* Fordelingen blev regnet ud for at give scoren og blev aldrig givet
+       videre. Den er butikkens egne tal og koster ingen ekstra forespørgsel
+       — se `FordelingSoejler` for hvorfor et gennemsnit uden en fordeling
+       ikke siger, hvilken forretning man driver. */
+    fordeling: fordeling ?? TOM_FORDELING,
     forrige: f
       ? {
           score: f.score,
