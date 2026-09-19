@@ -28,6 +28,7 @@ import {
   EARN_MODEL_HELP,
   type EarnModel,
 } from "@/lib/loyalty/constants";
+import { ProduktStribe } from "@/components/produkt-stribe";
 
 /**
  * SEO-landingsside for "stempelkort" / "digitalt stempelkort".
@@ -553,6 +554,11 @@ export default function StempelkortPage() {
             </div>
           </div>
         </section>
+
+        {/* ------------------------------------------- produkterne, lige her */}
+        {/* Den købeklare skal ikke lede. Se ProduktStribe for hvorfor det er
+            en stribe og ikke kataloggitteret. */}
+        <ProduktStribe aktuel="loyalsum-komplet" />
 
         {/* ------------------------------------- hvad er et digitalt stempelkort */}
         <section className="bg-background">

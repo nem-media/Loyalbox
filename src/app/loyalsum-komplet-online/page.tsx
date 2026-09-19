@@ -14,6 +14,7 @@ import {
   ProgressIcon,
   ReturningIcon,
 } from "@/components/illustrations";
+import { ProduktStribe } from "@/components/produkt-stribe";
 
 /**
  * Salgsside for LoyalSum Komplet Online.
@@ -269,6 +270,11 @@ export default function KompletOnlinePage() {
             </div>
           </div>
         </section>
+
+        {/* ------------------------------------------- produkterne, lige her */}
+        {/* Den købeklare skal ikke lede. Se ProduktStribe for hvorfor det er
+            en stribe og ikke kataloggitteret. */}
+        <ProduktStribe aktuel="loyalsum-komplet-online" />
 
         {/* -------------------------------------------- hvad er produktet */}
         <section className="px-4 py-16">

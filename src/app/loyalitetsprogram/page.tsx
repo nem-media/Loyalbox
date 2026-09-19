@@ -19,6 +19,7 @@ import {
   PercentOffIcon,
   ServiceIcon,
 } from "@/components/illustrations";
+import { ProduktStribe } from "@/components/produkt-stribe";
 
 /**
  * SEO- og salgsside for "loyalitetsprogram" / "pointprogram".
@@ -342,6 +343,11 @@ export default function LoyalitetsprogramPage() {
             </div>
           </div>
         </section>
+
+        {/* ------------------------------------------- produkterne, lige her */}
+        {/* Den købeklare skal ikke lede. Se ProduktStribe for hvorfor det er
+            en stribe og ikke kataloggitteret. */}
+        <ProduktStribe aktuel="loyalsum-komplet" />
 
         {/* ------------------------------------------- hvad er det */}
         <section className="px-4 py-16">

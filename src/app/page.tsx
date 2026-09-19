@@ -13,6 +13,7 @@ import {
   AutomationIcon,
 } from "@/components/illustrations";
 import { IndustryBadge, type Branche } from "@/components/industry-icons";
+import { ProduktStribe } from "@/components/produkt-stribe";
 
 /* ------------------------------------------------------------------ icons */
 
@@ -273,6 +274,11 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
+        {/* ------------------------------------------- produkterne, lige her */}
+        {/* Den købeklare skal ikke lede. Se ProduktStribe for hvorfor det er
+            en stribe og ikke kataloggitteret. */}
+        <ProduktStribe />
 
         {/* --------------------------------------------------- trust-stribe */}
         <section className="border-t border-border bg-muted-bg">
