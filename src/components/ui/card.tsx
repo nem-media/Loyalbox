@@ -22,9 +22,19 @@ export function Card({
   return (
     <div
       className={cn(
+        /*
+         * KORTET LIGGER PÅ NOGET. Grunden er råhvid, kortet hvidt, og
+         * skyggen er dét, der løfter det fri — stregen alene gav en
+         * indramning og ikke et lag.
+         *
+         * Hover løfter kortet 2 px og gør skyggen dybere i stedet for at
+         * skifte kantfarve alene: et kort, der kun får en turkis streg,
+         * ligner et valgt kort; et, der hæver sig, ligner et, man kan klikke
+         * på. Bevægelsen slås fra af `prefers-reduced-motion`.
+         */
         "box-shape border border-border bg-card shadow-[var(--hoejde-1)]",
         interactive &&
-          "transition-all hover:border-accent/40 hover:shadow-[var(--hoejde-2)]",
+          "transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/30 hover:shadow-[var(--hoejde-2)]",
         className,
       )}
       {...props}

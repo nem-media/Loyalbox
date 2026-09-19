@@ -28,8 +28,14 @@ export function IkonChip({
   return (
     <span
       aria-hidden="true"
+      /*
+       * `ikon-felt` (globals.css) giver gradienten, den lyse inderkant og den
+       * meget lave skygge. Før var chippen `bg-accent/8` — en flad plet i en
+       * farve, der skifter alt efter hvad der ligger under. Nu er den en
+       * flade med lys på, og tinten er blandet ét sted.
+       */
       className={cn(
-        "grid shrink-0 place-items-center rounded-full bg-accent/8 text-accent",
+        "ikon-felt grid shrink-0 place-items-center rounded-full text-accent",
         stor ? "h-11 w-11" : "h-7 w-7",
         className,
       )}

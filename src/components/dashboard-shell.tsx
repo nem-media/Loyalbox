@@ -39,9 +39,21 @@ export function DashboardShell({
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
-      <aside className="flex shrink-0 flex-col border-b border-white/10 bg-dark text-dark-fg md:w-64 md:border-b-0 md:border-r">
+      {/*
+        MENUEN ER LYS OG IKKE MØRK, OG DET ÆNDRER HVAD DER BÆRER DYBDEN.
+        Den mørke menu var det eneste element på skærmen med en grund at stå
+        på, og den løste dermed et problem, kortene havde: de lå ikke PÅ
+        noget. Det problem er løst et andet sted nu — grunden er råhvid,
+        kortene hvide, og højdeskalaen løfter dem fri.
+
+        Tilbage stod en sort spalte ved siden af en lys flade, altså to
+        systemer klistret sammen. Menuen er derfor hvid med en fin streg og
+        en meget lav skygge indad mod indholdet: den bliver stadig læst som
+        et lag foran, men nu i samme materiale som resten.
+      */}
+      <aside className="flex shrink-0 flex-col border-b border-border bg-card md:w-64 md:border-b-0 md:border-r md:shadow-[1px_0_0_rgba(30,28,26,0.02),4px_0_24px_-12px_rgba(30,28,26,0.08)]">
         <div className="flex items-center justify-between p-4 md:pb-6">
-          <Logo image="light" prioritet />
+          <Logo image="dark" prioritet />
 
           {/* På mobil er brugerblokken i bunden skjult, og dermed var der
               INGEN vej ud af sin egen konto på en telefon. Niveau og Log ud
@@ -49,7 +61,7 @@ export function DashboardShell({
           <div className="flex items-center gap-2 md:hidden">
             <Badge tone="accent">{roleLabel}</Badge>
             <form action={signout}>
-              <button className="box-shape px-2.5 py-1.5 text-xs text-white/70 transition-colors hover:bg-white/10 hover:text-white">
+              <button className="btn-shape px-2.5 py-1.5 text-xs text-muted transition-colors hover:bg-accent-tint hover:text-accent">
                 Log ud
               </button>
             </form>
@@ -65,7 +77,7 @@ export function DashboardShell({
           <div className="px-3 pb-2 md:pb-1">
             <Link
               href={quickAction.href}
-              className="btn-shape flex items-center justify-center gap-2 bg-accent px-3 py-2.5 text-sm font-medium text-accent-fg transition-colors hover:bg-accent-hover"
+              className="knap-flade btn-shape flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium text-accent-fg transition-all duration-200 hover:-translate-y-px"
             >
               <SearchIcon className="h-[18px] w-[18px]" />
               {quickAction.label}
@@ -83,28 +95,28 @@ export function DashboardShell({
 
             Vandret polstring holdes på 3 som menupunkternes, så navnet står
             på linje med dem. Kun luften over og under er øget. */}
-        <div className="mt-5 hidden border-t border-white/10 px-3 pb-3 pt-4 md:block">
+        <div className="mt-6 hidden border-t border-border px-3 pb-3 pt-4 md:block">
           <div className="flex items-center gap-2.5 px-1">
             <span
               aria-hidden="true"
-              className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/10 text-xs font-semibold text-white"
+              className="ikon-felt grid h-9 w-9 shrink-0 place-items-center rounded-full text-xs font-semibold text-accent"
             >
               {initialer}
             </span>
             <div className="min-w-0">
               {companyName ? (
-                <p className="truncate text-sm font-medium text-white">
+                <p className="truncate text-sm font-medium text-dark">
                   {companyName}
                 </p>
               ) : null}
-              <p className="truncate text-xs text-white/50">{email}</p>
+              <p className="truncate text-xs text-muted">{email}</p>
             </div>
           </div>
 
           <div className="mt-3 flex items-center justify-between gap-2">
             <Badge tone="neutral">{roleLabel}</Badge>
             <form action={signout}>
-              <button className="box-shape px-2.5 py-1.5 text-xs text-white/60 transition-colors hover:bg-white/10 hover:text-white">
+              <button className="btn-shape px-2.5 py-1.5 text-xs text-muted transition-colors hover:bg-accent-tint hover:text-accent">
                 Log ud
               </button>
             </form>
@@ -114,7 +126,19 @@ export function DashboardShell({
 
       {/* `bg-app-bg` og ikke `bg-background`: kortene er hvide, så grunden
           skal være noget andet end hvid, ellers ligger de ikke PÅ noget. */}
-      <main id="indhold" className="panel flex-1 bg-app-bg">
+      {/*
+        `min-w-0` ER DEN ENE KLASSE, DER HOLDER PANELET INDEN FOR SKÆRMEN.
+        `<main>` er et flex-element, og et flex-element har `min-width: auto`
+        — altså mindst så bredt som sit eget indhold. Indholdet rummer tabeller
+        med `min-w-[34rem]`, så hovedspalten voksede til 622 px ved siden af en
+        menu på 256, og HELE panelet kunne skubbes vandret ved 768 px (målt i
+        produktion: scrollWidth 862 mod 768 — fejlen er ældre end redesignet).
+
+        Med `min-w-0` må spalten blive smallere end sit indhold, og så træder
+        tabellens egen vandrette scroll i kraft, præcis som den er bygget til.
+        Det er ét sted og gælder hver eneste side i dashboardet.
+      */}
+      <main id="indhold" className="panel min-w-0 flex-1 bg-app-bg">
         {/*
           SUPPORTBANNERET LIGGER UDEN FOR max-w-5xl og i fuld bredde, så det
           ikke kan forveksles med sidens eget indhold. Det er en advarsel om,
@@ -141,7 +165,7 @@ export function DashboardShell({
             </div>
           </div>
         ) : null}
-        <div className="mx-auto max-w-5xl p-4 md:p-8">{children}</div>
+        <div className="mx-auto max-w-5xl p-4 md:p-10">{children}</div>
       </main>
     </div>
   );
@@ -179,10 +203,13 @@ export function Sektion({
   children: React.ReactNode;
 }) {
   return (
-    <section id={id} className={cn("mt-8 scroll-mt-6", className)}>
-      <div className="mb-3 flex items-center justify-between gap-3">
+    <section id={id} className={cn("mt-10 scroll-mt-6", className)}>
+      <div className="mb-3.5 flex items-center justify-between gap-3">
         <h2 className="etiket flex items-center gap-2">
-          <span aria-hidden="true" className="h-3 w-0.5 shrink-0 bg-accent" />
+          <span
+            aria-hidden="true"
+            className="h-3.5 w-1 shrink-0 rounded-full bg-gradient-to-b from-accent-lys to-accent"
+          />
           {titel}
         </h2>
         {link ? (
@@ -212,12 +239,21 @@ export function PageHeader({
     // Stregen under sidehovedet er ikke pynt: uden den startede indholdet
     // koldt, og overskriften flød sammen med det første kort. Nu er der en
     // tydelig zone at læse først.
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-3 border-b border-border pb-5">
+    <div className="mb-7 flex flex-wrap items-end justify-between gap-4 border-b border-border pb-6">
       <div>
         {/* Navy, samme farve som menuen. Se `CardTitle` for hvorfor. */}
-        <h1 className="text-2xl font-bold tracking-tight text-dark">{title}</h1>
+        {/* SIDETITLEN SKAL HAVE VÆGT. 2xl/bold ved siden af et nøgletal i
+            2,5rem gjorde tallet til sidens overskrift og overskriften til en
+            mellemrubrik. 1,75rem og en strammere bogstavafstand giver den
+            autoriteten tilbage uden at blive en plakat — det er et panel,
+            man arbejder i, ikke en forside. */}
+        <h1 className="text-[1.75rem] font-bold leading-tight tracking-[-0.02em] text-dark">
+          {title}
+        </h1>
         {description ? (
-          <p className="mt-1.5 text-sm text-muted">{description}</p>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
+            {description}
+          </p>
         ) : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}

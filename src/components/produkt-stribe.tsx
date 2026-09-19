@@ -87,7 +87,7 @@ export function ProduktStribe({
                 {erAktuel ? (
                   <div
                     aria-current="page"
-                    className="box-shape h-full border border-accent bg-card p-3.5"
+                    className="box-shape h-full border border-accent bg-card p-4 shadow-[var(--hoejde-2)] ring-1 ring-accent/15"
                   >
                     {indhold}
                     <span className="mt-2 block text-xs font-medium text-accent">
@@ -97,7 +97,7 @@ export function ProduktStribe({
                 ) : (
                   <Link
                     href={`/produkter/${p.slug}`}
-                    className="box-shape flex h-full flex-col border border-border bg-card p-3.5 transition-colors hover:border-accent"
+                    className="box-shape flex h-full flex-col border border-border bg-card p-4 shadow-[var(--hoejde-1)] transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-[var(--hoejde-2)]"
                   >
                     {indhold}
                     <span className="mt-2 block text-xs font-medium text-accent">

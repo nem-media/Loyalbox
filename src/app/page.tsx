@@ -14,6 +14,7 @@ import {
 } from "@/components/illustrations";
 import { IndustryBadge, type Branche } from "@/components/industry-icons";
 import { ProduktStribe } from "@/components/produkt-stribe";
+import { Udtalelser } from "@/components/home/udtalelser";
 
 /* ------------------------------------------------------------------ icons */
 
@@ -230,21 +231,35 @@ export default function LandingPage() {
             aria-hidden="true"
             className="absolute inset-0 -z-10"
             style={{
+              /*
+                TRE SKÆR OG IKKE TO. De to beige holdt heroen varm, men
+                accenten fandtes ikke i den — så det første, en besøgende så,
+                var den eneste flade på sitet uden husets egen farve. Det
+                turkise skær ligger LAVT (12 %) og bag produktvisningen til
+                højre, hvor det giver skærmen en glød at stå i frem for at
+                ligge som en farvet plet på en sort flade.
+
+                Alle tre er radiale og uden skarp kant: en gradient, man kan
+                SE, er en gradient for meget.
+              */
               backgroundImage:
-                "radial-gradient(60% 60% at 78% 12%, rgba(180,161,137,0.22), transparent 62%), radial-gradient(55% 55% at 4% 96%, rgba(180,161,137,0.10), transparent 60%)",
+                "radial-gradient(55% 55% at 72% 18%, rgba(78,164,173,0.16), transparent 62%), radial-gradient(60% 60% at 82% 6%, rgba(180,161,137,0.18), transparent 62%), radial-gradient(55% 55% at 4% 96%, rgba(180,161,137,0.10), transparent 60%)",
             }}
           />
           <div className="mx-auto max-w-side px-4 py-20 sm:py-28">
             <div className="grid items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
               <div>
-                <span className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white ring-1 ring-white/15">
+                <span className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/8 px-3.5 py-1.5 text-xs font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] ring-1 ring-white/15 backdrop-blur-sm">
                   <span
-                    className="h-1.5 w-1.5 rounded-full bg-secondary"
+                    className="h-1.5 w-1.5 rounded-full bg-secondary shadow-[0_0_8px_rgba(180,161,137,0.8)]"
                     aria-hidden="true"
                   />
                   Anmeldelser · Synlighed · Feedback · Loyalitet
                 </span>
-                <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+                {/* Strammere bogstavafstand på de store grader: Geist
+                    spreder sig ved 60 px, og en overskrift, der er bred som
+                    en plakat, ser trykt ud frem for designet. */}
+                <h1 className="text-4xl font-bold tracking-[-0.025em] sm:text-5xl lg:text-[3.75rem] lg:leading-[1.05]">
                   Få flere kunder.{" "}
                   {/* Egen linje fra sm og op, så de to sætninger ikke brækker
                       midt over — på mobil får den lov at flyde. */}
@@ -571,6 +586,13 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
+        {/* ------------------------------------------------------ udtalelser */}
+        {/* Tegner ingenting, når der ikke er godkendte citater — se
+            komponenten. Den står EFTER "sådan kommer du i gang" og før
+            brancherne: et citat virker bedst, når læseren lige har set, hvad
+            det handler om, og endnu ikke har set prisen. */}
+        <Udtalelser />
 
         {/* -------------------------------------------------------- brancher */}
         <section className="border-t border-border bg-muted-bg">

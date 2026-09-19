@@ -1,4 +1,5 @@
 import { Card } from "./card";
+import { IkonChip } from "./ikon-chip";
 import { cn } from "@/lib/utils";
 
 /**
@@ -72,6 +73,7 @@ export function Stat({
   value,
   sub,
   trend,
+  icon,
   size = "md",
   className,
 }: {
@@ -80,21 +82,43 @@ export function Stat({
   sub?: string;
   /** Kræver at `value` er et tal — ellers er der intet at trække fra. */
   trend?: Trend;
+  /**
+   * VALGFRIT, OG DET SKAL DET BLIVE.
+   *
+   * Et ikon i et hævet felt gør et nøgletal til et kort frem for et tal på en
+   * flade — men kun når ikonet betyder noget. Et vilkårligt tegn ved siden af
+   * hvert tal er dekoration, og otte dekorationer i træk er støj. Kalderen
+   * vælger derfor selv, og de kort, der ikke har et passende tegn, får
+   * ingenting frem for et tilfældigt.
+   */
+  icon?: React.ComponentType<{ className?: string }>;
   size?: "sm" | "md";
   className?: string;
 }) {
   const lille = size === "sm";
 
   return (
-    <Card className={cn(lille ? "p-4" : "p-5", className)}>
+    <Card className={cn("relative", lille ? "p-4" : "p-5", className)}>
+      {icon ? (
+        <IkonChip
+          icon={icon}
+          size={lille ? "sm" : "lg"}
+          className={cn("absolute right-4", lille ? "top-3" : "top-4")}
+        />
+      ) : null}
       {/* Etiketstilen frem for endnu en linje brødtekst. Da label og tal var
           samme skriftsnit i to nærliggende størrelser, havde kortet én
           stemme, og tallet skilte sig ikke ud som DET, man kom for. */}
-      <p className={cn("etiket", lille && "text-[10px]")}>{label}</p>
+      <p className={cn("etiket", lille && "text-[10px]", icon && "pr-12")}>
+        {label}
+      </p>
       <p
         className={cn(
-          "mt-2 font-semibold tracking-tight tabular-nums",
-          lille ? "text-xl" : "text-4xl",
+          // Tallet er dét, man kom for, og det må gerne have autoritet.
+          // `text-[2.5rem]` frem for `text-4xl` (2,25rem) og en strammere
+          // linjehøjde, så kortets højde ikke vokser af det.
+          "mt-2 font-semibold leading-[1.1] tracking-tight tabular-nums text-dark",
+          lille ? "text-xl" : "text-[2.5rem]",
         )}
       >
         {value}
