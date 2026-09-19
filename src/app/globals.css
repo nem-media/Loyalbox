@@ -98,24 +98,67 @@
      er meningen med at have det ét sted. */
   --bredde-side: 1352px;
 
+  /* ---------------------------------------------------------------------
+     OVERFLADER OG TINTS — LAGDELING FREM FOR FLADE FARVEFELTER
+
+     Panelet havde to flader: sidens grund og det hvide kort. Alt andet — et
+     tabelhoved, en stribe, et ikonfelt — blev tegnet med en af de to eller
+     med accenten i 8-15 %. Resultatet var enten usynligt eller en stor
+     turkis firkant, og dét er forskellen på et produkt, der ser designet ud,
+     og et, der ser tegnet ud.
+
+     `--surface-subtle` er den tredje flade: lysere end grunden, mørkere end
+     kortet. Den bruges INDE i et kort (tabelhoved, stribe, indlejret felt),
+     hvor et kort på et kort ellers ikke kunne skelnes.
+
+     `--accent-tint` er accenten som FLADE. Den er blandet én gang her frem
+     for at stå som `bg-accent/8` tre dusin steder: en alfa oven på en varm
+     grund giver en anden farve end den samme alfa oven på hvidt, så det
+     aktive menupunkt og ikonfeltet i et kort havde hver sin nuance. Tallene
+     er accenten blandet mod råhvidt (8 % og 20 %) og skrevet ud som hex, så
+     de er de samme uanset hvad der ligger under.
+
+     `--accent-lys` er LOGOETS turkis (#4ea4ad) og ikke sitets accent. Den
+     bruges KUN som lys ende i en gradient og aldrig som tekst: den giver
+     3,0:1 på hvidt og må derfor aldrig bære en bogstav. */
+  --surface-subtle: #faf8f4;
+  --accent-tint: #eaf1f2;
+  --accent-tint-staerk: #d5e5e8;
+  --accent-lys: #4ea4ad;
+
   --radius: 0.75rem; /* fallback til bokse der endnu ikke bruger .box-shape */
-  --radius-shape: 0 6px 6px 6px; /* delt form: skarp øverste venstre, 6px på de tre øvrige hjørner */
+  /* SIGNATURFORMEN BLEV STØRRE, IKKE ANDERLEDES.
+     Det skarpe øverste venstre hjørne er husets mærke og bliver — men 6 px
+     på de tre øvrige er en radius fra 2015: på et kort på 320 px læses den
+     som "firkant med lidt slebne kanter", og det er halvdelen af grunden til,
+     at fladerne lignede rektangler frem for kort. 16 px er dér, hvor et kort
+     begynder at se blødt ud uden at blive en pille.
+
+     TO STØRRELSER OG IKKE ÉN: knapper, små felter og tælleknapper er
+     28-44 px høje, og 16 px på dem ville æde hele siden af elementet. De har
+     10 px, som er det samme forhold på en mindre flade. */
+  --radius-shape: 0 16px 16px 16px;
+  --radius-shape-btn: 0 10px 10px 10px;
 
   /* HØJDESKALA — tre trin, ikke ét.
-     Hver skygge er TO lag: en stram, mørk tæt på kanten (den, der siger
-     "kanten er hævet") og en blød, bred nedenunder (den, der siger "der er
-     luft under"). Ét lag giver en drop shadow; to giver dybde.
+     Hver skygge er FLERE lag: en stram, næsten usynlig tæt på kanten (den,
+     der siger "kanten er hævet"), og en eller to brede nedenunder (dem, der
+     siger "der er luft under"). Ét lag giver en drop shadow; flere giver
+     dybde. Opaciteten er LAV med vilje — en skygge, man kan se som en grå
+     kant, er en 2012-skygge; en moderne flade hviler på lys, ikke på sort.
      Tonet med navy (#19375c) og ikke sort — en sort skygge på en varm grund
      bliver grå og beskidt.
      BEVIDST IKKE i `@theme inline`: navnene `--shadow-sm/md/lg` ville
      overskrive Tailwinds egne `shadow-*`-utilities overalt i projektet.
      Bruges som `shadow-[var(--hoejde-1)]`. */
   --hoejde-1:
-    0 1px 2px rgba(30, 28, 26, 0.06), 0 1px 3px -1px rgba(30, 28, 26, 0.05);
+    0 1px 2px rgba(30, 28, 26, 0.04), 0 2px 8px -3px rgba(30, 28, 26, 0.06);
   --hoejde-2:
-    0 2px 4px rgba(30, 28, 26, 0.06), 0 6px 16px -4px rgba(30, 28, 26, 0.1);
+    0 1px 2px rgba(30, 28, 26, 0.04), 0 4px 10px -4px rgba(30, 28, 26, 0.06),
+    0 12px 28px -10px rgba(30, 28, 26, 0.1);
   --hoejde-3:
-    0 4px 8px rgba(30, 28, 26, 0.07), 0 12px 32px -8px rgba(30, 28, 26, 0.14);
+    0 2px 4px rgba(30, 28, 26, 0.05), 0 10px 20px -8px rgba(30, 28, 26, 0.08),
+    0 26px 50px -16px rgba(30, 28, 26, 0.16);
 }
 
 @theme inline {
@@ -139,6 +182,10 @@
   --color-success-tekst: var(--success-tekst);
   --color-danger-tekst: var(--danger-tekst);
   --color-star-tekst: var(--star-tekst);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-accent-tint: var(--accent-tint);
+  --color-accent-tint-staerk: var(--accent-tint-staerk);
+  --color-accent-lys: var(--accent-lys);
   /* Giver `max-w-side` (og `w-side`) — Tailwinds container-navnerum. */
   --container-side: var(--bredde-side);
 
@@ -165,11 +212,15 @@
   --radius-app: var(--radius);
 }
 
-/* Delt form til knapper OG bokse: skarp øverste venstre, 6px på de tre øvrige hjørner.
-   Ren CSS-shorthand (Tailwinds rounded-utility kan ikke bære en 4-værdi via variabel). */
-.btn-shape,
+/* Husets form: skarp øverste venstre, blødt på de tre øvrige hjørner.
+   Ren CSS-shorthand (Tailwinds rounded-utility kan ikke bære en 4-værdi via
+   variabel). To størrelser — se begrundelsen ved tokenet. */
 .box-shape {
   border-radius: var(--radius-shape);
+}
+
+.btn-shape {
+  border-radius: var(--radius-shape-btn);
 }
 
 * {
@@ -240,5 +291,87 @@ body {
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--muted);
+  }
+}
+
+
+@layer components {
+  /* IKONFELTET — det lille, hævede felt, et ikon står i.
+     Ét sted, fordi det ellers bliver skrevet af på hver side, og fordi den
+     lette dybde er hele pointen: en gradient nedad, en lys inderkant øverst
+     og en meget lav skygge under. Et fladt farvet felt med et ikon i er
+     præcis dét, der læses som "tegnet i Paint"; en flade med lys på ser
+     fysisk ud uden at være en 3D-rendering.
+
+     Kun accenten er i spil, og kun som FLADE — aldrig som tekst. Selve
+     ikonet bærer `--accent`, som klarer 5,47:1 på tinten. */
+  .ikon-felt {
+    background-image: linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--accent-tint) 60%, #ffffff) 0%,
+      var(--accent-tint) 55%,
+      var(--accent-tint-staerk) 100%
+    );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.75),
+      0 1px 2px rgba(30, 28, 26, 0.06);
+  }
+
+  /* Samme greb på mørk bund — heroen og de mørke sektioner. */
+  .ikon-felt-invert {
+    background-image: linear-gradient(
+      160deg,
+      rgba(255, 255, 255, 0.14) 0%,
+      rgba(255, 255, 255, 0.07) 100%
+    );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      0 1px 2px rgba(0, 0, 0, 0.25);
+  }
+
+  /* DEN PRIMÆRE KNAP HAR EN RETNING.
+     En ensfarvet flade er en flade; en meget svag gradient nedad gør den til
+     et emne med lys på. Forskellen mellem de to ender er under 8 % lyshed —
+     nok til at ses, for lidt til at kunne kaldes en farveovergang. Den lyse
+     inderkant foroven er den samme idé som på ikonfeltet.
+     Kontrasten er uændret: hvid på den MØRKESTE ende er stadig 6,2:1. */
+  .knap-flade {
+    background-image: linear-gradient(
+      175deg,
+      color-mix(in srgb, var(--accent) 88%, #ffffff) 0%,
+      var(--accent) 45%,
+      var(--accent-hover) 100%
+    );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.16),
+      0 1px 2px rgba(30, 28, 26, 0.12),
+      0 4px 12px -4px color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+
+  /* Et meget svagt teal-skær bag et fremhævet element. Lav opacitet med
+     vilje: det skal kunne mærkes uden at kunne ses som en farve. */
+  .teal-skaer {
+    background-image: radial-gradient(
+      60% 60% at 50% 0%,
+      color-mix(in srgb, var(--accent-lys) 16%, transparent) 0%,
+      transparent 70%
+    );
+  }
+}
+
+@layer base {
+  /* MICROINTERAKTIONER SKAL KUNNE SLÅS FRA — og det er ikke en venlighed.
+     `prefers-reduced-motion` sættes af folk, der bliver utilpasse af
+     bevægelse. Reglen dækker ALT frem for hver enkelt komponent, fordi en
+     overgang, man skal huske at undtage, bliver glemt på den næste. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }

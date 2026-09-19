@@ -33,8 +33,17 @@ export function Badge({
 }: { tone?: Tone } & React.HTMLAttributes<HTMLSpanElement>) {
   return (
     <span
+      /*
+       * `ring-1 ring-inset` giver chippen en kant i sin EGEN farve, så den
+       * ikke flyder sammen med fladen bagved. Ringen er bevidst ikke en
+       * `border`: en border ville flytte chippens ydermål og dermed
+       * linjehøjden hvert sted, den står i en sætning.
+       *
+       * Prøven `badge-kontrast.test.ts` læser `bg-`- og `text-`-klassen ud af
+       * `tones` nedenfor og regner forholdet — ring-klasser rører den ikke.
+       */
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ring-current/15",
         tones[tone],
         className,
       )}

@@ -56,7 +56,7 @@ export function DashboardNav({ sections }: { sections: NavSection[] }) {
           {i > 0 ? (
             <span
               aria-hidden="true"
-              className="my-1.5 w-px shrink-0 self-stretch bg-white/15 md:hidden"
+              className="my-1.5 w-px shrink-0 self-stretch bg-border md:hidden"
             />
           ) : null}
 
@@ -65,7 +65,7 @@ export function DashboardNav({ sections }: { sections: NavSection[] }) {
             // mobil ville den stå som et punkt, man kunne tro var et link.
             // `.etiket` er den fælles versalstil. Farven overskrives her,
             // fordi etiketten her står på navy og ikke på råhvidt.
-            <p className="etiket mt-5 hidden px-3 pb-1.5 font-semibold text-white/40 md:block">
+            <p className="etiket mt-7 hidden px-3 pb-2 font-semibold md:block">
               {section.title}
             </p>
           ) : null}
@@ -78,17 +78,34 @@ export function DashboardNav({ sections }: { sections: NavSection[] }) {
                 key={item.href}
                 href={item.href}
                 aria-current={aktiv ? "page" : undefined}
+                /*
+                  MENUEN ER LYS, OG DET AKTIVE PUNKT ER DEN ENESTE FLADE.
+                  Da menuen var mørk, bar den sin egen kontrast: alt stod på
+                  navy, og det aktive punkt var bare lysere. På en lys menu
+                  skal markeringen komme fra accenten — tinten som flade,
+                  accenten som tekst OG ikon — og alt andet skal være roligt,
+                  ellers får man ti punkter, der alle råber.
+
+                  Tinten er `--accent-tint` og ikke `bg-accent/10`: en alfa
+                  oven på hvidt og den samme alfa oven på en råhvid grund
+                  giver to forskellige farver, og menuen står på begge dele
+                  (lodret på hvidt, vandret på mobilens lyse stribe).
+
+                  Hover er den SAMME tint i halv styrke frem for en grå:
+                  en neutral hover ved siden af en teal markering ser ud, som
+                  om de to tilstande kommer fra hver sit system.
+                */
                 className={cn(
-                  "box-shape flex items-center gap-2.5 whitespace-nowrap px-3 py-2 text-sm transition-colors",
+                  "btn-shape flex items-center gap-2.5 whitespace-nowrap px-3 py-2.5 text-sm transition-colors",
                   aktiv
-                    ? "bg-white/12 font-medium text-white"
-                    : "text-white/70 hover:bg-white/8 hover:text-white",
+                    ? "bg-accent-tint font-medium text-accent"
+                    : "text-foreground/70 hover:bg-accent-tint/50 hover:text-foreground",
                 )}
               >
                 <Ikon
                   className={cn(
                     "h-[18px] w-[18px] shrink-0",
-                    aktiv ? "text-accent" : "text-white/50",
+                    aktiv ? "text-accent" : "text-muted",
                   )}
                 />
                 {item.label}

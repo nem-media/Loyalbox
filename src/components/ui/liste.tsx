@@ -70,7 +70,10 @@ export function ListeRaekke({
           href={href}
           // Negativ margen, så baggrunden ved hover strækker sig ud til
           // listens kant i stedet for at stoppe i en usynlig indrykning.
-          className="-mx-2 flex flex-1 items-center gap-3 rounded px-2 py-3 transition-colors hover:bg-accent/5"
+          // `btn-shape` og tinten frem for `rounded` + `accent/5`: rækken
+          // får husets form i det små, og tinten er den samme farve uanset
+          // hvad rækken ligger på.
+          className="btn-shape -mx-2 flex flex-1 items-center gap-3 px-2.5 py-3.5 transition-colors hover:bg-accent-tint/70"
         >
           {indhold}
         </Link>

@@ -358,7 +358,20 @@ export default async function DashboardPage({
       {/* De to kort herunder får INGEN fælles sektionsoverskrift: de peger
           hver sit sted hen, og ét navn over begge ville lyve. Her er det
           ikonet, der siger hvor man lander. */}
-      <div className="mt-6 grid items-start gap-6 lg:grid-cols-3">
+      {/*
+        `grid-cols-1` ER NØDVENDIG OG IKKE OVERFLØDIG.
+        Uden den har gitteret ingen `grid-template-columns` under `lg`, og en
+        IMPLICIT kolonne er `auto` — altså mindst så bred som sit bredeste
+        barn. Kortet her rummer en tabel med `min-w-[34rem]`, så kolonnen blev
+        544 px i en spalte på 432, og hele panelet kunne skubbes til siden ved
+        768 px (målt i produktion: scrollWidth 862 mod 768).
+
+        Tailwinds `grid-cols-1` skriver `repeat(1, minmax(0, 1fr))`, og det er
+        `minmax(0, …)`, der gør arbejdet: kolonnen må gerne blive smallere end
+        sit indhold, og så træder tabellens egen vandrette scroll i kraft,
+        præcis som den er bygget til.
+      */}
+      <div className="mt-6 grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
         {canSeeFeedback ? (
           <Card className="lg:col-span-2">
             <CardHeader className="flex items-center justify-between">

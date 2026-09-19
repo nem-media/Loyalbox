@@ -38,7 +38,10 @@ export function THead({
       className={cn(
         // `.etiket` frem for at skrive versalstilen af igen — den var
         // defineret her OG i menuen, med hver sin bogstavafstand.
-        "etiket border-b border-border bg-muted-bg/40 text-left",
+        // Tabelhovedet står på den tredje flade (`--surface-subtle`) og ikke
+        // på grunden: hovedet ligger INDE i et hvidt kort, og råhvid dér
+        // læses som endnu et kort frem for som en overskriftsrække.
+        "etiket border-b border-border bg-surface-subtle text-left",
         className,
       )}
       {...props}
@@ -62,7 +65,10 @@ export function TR({
   return (
     <tr
       className={cn(
-        "border-b border-border/60 transition-colors last:border-0 hover:bg-accent/5",
+        // Hover er tinten og ikke `accent/5`: en alfa oven på hvidt og en
+        // alfa oven på en stribe giver to forskellige farver, og rækkerne
+        // skiftede nuance alt efter hvad de lå på.
+        "border-b border-border/50 transition-colors last:border-0 hover:bg-accent-tint/60",
         className,
       )}
       {...props}

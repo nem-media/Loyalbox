@@ -45,7 +45,7 @@ export function Pricing() {
         <Link
           key={p.slug}
           href={`/produkter/${p.slug}`}
-          className="group box-shape flex flex-col overflow-hidden border border-border bg-card transition-shadow hover:shadow-[0_20px_40px_-24px_rgba(0,0,0,0.4)]"
+          className="group box-shape flex flex-col overflow-hidden border border-border bg-card shadow-[var(--hoejde-1)] transition-all duration-200 hover:-translate-y-1 hover:border-accent/30 hover:shadow-[var(--hoejde-3)]"
         >
           {/*
             FOTOET FINDES — OG STOD KUN PÅ /produkter. Her blev attrappen
