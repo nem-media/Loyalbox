@@ -246,9 +246,19 @@ export default async function ProductPage({
                   </span>
                   <h2 className="font-bold">Hele LoyalSum er med</h2>
                 </div>
+                {/* BEGGE LOYALITETSFORMER. Blokken er varens „hvad får du"
+                    på den side, der sælger den, og den nævnte kun
+                    stempelkortet — samme halve svar som oversigterne. */}
                 <p className="mt-2 text-sm text-muted">
                   <Link href="/stempelkort" className="font-medium text-accent">
                     Digitalt stempelkort
+                  </Link>{" "}
+                  og{" "}
+                  <Link
+                    href="/loyalitetsprogram"
+                    className="font-medium text-accent"
+                  >
+                    pointprogram
                   </Link>{" "}
                   uden app, flere Google-anmeldelser, privat feedback, opslag af
                   dine bedste anmeldelser og statistik i realtid — sat op og klar

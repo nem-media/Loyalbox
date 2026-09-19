@@ -185,6 +185,22 @@ describe("oversigterne, der sammenligner pakkerne", () => {
     expect(kolonner, "loyalitetskolonnen findes").toContain("loyalitet");
   });
 
+  it("menuen har en vej til begge former", () => {
+    /*
+     * Stempelkortet har haft sit eget punkt i menuen siden den kom; siden om
+     * pointprogrammet blev kun linket fra footeren og fra brødtekst. Menuen
+     * står på hver eneste side, så den er den kraftigste interne henvisning,
+     * vi har — og den pegede kun på den ene af de to former, en butik vælger
+     * imellem. Prøven spørger til ADRESSEN og ikke til etiketten, så ordlyden
+     * kan skrives om uden at prøven skal med.
+     */
+    const header = kilde("src/components/site-header.tsx");
+    expect(header, "menuen peger på stempelkortet").toContain("/stempelkort");
+    expect(header, "menuen peger på loyalitetsprogrammet").toContain(
+      "/loyalitetsprogram",
+    );
+  });
+
   const FORSIDEN: [string, string][] = [
     ["src/components/home/platform-showcase.tsx", "forsidens platformafsnit"],
     ["src/components/home/loyalsum-loop.tsx", "forsidens loop"],

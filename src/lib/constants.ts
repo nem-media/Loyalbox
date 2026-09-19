@@ -1286,6 +1286,36 @@ export function harFysiskSkilt(product: Pick<Product, "kunDigital">): boolean {
 }
 
 /**
+ * MÆRKET I HJØRNET AF ET KATALOGKORT — ét sted, fordi kortet tegnes to gange.
+ *
+ * Kortet har en gren med foto og en gren med pladsholder, og mærket stod
+ * skrevet ud i dem begge. To kopier af den samme if-kæde driver fra hinanden
+ * den dag, kun den ene bliver rettet.
+ *
+ * **„KOMPLET" MÅ IKKE STÅ PÅ DEN DIGITALE VARE.** Mærket kom af
+ * `includesLoyalSum`, altså „denne vare giver hele platformen", og det var
+ * sandt for begge Komplet-varer. Men LoyalSum Komplet er `featured` og bærer
+ * derfor „Mest populær", så i kataloget stod ordet **Komplet** i praksis kun
+ * på LoyalSum Komplet **Online** — lige ved siden af den vare, der faktisk
+ * hedder Komplet. Læst på et blik siger det, at den anden ikke er den
+ * komplette, og dét er det modsatte af sandheden: de to har nøjagtig samme
+ * software, og forskellen er standeren.
+ *
+ * Derfor spørges `kunDigital` FØR `includesLoyalSum`. Mærket siger nu, hvad
+ * varen ER, og ikke hvilken pakke den hører til — og „Digital" er valgt frem
+ * for „Uden stander", fordi et mærke, der starter med et fravær, sælger en
+ * vare på det, den ikke har.
+ */
+export function kortMaerke(
+  product: Pick<Product, "featured" | "kunDigital" | "includesLoyalSum">,
+): { tekst: string; fremhaevet: boolean } | null {
+  if (product.featured) return { tekst: "Mest populær", fremhaevet: true };
+  if (product.kunDigital) return { tekst: "Digital", fremhaevet: false };
+  if (product.includesLoyalSum) return { tekst: "Komplet", fremhaevet: false };
+  return null;
+}
+
+/**
  * Varerne, der giver hele LoyalSum-platformen — uanset om der følger en
  * stander med.
  *

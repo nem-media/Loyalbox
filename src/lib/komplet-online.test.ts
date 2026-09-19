@@ -9,6 +9,7 @@ import {
   komplette,
   priceFor,
   KOMPLET_FUNKTIONER,
+  kortMaerke,
 } from "./constants";
 import {
   kanBestillesUdenKonto,
@@ -545,5 +546,33 @@ describe("kataloget er stadig til at forstå", () => {
     for (const p of tilkoeb) {
       expect(KATALOG.map((k) => k.slug)).not.toContain(p.slug);
     }
+  });
+
+  /*
+   * MÆRKET MÅ IKKE SIGE "KOMPLET" PÅ DEN DIGITALE VARE.
+   *
+   * Det kom af `includesLoyalSum` og var sandt for begge Komplet-varer — men
+   * LoyalSum Komplet er `featured` og bærer "Mest populær", så i kataloget
+   * stod ordet i praksis KUN på Online, lige ved siden af den vare, der
+   * hedder Komplet. På et blik siger det, at den anden ikke er den komplette.
+   *
+   * Prøven spørger til egenskaben og ikke til ordet "Digital": et andet ord
+   * må gerne vælges, men det må ikke være pakkens navn.
+   */
+  it("den digitale vares mærke låner ikke den anden vares navn", () => {
+    const maerke = kortMaerke(ONLINE);
+    expect(maerke, "den digitale vare har et mærke").toBeTruthy();
+    expect(maerke!.tekst.toLowerCase()).not.toContain("komplet");
+  });
+
+  it("mærket tegnes ét sted og ikke i hver gren af kortet", () => {
+    /* Kortet har en foto-gren og en pladsholder-gren. Stod if-kæden i dem
+       begge, ville den ene kunne rettes uden den anden — og i den gren, der
+       ikke blev rettet, ville "Komplet" blive stående. */
+    const side = kilde("src/app/produkter/page.tsx");
+    expect(side, "siden spørger hjælperen").toContain("kortMaerke(");
+    expect(side, "ingen mærketekst skrevet ud i grenene").not.toMatch(
+      />\s*Komplet\s*</,
+    );
   });
 });
