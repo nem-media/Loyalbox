@@ -390,7 +390,21 @@ export default function StempelkortPage() {
             spalten allerede ude ved kanten, og uden klipningen ville siden
             kunne scrolles til højre — samme fejl som cookielinket i footeren. */}
         <section className="overflow-hidden border-b border-border bg-dark text-dark-fg">
-          <div className="mx-auto grid max-w-side gap-12 px-4 py-16 sm:py-24 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+          {/*
+            sm:pr-10 ER TIL EMBLEMERNE, IKKE TIL LUFT.
+            Kortet i højre spalte bærer to emblemer, der med vilje hænger ud
+            over kanten (`sm:-right-7` = 28 px). Så længe rammen var 1152 px,
+            lå der 64 px slæk ud til vinduet på en 1280-skærm, og overhænget
+            landede i slækket. Med rammen på 1352 er slækket 16 px, og MÅLT
+            ved 1280 blev emblemet klippet 12 px af sektionens
+            `overflow-hidden`.
+
+            Padding KUN i højre side: en `px-8` ville rykke H1 ind og gøre
+            heroens tekstkant ulig med sektionerne nedenunder. Højre spalte er
+            et billede, så dér ses de 40 px ikke — og 40 > 28 med luft til
+            rest. Ændres overhænget, skal denne padding følge med.
+          */}
+          <div className="mx-auto grid max-w-side gap-12 px-4 py-16 sm:py-24 sm:pr-10 lg:grid-cols-[1.1fr_1fr] lg:items-center">
             <div>
               <span className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white ring-1 ring-white/15">
                 <span

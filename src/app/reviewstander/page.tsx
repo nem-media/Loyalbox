@@ -299,7 +299,21 @@ export default function ReviewstanderPage() {
             aria-hidden="true"
             className="absolute inset-0 -z-10 bg-gradient-to-r from-dark from-25% via-dark/95 to-dark/80"
           />
-          <div className="mx-auto grid max-w-side gap-12 px-4 py-16 sm:py-24 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+          {/*
+            sm:pr-10 ER TIL EMBLEMERNE, IKKE TIL LUFT.
+            Kortet i højre spalte bærer to emblemer, der med vilje hænger ud
+            over kanten (`sm:-right-7` = 28 px). Så længe rammen var 1152 px,
+            lå der 64 px slæk ud til vinduet på en 1280-skærm, og overhænget
+            landede i slækket. Med rammen på 1352 er slækket 16 px, og MÅLT
+            ved 1280 blev emblemet klippet 12 px af sektionens
+            `overflow-hidden`.
+
+            Padding KUN i højre side: en `px-8` ville rykke H1 ind og gøre
+            heroens tekstkant ulig med sektionerne nedenunder. Højre spalte er
+            et billede, så dér ses de 40 px ikke — og 40 > 28 med luft til
+            rest. Ændres overhænget, skal denne padding følge med.
+          */}
+          <div className="mx-auto grid max-w-side gap-12 px-4 py-16 sm:py-24 sm:pr-10 lg:grid-cols-[1.1fr_1fr] lg:items-center">
             <div>
               <p className="text-sm font-semibold text-secondary">
                 LoyalSum Reviewstander
@@ -488,16 +502,20 @@ export default function ReviewstanderPage() {
             direkte hertil i stedet for til toppen af en side, hvor det første
             afsnit handler om Google. */}
         <section id="platforme" className="border-t border-border bg-muted-bg">
-          <div className="mx-auto max-w-4xl px-4 py-16">
+          {/* max-w-4xl (896 px) gav fire kort ~200 px hver. Sektionen bruger
+              nu sidens fælles ramme; brødteksten nedenfor bliver ikke bredere,
+              fordi den har sin egen max-w-2xl. */}
+          <div className="mx-auto max-w-side px-4 py-16">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Google, Trustpilot eller Facebook — du bestemmer hvor
             </h2>
             <p className="mt-4 max-w-2xl leading-relaxed text-foreground/90">
               Standeren er ikke bundet til én platform. Du sætter selv, hvor
               kunden skal hen. Den enkle Reviewstander sender direkte videre til
-              ét link, mens Reviewstander Pro og LoyalSum Komplet giver kunden
-              valget mellem de platforme, du har slået til — og lader dig skifte
-              dem bagefter uden at trykke standeren om.
+              ét link, mens de tre øvrige giver kunden valget mellem de
+              platforme, du har slået til — og lader dig skifte dem bagefter
+              uden at trykke standeren om. LoyalSum Komplet Online er den samme
+              platform uden et skilt: du deler selv linket.
             </p>
 
             {/* KORTENE ER PRIMÆRE, TABELLEN SUPPLERER. Tabellen alene bar
@@ -506,7 +524,7 @@ export default function ReviewstanderPage() {
                 der vælger. Kortene er den udgave, alle kan læse; tabellen er
                 den udgave, der kan skimmes — og som Google kan trække ud som
                 uddrag på en sammenligningssøgning. */}
-            <ul className="mt-10 grid gap-4 md:grid-cols-3">
+            <ul className="mt-10 grid gap-4 sm:grid-cols-2 laptop:grid-cols-4">
               {PLATFORM_VALG.map((v) => {
                 const vare = getProduct(v.slug);
                 if (!vare) return null;
@@ -583,9 +601,10 @@ export default function ReviewstanderPage() {
             <div className="mt-10 hidden overflow-x-auto md:block">
               <table className="w-full border-collapse text-sm">
                 <caption className="sr-only">
-                  Sammenligning af Reviewstander, Reviewstander Pro og LoyalSum
-                  Komplet: platforme, om destinationen kan skiftes bagefter,
-                  stempelkort og pris.
+                  Sammenligning af Reviewstander, Reviewstander Pro, LoyalSum
+                  Komplet og LoyalSum Komplet Online: platforme, om
+                  destinationen kan skiftes bagefter, stempelkort, fysisk skilt
+                  og pris.
                 </caption>
                 <thead>
                   <tr className="border-b border-border bg-background text-left">
@@ -603,6 +622,9 @@ export default function ReviewstanderPage() {
                     </th>
                     <th scope="col" className="etiket px-4 py-3">
                       Stempelkort
+                    </th>
+                    <th scope="col" className="etiket px-4 py-3">
+                      Fysisk skilt
                     </th>
                     <th scope="col" className="etiket px-4 py-3">
                       Pris
@@ -632,6 +654,9 @@ export default function ReviewstanderPage() {
                         </td>
                         <td className="px-4 py-3 align-top text-muted">
                           {v.stempelkort}
+                        </td>
+                        <td className="px-4 py-3 align-top text-muted">
+                          {v.stander}
                         </td>
                         <td className="px-4 py-3 align-top whitespace-nowrap">
                           {prisTekst(v.slug)}

@@ -29,32 +29,35 @@ describe("PLATFORM_VALG", () => {
    * sammenligningen eller bevidst udelades — og det valg skal træffes her,
    * ikke opdages af en kunde, der undrer sig over, hvorfor den ikke står der.
    */
-  it("dækker alle varer MED en stander", () => {
+  it("dækker HELE kataloget", () => {
     /*
-     * VALGET ER TRUFFET FOR LoyalSum Komplet Online: den står IKKE i denne
-     * sammenligning, og det er ikke en forglemmelse. Tabellen svarer på
-     * spørgsmålet "hvilken stander skal jeg vælge?" — den sammenligner
-     * platforme, hvad kunden ser på skiltet, og om linket kan skiftes uden et
-     * nyt tryk. En vare uden stander har ingen af de celler, og en række med
-     * fire tankestreger ville få den til at ligne en ringere stander frem for
-     * et andet produkt. Online sammenlignes i stedet med Komplet på sin egen
-     * side og i produktoversigten.
+     * ONLINE VAR FØRST HOLDT UDE, og begrundelsen var, at tabellen svarer på
+     * "hvilken stander skal jeg vælge?", så en vare uden skilt ville få en
+     * række med fire tankestreger. DET HOLDT IKKE: platformene, kundens vej,
+     * skiftet og stempelkortet er de SAMME som i LoyalSum Komplet, fordi det
+     * er den samme software — hver eneste celle har et rigtigt svar.
+     *
+     * Det, der manglede, var en kolonne til den ene forskel, der findes:
+     * `stander`. Uden den svarede tabellen ens på alt for Komplet og Online,
+     * og de ville ligne samme vare til to priser.
      */
     const iSammenligningen = PLATFORM_VALG.map((v) => v.slug).sort();
-    const medStander = KATALOG.filter(harFysiskSkilt)
-      .map((p) => p.slug)
-      .sort();
-    expect(iSammenligningen).toEqual(medStander);
+    const offentlige = KATALOG.map((p) => p.slug).sort();
+    expect(iSammenligningen).toEqual(offentlige);
   });
 
-  it("holder de digitale varer ude", () => {
-    const digitale = KATALOG.filter((p) => !harFysiskSkilt(p)).map((p) => p.slug);
-    expect(digitale.length).toBeGreaterThan(0);
-    for (const slug of digitale) {
+  it("siger om hver vare har et fysisk skilt", () => {
+    /* Kolonnen er hele grunden til, at de digitale varer kan stå i tabellen.
+       Den skal svare det samme som `harFysiskSkilt`, ellers sammenligner
+       tabellen noget andet end systemet gør. */
+    for (const v of PLATFORM_VALG) {
+      const vare = getProduct(v.slug)!;
+      expect(v.stander.length, `${v.slug}: cellen skal kunne skimmes`).toBeLessThanOrEqual(30);
+      const sigerJa = /^ja\b/i.test(v.stander);
       expect(
-        PLATFORM_VALG.some((v) => v.slug === slug),
-        `${slug} hører ikke til i standersammenligningen`,
-      ).toBe(false);
+        sigerJa,
+        `${v.slug}: cellen siger "${v.stander}", men harFysiskSkilt siger ${harFysiskSkilt(vare)}`,
+      ).toBe(harFysiskSkilt(vare));
     }
   });
 

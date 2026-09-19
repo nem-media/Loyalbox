@@ -2,7 +2,7 @@ import { getProduct } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 
 /**
- * De tre løsninger på platformssiden.
+ * De fire løsninger på platformssiden.
  *
  * NAVN, PRIS OG FREMHÆVNING UDLEDES AF `PRODUCTS` og skrives ikke af.
  * Sektionen hed før "Skilt uden konto", "Reviewstander" og "Reviewstander
@@ -30,6 +30,17 @@ export const PLATFORM_VALG: {
   kundenSer: string;
   skifte: string;
   stempelkort: string;
+  /**
+   * Er der et fysisk skilt med i varen?
+   *
+   * KOLONNEN KOM TIL MED LoyalSum Komplet Online. Uden den svarede tabellen
+   * ens på alle fem spørgsmål for Komplet og Komplet Online — platforme,
+   * kundens vej, skifte og stempelkort er de samme — og så ville de to ligne
+   * samme vare til to priser. Forskellen ER standeren, og en
+   * sammenligningstabel, der ikke har en kolonne til den ene forskel, der
+   * findes, sammenligner ikke noget.
+   */
+  stander: string;
 }[] = [
   {
     slug: "reviewstander",
@@ -40,6 +51,7 @@ export const PLATFORM_VALG: {
     note: "Købes uden konto. QR'en sender kunden direkte videre til det ene link, du vælger — også dit eget, fx menukortet. Der vises ingen side undervejs, og derfor indsamles hverken feedback eller statistik.",
     skifte: "Nej — sættes ved bestillingen",
     stempelkort: "Nej",
+    stander: "Ja",
   },
   {
     slug: "reviewstander-pro",
@@ -50,6 +62,7 @@ export const PLATFORM_VALG: {
     note: "Du bestemmer selv, hvilke platforme kunden får at se, og du kan skifte dem når som helst uden at trykke standeren om. Alle valg vises med samme vægt, og du kan lægge dit eget link ved siden af.",
     skifte: "Ja — når som helst",
     stempelkort: "Nej",
+    stander: "Ja",
   },
   {
     slug: "loyalsum-komplet",
@@ -60,15 +73,44 @@ export const PLATFORM_VALG: {
     note: "Alt fra Reviewstander Pro, og oveni resten af platformen: digitalt stempelkort uden app for dine kunder, kundeklub og opslag af dine bedste anmeldelser.",
     skifte: "Ja — når som helst",
     stempelkort: "Ja",
+    stander: "Ja",
+  },
+  {
+    /*
+      SAMME SOFTWARE SOM KOMPLET — OG DET ER DERFOR, DEN SKAL MED HER.
+      Den stod udenfor med den begrundelse, at tabellen svarer på "hvilken
+      stander skal jeg vælge?", og at en vare uden skilt ville få fire
+      tankestreger. Det holdt ikke: hver eneste celle har et rigtigt svar,
+      fordi platformen er den samme. Det, der manglede, var en kolonne til
+      forskellen — se `stander` ovenfor.
+    */
+    slug: "loyalsum-komplet-online",
+    platforme: ["Google", "Trustpilot", "Facebook"],
+    maerke: "Alt i Komplet — uden skilt",
+    platformCelle: "Google, Trustpilot og Facebook — plus eget link",
+    kundenSer: "Vælger — og kan tilmelde sig stempelkort",
+    note: "Præcis de samme funktioner som LoyalSum Komplet, men uden noget at stille på disken. Du får dit eget LoyalSum-link og en QR-kode, som du selv deler — på din hjemmeside, i din webshop eller i dine mails.",
+    skifte: "Ja — når som helst",
+    stempelkort: "Ja",
+    stander: "Nej — du deler selv linket",
   },
 ];
 
-/** "499 kr." eller "499 kr. + 99 kr./md." — samme tal som i checkout. */
+/**
+ * "499 kr.", "499 kr. + 99 kr./md." eller "399 kr./md." — samme tal som i
+ * checkout.
+ *
+ * EN VARE UDEN ENGANGSPRIS MÅ IKKE STÅ MED ET NUL FORAN. Uden grenen skrev
+ * funktionen "0 kr. + 399 kr./md." for LoyalSum Komplet Online — og i en
+ * sammenligningstabel ved siden af tre varer til 499 kr. er dét nul det
+ * første, øjet lander på. Samme fælde som i buy-boksen og i katalogkortet:
+ * `price: 0` er sandt, men det er ikke en pris, der skal skrives ud.
+ */
 export function prisTekst(slug: string): string {
   const p = getProduct(slug);
   if (!p) return "";
+  const maaned = p.monthlyPrice ? `${formatCurrency(p.monthlyPrice)}/md.` : "";
+  if (!p.price) return maaned;
   const engangs = formatCurrency(p.price);
-  return p.monthlyPrice
-    ? `${engangs} + ${formatCurrency(p.monthlyPrice)}/md.`
-    : engangs;
+  return maaned ? `${engangs} + ${maaned}` : engangs;
 }
