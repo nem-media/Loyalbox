@@ -83,6 +83,21 @@
   --success-tekst: #166534;
   --danger-tekst: #b91c1c;
   --star-tekst: #92400e;
+  /* SIDENS BREDDE — ÉT STED, FORDI HEADER, FOOTER OG INDHOLD SKAL FLUGTE.
+     Var `max-w-6xl` (1152 px) i seksogtyve filer. Fire produktkort i én række
+     fik dermed (1152 − 3×24) / 4 = 270 px hver, hvilket er for lidt til et
+     kort med billede, fem punkter og en pris.
+
+     1352 px er 200 px mere og giver 320 px pr. kort på en 15" bærbar. Det er
+     et LOFT og ikke en bredde: på en mindre skærm klemmer `mx-auto` + `px-4`
+     den ned af sig selv, så en 13-tommer ser ud som før.
+
+     Brødtekst bliver IKKE bredere af det — de lange tekster har deres egen
+     `max-w-2xl`/`max-w-3xl` indeni, netop så linjelængden ikke følger med
+     rammen. Ændres tallet her, flytter hele sitet sig samlet; det er dét, der
+     er meningen med at have det ét sted. */
+  --bredde-side: 1352px;
+
   --radius: 0.75rem; /* fallback til bokse der endnu ikke bruger .box-shape */
   --radius-shape: 0 6px 6px 6px; /* delt form: skarp øverste venstre, 6px på de tre øvrige hjørner */
 
@@ -124,6 +139,27 @@
   --color-success-tekst: var(--success-tekst);
   --color-danger-tekst: var(--danger-tekst);
   --color-star-tekst: var(--star-tekst);
+  /* Giver `max-w-side` (og `w-side`) — Tailwinds container-navnerum. */
+  --container-side: var(--bredde-side);
+
+  /* ET RIGTIGT BREAKPOINT OG IKKE `min-[1100px]:`.
+     Fire produktkort skal stå på række fra 1100 px — mellem Tailwinds `lg`
+     (1024, hvor kortene ville blive 230 px) og `xl` (1280, som er for sent
+     til en 13-tommer).
+
+     DET SKAL VÆRE ET NAVN I TEMAET, fordi en ARBITRÆR variant sorteres
+     forkert: `min-[1100px]:grid-cols-4` blev skrevet UD FØR `.sm:grid-cols-2`
+     i den byggede CSS, og når begge media queries matcher på en bred skærm,
+     vinder den sidste. Målt: gitteret stod 2×2 ved 1905 px, selv om reglen
+     var der.
+
+     OG VÆRDIEN SKAL VÆRE I REM. Et navngivet breakpoint i PX løste det ikke:
+     Tailwinds egne trin er 40/48/64/80rem, og et px-tal sorteres ikke ind
+     imellem dem — `@media (min-width:1100px)` blev igen skrevet ud FØR `sm`,
+     og gitteret stod stadig 2×2. 68.75rem er de samme 1100 px i samme enhed
+     som resten af skalaen og lander, hvor det hører hjemme: mellem lg (64rem)
+     og xl (80rem). */
+  --breakpoint-laptop: 68.75rem;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --radius-app: var(--radius);

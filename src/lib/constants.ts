@@ -741,6 +741,21 @@ export const FOTO_FARVETEKST =
   "Vælg selv farve på stjernerne uden beregning — og evt. din egen baggrundsfarve mod tillæg.";
 
 /**
+ * Modstykket til FOTO_FARVETEKST på varen UDEN skilt.
+ *
+ * Farvelinjen står under punkterne på de tre standerkort og handler om
+ * trykket. LoyalSum Komplet Online har intet tryk, og uden en linje i samme
+ * bås stod kortet med et tomt hul dér, hvor naboerne havde to linjer tekst —
+ * set i en stribe på fire, hvor alt andet flugter. Hullet er ikke bare grimt:
+ * det læses som om der MANGLER noget på den vare.
+ *
+ * Linjen siger derfor dét, den anden siger for et skilt — hvad du gør med
+ * varen — og lover ikke noget nyt: linket og QR-koden er præcis det, man får.
+ */
+export const DIGITAL_DELETEKST =
+  "Du deler selv linket og QR-koden — på din hjemmeside, i din webshop eller i dine mails.";
+
+/**
  * Salgspunkterne på katalogkortet — korte nok til at kunne skimmes på en
  * telefon, og ÉN ting pr. linje.
  *

@@ -205,7 +205,7 @@ export default function KompletOnlinePage() {
       <main id="indhold">
         {/* ------------------------------------------------------------ hero */}
         <section className="bg-dark px-4 py-16 text-white sm:py-20">
-          <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+          <div className="mx-auto grid max-w-side gap-10 lg:grid-cols-[1.1fr_1fr] lg:items-center">
             <div>
               <p className="text-sm font-semibold uppercase tracking-wider text-white/60">
                 LoyalSum Komplet Online

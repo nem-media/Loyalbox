@@ -229,7 +229,7 @@ export default function LandingPage() {
                 "radial-gradient(60% 60% at 78% 12%, rgba(180,161,137,0.22), transparent 62%), radial-gradient(55% 55% at 4% 96%, rgba(180,161,137,0.10), transparent 60%)",
             }}
           />
-          <div className="mx-auto max-w-6xl px-4 py-20 sm:py-28">
+          <div className="mx-auto max-w-side px-4 py-20 sm:py-28">
             <div className="grid items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
               <div>
                 <span className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white ring-1 ring-white/15">
@@ -272,7 +272,7 @@ export default function LandingPage() {
 
         {/* --------------------------------------------------- trust-stribe */}
         <section className="border-t border-border bg-muted-bg">
-          <div className="mx-auto max-w-6xl px-4 py-5">
+          <div className="mx-auto max-w-side px-4 py-5">
             <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-sm text-muted">
               {[
                 "Ingen app for dine kunder",
@@ -297,7 +297,7 @@ export default function LandingPage() {
 
         {/* ------------------------------------------------------- problemet */}
         <section className="border-t border-border bg-background">
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
+          <div className="mx-auto max-w-side px-4 py-16 sm:py-20">
             <div className="grid gap-10 md:grid-cols-2 md:items-center">
               <div>
                 <p className="text-sm font-semibold text-accent">Muligheden</p>
@@ -357,7 +357,7 @@ export default function LandingPage() {
           id="loop"
           className="scroll-mt-24 border-t border-border bg-muted-bg"
         >
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
+          <div className="mx-auto max-w-side px-4 py-16 sm:py-20">
             <div className="mx-auto max-w-2xl text-center">
               <p className="text-sm font-semibold text-accent">
                 LoyalSum-loopet
@@ -378,7 +378,7 @@ export default function LandingPage() {
 
         {/* ------------------------------- nye kunder vs. eksisterende kunder */}
         <section className="border-t border-border bg-background">
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
+          <div className="mx-auto max-w-side px-4 py-16 sm:py-20">
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
                 To ting, der får din forretning til at vokse
@@ -502,7 +502,7 @@ export default function LandingPage() {
           id="platform"
           className="scroll-mt-24 border-t border-border bg-muted-bg"
         >
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
+          <div className="mx-auto max-w-side px-4 py-16 sm:py-20">
             <div className="mx-auto max-w-2xl text-center">
               <p className="text-sm font-semibold text-accent">Platformen</p>
               <h2 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
@@ -524,7 +524,7 @@ export default function LandingPage() {
           id="saadan"
           className="scroll-mt-24 border-t border-border bg-background"
         >
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
+          <div className="mx-auto max-w-side px-4 py-16 sm:py-20">
             <div className="text-center">
               <p className="text-sm font-semibold text-accent">
                 Kom godt fra start
@@ -557,7 +557,7 @@ export default function LandingPage() {
 
         {/* -------------------------------------------------------- brancher */}
         <section className="border-t border-border bg-muted-bg">
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
+          <div className="mx-auto max-w-side px-4 py-16 sm:py-20">
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
                 Bygget til forretninger med kunder, der gerne må komme igen
@@ -586,7 +586,7 @@ export default function LandingPage() {
 
         {/* ------------------------------------------------------- final CTA */}
         <section className="border-t border-border bg-dark text-dark-fg">
-          <div className="mx-auto max-w-6xl px-4 py-20 text-center">
+          <div className="mx-auto max-w-side px-4 py-20 text-center">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
               Få flere kunder. Og flere af dem tilbage.
             </h2>

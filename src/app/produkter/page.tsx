@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import {
+  DIGITAL_DELETEKST,
   FOTO_FARVETEKST,
   harFysiskSkilt,
   KATALOG,
@@ -36,91 +37,71 @@ import {
 export const metadata = {
   title: "Standere og materialer til din forretning",
   description:
-    "Se de tre LoyalSum-standere med QR og NFC side om side — hvad de koster, og hvad der følger med. Plakater, mærkater og flyers er på vej.",
+    "Se LoyalSums tre standere med QR og NFC side om side — og hele platformen uden fysisk stander. Hvad de koster, og hvad der følger med.",
   alternates: { canonical: "/produkter" },
 };
 
 /* -------------------------------------------------------------------- page */
 
-/**
- * De to familier i kataloget.
- *
- * UDLEDT AF VAREN OG IKKE SKREVET AF: en stander er en vare med et fysisk
- * skilt (`harFysiskSkilt`), og platformen er de varer, der indeholder hele
- * LoyalSum (`includesLoyalSum`). Kommer der en vare til, lander den i den
- * rigtige gruppe af sig selv — og en vare, der er begge ting (LoyalSum Komplet
- * er både stander og platform), står dér, hvor kunden leder efter den:
- * under platformen.
- */
-const GRUPPER = [
-  {
-    id: "standere",
-    titel: "Reviewstandere",
-    hjaelp:
-      "Den fysiske stander til disken. QR og NFC, og du vælger, hvor koden fører hen.",
-    varer: KATALOG.filter((p) => !p.includesLoyalSum),
-  },
-  {
-    id: "platformen",
-    titel: "LoyalSum-platformen",
-    hjaelp:
-      "Hele LoyalSum: stempelkort, pointprogram, feedback, kundescore og opslag. Med eller uden en fysisk stander.",
-    varer: KATALOG.filter((p) => p.includesLoyalSum),
-  },
-];
-
 export default function ProductsPage() {
   return (
     <>
       <SiteHeader />
-      <main id="indhold" className="mx-auto max-w-6xl px-4 py-16">
+      <main id="indhold" className="mx-auto max-w-side px-4 py-16">
         <div className="mb-12 text-center">
           <p className="text-sm font-semibold text-accent">Materialer</p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
             Standere og materialer til din forretning
           </h1>
           <p className="mx-auto mt-3 max-w-xl text-muted">
-            Det fysiske, der får kunderne til at scanne. Standeren kan bestilles
-            nu — plakater, mærkater og flyers er på vej.
+            Det fysiske, der får kunderne til at scanne — og hele platformen,
+            hvis du hellere vil dele linket selv. Plakater, mærkater og flyers
+            er på vej.
           </p>
         </div>
 
         {/* ------------------------------------------------ kan bestilles nu */}
         {/*
-          TO GRUPPER OG IKKE ÉN RÆKKE PÅ FIRE.
-          Varerne svarer på to forskellige spørgsmål: "hvilken stander skal
-          jeg have?" og "skal jeg have hele platformen?". Stod de fire i én
-          stribe, ville LoyalSum Komplet Online ligne en fjerde stander — og
-          forskellen mellem en stander og platformen er netop det, kunden skal
-          kunne se uden at klikke.
-        */}
-        {GRUPPER.map((gruppe) => (
-          <section
-            key={gruppe.id}
-            aria-labelledby={gruppe.id}
-            className="mt-14 first:mt-0"
-          >
-            <div className="mb-6 flex flex-wrap items-baseline justify-between gap-4">
-              <div>
-                <h2
-                  id={gruppe.id}
-                  className="text-xl font-bold tracking-tight"
-                >
-                  {gruppe.titel}
-                </h2>
-                <p className="mt-1 max-w-xl text-sm text-muted">
-                  {gruppe.hjaelp}
-                </p>
-              </div>
-              {gruppe.id === "standere" ? (
-                <p className="text-xs text-muted">
-                  Alle priser er ex moms · mængderabat fra 3 stk.
-                </p>
-              ) : null}
-            </div>
+          ALLE FIRE I ÉN RÆKKE PÅ EN BÆRBAR.
+          Varerne stod før i to grupper à to — standerne for sig og platformen
+          for sig — fordi de svarer på hver sit spørgsmål. Men to grupper
+          betyder også, at man aldrig ser alle fire ved siden af hinanden, og
+          det er netop dét, man gør, når man vælger: kigger på tværs.
 
-            <div className="grid gap-6 md:grid-cols-2">
-              {gruppe.varer.map((p, nr) => (
+          Rækkefølgen i KATALOG er stigende, så striben læses som en stige fra
+          den enkle stander til hele platformen — og forskellen mellem en
+          stander og en vare uden skilt siges nu af kortet selv: pladsholderen
+          er en QR-kode og ikke et skilt, prisen står som "/md i abonnement" i
+          stedet for "pr. stander", og punktet "Uden fysisk stander" står på
+          kortet.
+
+          Gitteret skifter til fire ved 1100 px og ikke ved Tailwinds `lg`
+          (1024): ved 1024 ville hvert kort være omkring 230 px, og et kort med
+          billede, fem punkter og en pris kan ikke bære det. Se `--bredde-side`
+          i globals.css for loftet, der giver dem 320 px på en 15".
+        */}
+        <section aria-labelledby="varer">
+          <div className="mb-6 flex flex-wrap items-baseline justify-between gap-4">
+            <div>
+              <h2 id="varer" className="text-xl font-bold tracking-tight">
+                Kan bestilles nu
+              </h2>
+              {/* "de to til højre" ville være forkert på en telefon, hvor
+                  kortene står under hinanden. Varenavne i stedet for en
+                  placering holder, uanset hvor mange spor gitteret har. */}
+              <p className="mt-1 max-w-2xl text-sm text-muted">
+                Tre standere til disken og hele platformen uden skilt. Alle
+                fire indeholder anmeldelsesflowet; de to Komplet-varer har også
+                stempelkort, pointprogram og opslag.
+              </p>
+            </div>
+            <p className="text-xs text-muted">
+              Alle priser er ex moms · mængderabat fra 3 stk.
+            </p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 laptop:grid-cols-4">
+            {KATALOG.map((p, nr) => (
                 <Link
             key={p.slug}
             href={`/produkter/${p.slug}`}
@@ -134,7 +115,7 @@ export default function ProductsPage() {
                   alt={`${p.name} — reviewstander i brug`}
                   fill
                   priority={nr === 0}
-                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  sizes="(min-width: 1100px) 25vw, (min-width: 640px) 50vw, 100vw"
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 {/* SOLIDT mærke, ikke <Badge>: den er bg-accent/10
@@ -197,11 +178,9 @@ export default function ProductsPage() {
               {/* FARVEVALGET HØRER TIL SKILTET. På LoyalSum Komplet Online
                   er der ingen stander at vælge farve på, og linjen ville love
                   et valg, varen ikke indeholder. */}
-              {harFysiskSkilt(p) ? (
-                <p className="mt-4 border-t border-border pt-3 text-xs leading-relaxed text-muted">
-                  {FOTO_FARVETEKST}
-                </p>
-              ) : null}
+              <p className="mt-4 border-t border-border pt-3 text-xs leading-relaxed text-muted">
+                {harFysiskSkilt(p) ? FOTO_FARVETEKST : DIGITAL_DELETEKST}
+              </p>
               {/* mt-auto: billedteksterne er ikke lige lange, og uden den
                   stod pris og "Se produkt" i tre forskellige højder på
                   tværs af de tre kort. */}
@@ -213,10 +192,9 @@ export default function ProductsPage() {
               </span>
             </div>
           </Link>
-              ))}
-            </div>
-          </section>
-        ))}
+            ))}
+          </div>
+        </section>
 
         {/* ------------------------------------------------------------ på vej */}
         <section aria-labelledby="paa-vej" className="mt-20">

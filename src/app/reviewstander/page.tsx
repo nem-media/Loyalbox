@@ -299,7 +299,7 @@ export default function ReviewstanderPage() {
             aria-hidden="true"
             className="absolute inset-0 -z-10 bg-gradient-to-r from-dark from-25% via-dark/95 to-dark/80"
           />
-          <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:py-24 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+          <div className="mx-auto grid max-w-side gap-12 px-4 py-16 sm:py-24 lg:grid-cols-[1.1fr_1fr] lg:items-center">
             <div>
               <p className="text-sm font-semibold text-secondary">
                 LoyalSum Reviewstander
@@ -387,7 +387,7 @@ export default function ReviewstanderPage() {
 
         {/* -------------------------------------------------- sådan virker den */}
         <section id="saadan" className="bg-background">
-          <div className="mx-auto max-w-6xl px-4 py-16">
+          <div className="mx-auto max-w-side px-4 py-16">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Sådan virker den
             </h2>
@@ -697,7 +697,7 @@ export default function ReviewstanderPage() {
 
         {/* --------------------------------------------------------- placering */}
         <section className="border-t border-border bg-background">
-          <div className="mx-auto max-w-6xl px-4 py-16">
+          <div className="mx-auto max-w-side px-4 py-16">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Placér den dér, hvor den gode oplevelse slutter
             </h2>
@@ -843,7 +843,7 @@ export default function ReviewstanderPage() {
 
         {/* ------------------------------------------------- produkt og priser */}
         <section className="border-t border-border bg-background">
-          <div className="mx-auto max-w-6xl px-4 py-16">
+          <div className="mx-auto max-w-side px-4 py-16">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Tre måder at få standeren på
             </h2>
@@ -1031,7 +1031,7 @@ export default function ReviewstanderPage() {
 
         {/* --------------------------------------------------------- final CTA */}
         <section className="border-t border-border bg-dark text-dark-fg">
-          <div className="mx-auto max-w-6xl px-4 py-20 text-center">
+          <div className="mx-auto max-w-side px-4 py-20 text-center">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Gør det nemt for kunderne at anmelde dig
             </h2>
