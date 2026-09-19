@@ -121,6 +121,28 @@
      `--accent-lys` er LOGOETS turkis (#4ea4ad) og ikke sitets accent. Den
      bruges KUN som lys ende i en gradient og aldrig som tekst: den giver
      3,0:1 på hvidt og må derfor aldrig bære en bogstav. */
+  /* ---------------------------------------------------------------------
+     SKALAEN — DE ENESTE FARVER UDEN FOR PALETTEN, OG DE FORKLARER NOGET.
+
+     En fordeling fra 1 til 5 stjerner er en RÆKKEFØLGE, og rækkefølger kan
+     husets palet ikke bære: accenten er én farve, og fem toner af den ville
+     sige "mere teal" frem for "bedre". Derfor en egen skala fra dæmpet rød
+     til dæmpet grøn — dét er den eneste aflæsning, alle deler.
+
+     De er VARME og afdæmpede med vilje. En ren #ef4444 ved siden af en
+     råhvid grund og en petroleumsaccent ligner en advarsel fra et andet
+     system; disse fem ligger i samme temperatur som resten af sitet og
+     læses som et diagram frem for som alarmer.
+
+     FARVEN ER ALDRIG DEN ENESTE BÆRER. Hver søjle står med sit antal og sin
+     procent i tal ved siden af, så fordelingen kan læses uden at kunne skelne
+     farverne — `fordeling-soejler.test.ts` håndhæver det. */
+  --skala-1: #c05a4a;
+  --skala-2: #d08a4a;
+  --skala-3: #d7b055;
+  --skala-4: #8ba85f;
+  --skala-5: #4a8f68;
+
   --surface-subtle: #faf8f4;
   --accent-tint: #eaf1f2;
   --accent-tint-staerk: #d5e5e8;
@@ -201,6 +223,11 @@
   --color-accent-tint: var(--accent-tint);
   --color-accent-tint-staerk: var(--accent-tint-staerk);
   --color-accent-lys: var(--accent-lys);
+  --color-skala-1: var(--skala-1);
+  --color-skala-2: var(--skala-2);
+  --color-skala-3: var(--skala-3);
+  --color-skala-4: var(--skala-4);
+  --color-skala-5: var(--skala-5);
   /* Giver `max-w-side` (og `w-side`) — Tailwinds container-navnerum. */
   --container-side: var(--bredde-side);
 
@@ -321,15 +348,63 @@ body {
      Kun accenten er i spil, og kun som FLADE — aldrig som tekst. Selve
      ikonet bærer `--accent`, som klarer 5,47:1 på tinten. */
   .ikon-felt {
-    background-image: linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--accent-tint) 60%, #ffffff) 0%,
-      var(--accent-tint) 55%,
-      var(--accent-tint-staerk) 100%
-    );
+    /*
+      FIRE LAG GØR FORSKELLEN PÅ EN FARVET CIRKEL OG ET EMNE.
+      (1) en gradient fra næsten hvidt øverst til den stærke tint nederst —
+      lyset kommer oppefra, som overalt ellers på fladen; (2) en lys
+      inderkant i toppen, der læses som kanten, lyset rammer; (3) en MØRK
+      inderkant i bunden, som er den skygge, en fordybning kaster på sig
+      selv — det er dét ene lag, der gør feltet rundt frem for fladt; og
+      (4) en kort, varm skygge under, tonet som i produktfotoet (#6b5f57).
+      Ringen holder kanten, når feltet står på hvidt.
+    */
+    /* To billeder oven på hinanden: et SPEKULÆRT højlys oppe til venstre —
+       dér, hvor lyset kommer fra overalt ellers — og under det den
+       retningsbestemte gradient. Det er højlyset, der gør feltet rundt; uden
+       det er en gradient bare en flade, der er lysere i den ene ende. */
+    background-image:
+      radial-gradient(
+        72% 62% at 30% 16%,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(255, 255, 255, 0) 62%
+      ),
+      linear-gradient(
+        155deg,
+        color-mix(in srgb, var(--accent-tint) 55%, #ffffff) 0%,
+        var(--accent-tint) 42%,
+        color-mix(in srgb, var(--accent-tint-staerk) 82%, var(--accent)) 100%
+      );
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.75),
-      0 1px 2px rgba(30, 28, 26, 0.06);
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -2px 3px color-mix(in srgb, var(--accent) 20%, transparent),
+      0 1px 2px rgba(107, 95, 87, 0.12),
+      0 5px 10px -4px rgba(107, 95, 87, 0.18);
+  }
+
+  /*
+    DEN FYLDTE UDGAVE — til ét ikon ad gangen, aldrig til en hel række.
+    Accenten som flade med et hvidt ikon har mere vægt end tinten, og fire
+    af dem ved siden af hinanden ville netop være de "store flade turkise
+    felter", der skulle væk. Bruges dér, hvor ét element fører an.
+  */
+  .ikon-felt-fyldt {
+    background-image:
+      radial-gradient(
+        72% 62% at 30% 16%,
+        rgba(255, 255, 255, 0.4) 0%,
+        rgba(255, 255, 255, 0) 60%
+      ),
+      linear-gradient(
+        155deg,
+        color-mix(in srgb, var(--accent-lys) 85%, #ffffff) 0%,
+        var(--accent) 55%,
+        var(--accent-hover) 100%
+      );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.28),
+      inset 0 -2px 3px rgba(0, 0, 0, 0.16),
+      0 2px 4px rgba(107, 95, 87, 0.16),
+      0 8px 16px -6px color-mix(in srgb, var(--accent) 45%, transparent);
   }
 
   /* Samme greb på mørk bund — heroen og de mørke sektioner. */

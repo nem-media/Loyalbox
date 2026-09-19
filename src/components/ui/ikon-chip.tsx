@@ -1,46 +1,55 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Ikon i en tonet cirkel.
+ * Et ikon i et hævet felt.
  *
- * Devicet fandtes allerede — i `EmptyState`, hvor det er dét, der gør en tom
- * liste til noget designet frem for en grå sætning i et hvidt felt. Det stod
- * bare kun ét sted. Menuen fik ikoner og løftede hele panelet; det samme greb
- * inde i indholdet binder de to halvdele sammen, fordi ikonsproget er det
- * samme.
+ * FLADEN LIGGER I CSS (`.ikon-felt` / `.ikon-felt-fyldt` i globals.css), fordi
+ * de fire lag, der gør feltet rundt frem for fladt, ikke kan skrives som
+ * Tailwind-utilities uden at blive en streng, ingen læser. Begrundelsen for
+ * hvert lag står dér.
  *
- * Chippen er ALTID `aria-hidden`. Betydningen står i overskriften ved siden
- * af, og et navn her ville få skærmlæseren til at sige den samme ting to
- * gange — samme regel som brancheikonerne.
+ * TO TONER, OG DEN FYLDTE ER TIL ÉT IKON AD GANGEN. Accenten som flade med et
+ * hvidt ikon har vægt; fire af dem på række er præcis de "store flade turkise
+ * felter", der skulle væk. Tinten er standarden, og den er dét, en række
+ * nøgletal skal bære.
  */
 export function IkonChip({
   icon: Ikon,
   size = "sm",
+  tone = "tint",
   className,
 }: {
   icon: React.ComponentType<{ className?: string }>;
-  /** `lg` er til en tom tilstand, hvor cirklen bærer et helt felt. */
-  size?: "sm" | "lg";
+  /** `sm` i en overskrift, `lg` på et nøgletal, `xl` når feltet fører an. */
+  size?: "sm" | "lg" | "xl";
+  tone?: "tint" | "fyldt";
   className?: string;
 }) {
-  const stor = size === "lg";
+  const felt = {
+    sm: "h-7 w-7",
+    lg: "h-11 w-11",
+    xl: "h-14 w-14",
+  }[size];
+
+  const ikon = {
+    sm: "h-4 w-4",
+    lg: "h-[22px] w-[22px]",
+    xl: "h-7 w-7",
+  }[size];
 
   return (
     <span
       aria-hidden="true"
-      /*
-       * `ikon-felt` (globals.css) giver gradienten, den lyse inderkant og den
-       * meget lave skygge. Før var chippen `bg-accent/8` — en flad plet i en
-       * farve, der skifter alt efter hvad der ligger under. Nu er den en
-       * flade med lys på, og tinten er blandet ét sted.
-       */
       className={cn(
-        "ikon-felt grid shrink-0 place-items-center rounded-full text-accent",
-        stor ? "h-11 w-11" : "h-7 w-7",
+        "grid shrink-0 place-items-center rounded-full",
+        tone === "fyldt"
+          ? "ikon-felt-fyldt text-white"
+          : "ikon-felt text-accent ring-1 ring-accent/10",
+        felt,
         className,
       )}
     >
-      <Ikon className={stor ? "h-5 w-5" : "h-4 w-4"} />
+      <Ikon className={ikon} />
     </span>
   );
 }

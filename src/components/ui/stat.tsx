@@ -100,6 +100,10 @@ export function Stat({
   return (
     <Card className={cn("relative", lille ? "p-4" : "p-5", className)}>
       {icon ? (
+        /* Øverste HØJRE hjørne og ikke over etiketten: tallet skal være det
+           første, øjet lander på, og et ikon foran etiketten ville skubbe
+           læsningen en linje ned. Herfra balancerer det kortet uden at
+           konkurrere. */
         <IkonChip
           icon={icon}
           size={lille ? "sm" : "lg"}

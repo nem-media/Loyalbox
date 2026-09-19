@@ -25,6 +25,7 @@ import {
   scoreTone,
   type Delnavn,
 } from "@/lib/omdoemme";
+import { FordelingSoejler } from "@/components/ui/fordeling-soejler";
 import { EksterneProfiler } from "./eksterne-profiler";
 import { OffentligKontakt } from "./offentlig-kontakt";
 import { OffentligNudge } from "./offentlig-nudge";
@@ -83,7 +84,9 @@ export default async function OmdoemmePage() {
     );
   }
 
-  const { omdoemme, profiler, forrige } = await hentOmdoemme(company.id);
+  const { omdoemme, profiler, forrige, fordeling } = await hentOmdoemme(
+    company.id,
+  );
   // Historikken skrives, når nogen ser på tallet — se gemDagensSnapshot().
   await gemDagensSnapshot(company.id, omdoemme);
 
@@ -229,6 +232,25 @@ export default async function OmdoemmePage() {
                       </p>
                     </div>
                   ) : null}
+
+                  {/*
+                    STRIBEN SIGER FORHOLDET, SØJLERNE SIGER HVOR.
+                    De tre andele svarer på "hvor godt går det"; fordelingen
+                    svarer på "hvad består det af" — og fyrre firestjernede er
+                    en anden forretning end tyve femmere og fem ettere, selv om
+                    gennemsnittet er det samme. Tallene er butikkens egne og
+                    blev i forvejen regnet ud til scoren.
+                  */}
+                  <div className="mt-6 border-t border-border pt-5">
+                    <p className="etiket mb-3">Fordeling</p>
+                    <FordelingSoejler
+                      raekker={([5, 4, 3, 2, 1] as const).map((n) => ({
+                        navn: `${n} ${n === 1 ? "stjerne" : "stjerner"}`,
+                        antal: fordeling[n],
+                        trin: n,
+                      }))}
+                    />
+                  </div>
                 </>
               )}
             </CardBody>
