@@ -9,7 +9,11 @@ const STEPS = [
   },
   {
     label: "Få dem tilbage",
-    body: "Digitale stempelkort, belønninger og tilbud giver kunderne en grund til at komme igen.",
+    /* BEGGE FORMER, også når linjen er kort. Trinnet er hele svaret på
+       "hvordan får jeg dem tilbage?", og et stempelkort alene er halvdelen:
+       en forretning, hvor kunderne kommer sjældent og køber for forskellige
+       beløb, er præcis den, pointprogrammet findes til. */
+    body: "Digitale stempelkort og pointprogrammer med belønninger giver kunderne en grund til at komme igen.",
   },
   {
     label: "Voks videre",

@@ -29,13 +29,22 @@ export const PLATFORM_VALG: {
   /** Korte celler til tabellen — de skal kunne skimmes, ikke læses. */
   kundenSer: string;
   skifte: string;
-  stempelkort: string;
+  /**
+   * LOYALITET ER TO FORMER, OG KOLONNEN HED FØR KUN DEN ENE.
+   *
+   * Feltet hed `stempelkort`, og cellen svarede "Ja" — sandt, men det er
+   * halvdelen: LoyalSum Komplet bærer BÅDE et stempelkort og et pointprogram,
+   * og en tabel, der sammenligner pakker, er netop dér, en køber finder ud af,
+   * hvad de får. Samme lektie som overalt ellers: siger et sted "hvad får du /
+   * hvad får du ikke", skal begge former stå der.
+   */
+  loyalitet: string;
   /**
    * Er der et fysisk skilt med i varen?
    *
    * KOLONNEN KOM TIL MED LoyalSum Komplet Online. Uden den svarede tabellen
    * ens på alle fem spørgsmål for Komplet og Komplet Online — platforme,
-   * kundens vej, skifte og stempelkort er de samme — og så ville de to ligne
+   * kundens vej, skifte og loyalitet er de samme — og så ville de to ligne
    * samme vare til to priser. Forskellen ER standeren, og en
    * sammenligningstabel, der ikke har en kolonne til den ene forskel, der
    * findes, sammenligner ikke noget.
@@ -50,7 +59,7 @@ export const PLATFORM_VALG: {
     kundenSer: "Sendes direkte videre",
     note: "Købes uden konto. QR'en sender kunden direkte videre til det ene link, du vælger — også dit eget, fx menukortet. Der vises ingen side undervejs, og derfor indsamles hverken feedback eller statistik.",
     skifte: "Nej — sættes ved bestillingen",
-    stempelkort: "Nej",
+    loyalitet: "Nej",
     stander: "Ja",
   },
   {
@@ -61,18 +70,18 @@ export const PLATFORM_VALG: {
     kundenSer: "Vælger mellem dine platforme",
     note: "Du bestemmer selv, hvilke platforme kunden får at se, og du kan skifte dem når som helst uden at trykke standeren om. Alle valg vises med samme vægt, og du kan lægge dit eget link ved siden af.",
     skifte: "Ja — når som helst",
-    stempelkort: "Nej",
+    loyalitet: "Nej",
     stander: "Ja",
   },
   {
     slug: "loyalsum-komplet",
     platforme: ["Google", "Trustpilot", "Facebook"],
-    maerke: "Alt i Pro + stempelkort",
+    maerke: "Alt i Pro + loyalitet",
     platformCelle: "Google, Trustpilot og Facebook — plus eget link",
-    kundenSer: "Vælger — og kan tilmelde sig stempelkort",
-    note: "Alt fra Reviewstander Pro, og oveni resten af platformen: digitalt stempelkort uden app for dine kunder, kundeklub og opslag af dine bedste anmeldelser.",
+    kundenSer: "Vælger — og kan samle stempler eller point",
+    note: "Alt fra Reviewstander Pro, og oveni resten af platformen: digitalt stempelkort OG pointprogram uden app for dine kunder, kundeklub og opslag af dine bedste anmeldelser. Du vælger selv den ene form, den anden eller begge.",
     skifte: "Ja — når som helst",
-    stempelkort: "Ja",
+    loyalitet: "Stempelkort og pointprogram",
     stander: "Ja",
   },
   {
@@ -88,10 +97,10 @@ export const PLATFORM_VALG: {
     platforme: ["Google", "Trustpilot", "Facebook"],
     maerke: "Alt i Komplet — uden skilt",
     platformCelle: "Google, Trustpilot og Facebook — plus eget link",
-    kundenSer: "Vælger — og kan tilmelde sig stempelkort",
+    kundenSer: "Vælger — og kan samle stempler eller point",
     note: "Præcis de samme funktioner som LoyalSum Komplet, men uden noget at stille på disken. Du får dit eget LoyalSum-link og en QR-kode, som du selv deler — på din hjemmeside, i din webshop eller i dine mails.",
     skifte: "Ja — når som helst",
-    stempelkort: "Ja",
+    loyalitet: "Stempelkort og pointprogram",
     stander: "Nej — du deler selv linket",
   },
 ];

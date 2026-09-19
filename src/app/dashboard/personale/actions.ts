@@ -39,7 +39,7 @@ async function requireOwner() {
  * afgøres af PRODUKTET, fordi Pro og Komplet er samme `plan`.
  */
 const IKKE_I_PLANEN =
-  "Medarbejderadgang følger med LoyalSum Komplet. Se dit abonnement for at få stempelkort og personale med.";
+  "Medarbejderadgang følger med LoyalSum Komplet. Se dit abonnement for at få stempelkort, pointprogram og personale med.";
 
 async function kraevMedarbejderadgang() {
   const access = await requireOwner();

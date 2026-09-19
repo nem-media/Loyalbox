@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { KOMPLET_FUNKTIONER, getProduct } from "./constants";
+import { PLATFORM_VALG } from "./reviewstander-valg";
 import { GUIDES } from "./guides";
 
 /**
@@ -123,6 +124,76 @@ describe("det, kunden får at vide om hvad der følger med", () => {
     expect(g!.kraever, "den hører til Komplet").toBe("komplet");
     expect(g!.steps.length).toBeGreaterThanOrEqual(3);
   });
+});
+
+describe("oversigterne, der sammenligner pakkerne", () => {
+  /*
+   * DET ER HER, EN KØBER VÆLGER — og det var her, pointprogrammet manglede
+   * længst. Varernes EGNE tekster blev rettet, da varen kom til, men
+   * oversigterne ved siden af blev ikke: sammenligningstabellen på
+   * /reviewstander havde en kolonne, der HED "Stempelkort" og svarede "Ja",
+   * og forsidens to afsnit om loyalitet nævnte kun stempelkortet. Sandt hver
+   * gang, og halvdelen hver gang — og den halvdel, der mangler, er præcis den
+   * form, en forretning med sjældne eller ujævne køb skal bruge.
+   *
+   * Prøverne spørger til EGENSKABEN "nævner stedet begge former?" og ikke til
+   * en ordlyd, så teksterne kan skrives om uden at prøven skal med.
+   */
+  const baadeOgg = (s: string, hvor: string) => {
+    const t = s.toLowerCase();
+    expect(t, `${hvor} nævner stempelkortet`).toMatch(/stempel/);
+    expect(t, `${hvor} nævner pointprogrammet`).toMatch(/point/);
+  };
+
+  it("sammenligningstabellens loyalitetscelle dækker begge former", () => {
+    for (const valg of PLATFORM_VALG) {
+      const vare = getProduct(valg.slug);
+      expect(vare, `${valg.slug} findes i kataloget`).toBeTruthy();
+      if (!vare!.includesLoyalSum) {
+        /* Varen HAR ingen loyalitet — så skal cellen blive ved med at sige
+           nej. Uden dette led ville "Nej" kunne skrives om til noget, der
+           nævner begge former, og bestå. */
+        expect(valg.loyalitet.toLowerCase(), `${valg.slug} har ingen loyalitet`).toMatch(
+          /^nej/,
+        );
+        continue;
+      }
+      baadeOgg(valg.loyalitet, `${valg.slug}s celle i tabellen`);
+
+      /*
+       * NOTEN MÅ HENVISE I STEDET FOR AT REMSE OP. Online siger "præcis de
+       * samme funktioner som LoyalSum Komplet" med vilje: en opremsning kan
+       * komme til at mangle noget den dag, Komplet får en funktion mere, og
+       * så ville den digitale vare se mindre ud, end den er. En henvisning
+       * kan ikke komme bagud.
+       */
+      const note = valg.note.toLowerCase();
+      const henviser = /samme funktioner som loyalsum komplet/.test(note);
+      if (!henviser) baadeOgg(valg.note, `${valg.slug}s note under kortet`);
+    }
+  });
+
+  it("tabellens kolonnenavn lover ikke kun den ene form", () => {
+    /* En celle, der siger begge dele, hjælper ikke, hvis kolonnen over den
+       hedder "Stempelkort": overskriften er dét, øjet skimmer. */
+    const side = kilde("src/app/reviewstander/page.tsx");
+    const kolonner = [...side.matchAll(/<th[^>]*>\s*([^<]+?)\s*<\/th>/g)].map((m) =>
+      m[1].trim().toLowerCase(),
+    );
+    expect(kolonner.length, "tabellen har kolonner").toBeGreaterThan(3);
+    expect(kolonner, "ingen kolonne hedder kun Stempelkort").not.toContain("stempelkort");
+    expect(kolonner, "loyalitetskolonnen findes").toContain("loyalitet");
+  });
+
+  const FORSIDEN: [string, string][] = [
+    ["src/components/home/platform-showcase.tsx", "forsidens platformafsnit"],
+    ["src/components/home/loyalsum-loop.tsx", "forsidens loop"],
+  ];
+  for (const [sti, hvad] of FORSIDEN) {
+    it(`${hvad} nævner begge former`, () => {
+      baadeOgg(kilde(sti), hvad);
+    });
+  }
 });
 
 describe("det juridiske beskriver også pointdata", () => {
