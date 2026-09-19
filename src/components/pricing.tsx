@@ -1,6 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { KATALOG, PRODUKT_FOTO, harFysiskSkilt } from "@/lib/constants";
+import {
+  KATALOG,
+  PRODUKT_FOTO,
+  PRODUKT_FOTO_ALT,
+  harFysiskSkilt,
+} from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { ProductPrice } from "@/components/product-price";
 import {
@@ -60,7 +65,7 @@ export function Pricing() {
                   købssiden lå på 4,7 s. */}
               <Image
                 src={PRODUKT_FOTO[p.slug]}
-                alt={`${p.name} — reviewstander i brug`}
+                alt={PRODUKT_FOTO_ALT[p.slug] ?? p.name}
                 fill
                 priority={nr === 0}
                 sizes="(min-width: 1100px) 25vw, (min-width: 640px) 50vw, 100vw"

@@ -6,11 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import {
   DIGITAL_DELETEKST,
+  KOMMENDE_FOTO,
+  KOMMENDE_FOTO_ALT,
   FOTO_FARVETEKST,
   harFysiskSkilt,
   KATALOG,
   KORT_PUNKTER,
   PRODUKT_FOTO,
+  PRODUKT_FOTO_ALT,
   UPCOMING_MERCH,
   formatMaal,
   harPris,
@@ -112,7 +115,7 @@ export default function ProductsPage() {
                 {/* Se `pricing.tsx`: samme gitter, samme `sizes`. */}
                 <Image
                   src={PRODUKT_FOTO[p.slug]}
-                  alt={`${p.name} — reviewstander i brug`}
+                  alt={PRODUKT_FOTO_ALT[p.slug] ?? p.name}
                   fill
                   priority={nr === 0}
                   sizes="(min-width: 1100px) 25vw, (min-width: 640px) 50vw, 100vw"
@@ -215,14 +218,40 @@ export default function ProductsPage() {
                 key={m.key}
                 className="box-shape flex flex-col border border-dashed border-border bg-card"
               >
-                <PlaceholderPanel
-                  className="aspect-[4/3]"
-                  icon={UPCOMING_ICONS[m.key]}
-                >
-                  <div className="absolute left-3 top-3">
-                    <Badge tone="warning">På vej</Badge>
+                {/*
+                  BILLEDET NÅR DET FINDES — ellers streg-ikonet.
+                  Et ikon på råhvid fortæller ikke en butik, om en
+                  "selvklæbende plakat" sidder på ruden eller på væggen; det
+                  gør billedet på ét blik. Badgen "På vej" bliver stående oven
+                  på begge dele, så et foto ikke kommer til at love, at varen
+                  kan bestilles.
+                */}
+                {KOMMENDE_FOTO[m.key] ? (
+                  <div className="relative aspect-[4/3] overflow-hidden">
+                    <Image
+                      src={KOMMENDE_FOTO[m.key]}
+                      alt={KOMMENDE_FOTO_ALT[m.key] ?? m.name}
+                      fill
+                      sizes="(min-width: 1100px) 25vw, (min-width: 640px) 50vw, 100vw"
+                      className="object-cover"
+                    />
+                    {/* Solidt mærke og ikke <Badge>: den er bg-star/15 og
+                        forsvinder over et foto. Samme greb som "Mest
+                        populær" på produktkortene. */}
+                    <span className="box-shape absolute left-3 top-3 bg-dark px-2.5 py-1 text-xs font-semibold text-white shadow-[0_4px_12px_-4px_rgba(0,0,0,0.5)]">
+                      På vej
+                    </span>
                   </div>
-                </PlaceholderPanel>
+                ) : (
+                  <PlaceholderPanel
+                    className="aspect-[4/3]"
+                    icon={UPCOMING_ICONS[m.key]}
+                  >
+                    <div className="absolute left-3 top-3">
+                      <Badge tone="warning">På vej</Badge>
+                    </div>
+                  </PlaceholderPanel>
+                )}
                 <div className="flex flex-1 flex-col p-5">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted">
                     {m.placering}

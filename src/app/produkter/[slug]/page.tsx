@@ -10,6 +10,7 @@ import {
   harFysiskSkilt,
   KATALOG,
   PRODUKT_FOTO,
+  PRODUKT_FOTO_ALT,
   PRODUKT_FOTO_TEKST,
   getProduct,
 } from "@/lib/constants";
@@ -160,7 +161,7 @@ export default async function ProductPage({
                     hel derunder. */}
                 <Image
                   src={PRODUKT_FOTO[product.slug]}
-                  alt={`${product.name} — reviewstander i brug`}
+                  alt={PRODUKT_FOTO_ALT[product.slug] ?? product.name}
                   fill
                   sizes="(min-width: 768px) 50vw, 100vw"
                   className="object-cover"
