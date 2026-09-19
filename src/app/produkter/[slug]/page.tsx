@@ -155,7 +155,11 @@ export default async function ProductPage({
               varens egen først, dernæst det, der gælder alle tre skilte. */}
           <div>
             {PRODUKT_FOTO[product.slug] ? (
-              <div className="box-shape relative aspect-[4/5] overflow-hidden border border-border">
+              /* PRODUKT_LOFT OG INGEN STREG. Fotoet er et emne på en
+                 bordplade — se `.produkt-loft` i globals.css, hvis skygge er
+                 målt i netop dette billede. En 1 px kant om det gjorde det
+                 til en illustration i en ramme. */
+              <div className="produkt-loft box-shape relative aspect-[4/5] overflow-hidden">
                 {/* `relative` er tilføjet, fordi `fill` måler sig mod nærmeste
                     positionerede forælder. Spalten er halv bredde fra `md` og
                     hel derunder. */}

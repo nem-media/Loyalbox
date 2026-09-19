@@ -20,7 +20,17 @@ export function StempelkortVisual({ className }: { className?: string }) {
     <div
       aria-hidden="true"
       className={cn(
-        "box-shape select-none border border-white/10 bg-white p-6 text-foreground shadow-[0_40px_80px_-30px_rgba(0,0,0,0.65)]",
+        /*
+        KORTET I HEROEN ER DET NÆRMESTE, VI KOMMER PÅ ET PRODUKTFOTO I CSS.
+        Ét bredt, sort lag er en drop shadow. I vores eget produktfoto ligger
+        den bærbare med en stram kant tæt på bordpladen OG en lang, varm
+        skygge under — tre lag, tonet mod #6b5f57 og ikke mod sort, fordi en
+        sort skygge på en varm flade bliver grå og beskidt.
+
+        Den lyse inderkant foroven er dét, der gør kortet til et emne med lys
+        på: i fotoet fanger skærmens overkant vinduet.
+      */
+      "box-shape select-none bg-white p-6 text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_2px_6px_rgba(107,95,87,0.12),0_22px_40px_-16px_rgba(0,0,0,0.45),0_50px_80px_-30px_rgba(0,0,0,0.5)]",
         className,
       )}
     >
@@ -81,7 +91,7 @@ export function HeroVisual() {
       <div className="absolute -right-3 -top-5 sm:-right-8">
         {/* text-foreground er nødvendig: heroen sætter text-dark-fg (hvid),
             som ellers arves ned i den hvide chip og gør teksten usynlig. */}
-        <div className="btn-shape flex items-center gap-2 bg-white px-3 py-2 text-foreground shadow-[0_16px_32px_-16px_rgba(0,0,0,0.6)]">
+        <div className="btn-shape flex items-center gap-2 bg-white px-3 py-2 text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_2px_5px_rgba(107,95,87,0.14),0_16px_30px_-14px_rgba(0,0,0,0.5)]">
           <Stars value={5} size={13} />
           <span className="text-xs font-semibold tracking-tight">
             Ny anmeldelse
@@ -91,7 +101,7 @@ export function HeroVisual() {
 
       {/* Notifikation: feedback fanget internt */}
       <div className="absolute -bottom-6 -left-3 sm:-left-10">
-        <div className="btn-shape flex items-center gap-2 bg-dark px-3 py-2 text-white ring-1 ring-white/15 shadow-[0_16px_32px_-16px_rgba(0,0,0,0.6)]">
+        <div className="btn-shape flex items-center gap-2 bg-dark px-3 py-2 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_2px_5px_rgba(0,0,0,0.3),0_16px_30px_-14px_rgba(0,0,0,0.55)] ring-1 ring-white/15">
           <span className="grid h-5 w-5 place-items-center rounded-full bg-secondary text-[11px] font-bold text-secondary-fg">
             !
           </span>
@@ -124,7 +134,17 @@ export function AnmeldelseVisual({ className }: { className?: string }) {
     <div
       aria-hidden="true"
       className={cn(
-        "box-shape select-none border border-white/10 bg-white p-6 text-foreground shadow-[0_40px_80px_-30px_rgba(0,0,0,0.65)]",
+        /*
+        KORTET I HEROEN ER DET NÆRMESTE, VI KOMMER PÅ ET PRODUKTFOTO I CSS.
+        Ét bredt, sort lag er en drop shadow. I vores eget produktfoto ligger
+        den bærbare med en stram kant tæt på bordpladen OG en lang, varm
+        skygge under — tre lag, tonet mod #6b5f57 og ikke mod sort, fordi en
+        sort skygge på en varm flade bliver grå og beskidt.
+
+        Den lyse inderkant foroven er dét, der gør kortet til et emne med lys
+        på: i fotoet fanger skærmens overkant vinduet.
+      */
+      "box-shape select-none bg-white p-6 text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_2px_6px_rgba(107,95,87,0.12),0_22px_40px_-16px_rgba(0,0,0,0.45),0_50px_80px_-30px_rgba(0,0,0,0.5)]",
         className,
       )}
     >

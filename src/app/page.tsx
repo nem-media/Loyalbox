@@ -296,7 +296,7 @@ export default function LandingPage() {
         <ProduktStribe />
 
         {/* --------------------------------------------------- trust-stribe */}
-        <section className="border-t border-border bg-muted-bg">
+        <section className="varm-lys border-t border-border bg-muted-bg">
           <div className="mx-auto max-w-side px-4 py-5">
             <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-sm text-muted">
               {[
@@ -380,7 +380,7 @@ export default function LandingPage() {
         {/* ------------------------------------------------ LoyalSum-loopet */}
         <section
           id="loop"
-          className="scroll-mt-24 border-t border-border bg-muted-bg"
+          className="varm-lys scroll-mt-24 border-t border-border bg-muted-bg"
         >
           <div className="mx-auto max-w-side px-4 py-16 sm:py-20">
             <div className="mx-auto max-w-2xl text-center">
@@ -532,7 +532,7 @@ export default function LandingPage() {
         {/* ----------------------------------------------------- platformen */}
         <section
           id="platform"
-          className="scroll-mt-24 border-t border-border bg-muted-bg"
+          className="varm-lys scroll-mt-24 border-t border-border bg-muted-bg"
         >
           <div className="mx-auto max-w-side px-4 py-16 sm:py-20">
             <div className="mx-auto max-w-2xl text-center">
@@ -595,7 +595,7 @@ export default function LandingPage() {
         <Udtalelser />
 
         {/* -------------------------------------------------------- brancher */}
-        <section className="border-t border-border bg-muted-bg">
+        <section className="varm-lys border-t border-border bg-muted-bg">
           <div className="mx-auto max-w-side px-4 py-16 sm:py-20">
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
