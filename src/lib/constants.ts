@@ -615,7 +615,7 @@ export const PRODUCTS: Product[] = [
      * ikke får. Den er samtidig dét, delebilledet falder tilbage på, så
      * søgeresultat og delt link viser det samme.
      */
-    image: "/opengraph-image",
+    image: "/loyalsum-komplet-online-dashboard-og-mobil.jpg",
     features: [
       "Alle funktioner fra LoyalSum Komplet",
       "Dit eget LoyalSum-link og QR-kode",
@@ -728,6 +728,71 @@ export const PRODUKT_FOTO: Record<string, string> = {
   reviewstander: "/reviewstander-boutique.jpg",
   "reviewstander-pro": "/reviewstander-boutique.jpg",
   "loyalsum-komplet": "/reviewstander-cafe-komplet.jpg",
+  /*
+    DEN DIGITALE VARE FIK SIT EGET MOTIV. Den har stået med QR-pladsholderen,
+    fordi der ikke var noget at fotografere — en stander findes ikke i den.
+    Billedet viser dét, varen FAKTISK er: panelet på en skærm og kundens kort
+    på en telefon. Pladsholderen forsvinder derfor for den nu, og
+    `DigitalPlaceholder` bliver stående til den næste vare uden billede.
+  */
+  "loyalsum-komplet-online": "/loyalsum-komplet-online-dashboard-og-mobil.jpg",
+};
+
+/**
+ * Alt-teksten til produktfotoet.
+ *
+ * DEN VAR SKREVET I KODEN SOM `${p.name} — reviewstander i brug`, og det var
+ * sandt, så længe alle varer var en stander. LoyalSum Komplet Online viser en
+ * bærbar og en telefon, og en skærmlæser fik altså at vide, at der stod en
+ * reviewstander på billedet. Teksten hører til BILLEDET og ikke til varen, så
+ * den står her ved siden af filen.
+ */
+export const PRODUKT_FOTO_ALT: Record<string, string> = {
+  reviewstander:
+    "LoyalSum reviewstander på disken i en butik, med QR-kode og NFC-felt",
+  "reviewstander-pro":
+    "LoyalSum reviewstander på disken i en butik, med QR-kode og NFC-felt",
+  "loyalsum-komplet":
+    "LoyalSum reviewstander på cafédisken med mærkatet om stempelkort",
+  "loyalsum-komplet-online":
+    "LoyalSum-panelet på en bærbar og kundens stempelkort og point på en telefon",
+};
+
+/**
+ * Billeder til de materialer, der er PÅ VEJ.
+ *
+ * Egen liste og ikke `PRODUKT_FOTO`: de her er ikke varer i kataloget, de kan
+ * ikke købes, og de har hverken slug, pris-id eller produktside. Nøglen er
+ * `UpcomingItem.key`.
+ *
+ * ET FOTO GØR DEM IKKE BESTILBARE. Badgen "På vej" bliver stående oven på
+ * billedet, og teksten under siger stadig, at de ikke kan bestilles endnu.
+ * Grunden til at vise dem er den modsatte af et løfte: et streg-ikon på
+ * råhvid fortæller ikke en butik, om en "selvklæbende plakat" sidder på ruden
+ * eller på væggen — det gør billedet på ét blik.
+ */
+export const KOMMENDE_FOTO: Record<string, string> = {
+  plakater: "/loyalsum-plakat-qr-kode-anmeldelser.jpg",
+  selvklaebende: "/loyalsum-selvklaebende-plakat-rude.jpg",
+  maerkater: "/loyalsum-vindues-og-bordmaerkater.jpg",
+  flyers: "/loyalsum-flyers-qr-kode-til-posen.jpg",
+};
+
+/**
+ * Alt-teksten til hvert af dem. SKREVET OG IKKE UDLEDT af navnet: en
+ * skærmlæser skal høre, hvad der er PÅ billedet — hvor materialet sidder, og
+ * hvad der står på det — og ikke varenavnet en gang til, som allerede står
+ * som overskrift lige under.
+ */
+export const KOMMENDE_FOTO_ALT: Record<string, string> = {
+  plakater:
+    "A4-plakat med QR-kode og fem stjerner hængt på væggen i en café, klar til at blive scannet",
+  selvklaebende:
+    "Selvklæbende LoyalSum-plakat sat direkte på butiksruden, med QR-kode og NFC-felt",
+  maerkater:
+    "Vinduesmærkat på ruden og et bordmærkat i holder på disken — samme QR-kode begge steder",
+  flyers:
+    "Stak LoyalSum-flyers på disken, og en medarbejder lægger en ned i kundens pose",
 };
 
 /**

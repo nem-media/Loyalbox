@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { KATALOG, PRODUKT_FOTO, harFysiskSkilt } from "./constants";
+import { KATALOG, PRODUKT_FOTO } from "./constants";
 import { kortMetabeskrivelse } from "./site";
 
 /**
@@ -78,7 +78,7 @@ describe("delebilledet er et foto og ikke en tegning", () => {
    * genererede kort (`/opengraph-image`) — en rigtig PNG, ikke en SVG. Det er
    * dét, prøven her passer på: at ingen kommer til at dele en tegning.
    */
-  for (const p of KATALOG.filter(harFysiskSkilt)) {
+  for (const p of KATALOG) {
     it(`${p.slug} har et rigtigt foto til deling`, () => {
       const foto = PRODUKT_FOTO[p.slug];
       expect(foto, `PRODUKT_FOTO mangler for ${p.slug}`).toBeTruthy();

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { KATALOG, PRODUKT_FOTO, harFysiskSkilt } from "./constants";
+import { KATALOG, PRODUKT_FOTO } from "./constants";
 
 /**
  * HVER SIDE, DER VISER VARER SOM KORT, SKAL VISE FOTOET — OG ALLE TRE VARER.
@@ -98,7 +98,7 @@ describe("alle tre varer vises", () => {
       "reviewstander-pro",
     ]);
     // Fotoet kræves kun af de varer, der HAR en fysisk ting at fotografere.
-    for (const p of KATALOG.filter(harFysiskSkilt)) {
+    for (const p of KATALOG) {
       expect(PRODUKT_FOTO[p.slug], p.slug).toBeTruthy();
     }
   });

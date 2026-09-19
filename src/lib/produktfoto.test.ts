@@ -8,7 +8,6 @@ import {
   PRODUKT_FOTO,
   PRODUKT_FOTO_TEKST,
 } from "./constants";
-import { harFysiskSkilt } from "./constants";
 import { ACCENT_TEKSTER, FRONT_TEKSTER } from "./stander-tilvalg";
 
 describe("produktfoto og billedtekst", () => {
@@ -32,7 +31,7 @@ describe("produktfoto og billedtekst", () => {
    * billede er værre end pladsholderen, fordi det ikke ligner en fejl.
    */
   it("hver FYSISK vare har et foto", () => {
-    for (const p of KATALOG.filter(harFysiskSkilt)) {
+    for (const p of KATALOG) {
       expect(PRODUKT_FOTO[p.slug], `foto mangler for ${p.slug}`).toBeTruthy();
     }
   });
