@@ -110,7 +110,17 @@ describe("Stripe-id'er er komplette pr. tilstand", () => {
     for (const p of PRODUCTS) {
       for (const [mode, ids] of Object.entries(p.stripe ?? {})) {
         expect(ids.productId, `${p.slug}/${mode}: produkt`).toBeTruthy();
-        expect(ids.priceId, `${p.slug}/${mode}: pris`).toBeTruthy();
+
+        // Engangsprisen følger samme regel som månedsprisen nedenfor: den
+        // skal findes, hvor varen HAR et engangsbeløb, og må ikke findes,
+        // hvor den ikke har. Reglen var før "altid", fordi hver vare havde en
+        // stander; LoyalSum Komplet Online har ingen, og et prisobjekt på nul
+        // kroner ville være et gemt beløb, der kunne blive opkrævet.
+        if (p.price) {
+          expect(ids.priceId, `${p.slug}/${mode}: pris`).toBeTruthy();
+        } else {
+          expect(ids.priceId, `${p.slug}/${mode}: pris uden beløb`).toBeUndefined();
+        }
 
         // En vare med månedspris SKAL have en månedspris-id i hver tilstand,
         // den overhovedet findes i. Ellers betaler kunden for standeren, får

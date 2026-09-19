@@ -144,10 +144,41 @@ async function stripe(path, params, method = "POST") {
   return json;
 }
 
+/*
+  OPSLAGET MÅ IKKE VÆRE SEARCH — DEN ER EVENTUALLY CONSISTENT.
+
+  Scriptet kalder sig idempotent, og det holdt, så længe der gik et døgn
+  mellem kørslerne. MÅLT 2026-09-19: to kørsler med 12 sekunders mellemrum gav
+  TO produkter for `loyalsum-komplet-online` — hver med sin egen 399 kr.-
+  månedspris. `/v1/products/search` indekserer nyoprettede objekter med
+  forsinkelse (Stripe dokumenterer op mod et minut), så den anden kørsel så et
+  tomt svar og oprettede varen igen.
+
+  DET ER VÆRRE END ET DOBBELT PRODUKT: den anden kørsel udskriver et ANDET
+  `productId` og `monthlyPriceId` end den første, og bliver de skrevet ind i
+  constants.ts, abonnerer nye kunder på et prisobjekt, der hører til en vare,
+  ingen kigger på. To varer med samme navn i Stripes dashboard er desuden
+  præcis den slags, man retter ved at slette den forkerte — og det er ikke til
+  at se hvilken, når begge har rigtige tal.
+
+  `GET /v1/products` er strongly consistent: det, der lige er skrevet, står
+  der. Listen er på fem varer, så der er ingen grund til at sortere i Stripe.
+  ARKIVEREDE TÆLLER IKKE MED (`active=true`) — en vare, der bevidst er taget
+  ud af drift, skal ikke komme tilbage, fordi scriptet kører igen.
+*/
 async function findProduct(slug) {
-  const q = encodeURIComponent(`metadata['loyalsum_slug']:'${slug}'`);
-  const r = await stripe(`products/search?query=${q}&limit=1`, null, "GET");
-  return r.data?.[0] ?? null;
+  let startingAfter = null;
+  for (;;) {
+    const side = await stripe(
+      `products?limit=100&active=true${startingAfter ? `&starting_after=${startingAfter}` : ""}`,
+      null,
+      "GET",
+    );
+    const fundet = side.data?.find((p) => p.metadata?.loyalsum_slug === slug);
+    if (fundet) return fundet;
+    if (!side.has_more || !side.data?.length) return null;
+    startingAfter = side.data[side.data.length - 1].id;
+  }
 }
 
 async function findPrice(productId, amountOere, recurring) {
@@ -200,8 +231,26 @@ for (const p of products) {
   }
 
   const lines = [];
+  /*
+    EN VARE UDEN ENGANGSPRIS SKAL IKKE HAVE EN PÅ 0 KR.
+    Standerlinjen var ubetinget, fordi hver vare havde en stander. LoyalSum
+    Komplet Online har ingen (`price: 0`), og Stripe tager glad imod
+    `unit_amount: 0` — så der ville blive oprettet et gyldigt prisobjekt på
+    nul kroner og skrevet ind i `constants.ts` som varens `priceId`.
+
+    DET ER EN LANDMINE AF SAMME SLAGS SOM DEN, DER ALLEREDE LIGGER DER: de
+    gemte engangspriser står på 399, mens vi opkræver 499, og `pris-
+    graenseflade.test.ts` findes netop, fordi `price: ids.priceId` ser ud som
+    den naturlige måde at bruge dem på. Et nul-prisobjekt ville gøre samme
+    fejltagelse gratis for kunden i stedet for 100 kr. for billig.
+
+    Månedsprisen og opsætningen var betinget i forvejen; standerlinjen får nu
+    samme behandling, så en vare selv afgør, hvilke priser den har.
+  */
   const wanted = [
-    { label: "engangs (stander)", amount: p.price, recurring: false },
+    p.price
+      ? { label: "engangs (stander)", amount: p.price, recurring: false }
+      : null,
     p.setupPrice
       ? { label: "engangs (opsætning)", amount: p.setupPrice, recurring: false }
       : null,

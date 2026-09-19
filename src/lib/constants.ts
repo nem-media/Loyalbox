@@ -276,8 +276,16 @@ export interface StripeIds {
    *
    * `monthlyPriceId` er en anden sag: den BRUGES, og live-priserne er
    * efterprøvet i Stripes dashboard (Pro 99 kr/md, Komplet 399 kr/md).
+   *
+   * VALGFRI, FORDI EN VARE KAN VÆRE REN SOFTWARE. Feltet var påkrævet, så
+   * længe hver vare havde en stander at lægge et engangsbeløb på. LoyalSum
+   * Komplet Online har ingen, og alternativet til at gøre feltet valgfrit var
+   * at opfinde et prisobjekt på nul kroner — altså at gemme et beløb, der
+   * ville blive opkrævet, hvis nogen en dag gjorde dét, advarslen ovenfor
+   * handler om. Mangler den, er det fordi varen ikke HAR en engangspris;
+   * `commerce.test.ts` kræver stadig, at den er der, når `price > 0`.
    */
-  priceId: string;
+  priceId?: string;
   /** Det månedlige abonnement. Kun på abonnementsvarer. BRUGES ved købet. */
   monthlyPriceId?: string;
 }
@@ -567,11 +575,13 @@ export const PRODUCTS: Product[] = [
      * (engangs) + 399 kr./md. for platformen. Uden stander står månedsprisen
      * alene — den er ikke gættet, den er den samme linje.
      *
-     * STRIPE-ID'ERNE MANGLER MED VILJE. De oprettes med
-     * `scripts/setup-stripe-products.mjs`, og indtil de står her, svarer
-     * `canSell()` nej: købsknappen vises ikke, og `/api/checkout` afviser.
-     * Det er den rigtige tilstand at levere i — et opdigtet pris-id ville give
-     * en kunde en betaling, der fejler.
+     * DER ER INGEN `priceId` — OG DET ER IKKE EN FORGLEMMELSE. De øvrige varer
+     * har et engangs-prisobjekt til standeren; her er der ingen stander at
+     * betale for. `setup-stripe-products.mjs` opretter derfor kun månedsprisen
+     * (den sprang før over `monthlyPrice` og `setupPrice`, men lavede
+     * standerlinjen ubetinget — altså et gyldigt prisobjekt på NUL kroner).
+     * Skriver nogen et `priceId` ind her, er det enten et fremmed objekt eller
+     * et nul; se advarslen om `priceId` i AGENTS.md.
      */
     slug: "loyalsum-komplet-online",
     metaDescription:
@@ -610,6 +620,23 @@ export const PRODUCTS: Product[] = [
       "Feedback, kundescore og opslag",
       "Uden fysisk stander",
     ],
+    /*
+      TEST-ID'ERNE ER OPRETTET, MEN SKRIVES IKKE IND ALENE.
+
+      `setup-stripe-products.mjs` har oprettet varen i TESTtilstand
+      (prod_VHrFc2PIk8a1vD · price_1UHHXKRr2uZmH0wdJvucMJLn, 399 kr./md).
+      Live-nøglen ligger som `[SENSITIVE]` i Vercel og kan ikke hentes ned,
+      så live-halvdelen mangler endnu.
+
+      EN HALV OPSÆTNING ER VÆRRE END INGEN. `commerce.test.ts` kræver, at en
+      vare med en `stripe`-blok kan sælges i BEGGE tilstande — netop fordi
+      id'er i test og ikke i live giver en købsknap, der virker for os og
+      fejler for enhver rigtig kunde. Tilkøbet "Ekstra stander" stod og gjorde
+      præcis dét indtil 13. september. Uden blokken er varen derimod spærret i
+      begge verdener, og dét er en tilstand, systemet kan forklare.
+
+      Kør scriptet med live-nøglen og skriv BEGGE tilstande ind på én gang.
+    */
     shoppable: false,
     mpn: "LS-KOMPLET-ONLINE",
     productType: "LoyalSum > Abonnement > LoyalSum Komplet Online",
