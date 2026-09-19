@@ -30,10 +30,16 @@ import { getCurrentUser } from "@/lib/auth";
 import { koebSpaerre } from "@/lib/commerce";
 import { requiresDpa } from "@/lib/dpa";
 
+/*
+  TITLEN SKAL DÆKKE ALLE FIRE VARER. Der stod "Bestil din stander", og siden
+  viser nu også LoyalSum Komplet Online, som ikke har en. Søgeresultatet er
+  det første, kunden ser, og et løfte om en stander dér er forkert for en
+  fjerdedel af det, siden sælger.
+*/
 export const metadata = {
-  title: "Bestil din stander",
+  title: "Bestil LoyalSum",
   description:
-    "Bestil din LoyalSum-stander med mængderabat. Reviewstander, Reviewstander Pro eller LoyalSum Komplet med digitalt stempelkort.",
+    "Vælg mellem tre reviewstandere med mængderabat og LoyalSum Komplet Online uden fysisk stander. Digitalt stempelkort og pointprogram på de to største.",
   alternates: { canonical: "/bestil" },
 };
 
@@ -240,7 +246,7 @@ export default async function OrderPage({
   return (
     <>
       <SiteHeader />
-      <main id="indhold" className="mx-auto max-w-6xl px-4 py-16">
+      <main id="indhold" className="mx-auto max-w-side px-4 py-16">
         {selected ? (
           /*
            * BREDDEN FØLGER INDHOLDET. Designeren er to spalter fra `lg`, og
@@ -414,13 +420,20 @@ export default async function OrderPage({
           </div>
         ) : (
           <>
+            {/*
+              OVERSKRIFTEN SKAL DÆKKE ALLE FIRE KORT. Der stod "Bestil din
+              stander", og det var sandt, så længe sektionen kun viste de tre
+              med et skilt. Nu står LoyalSum Komplet Online der også, og en
+              overskrift, der lover en stander over et kort, der siger "uden
+              fysisk stander", er det første, kunden læser.
+            */}
             <div className="mb-10 text-center">
               <h1 className="text-3xl font-bold tracking-tight">
-                Bestil din stander
+                Vælg det, der passer til din forretning
               </h1>
               <p className="mt-2 text-muted">
-                Vælg det produkt der passer til din forretning — og hvor mange
-                du skal bruge. Jo flere standere, jo lavere pris pr. stk.
+                Tre standere til disken og hele platformen uden skilt. Skal du
+                bruge flere standere, falder prisen pr. stk.
               </p>
             </div>
             <Pricing />

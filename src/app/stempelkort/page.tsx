@@ -390,7 +390,7 @@ export default function StempelkortPage() {
             spalten allerede ude ved kanten, og uden klipningen ville siden
             kunne scrolles til højre — samme fejl som cookielinket i footeren. */}
         <section className="overflow-hidden border-b border-border bg-dark text-dark-fg">
-          <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:py-24 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+          <div className="mx-auto grid max-w-side gap-12 px-4 py-16 sm:py-24 lg:grid-cols-[1.1fr_1fr] lg:items-center">
             <div>
               <span className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white ring-1 ring-white/15">
                 <span
@@ -904,7 +904,7 @@ export default function StempelkortPage() {
 
         {/* ----------------------------------------------------------- brancher */}
         <section className="border-t border-border bg-muted-bg">
-          <div className="mx-auto max-w-6xl px-4 py-16">
+          <div className="mx-auto max-w-side px-4 py-16">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Digitalt stempelkort til din virksomhed
             </h2>
@@ -1089,7 +1089,7 @@ export default function StempelkortPage() {
 
         {/* --------------------------------------------------------- final CTA */}
         <section className="border-t border-border bg-dark text-dark-fg">
-          <div className="mx-auto max-w-6xl px-4 py-20 text-center">
+          <div className="mx-auto max-w-side px-4 py-20 text-center">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Giv kunderne en grund til at komme igen
             </h2>

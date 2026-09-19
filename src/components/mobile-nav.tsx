@@ -104,7 +104,7 @@ export function MobileNav({
             id="mobil-menu"
             className="absolute left-0 right-0 top-full border-b border-white/10 bg-dark lg:hidden"
           >
-            <nav aria-label="Hovedmenu" className="mx-auto max-w-6xl px-4 py-4">
+            <nav aria-label="Hovedmenu" className="mx-auto max-w-side px-4 py-4">
               <ul className="space-y-1">
                 {links.map((l) => (
                   <li key={l.href}>

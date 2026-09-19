@@ -70,7 +70,7 @@ export default function KontaktPage() {
   return (
     <>
       <SiteHeader />
-      <main id="indhold" className="mx-auto max-w-6xl px-4 py-16">
+      <main id="indhold" className="mx-auto max-w-side px-4 py-16">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold text-accent">Kontakt</p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">

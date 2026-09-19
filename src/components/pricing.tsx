@@ -3,7 +3,10 @@ import Link from "next/link";
 import { KATALOG, PRODUKT_FOTO, harFysiskSkilt } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { ProductPrice } from "@/components/product-price";
-import { StanderPlaceholder } from "@/components/product-placeholder";
+import {
+  StanderPlaceholder,
+  DigitalPlaceholder,
+} from "@/components/product-placeholder";
 
 /**
  * Produktkort over standerne, drevet af KATALOG. Hvert kort linker til
@@ -18,21 +21,22 @@ import { StanderPlaceholder } from "@/components/product-placeholder";
  */
 export function Pricing() {
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-6 sm:grid-cols-2 laptop:grid-cols-4">
       {/* FØRSTE KORT ER IKKE DOVENT. På en telefon er det det eneste over
           folden og dermed sidens LCP-element — og et LCP-element, der venter
           på dovenskab, forsinker præcis dét, målingen handler om. De to andre
           er dovne: de står til højre på en skærm og langt nede på en telefon. */}
       {/*
-        KUN VARERNE MED EN STANDER.
-        Sektionen står på /bestil under overskriften "Bestil din stander", og
-        hele blokken handler om antal og mængderabat pr. stk. LoyalSum Komplet
-        Online har ingen stander at tælle og ingen mængderabat at få — den
-        ville stå som et fjerde kort, hvor både prisen og antalsvælgeren
-        betød noget andet end på de tre andre. Den købes fra sin egen
-        produktside, og kataloget (/produkter) viser begge familier.
+        ALLE FIRE VARER — OGSÅ DEN UDEN STANDER.
+        Sektionen viste kun de tre med et skilt, fordi blokken handlede om
+        antal og mængderabat pr. stk., og et fjerde kort ville have vist en
+        pris, der betød noget andet end de tre andres. Det er der ikke
+        længere: `ProductPrice` skriver "399 kr./md i abonnement" på en
+        digital vare i stedet for "0 kr. pr. stander", og kortet har intet
+        antal i sig. Kunden skal kunne se alle fire ved siden af hinanden dér,
+        hvor valget træffes — ikke først opdage den fjerde i kataloget.
       */}
-      {KATALOG.filter(harFysiskSkilt).map((p, nr) => (
+      {KATALOG.map((p, nr) => (
         <Link
           key={p.slug}
           href={`/produkter/${p.slug}`}
@@ -59,7 +63,7 @@ export function Pricing() {
                 alt={`${p.name} — reviewstander i brug`}
                 fill
                 priority={nr === 0}
-                sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                sizes="(min-width: 1100px) 25vw, (min-width: 640px) 50vw, 100vw"
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
               />
               {/* SOLIDT mærke og ikke <Badge>: den er bg-accent/10 og
@@ -71,16 +75,25 @@ export function Pricing() {
               ) : null}
             </div>
           ) : (
-            <StanderPlaceholder
-              className="aspect-[4/5]"
-              iconClassName="h-24 w-24 transition-transform duration-300 group-hover:scale-110"
-            >
-              {p.featured ? (
-                <div className="absolute left-3 top-3">
-                  <Badge tone="accent">Mest populær</Badge>
-                </div>
-              ) : null}
-            </StanderPlaceholder>
+            (() => {
+              /* Varen uden skilt får QR-feltet og ikke standerikonet — se
+                 DigitalPlaceholder for hvorfor "Foto på vej" ikke må stå der. */
+              const Felt = harFysiskSkilt(p)
+                ? StanderPlaceholder
+                : DigitalPlaceholder;
+              return (
+                <Felt
+                  className="aspect-[4/5]"
+                  iconClassName="h-24 w-24 transition-transform duration-300 group-hover:scale-110"
+                >
+                  {p.featured ? (
+                    <div className="absolute left-3 top-3">
+                      <Badge tone="accent">Mest populær</Badge>
+                    </div>
+                  ) : null}
+                </Felt>
+              );
+            })()
           )}
           <div className="flex flex-1 flex-col p-5">
             {/*
@@ -92,7 +105,10 @@ export function Pricing() {
             */}
             <h2 className="font-bold tracking-tight">{p.name}</h2>
             <p className="mt-1 text-sm text-muted">{p.tagline}</p>
-            <div className="mt-4">
+            {/* mt-auto: to af de fire taglines wrapper til en linje mere, og
+                uden den stod pris og "Se produkt" i to forskellige højder på
+                tværs af rækken. Samme greb som på /produkter. */}
+            <div className="mt-auto pt-4">
               <ProductPrice product={p} />
             </div>
             <span className="mt-4 text-sm font-medium text-accent">

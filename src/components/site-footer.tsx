@@ -54,7 +54,7 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
 export function SiteFooter() {
   return (
     <footer className="border-t border-border bg-muted-bg">
-      <div className="mx-auto max-w-6xl px-4 py-14">
+      <div className="mx-auto max-w-side px-4 py-14">
         <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(4,1fr)]">
           {/* Brand */}
           <div className="space-y-3">

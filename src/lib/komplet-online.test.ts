@@ -474,10 +474,65 @@ describe("kataloget er stadig til at forstå", () => {
     ]);
   });
 
-  it("katalogsiden viser de to familier", () => {
-    const side = kilde("src/app/produkter/page.tsx");
-    expect(side).toContain("Reviewstandere");
-    expect(side).toContain("LoyalSum-platformen");
+  /*
+   * ALLE FIRE I ÉN RÆKKE — BEGGE STEDER, VARERNE VISES.
+   *
+   * De stod før i to grupper à to, og så man dem aldrig ved siden af
+   * hinanden. Kunden vælger ved at kigge på tværs, så striben er kravet:
+   * kataloget OG prissektionen på /bestil tegner alle fire i ét gitter, der
+   * går til fire spor på en bærbar.
+   *
+   * Her prøves EGENSKABEN og ikke klassenavnet: at intet filtrerer varer fra
+   * (`KATALOG.map`, ikke `KATALOG.filter`), og at gitteret har et fire-spors
+   * trin. Ordlyden i overskrifterne er fri.
+   */
+  it("begge produktgitre viser hele kataloget", () => {
+    for (const sti of [
+      "src/app/produkter/page.tsx",
+      "src/components/pricing.tsx",
+    ]) {
+      const side = kilde(sti);
+      expect(side, `${sti} tegner hele kataloget`).toMatch(
+        /KATALOG\.map\(\(p, nr\) =>/,
+      );
+      expect(
+        side.includes("KATALOG.filter(harFysiskSkilt).map"),
+        `${sti} må ikke filtrere varer ud af gitteret`,
+      ).toBe(false);
+    }
+  });
+
+  it("gitrene går til fire spor", () => {
+    for (const sti of [
+      "src/app/produkter/page.tsx",
+      "src/components/pricing.tsx",
+    ]) {
+      const side = kilde(sti);
+      expect(side, `${sti} har et fire-spors trin`).toMatch(
+        /grid-cols-4/,
+      );
+      /* Billedernes `sizes` skal følge gitteret — ellers hentes et billede
+         til en tredjedels bredde ned i en fjerdedels kolonne. */
+      expect(side, `${sti}: sizes følger gitteret`).toContain("25vw");
+    }
+  });
+
+  /*
+   * OG FORSKELLEN SKAL STADIG KUNNE SES. Gruppeoverskrifterne var dét, der
+   * sagde "stander" kontra "platform". Uden dem skal kortet selv sige det:
+   * pladsholderen er en QR-kode frem for et skilt, og prisen står som et
+   * abonnement frem for "pr. stander".
+   */
+  it("kortet siger selv, at varen ikke har en stander", () => {
+    for (const sti of [
+      "src/app/produkter/page.tsx",
+      "src/components/pricing.tsx",
+    ]) {
+      expect(kilde(sti), `${sti} vælger pladsholder efter varen`).toContain(
+        "DigitalPlaceholder",
+      );
+    }
+    expect(ONLINE.features).toContain("Uden fysisk stander");
   });
 
   /*
