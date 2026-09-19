@@ -11,6 +11,19 @@ import { type NavLink } from "@/components/mobile-nav";
 const NAV_LINKS: NavLink[] = [
   { href: "/#platform", label: "Platform" },
   { href: "/stempelkort", label: "Stempelkort" },
+  /*
+   * LOYALITETSPROGRAMMET STÅR VED SIDEN AF STEMPELKORTET, fordi det er de to
+   * former, en butik vælger imellem — og kun den ene havde en vej hertil fra
+   * menuen. Siden fandtes, men blev kun linket fra footeren og fra brødtekst,
+   * så den form, en forretning med sjældne eller ujævne køb skal bruge, lå et
+   * klik længere væk end den anden.
+   *
+   * ETIKETTEN ER SIDENS EGET SØGEORD ("loyalitetsprogram") og ikke det
+   * kortere "Pointprogram": menuen står på hver eneste side, så det er den
+   * kraftigste interne henvisning, vi har — og den skal pege med det ord,
+   * siden gerne vil findes på.
+   */
+  { href: "/loyalitetsprogram", label: "Loyalitetsprogram" },
   { href: "/reviewstander", label: "Reviewstander" },
   { href: "/produkter", label: "Priser" },
   { href: "/blog", label: "Blog" },
@@ -32,9 +45,18 @@ export function SiteHeader() {
       <div className="mx-auto flex h-[90px] max-w-side items-center justify-between px-4">
         <Logo image="light" className="-translate-y-[6px]" prioritet />
 
-        {/* Skiftet sker ved lg, ikke md: logo + fem links + to knapper kan ikke
-            være der på en 768px-tablet uden at brække. */}
-        <nav className="hidden items-center gap-7 text-base text-white/70 lg:flex">
+        {/* Skiftet sker ved lg, ikke md: logo + links + to knapper kan ikke
+            være der på en 768px-tablet uden at brække.
+
+            OG MELLEM lg OG xl ER DER SMALLERE LUFT OG MINDRE SKRIFT. Med
+            "Loyalitetsprogram" som syvende punkt rakte bredden ikke længere
+            ved 1024-1199: flex krympede LOGOET frem for at bryde, så bomærket
+            lå oven i det første menupunkt — en fejl, man kun ser ved at måle
+            eller kigge, for ingenting stak uden for headeren. Alternativet var
+            at skjule hele menuen indtil 1280 og sende en 13" bærbar over i
+            burgeren; det koster mere end to punkter mindre luft. Målt igen ved
+            1024, 1100, 1200, 1280, 1440 og 1920. */}
+        <nav className="hidden items-center gap-4 text-sm text-white/70 lg:flex xl:gap-7 xl:text-base">
           {NAV_LINKS.map((l) => (
             <Link key={l.href} href={l.href} className="hover:text-white">
               {l.label}

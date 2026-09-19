@@ -12,6 +12,7 @@ import {
   harFysiskSkilt,
   KATALOG,
   KORT_PUNKTER,
+  kortMaerke,
   PRODUKT_FOTO,
   PRODUKT_FOTO_ALT,
   UPCOMING_MERCH,
@@ -104,7 +105,9 @@ export default function ProductsPage() {
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 laptop:grid-cols-4">
-            {KATALOG.map((p, nr) => (
+            {KATALOG.map((p, nr) => {
+              const maerke = kortMaerke(p);
+              return (
                 <Link
             key={p.slug}
             href={`/produkter/${p.slug}`}
@@ -123,14 +126,18 @@ export default function ProductsPage() {
                 />
                 {/* SOLIDT mærke, ikke <Badge>: den er bg-accent/10
                     (næsten gennemsigtig) og forsvinder over et foto. Her
-                    skal det kunne læses over et hvilket som helst billede. */}
-                {p.featured ? (
-                  <span className="box-shape absolute left-3 top-3 bg-accent px-2.5 py-1 text-xs font-semibold text-accent-fg shadow-[0_4px_12px_-4px_rgba(0,0,0,0.5)]">
-                    Mest populær
-                  </span>
-                ) : p.includesLoyalSum ? (
-                  <span className="box-shape absolute left-3 top-3 bg-dark px-2.5 py-1 text-xs font-semibold text-white shadow-[0_4px_12px_-4px_rgba(0,0,0,0.5)]">
-                    Komplet
+                    skal det kunne læses over et hvilket som helst billede.
+                    Teksten kommer fra `kortMaerke()`, så denne gren og
+                    pladsholdergrenen nedenfor ikke kan sige hver sit. */}
+                {maerke ? (
+                  <span
+                    className={`box-shape absolute left-3 top-3 px-2.5 py-1 text-xs font-semibold shadow-[0_4px_12px_-4px_rgba(0,0,0,0.5)] ${
+                      maerke.fremhaevet
+                        ? "bg-accent text-accent-fg"
+                        : "bg-dark text-white"
+                    }`}
+                  >
+                    {maerke.tekst}
                   </span>
                 ) : null}
               </div>
@@ -148,13 +155,11 @@ export default function ProductsPage() {
                     className="aspect-[4/5]"
                     iconClassName="h-24 w-24 transition-transform duration-300 group-hover:scale-110"
                   >
-                    {p.featured ? (
+                    {maerke ? (
                       <div className="absolute left-3 top-3">
-                        <Badge tone="accent">Mest populær</Badge>
-                      </div>
-                    ) : p.includesLoyalSum ? (
-                      <div className="absolute left-3 top-3">
-                        <Badge tone="neutral">Komplet</Badge>
+                        <Badge tone={maerke.fremhaevet ? "accent" : "neutral"}>
+                          {maerke.tekst}
+                        </Badge>
                       </div>
                     ) : null}
                   </Felt>
@@ -195,7 +200,8 @@ export default function ProductsPage() {
               </span>
             </div>
           </Link>
-            ))}
+              );
+            })}
           </div>
         </section>
 
