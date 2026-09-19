@@ -72,10 +72,10 @@ describe("permissionSummary", () => {
   it("skriver rettighederne i et læseligt sprog", () => {
     expect(
       permissionSummary({ can_stamp: true, can_redeem: true, can_discount: false, can_manage: false }),
-    ).toBe("Må give stempler og indløse belønninger");
+    ).toBe("Må give stempler og point, indløse belønninger");
     expect(
       permissionSummary({ can_stamp: true, can_redeem: false, can_discount: false, can_manage: false }),
-    ).toBe("Må give stempler");
+    ).toBe("Må give stempler og point");
   });
 
   it("siger det ligeud, når der ingen rettigheder er", () => {

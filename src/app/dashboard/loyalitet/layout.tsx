@@ -38,18 +38,19 @@ export default async function LoyaltyLayout({
     return (
       <>
         <PageHeader
-          title="Stempelkort"
+          title="Loyalitet"
           description="Sat på pause, indtil betalingen er på plads."
         />
 
         <div className="box-shape max-w-2xl border border-border bg-card p-6">
           <h2 className="text-lg font-bold tracking-tight">
-            Dine stempelkort kører videre — du kan bare ikke styre dem herfra
+            Dine kort og point kører videre — du kan bare ikke styre dem herfra
           </h2>
           <p className="mt-2 leading-relaxed text-muted">
-            Dine kunder samler stadig stempler, personalet kan stadig give og
-            indløse dem, og ingenting er slettet. Det er kun administrationen
-            her i panelet, der er lukket, mens betalingen mangler.
+            Dine kunder samler stadig stempler og point, personalet kan stadig
+            give og indløse dem, og ingenting er slettet. Det er kun
+            administrationen her i panelet, der er lukket, mens betalingen
+            mangler.
           </p>
           <Link
             href="/dashboard/abonnement"
@@ -67,20 +68,28 @@ export default async function LoyaltyLayout({
 
     return (
       <>
+        {/*
+          MUREN SKAL NÆVNE BEGGE LOYALITETSFORMER.
+          Den sagde kun "stempelkort", og det var sandt, dengang det var det
+          eneste, der lå bag. Siden kom pointprogrammet til (0044/0045) — og
+          en kunde, der læser hvad de IKKE får, må ikke få halvdelen at vide.
+          Det er præcis her, en manglende funktion koster et salg.
+        */}
         <PageHeader
-          title="Stempelkort"
-          description="Digitalt stempelkort er en del af LoyalSum Komplet."
+          title="Loyalitet"
+          description="Stempelkort og pointprogram er en del af LoyalSum Komplet."
         />
 
         <div className="box-shape max-w-2xl border border-border bg-card p-6">
           <h2 className="text-lg font-bold tracking-tight">
-            Stempelkort er ikke med i dit abonnement
+            Stempelkort og pointprogram er ikke med i dit abonnement
           </h2>
           <p className="mt-2 leading-relaxed text-muted">
-            Med LoyalSum Komplet kan dine kunder samle stempler på telefonen og
-            optjene den belønning, du selv vælger — så de har en grund til at
-            komme igen. Du beholder din stander og dine anmeldelser præcis som
-            nu.
+            Med LoyalSum Komplet får du to måder at give kunderne en grund til
+            at komme igen: et stempelkort, hvor de samler mod én belønning, og
+            et pointprogram, hvor de samler en saldo og selv vælger mellem dine
+            belønninger. Begge dele på telefonen, uden app. Du beholder din
+            stander og dine anmeldelser præcis som nu.
           </p>
 
           {komplet?.monthlyPrice ? (

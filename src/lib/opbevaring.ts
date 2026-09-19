@@ -35,12 +35,12 @@ export interface Frist {
 
 export const FRISTER: Frist[] = [
   {
-    hvad: "Stempelkort — navn, e-mail, telefon og kortets indhold",
+    hvad: "Stempelkort og point — navn, e-mail, telefon, stempler og pointsaldo",
     naar: "24 måneder uden aktivitet",
     interval: "24 months",
     sql: "frist_medlem_inaktiv",
     hvorfor:
-      "Et stempelkort er et løbende forhold. En kortere frist ville slette kunder, der handler få gange om året, eller en sæsonbutiks gæster.",
+      "Et stempelkort eller en pointsaldo er et løbende forhold. En kortere frist ville slette kunder, der handler få gange om året, eller en sæsonbutiks gæster. Aktivitet tæller BEGGE dele — et medlem, der kun samler point, er lige så aktivt som et, der samler stempler.",
   },
   {
     hvad: "Feedback — navn og e-mail",
@@ -81,7 +81,7 @@ export const FRISTER: Frist[] = [
       "Samtykket skal kunne påvises, men dokumentationspligten rækker ikke længere end forældelsen. Loggen indeholder intet personhenførbart.",
   },
   {
-    hvad: "Log over handlinger på stempelkort",
+    hvad: "Log over handlinger på stempelkort og pointprogram",
     naar: "24 måneder",
     interval: "24 months",
     sql: "frist_revisionslog",

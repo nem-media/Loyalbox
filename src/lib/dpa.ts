@@ -31,8 +31,8 @@ import {
  * hvad den enkelte kunde faktisk sagde ja til. Ændres teksten materielt, skal
  * versionen hæves — ellers ser en gammel accept ud til at dække ny tekst.
  */
-export const DPA_VERSION = "1.5";
-export const DPA_DATE = "2026-08-21";
+export const DPA_VERSION = "1.6";
+export const DPA_DATE = "2026-09-19";
 
 /** Felter der endnu ikke er verificeret, vises som en tydelig markering. */
 export const DPA_UDFYLD = "UDFYLD";
@@ -96,7 +96,7 @@ export const DPA_SECTIONS: DpaSection[] = [
     ],
     list: [
       "At tage imod feedback og anmeldelser fra kundens egne kunder gennem en stander.",
-      "At føre digitale stempelkort: tilmelding, optjening af stempler, belønninger og rabatter.",
+      "At føre digitale stempelkort og pointprogrammer: tilmelding, optjening af stempler eller point, belønninger og rabatter.",
       "At vise kunden statistik over brugen af standeren.",
     ],
   },
@@ -109,7 +109,7 @@ export const DPA_SECTIONS: DpaSection[] = [
     ],
     list: [
       "Feedback: bedømmelse, en eventuel fritekstkommentar samt navn og e-mail, hvis kunden selv skriver dem. Alle tre felter er frivillige for den, der giver feedback.",
-      "Stempelkort: navn, e-mail, telefonnummer og et eventuelt kundenummer — kun det, butikken selv beder om — samt optjente stempler, belønninger og rabatter.",
+      "Stempelkort og pointprogram: navn, e-mail, telefonnummer og et eventuelt kundenummer — kun det, butikken selv beder om — samt optjente stempler, pointsaldo og bevægelserne bag den, belønninger og rabatter.",
       "Statistik over scanninger: tidspunkt og enhedstype. Der gemmes hverken IP-adresse eller andet, der kan pege på en enkelt person.",
       "Om personalet: navn, e-mail og hvilke rettigheder de har.",
     ],
@@ -204,7 +204,7 @@ export const DPA_SECTIONS: DpaSection[] = [
     id: "sletning",
     title: "13. Ophør og sletning",
     paragraphs: [
-      `Manglende betaling er IKKE aftalens ophør. Kan en betaling ikke gennemføres, suspenderes adgangen til dashboardets indsigt og redigering, men kundeforholdet består, denne aftale forbliver i kraft, og der slettes ingenting. Kundens egne kunder kan fortsat bruge deres stempelkort, og personalet kan fortsat give og indløse stempler.`,
+      `Manglende betaling er IKKE aftalens ophør. Kan en betaling ikke gennemføres, suspenderes adgangen til dashboardets indsigt og redigering, men kundeforholdet består, denne aftale forbliver i kraft, og der slettes ingenting. Kundens egne kunder kan fortsat bruge deres stempelkort og deres point, og personalet kan fortsat give og indløse stempler, point og belønninger.`,
       `Suspensionen varer ${SUSPENSION_MAANEDER} måneder. Betales der inden da, gælder aftalen uændret videre, som var der ikke sket noget.`,
       `Går der ${SUSPENSION_MAANEDER} måneder uden betaling, ophører aftalen. Ved ophør sletter LoyalSum efter kundens valg alle personoplysninger eller leverer dem tilbage senest ${SLETNING_EFTER_OPHOER_DAGE} dage efter ophøret.`,
       `Undtaget er alene det, lovgivningen kræver gemt. I praksis er det fakturaerne med kundens navn og adresse, som bogføringsloven kræver opbevaret i fem år efter regnskabsårets udløb. De indeholder ingen oplysninger om kundens egne kunder.`,

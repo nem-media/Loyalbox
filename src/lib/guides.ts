@@ -101,7 +101,7 @@ export const GUIDES: Guide[] = [
       "Sæt standeren på disken. Scan selv QR-koden med din telefon og se, at den lander det rigtige sted.",
     ],
     notes: [
-      "Du behøver ikke stempelkort for at bruge standeren. Anmeldelser og stempelkort er to ting, der virker hver for sig.",
+      "Du behøver hverken stempelkort eller pointprogram for at bruge standeren. Anmeldelser og loyalitet er to ting, der virker hver for sig.",
     ],
   },
   {
@@ -133,7 +133,7 @@ export const GUIDES: Guide[] = [
     href: "/dashboard/loyalitet/programmer/nyt",
     hrefLabel: "Opret stempelkort",
     steps: [
-      "Start under Stempelkort → Opret. Giv kortet et navn, kunden forstår — fx “Kaffekort”.",
+      "Start under Loyalitet → Opret. Giv kortet et navn, kunden forstår — fx “Kaffekort”.",
       {
         text: "Vælg hvordan der optjenes:",
         items: optjening,
@@ -148,6 +148,41 @@ export const GUIDES: Guide[] = [
     ],
   },
   {
+    /*
+      DEN ANDEN LOYALITETSFORM. Hjælpesiden havde ni vejledninger og ikke én
+      om pointprogrammet — en funktion, kunden betaler for i LoyalSum
+      Komplet, og som der ikke stod ét ord om. Guiden ligger LIGE EFTER
+      stempelkortet, fordi det er dér, valget mellem de to træffes.
+    */
+    id: "pointprogram",
+    kraever: "komplet" as const,
+    title: "Opret et pointprogram",
+    summary:
+      "Kunden samler en saldo i stedet for stempler og vælger selv mellem dine belønninger.",
+    hint: "Et pointprogram passer, når købene er forskellige i størrelse — et stempelkort passer, når de ligner hinanden.",
+    href: "/dashboard/loyalitet/point",
+    hrefLabel: "Opret pointprogram",
+    steps: [
+      "Start under Loyalitet → Point → Opret. Giv programmet et navn, kunden forstår — fx “Bonuspoint”.",
+      {
+        text: "Vælg hvordan der optjenes:",
+        items: [
+          "Point efter beløb — du vælger, hvor mange kroner der giver ét point. Der rundes ned, så 249 kr. ved 10 kr./point giver 24.",
+          "Faste point pr. køb — det samme antal hver gang, uanset beløb. Enkelt ved disken.",
+          "Kun manuel tildeling — personalet taster selv antallet.",
+        ],
+      },
+      "Opret mindst én belønning med en pris i point. Programmet kan ikke aktiveres uden, for en saldo uden noget at bruge den på er et løfte, der ikke kan indfries.",
+      "Sæt programmet aktivt. Kunderne tilmelder sig på standeren som ved et stempelkort — det er det samme kort og den samme tilmelding.",
+    ],
+    notes: [
+      "Du kan have op til fem programmer kørende ad gangen.",
+      "Personalet giver point på kundens kort, det samme sted som stempler. Beløbet tastes, og systemet regner pointene ud — så kunden og kvitteringen aldrig kan vise to forskellige tal.",
+      "Sætter du prisen på en belønning op i morgen, står den gamle pris stadig på de kvitteringer, der allerede er givet.",
+      "En fejl rettes med en modpost og ikke ved at slette. Kan saldoen ikke bære tilbageførslen, fordi kunden har brugt pointene, afvises den — og du retter i stedet med en manuel justering.",
+    ],
+  },
+  {
     id: "kunder",
     kraever: "komplet" as const,
     title: "Få kunder på kortet",
@@ -158,7 +193,7 @@ export const GUIDES: Guide[] = [
     hrefLabel: "Se kunder",
     steps: [
       "Lad kunden scanne QR-koden på standeren og tilmelde sig selv. Det er den nemmeste vej og kræver intet af jer.",
-      "Har kunden ikke lyst til at scanne, kan du oprette kortet under Stempelkort → Kunder → Ny kunde.",
+      "Har kunden ikke lyst til at scanne, kan du oprette kortet under Loyalitet → Kunder → Ny kunde.",
       "Kunden får sin egen kortadresse. Den skal de gemme — fx som bogmærke på telefonen.",
     ],
     notes: [
@@ -221,7 +256,7 @@ export const GUIDES: Guide[] = [
     href: "/dashboard/loyalitet/rabatter",
     hrefLabel: "Gå til Rabatter",
     steps: [
-      "Opret rabatten under Stempelkort → Rabatter. Vælg type — fast beløb, procent, gratis produkt og flere — og hvor længe den gælder.",
+      "Opret rabatten under Loyalitet → Rabatter. Vælg type — fast beløb, procent, gratis produkt og flere — og hvor længe den gælder.",
       "Gå ind på kunden under Kunder, og giv rabatten til netop dem.",
       "Kunden ser rabatten på sit kort og viser den ved disken. I indløser den samme sted som en belønning.",
     ],

@@ -221,8 +221,8 @@ export default function TermsPage() {
             Derefter lukkes dashboardets indsigt og redigering: statistik,
             feedback-indbakken og muligheden for at ændre logo og links.{" "}
             <strong>Alt det, dine kunder mærker, kører videre</strong> —
-            standeren sender som altid, stempelkortene virker, og personalet kan
-            stadig give og indløse stempler.
+            standeren sender som altid, stempelkortene og pointprogrammerne
+            virker, og personalet kan stadig give og indløse stempler og point.
           </p>
           <p>
             Der slettes ikke noget med det samme. Hvad der sker med dine data,
@@ -245,8 +245,8 @@ export default function TermsPage() {
               slettes ingenting.
             </strong>{" "}
             Dit kundeforhold består i {SUSPENSION_MAANEDER} måneder. Dine
-            kunders stempelkort, deres stempler, dine belønninger, din feedback
-            og dine standere er urørte hele perioden, og alt kommer tilbage i
+            kunders stempelkort, deres stempler og point, dine belønninger, din
+            feedback og dine standere er urørte hele perioden, og alt kommer tilbage i
             samme øjeblik betalingen er på plads. Vi gør det, fordi dine kunder
             ikke har gjort noget forkert — de skal ikke miste stempler, de har
             gjort sig fortjent til, fordi et betalingskort er udløbet.
@@ -444,8 +444,9 @@ export default function TermsPage() {
             </li>
             <li>Dine standere med deres links, QR-adresser og indstillinger</li>
             <li>
-              Dine stempelkort: programmer, belønninger, rabatter, medlemmer,
-              optjente og indløste stempler samt hele posteringshistorikken
+              Din loyalitetsdel: stempelkort og pointprogrammer, belønninger,
+              rabatter, medlemmer, optjente og indløste stempler, pointsaldi
+              samt hele posteringshistorikken for begge dele
             </li>
             <li>
               Al feedback: bedømmelser, kommentarer og de kontaktoplysninger,

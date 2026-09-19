@@ -82,8 +82,8 @@ export default async function BekraeftPage({
           kan fortryde med ét klik.
         </p>
         <p className="mt-3 text-sm leading-relaxed text-muted">
-          Dine kunders stempelkort og stempler, al feedback, dine standere og
-          deres QR-koder, medarbejdernes adgange og dit login. Fakturaerne
+          Dine kunders stempelkort, stempler og pointsaldi, al feedback, dine
+          standere og deres QR-koder, medarbejdernes adgange og dit login. Fakturaerne
           gemmes, som bogføringsloven kræver. Det kan ikke gøres om bagefter.
         </p>
 

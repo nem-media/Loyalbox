@@ -100,8 +100,9 @@ export function bestiltMail(firmanavn: string, link: string): Mail {
     emne: `Bekræft at alt skal slettes for ${firmanavn}`,
     tekst: `Der er bedt om, at alle data for ${firmanavn} slettes hos ${SITE_NAME}.
 
-Det omfatter dine kunders stempelkort og stempler, al feedback, dine
-standere og deres QR-koder, dine medarbejderes adgange og dit login.
+Det omfatter dine kunders stempelkort, stempler, pointsaldi og
+pointhistorik, al feedback, dine standere og deres QR-koder, dine
+medarbejderes adgange og dit login.
 Standerne holder op med at virke. Det kan ikke fortrydes bagefter.
 
 Vi gemmer kun fakturaerne. Det er ikke et valg — bogføringsloven kræver
@@ -158,8 +159,9 @@ export function udfoertMail(firmanavn: string): Mail {
   return {
     emne: `Alt er nu slettet for ${firmanavn}`,
     tekst: `Alle personoplysninger for ${firmanavn} er slettet hos ${SITE_NAME}:
-kundernes stempelkort og stempler, al feedback, standere og QR-koder,
-medarbejderadgange, kontaktoplysninger og logo.
+kundernes stempelkort, stempler, pointsaldi og pointhistorik, al
+feedback, standere og QR-koder, medarbejderadgange, kontaktoplysninger
+og logo.
 
 Tilbage er alene fakturaerne, som bogføringsloven kræver gemt i fem år
 efter regnskabsårets udløb. De indeholder virksomhedens navn og adresse og

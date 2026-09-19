@@ -95,7 +95,7 @@ export default function PrivacyPage() {
           </p>
           <p>
             <strong>Er du kunde i en butik</strong>, der bruger LoyalSum — har
-            du fx et digitalt stempelkort — er det{" "}
+            du fx et digitalt stempelkort eller en pointsaldo — er det{" "}
             <strong>butikken, der er dataansvarlig</strong> for dine
             oplysninger. Vi opbevarer og behandler dem alene på butikkens vegne
             som databehandler. Vil du have indsigt i eller slettet dine data,
@@ -166,14 +166,15 @@ export default function PrivacyPage() {
           title="5. Oplysninger om butikkernes kunder"
         >
           <p>
-            Tilmelder en kunde sig en butiks stempelkort, behandler vi det, som
-            butikken beder om: typisk navn og en kontaktoplysning, samt optjente
-            stempler og indløste belønninger.
+            Tilmelder en kunde sig en butiks stempelkort eller pointprogram,
+            behandler vi det, som butikken beder om: typisk navn og en
+            kontaktoplysning, samt optjente stempler, pointsaldoen og
+            bevægelserne bag den, og indløste belønninger.
           </p>
           <p>
-            Et stempelkort kan tilgås via en hemmelig adresse uden at oprette
-            konto. Kunden kan frivilligt oprette en konto for at samle sine kort
-            på tværs af enheder — kortet knyttes kun til en konto fra kortets
+            Et stempelkort og en pointsaldo tilgås via den samme hemmelige
+            adresse uden at oprette konto. Kunden kan frivilligt oprette en
+            konto for at samle sine kort på tværs af enheder — kortet knyttes kun til en konto fra kortets
             egen adresse, aldrig ud fra et e-mailmatch.
           </p>
           <p>
@@ -218,7 +219,8 @@ export default function PrivacyPage() {
             <strong>Manglende betaling sletter ingenting.</strong> Kan et
             abonnement ikke betales, består kundeforholdet i{" "}
             {SUSPENSION_MAANEDER} måneder, hvor alt er urørt — butikkens kunder
-            beholder deres stempelkort og deres stempler. Først derefter ophører
+            beholder deres stempelkort, deres stempler og deres point. Først
+            derefter ophører
             aftalen, og så sletter vi inden for fristen ovenfor.
           </p>
           <p>

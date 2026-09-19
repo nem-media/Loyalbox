@@ -27,6 +27,73 @@ function fristerISql(): Map<string, string> {
   return fundet;
 }
 
+/**
+ * Den SENESTE definition af oprydningen — ikke den første, der nævner navnet.
+ *
+ * Ankret er `create or replace function` og ikke bare navnet: `revoke all on
+ * function public.<navn>` og `comment on function public.<navn>` matcher også
+ * en søgning på navnet, og dengang 0043 gav en funktion sine rettigheder, blev
+ * revoke-linjen dermed "definitionen" for tre andre prøver — som så faldt på en
+ * fil uden en eneste linje af funktionens krop.
+ */
+function senesteOprydning(): string {
+  let fundet = "";
+  for (const f of FILER) {
+    const tekst = readFileSync(`${MAPPE}/${f}`, "utf8");
+    const i = tekst.indexOf(
+      "create or replace function public.ryd_op_efter_frister",
+    );
+    if (i !== -1) fundet = tekst.slice(i);
+  }
+  if (!fundet) throw new Error("ryd_op_efter_frister findes ikke");
+  return fundet;
+}
+
+describe("et medlem er aktivt, hvis det samler point", () => {
+  /*
+   * FEJLEN, DER BLEV RETTET I 0046. "Sidste aktivitet" blev regnet som den
+   * seneste af fem datoer — oprettelsen, stempler, medlemskaber, belønninger
+   * og rabatter — og alle fem hører til STEMPELKORTET. Pointprogrammet kom
+   * til i 0044 med sine egne tabeller, og ingen af dem blev talt med.
+   *
+   * En butik, der kun kører pointprogram, har medlemmer uden en eneste række
+   * i de fem kilder. For dem var "sidste aktivitet" lig med `created_at`, og
+   * 24 måneder efter tilmeldingen blev de slettet — midt i et aktivt
+   * kundeforhold, og med saldoen med sig, fordi kontoen hænger på medlemmet
+   * med `on delete cascade`.
+   *
+   * Prøven læser den SENESTE definition, så en fremtidig erstatning af
+   * funktionen ikke kan tabe de to kilder igen.
+   */
+  it("tæller pointledgeren og pointkontoen som aktivitet", () => {
+    const sql = senesteOprydning();
+    const vindue = sql.slice(
+      sql.indexOf("with sidste_aktivitet"),
+      sql.indexOf("into inaktive"),
+    );
+    expect(vindue.length, "sidste_aktivitet blev ikke fundet").toBeGreaterThan(0);
+    expect(vindue).toContain("loyalty_point_transactions");
+    expect(vindue).toContain("loyalty_point_accounts");
+  });
+
+  it("har stadig stempelkortets egne kilder med", () => {
+    /* Rettelsen må ikke have byttet den ene halvdel ud med den anden. */
+    const sql = senesteOprydning();
+    const vindue = sql.slice(
+      sql.indexOf("with sidste_aktivitet"),
+      sql.indexOf("into inaktive"),
+    );
+    for (const tabel of [
+      "loyalty_transactions",
+      "loyalty_memberships",
+      "customer_rewards",
+      "customer_discounts",
+    ]) {
+      expect(vindue, `${tabel} mangler`).toContain(tabel);
+    }
+  });
+});
+
 describe("opbevaringsfrister", () => {
   it("har samme frister i SQL og i det kunderne får at se", () => {
     const sql = fristerISql();

@@ -8,6 +8,7 @@ import { deviceTypeFromUA } from "@/lib/utils";
 import { StandLanding } from "./stand-landing";
 import { hentOffentligKundescore } from "@/lib/omdoemme-data";
 import { programErAktivtNu } from "@/lib/loyalty/program-status";
+import { hentAktivePointProgrammer } from "@/lib/loyalty/point-service";
 import { Logo } from "@/components/brand";
 
 export const dynamic = "force-dynamic";
@@ -124,9 +125,26 @@ export default async function ReviewPage({
     .eq("company_id", company.id)
     .eq("status", "active")
     .limit(20);
-  const hasLoyalty = (aktiveProgrammer ?? []).some((p) =>
+  const harStempelkort = (aktiveProgrammer ?? []).some((p) =>
     programErAktivtNu({ status: "active", start_date: p.start_date, end_date: p.end_date }),
   );
+
+  /*
+   * POINTPROGRAMMET ÅBNER OGSÅ DØREN.
+   *
+   * `hasLoyalty` blev regnet UDELUKKENDE på `loyalty_programs`, altså
+   * stempelkort. Tilmeldingssiden (/kort/tilmeld/<slug>) har hele tiden kunnet
+   * begge dele — men en butik, der kun kører pointprogram, fik aldrig knappen
+   * hertil. Døren fandtes; gangen derhen var muret til, og resultatet var, at
+   * deres kunder IKKE KUNNE TILMELDE SIG fra standeren overhovedet. Varen var
+   * købt, programmet oprettet og aktivt, og der skete ingenting.
+   *
+   * Det er den samme antagelse som alle de andre steder: at loyalitet betyder
+   * ét stempelkort.
+   */
+  const harPoint =
+    (await hentAktivePointProgrammer(company.id, supabase)).length > 0;
+  const hasLoyalty = harStempelkort || harPoint;
 
   /*
    * Den offentlige kundescore — kun hvis virksomheden selv har slået den til.
@@ -184,6 +202,7 @@ export default async function ReviewPage({
             over, når der kun er anmeldelsen tilbage — se komponenten. */}
         <StandLanding
           enrollHref={hasLoyalty ? `/kort/tilmeld/${slug}` : null}
+          kunPoint={harPoint && !harStempelkort}
           standId={stand.id}
           companyId={company.id}
           publicLinks={publicLinks}

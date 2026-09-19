@@ -26,8 +26,8 @@ export interface EmployeePermissions {
 export const PERMISSION_FIELDS = [
   {
     name: "can_stamp",
-    label: "Give stempler",
-    help: "Kan sætte stempler på kundernes kort.",
+    label: "Give stempler og point",
+    help: "Kan sætte stempler på kundernes kort og give point.",
   },
   {
     name: "can_redeem",
@@ -41,8 +41,8 @@ export const PERMISSION_FIELDS = [
   },
   {
     name: "can_manage",
-    label: "Oprette og styre stempelkort",
-    help: "Kan oprette nye stempelkort og sætte dem aktive eller på pause. Giver ikke adgang til resten af dashboardet.",
+    label: "Oprette og styre loyalitet",
+    help: "Kan oprette stempelkort og pointprogrammer, sætte dem aktive eller på pause, rette belønninger og justere en pointsaldo. Giver ikke adgang til resten af dashboardet.",
   },
 ] as const;
 
@@ -84,5 +84,11 @@ export function permissionSummary(p: EmployeePermissions): string {
   ).map((f) => f.label.toLowerCase());
   if (dele.length === 0) return "Ingen rettigheder";
   if (dele.length === 1) return `Må ${dele[0]}`;
-  return `Må ${dele.slice(0, -1).join(", ")} og ${dele[dele.length - 1]}`;
+  /*
+    KOMMALISTE HELE VEJEN, IKKE "og" TIL SIDST.
+    Etiketterne bærer nu selv et "og" — "give stempler og point" — og et
+    bindeord mere gav "Må give stempler og point og indløse belønninger".
+    Med komma læses rækken som den opremsning, den er.
+  */
+  return `Må ${dele.join(", ")}`;
 }
