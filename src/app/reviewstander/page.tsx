@@ -30,6 +30,7 @@ import {
   NfcIcon,
   QrIcon,
 } from "@/components/illustrations";
+import { ProduktStribe } from "@/components/produkt-stribe";
 
 /**
  * Produkt- og SEO-landingsside for reviewstanderen.
@@ -398,6 +399,11 @@ export default function ReviewstanderPage() {
             </div>
           </div>
         </section>
+
+        {/* ------------------------------------------- produkterne, lige her */}
+        {/* Den købeklare skal ikke lede. Se ProduktStribe for hvorfor det er
+            en stribe og ikke kataloggitteret. */}
+        <ProduktStribe />
 
         {/* -------------------------------------------------- sådan virker den */}
         <section id="saadan" className="bg-background">
