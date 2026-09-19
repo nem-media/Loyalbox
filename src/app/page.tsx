@@ -147,6 +147,10 @@ const NEW_CUSTOMERS = [
 
 const RETURNING_CUSTOMERS = [
   "Digitale stempelkort",
+  /* Den anden loyalitetsform. Listen er dét, forsiden lover om genbesøg, og
+     pointprogrammet stod ikke på den — se punktet om de to former i
+     AGENTS.md. */
+  "Pointprogram med egne belønninger",
   "Belønninger og tilbud",
   /*
    * KORTET SKAL KUNNE OVERLEVE EN NY TELEFON, ellers er stemplerne kun et
@@ -457,6 +461,13 @@ export default function LandingPage() {
               .{" "}
               <Link href="/stempelkort" className="font-medium text-accent">
                 Stempelkort
+              </Link>
+              ,{" "}
+              <Link
+                href="/loyalitetsprogram"
+                className="font-medium text-accent"
+              >
+                pointprogram
               </Link>
               , belønninger og opslag er en del af{" "}
               <Link

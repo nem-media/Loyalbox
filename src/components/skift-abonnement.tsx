@@ -58,7 +58,7 @@ export function SkiftAbonnement({
           <>
             {nuvaerende} indeholder alt i {vare}, så et skift hertil ville gøre
             din løsning mindre. Det klarer vi i hånden, så hverken stempelkort,
-            medlemmer eller opslag forsvinder ved et uheld.
+            pointsaldi, medlemmer eller opslag forsvinder ved et uheld.
           </>
         )}
       </p>

@@ -35,10 +35,10 @@ export default async function LoyaltyOverviewPage({
   if (!access) {
     return (
       <>
-        <PageHeader title="Stempelkort" />
+        <PageHeader title="Loyalitet" />
         <Card>
           <CardBody className="text-muted">
-            Du har endnu ingen virksomhed knyttet til stempelkort.
+            Du har endnu ingen virksomhed knyttet til loyalitet.
           </CardBody>
         </Card>
       </>
@@ -46,16 +46,27 @@ export default async function LoyaltyOverviewPage({
   }
 
   const supabase = await createClient();
-  const { count: programCount } = await supabase
-    .from("loyalty_programs")
-    .select("*", { count: "exact", head: true })
-    .eq("company_id", access.companyId);
 
-  // Ingen programmer endnu → onboarding.
-  if (!programCount) {
+  /*
+    ONBOARDING KRÆVER, AT BEGGE DELE MANGLER.
+    Der blev kun talt `loyalty_programs`, altså stempelkort. En butik, der
+    havde oprettet et POINTprogram og intet stempelkort, blev derfor sendt til
+    "Kom godt i gang" — som om de ikke var kommet i gang — og deres pointtal
+    blev aldrig tegnet, fordi siden vendte tilbage før afsnittet nedenfor.
+    Det er samme antagelse som alle de andre: loyalitet betød ét stempelkort.
+  */
+  const [{ count: programCount }, pointProgrammerFoerst] = await Promise.all([
+    supabase
+      .from("loyalty_programs")
+      .select("*", { count: "exact", head: true })
+      .eq("company_id", access.companyId),
+    hentPointProgrammer(access.companyId),
+  ]);
+
+  if (!programCount && pointProgrammerFoerst.length === 0) {
     return (
       <>
-        <PageHeader title="Stempelkort" description="Kom godt i gang." />
+        <PageHeader title="Loyalitet" description="Kom godt i gang." />
         <LoyaltyOnboarding />
       </>
     );
@@ -67,11 +78,12 @@ export default async function LoyaltyOverviewPage({
     : "30";
   // Rapporten og den foregående periode hentes samtidig — den ene venter
   // ikke på den anden.
-  const [r, forrige, pointProgrammer] = await Promise.all([
+  const [r, forrige] = await Promise.all([
     getLoyaltyReport(access.companyId, period),
     getLoyaltyTrend(access.companyId, period),
-    hentPointProgrammer(access.companyId),
   ]);
+  /* Hentet ovenfor, fordi onboarding-spørgsmålet skulle bruge den. */
+  const pointProgrammer = pointProgrammerFoerst;
 
   /*
    * POINTPROGRAMMET STÅR PÅ OVERBLIKKET, NÅR DET FINDES.
@@ -138,7 +150,11 @@ export default async function LoyaltyOverviewPage({
         </Sektion>
       ) : null}
 
-      <Sektion titel="Stempelkort">
+      {/* Medlemmerne er FÆLLES for de to former — samme person, samme
+          `loyalty_members`-række — så overskriften må ikke sige "Stempelkort"
+          over et tal, der også tæller en, der kun samler point. Stempler og
+          belønninger under den er stempelkortets egne. */}
+      <Sektion titel="Medlemmer og stempler">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Stat
             label="Nye medlemmer"

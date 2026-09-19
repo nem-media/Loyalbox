@@ -11,6 +11,7 @@ import { Stat } from "@/components/ui/stat";
 import { CopyButton } from "@/components/copy-button";
 import { ButtonLink } from "@/components/ui/button";
 import { tierCan, hasLoyaltyAccess, type Tier } from "@/lib/constants";
+import { hentAktivePointProgrammer } from "@/lib/loyalty/point-service";
 import { EditStand } from "./edit-stand";
 
 export const metadata = { title: "Stander" };
@@ -55,16 +56,26 @@ export default async function StandDetailPage({
    * ville en Pro-kunde få at vide, at de mangler noget, de ikke har købt.
    */
   const harKomplet = hasLoyaltyAccess(company.product_slug);
-  let manglerStempelkort = false;
+  /*
+    BESKEDEN SKAL KIGGE EFTER BEGGE FORMER.
+    Der blev kun talt aktive `loyalty_programs`. En butik, der havde oprettet
+    et aktivt POINTprogram og intet stempelkort, fik derfor "Dit stempelkort er
+    ikke oprettet endnu" på hver eneste stander — en opfordring til at gøre
+    noget, de allerede havde gjort på den anden måde.
+  */
+  let manglerLoyalitet = false;
   if (harKomplet) {
-    const { data: program } = await supabase
-      .from("loyalty_programs")
-      .select("id")
-      .eq("company_id", company.id)
-      .eq("status", "active")
-      .limit(1)
-      .maybeSingle();
-    manglerStempelkort = !program;
+    const [{ data: program }, pointProgrammer] = await Promise.all([
+      supabase
+        .from("loyalty_programs")
+        .select("id")
+        .eq("company_id", company.id)
+        .eq("status", "active")
+        .limit(1)
+        .maybeSingle(),
+      hentAktivePointProgrammer(company.id),
+    ]);
+    manglerLoyalitet = !program && pointProgrammer.length === 0;
   }
 
   const [{ count: scans }, { count: clicks }] = await Promise.all([
@@ -99,21 +110,27 @@ export default async function StandDetailPage({
         INGEN ADVARSELSFARVE: der er intet i stykker, og et rødt felt på en
         stander, der virker, ville lære folk at overse dem.
       */}
-      {manglerStempelkort ? (
+      {manglerLoyalitet ? (
         <div className="box-shape mb-6 border border-accent/30 bg-accent/5 p-5">
-          <p className="font-medium">Dit stempelkort er ikke oprettet endnu</p>
+          <p className="font-medium">Du er ikke kommet i gang med loyalitet</p>
           <p className="mt-1 text-sm leading-relaxed text-muted">
             Standeren virker — men dine kunder får kun valget “Del din
-            oplevelse”. Knappen til stempelkortet dukker først op, når du har
-            oprettet et kort og gjort det aktivt. Det tager et par minutter.
+            oplevelse”. Knappen, der lukker dem ind på et kort, dukker først op,
+            når du har oprettet enten et stempelkort eller et pointprogram og
+            gjort det aktivt. Det tager et par minutter.
           </p>
-          <ButtonLink
-            href="/dashboard/loyalitet/programmer"
-            size="sm"
-            className="mt-3"
-          >
-            Opret stempelkort
-          </ButtonLink>
+          <div className="mt-3 flex flex-wrap gap-3">
+            <ButtonLink href="/dashboard/loyalitet/programmer" size="sm">
+              Opret stempelkort
+            </ButtonLink>
+            <ButtonLink
+              href="/dashboard/loyalitet/point"
+              size="sm"
+              variant="outline"
+            >
+              Opret pointprogram
+            </ButtonLink>
+          </div>
         </div>
       ) : null}
 

@@ -243,8 +243,9 @@ export function betalingManglerBroedtekst(
       : ` Dine data er urørte og bliver liggende ${dageTilSletning} dage endnu.`;
   return (
     "Vi kunne ikke gennemføre betalingen, så din adgang til statistik, " +
-    "feedback og redigering er sat på pause. Standeren, stempelkortene og " +
-    "dine kunders stempler kører videre som altid." +
+    "feedback og redigering er sat på pause. Standeren, stempelkortene, " +
+    "pointprogrammerne og dine kunders stempler og point kører videre " +
+    "som altid." +
     hale
   );
 }
@@ -498,5 +499,5 @@ export const ADRESSE_TEKSTER = {
   loftOverskrift: "En butik mere tager vi sammen",
 
   loftHjaelp:
-    "Herfra afhænger opsætningen af, om stempelkortet skal gælde på tværs af butikkerne eller holdes hver for sig — og det kan ikke laves om bagefter. Skriv til os, så finder vi ud af det, før der bliver trykt noget.",
+    "Herfra afhænger opsætningen af, om stempelkortet og pointprogrammet skal gælde på tværs af butikkerne eller holdes hver for sig — og det kan ikke laves om bagefter. Skriv til os, så finder vi ud af det, før der bliver trykt noget.",
 } as const;

@@ -56,7 +56,7 @@ export default async function DashboardLayout({
    * stående. Slug'en er kvitteringen for, hvad kunden købte, og uden den kan et
    * abonnement ikke genoptages.
    */
-  const harStempelkort =
+  const harLoyalitet =
     hasLoyaltyAccess(user.company?.product_slug) &&
     abonnementTilstand(user.company) === "aktiv";
 
@@ -71,8 +71,17 @@ export default async function DashboardLayout({
         { href: "/dashboard", label: "Oversigt", icon: "overview" },
         { href: "/dashboard/standere", label: "Standere", icon: "stand" },
         {
+          /*
+            "LOYALITET" OG IKKE "STEMPELKORT".
+            Punktet fører til /dashboard/loyalitet, som rummer BEGGE former —
+            stempelkort og pointprogram. En butik, der kun kører point, ville
+            lede efter sit program under et menupunkt, der siger noget andet,
+            og det eneste andet sted at gå hen er Standere.
+            Ikonet bliver stående: et stempelkort er det motiv, folk kender,
+            og der findes ikke et tegn for "loyalitet", der siger mere.
+          */
           href: "/dashboard/loyalitet",
-          label: "Stempelkort",
+          label: "Loyalitet",
           icon: "stampcard",
         },
         { href: "/dashboard/opslag", label: "Opslag", icon: "post" },
@@ -130,7 +139,7 @@ export default async function DashboardLayout({
       // Genvejen vises kun, hvis der ER kunder at finde. Ellers ville den
       // føre til en side, virksomheden ikke har adgang til.
       quickAction={
-        harStempelkort
+        harLoyalitet
           ? { href: "/dashboard/loyalitet/kunder", label: "Find kunde" }
           : undefined
       }

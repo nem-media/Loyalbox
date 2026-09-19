@@ -58,9 +58,9 @@ export default async function PersonaleLayout({
             Medarbejderadgang er ikke med i dit abonnement
           </h2>
           <p className="mt-2 leading-relaxed text-muted">
-            Medarbejdere kan stemple kort, give rabatter og indløse belønninger
-            — uden at du deler din egen adgangskode. Det hører til
-            stempelkortet, og stempelkortet følger med LoyalSum Komplet. Du
+            Medarbejdere kan stemple kort, give point, give rabatter og
+            indløse belønninger — uden at du deler din egen adgangskode. Det
+            hører til loyalitetsdelen, og den følger med LoyalSum Komplet. Du
             beholder din stander, dine links og dine anmeldelser præcis som nu.
           </p>
 

@@ -75,8 +75,9 @@ export default async function SletPage() {
         </h2>
         <ul className="mt-3 space-y-1.5 text-sm leading-relaxed">
           <li>
-            Dine kunders stempelkort, stempler, belønninger og rabatter — også
-            dem, de har gjort sig fortjent til og ikke har brugt endnu
+            Dine kunders stempelkort, stempler, pointsaldi, belønninger og
+            rabatter — også dem, de har gjort sig fortjent til og ikke har
+            brugt endnu
           </li>
           <li>Al feedback og alle anmeldelser, du har modtaget</li>
           <li>

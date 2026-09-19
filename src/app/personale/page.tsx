@@ -96,8 +96,8 @@ export default async function StaffPage({
           {company?.name ?? "Din arbejdsplads"}
         </h1>
         <p className="mt-1 text-muted">
-          Du er logget ind som personale. Herfra kan du finde en kundes
-          stempelkort.
+          Du er logget ind som personale. Herfra kan du finde en kundes kort —
+          både stempler og point står på det samme kort.
         </p>
 
         {/* Kun for medarbejdere, ejeren har givet lov til at styre kortene.
@@ -119,11 +119,20 @@ export default async function StaffPage({
 
         {/* Den hurtigste vej: kunden har kortet fremme */}
         <div className="mt-6 box-shape border border-accent/30 bg-accent/5 p-5">
-          <h2 className="font-bold tracking-tight">Sådan stempler du</h2>
+          {/* Ét kort, to ting på det. Panelet viser stempelknappen og
+              pointfelterne på den samme side, så vejledningen må ikke kun
+              nævne den ene — en medarbejder i en butik, der kun kører point,
+              ville læse tre trin, der ikke passer på noget, de kan se. */}
+          <h2 className="font-bold tracking-tight">
+            Sådan giver du stempler og point
+          </h2>
           <ol className="mt-2 space-y-1 text-sm text-muted">
-            <li>1. Bed kunden vise sit stempelkort på telefonen.</li>
+            <li>1. Bed kunden vise sit kort på telefonen.</li>
             <li>2. Scan koden på kortet med dit kamera.</li>
-            <li>3. Tryk på stempelknappen, der kun vises for personale.</li>
+            <li>
+              3. Tryk på stempelknappen, eller tast beløbet i pointfeltet — de
+              vises kun for personale.
+            </li>
           </ol>
           <p className="mt-3 text-sm text-muted">
             Har kunden ikke kortet ved hånden, kan du finde det herunder.

@@ -516,25 +516,28 @@ export const PRODUCTS: Product[] = [
   {
     slug: "loyalsum-komplet",
     metaDescription:
-      "Alt i Reviewstander Pro plus digitalt stempelkort uden app: kunderne tilmelder sig selv, personalet stempler med ét scan, og du laver opslag af anmeldelser.",
+      "Alt i Reviewstander Pro plus digitalt stempelkort og pointprogram uden app: kunderne tilmelder sig selv, og personalet stempler eller giver point med ét scan.",
     platform: "multi",
     name: "LoyalSum Komplet",
     keyword: "digitalt stempelkort og anmeldelser",
-    // Samme grund. Stempelkortet er dét, der adskiller Komplet fra Pro, så
-    // det står først; opslagene står i beskrivelsen.
-    metaTitle: "LoyalSum Komplet — stempelkort & anmeldelser",
+    // Samme grund. LOYALITETEN er dét, der adskiller Komplet fra Pro, så den
+    // står først; opslagene står i beskrivelsen. Pointprogrammet er med i
+    // titlen, fordi det er den halvdel af forskellen, teksten tav om — se
+    // punktet om de to loyalitetsformer i AGENTS.md.
+    metaTitle: "LoyalSum Komplet — stempelkort, point & anmeldelser",
     price: 499,
     interval: "one_time",
     monthlyPrice: 399,
     includesLoyalSum: true,
     featured: true,
-    tagline: "Hele platformen — reviews + stempelkort",
+    tagline: "Hele platformen — reviews, stempelkort og point",
     description:
-      "Alt i Reviewstander Pro — plus et digitalt stempelkort uden app for dine kunder. Kunderne tilmelder sig selv på standeren, personalet giver stempler med ét scan, og du laver opslag af dine bedste anmeldelser. Flere nye kunder, og flere der kommer igen — samlet ét sted.",
+      "Alt i Reviewstander Pro — plus to måder at få kunderne til at komme igen: et digitalt stempelkort og et pointprogram, begge uden app. Kunderne tilmelder sig selv på standeren, personalet stempler eller giver point med ét scan, og du laver opslag af dine bedste anmeldelser. Flere nye kunder, og flere der kommer igen — samlet ét sted.",
     image: "/mockups/stander-loyalsum-komplet.svg",
     features: [
       "Alt i Reviewstander Pro",
       "Digitalt stempelkort — uden app",
+      "Pointprogram — kunden samler point og vælger selv belønning",
       "Scan-til-stempel over disken",
       "Opslag af dine bedste anmeldelser",
       "Kundeklub & belønninger",
@@ -794,7 +797,7 @@ export const KORT_PUNKTER: Record<string, string[]> = {
   ],
   "loyalsum-komplet": [
     "Alt i Reviewstander Pro",
-    "Digitalt stempelkort — uden app",
+    "Stempelkort og pointprogram — uden app",
     "Scan-til-stempel over disken",
     "Opslag af dine anmeldelser — klar til at dele",
     "Statistik og omdømme i realtid",
@@ -826,7 +829,7 @@ export const PRODUKT_FOTO_TEKST: Record<string, string> = {
   "reviewstander-pro":
     "Vælg flere anmeldelsesplatforme på din egen anmeldelsesside — og et eget link til fx dit menukort eller booking.",
   "loyalsum-komplet":
-    "Alt i Pro — plus digitalt stempelkort uden app, som kunderne tilmelder sig selv på standeren.",
+    "Alt i Pro — plus stempelkort og pointprogram uden app, som kunderne tilmelder sig selv på standeren.",
   /*
    * INGEN FOTO, MEN EN BILLEDTEKST. Der er ingen fysisk ting at fotografere,
    * og et lånt standerfoto ville vise præcis dét, varen ikke indeholder.

@@ -24,14 +24,20 @@ import { Button, ButtonLink } from "@/components/ui/button";
  */
 export function StandLanding({
   enrollHref,
+  kunPoint,
   standId,
   companyId,
   publicLinks,
   extra,
   offentligScore,
 }: {
-  /** Null når butikken ikke har stempelkort. */
+  /** Null når butikken hverken har stempelkort eller pointprogram. */
   enrollHref: string | null;
+  /**
+   * Butikken kører KUN point. Så hedder knappen ikke "Åbn dit stempelkort" —
+   * der er ikke noget stempelkort at åbne, og kunden ville lede efter et.
+   */
+  kunPoint?: boolean;
   standId: string;
   companyId: string;
   publicLinks: PublicLink[];
@@ -73,7 +79,7 @@ export function StandLanding({
           size="lg"
           className="w-full"
         >
-          Åbn dit stempelkort
+          {kunPoint ? "Åbn dit kort" : "Åbn dit stempelkort"}
         </ButtonLink>
       ) : null}
 
