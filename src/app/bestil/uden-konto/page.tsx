@@ -179,8 +179,8 @@ export default async function UdenKontoPage({
         </div>
 
         <p className="mt-10 max-w-xl text-sm text-muted">
-          Skal du bruge statistik, feedback-indbakke eller digitale
-          stempelkort?{" "}
+          Skal du bruge statistik, feedback-indbakke, digitalt stempelkort
+          eller pointprogram?{" "}
           <Link href="/produkter" className="font-medium text-accent hover:underline">
             Se de øvrige produkter
           </Link>

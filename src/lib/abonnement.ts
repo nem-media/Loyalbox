@@ -484,12 +484,12 @@ export const ADRESSE_TEKSTER = {
   /*
    * KØBET SÆLGER EN BUTIK, IKKE EN ADRESSE. Det er dét, kunden har i
    * hovedet, og dét, pengene svarer til: en side mere, en statistik mere
-   * og et skilt at sætte op — men stadig ét login og ét stempelkort.
+   * og et skilt at sætte op — men stadig ét login og én kundeklub.
    */
   koebOverskrift: "Har du åbnet en butik mere?",
 
   koebHjaelp:
-    "Så giver vi den sin egen QR-adresse, sin egen side og sin egen statistik — på det abonnement, du har i forvejen. Ét login, og dine kunders stempelkort gælder på tværs af butikkerne.",
+    "Så giver vi den sin egen QR-adresse, sin egen side og sin egen statistik — på det abonnement, du har i forvejen. Ét login, og dine kunders stempelkort og point gælder på tværs af butikkerne.",
 
   /*
    * LOFTET SIGER IKKE NEJ. Det siger, at valget er for stort til en knap:

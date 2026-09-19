@@ -341,7 +341,7 @@ const FAQ = [
   },
   {
     q: "Hvad koster et digitalt stempelkort?",
-    a: "Stempelkortet er en del af LoyalSum Komplet. Du betaler for standeren én gang og et fast månedligt abonnement — se de aktuelle priser på produktsiden. Der er ingen binding: du kan opsige når som helst fra dit dashboard.",
+    a: "Stempelkortet er en del af LoyalSum Komplet — og pointprogrammet følger med i samme pris, så du kan køre den ene form, den anden eller begge. Du betaler for standeren én gang og et fast månedligt abonnement — se de aktuelle priser på produktsiden. Der er ingen binding: du kan opsige når som helst fra dit dashboard.",
   },
 ];
 
@@ -773,6 +773,23 @@ export default function StempelkortPage() {
               bagved, gør papkortet det fint. Det digitale kort betaler sig, når
               kunderne kommer igen — og du vil vide hvor mange.
             </p>
+
+            {/* DEN TREDJE MULIGHED HØRER TIL HER. Afsnittet stiller papkortet
+                op mod det digitale kort, og begge dele tæller BESØG. Er
+                købene meget forskellige i størrelse, er svaret hverken det
+                ene eller det andet, og en fordele/ulemper-oversigt, der ikke
+                nævner den udvej, sender en læser videre med et halvt svar.
+                Pointprogrammet følger med den samme vare. */}
+            <p className="mt-3 text-sm text-muted">
+              Er købene hos dig meget forskellige i størrelse — en kop kaffe den
+              ene dag, en hel frokost den næste — passer et stempel pr. besøg
+              skævt. Så er et{" "}
+              <Link href="/loyalitetsprogram" className="font-medium text-accent">
+                pointprogram
+              </Link>{" "}
+              det rigtige: kunden optjener efter beløb og vælger selv mellem
+              dine belønninger. Begge dele følger med samme abonnement.
+            </p>
           </div>
         </section>
 
@@ -983,10 +1000,10 @@ export default function StempelkortPage() {
                 <p className="text-xs font-medium uppercase tracking-wide text-secondary">
                   Flere genbesøg
                 </p>
-                <h3 className="mt-1 font-bold">Stempelkort og belønninger</h3>
+                <h3 className="mt-1 font-bold">Loyalitet og belønninger</h3>
                 <p className="mt-2 text-sm text-white/70">
-                  Stempelkort, rabatter til udvalgte kunder og overblik over,
-                  hvem der er tæt på en belønning.
+                  Stempelkort, pointprogram, rabatter til udvalgte kunder og
+                  overblik over, hvem der er tæt på en belønning.
                 </p>
               </div>
             </div>
@@ -1008,7 +1025,9 @@ export default function StempelkortPage() {
               </h2>
               <p className="mt-4 max-w-2xl leading-relaxed text-foreground/90">
                 Stempelkortet får du med <strong>{komplet.name}</strong>, som
-                samler stempelkort, anmeldelser og opslag på én stander.
+                samler stempelkort, pointprogram, anmeldelser og opslag på én
+                stander. Begge loyalitetsformer er med i prisen — du vælger selv
+                den ene, den anden eller begge.
               </p>
 
 

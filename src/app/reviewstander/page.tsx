@@ -215,7 +215,7 @@ const FAQ = [
   },
   {
     q: "Kræver reviewstanderen et abonnement?",
-    a: "Nej. Den enkle Reviewstander er en engangspris uden abonnement. Vil du have din egen anmeldelsesside, flere platforme, dynamiske links, privat feedback og statistik, er det Reviewstander Pro, der har et månedligt abonnement. Skal du også have digitalt stempelkort, er det LoyalSum Komplet. Der er ingen binding — du kan opsige når som helst fra dit dashboard.",
+    a: "Nej. Den enkle Reviewstander er en engangspris uden abonnement. Vil du have din egen anmeldelsesside, flere platforme, dynamiske links, privat feedback og statistik, er det Reviewstander Pro, der har et månedligt abonnement. Skal du også have loyalitet — digitalt stempelkort, pointprogram eller begge dele — er det LoyalSum Komplet. Der er ingen binding — du kan opsige når som helst fra dit dashboard.",
   },
   {
     q: "Hvor bør jeg placere standeren?",
@@ -609,8 +609,8 @@ export default function ReviewstanderPage() {
                 <caption className="sr-only">
                   Sammenligning af Reviewstander, Reviewstander Pro, LoyalSum
                   Komplet og LoyalSum Komplet Online: platforme, om
-                  destinationen kan skiftes bagefter, stempelkort, fysisk skilt
-                  og pris.
+                  destinationen kan skiftes bagefter, loyalitet (stempelkort og
+                  pointprogram), fysisk skilt og pris.
                 </caption>
                 <thead>
                   <tr className="border-b border-border bg-background text-left">
@@ -626,8 +626,12 @@ export default function ReviewstanderPage() {
                     <th scope="col" className="etiket px-4 py-3">
                       Skift bagefter
                     </th>
+                    {/* "Loyalitet" og ikke "Stempelkort": kolonnen svarer for
+                        BEGGE former, og et kolonnenavn, der kun nævner den
+                        ene, får en køber til at tro, at den anden ikke er med
+                        — præcis dér, hvor pakkerne vælges. */}
                     <th scope="col" className="etiket px-4 py-3">
-                      Stempelkort
+                      Loyalitet
                     </th>
                     <th scope="col" className="etiket px-4 py-3">
                       Fysisk skilt
@@ -659,7 +663,7 @@ export default function ReviewstanderPage() {
                           {v.skifte}
                         </td>
                         <td className="px-4 py-3 align-top text-muted">
-                          {v.stempelkort}
+                          {v.loyalitet}
                         </td>
                         <td className="px-4 py-3 align-top text-muted">
                           {v.stander}
@@ -801,13 +805,19 @@ export default function ReviewstanderPage() {
 
             <p className="mt-8 max-w-2xl leading-relaxed text-foreground/90">
               Med <strong>LoyalSum Komplet</strong> kan den samme stander også
-              være indgangen til dit{" "}
+              være indgangen til din loyalitet: et{" "}
               <Link href="/stempelkort" className="font-medium text-accent">
-                digitale stempelkort
+                digitalt stempelkort
               </Link>
-              : kunden tilmelder sig selv, samler stempler og optjener en
-              belønning, du selv vælger. Så bliver det fysiske touchpoint ved
-              disken til en kunderelation i stedet for et enkelt klik.
+              , hvor kunden samler stempler mod én belønning, du selv vælger —
+              eller et{" "}
+              <Link href="/loyalitetsprogram" className="font-medium text-accent">
+                pointprogram
+              </Link>
+              , hvor kunden samler point og selv vælger mellem flere
+              belønninger. Kunden tilmelder sig selv, og så bliver det fysiske
+              touchpoint ved disken til en kunderelation i stedet for et enkelt
+              klik.
             </p>
 
             <p className="mt-6">

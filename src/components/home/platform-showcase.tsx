@@ -24,7 +24,17 @@ const TABS: { key: TabKey; label: string; headline: string; body: string }[] = [
     key: "loyalitet",
     label: "Loyalitet",
     headline: "Giv kunderne en grund til at komme igen",
-    body: "Digitale stempelkort og belønninger gør førstegangsbesøg til stamkunder. Kunden tilmelder sig selv, og personalet stempler med ét scan.",
+    /*
+      BEGGE FORMER I TEKSTEN, ÉN I BILLEDET. Fanen er overbliksafsnittet over,
+      hvad platformen kan, og loyalitet er to ting: et stempelkort med én
+      belønning og et pointprogram, hvor kunden selv vælger mellem flere.
+      Står kun den ene, ligner den anden noget, vi ikke har.
+
+      Mockuppen bliver et stempelkort — samme begrundelse som menuens ikon i
+      dashboardet: det er motivet, folk kender, og der findes ikke ét billede,
+      der siger begge dele uden at sige ingenting.
+    */
+    body: "Digitale stempelkort og pointprogrammer gør førstegangsbesøg til stamkunder. Kunden tilmelder sig selv uden app, og personalet stempler eller giver point med ét scan.",
   },
   {
     key: "synlighed",
