@@ -210,7 +210,7 @@ export function EditStand({
               placeholder="https://g.page/r/…"
             />
           </Field>
-          <div className="box-shape border border-accent/20 bg-accent/5 p-4 text-sm text-muted">
+          <div className="box-shape border border-border bg-surface-subtle p-4 text-sm text-muted">
             Flere destinationstyper (Trustpilot, Facebook, eget link) og
             dynamiske links, du kan skifte når som helst, er en del af Pro.{" "}
             <a href="/dashboard/abonnement" className="font-medium text-accent">

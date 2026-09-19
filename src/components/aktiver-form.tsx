@@ -57,7 +57,7 @@ export function AktiverForm({
   const eksisterende = form === "eksisterende-konto";
 
   return (
-    <div className="box-shape mt-8 border border-accent/30 bg-accent/5 p-6">
+    <div className="box-shape mt-8 border border-accent/25 bg-card p-6 shadow-[var(--hoejde-1)]">
       <h2 className="font-bold tracking-tight">
         {eksisterende
           ? AKTIVERING_TEKSTER.eksisterendeOverskrift

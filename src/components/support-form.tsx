@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useId } from "react";
+import { Besked } from "@/components/ui/besked";
 import {
   sendSupport,
   type SupportResultat,
@@ -97,9 +98,7 @@ export function SupportForm({
       </Field>
 
       {state.fejlbesked ? (
-        <p role="alert" className="text-sm font-medium text-danger">
-          {state.fejlbesked}
-        </p>
+        <Besked slags="fejl">{state.fejlbesked}</Besked>
       ) : null}
 
       <div className="flex flex-wrap items-center gap-4">

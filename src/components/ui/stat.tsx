@@ -1,5 +1,5 @@
 import { Card } from "./card";
-import { IkonChip } from "./ikon-chip";
+import { IkonChip, type ChipFarve } from "./ikon-chip";
 import { cn } from "@/lib/utils";
 
 /**
@@ -74,6 +74,7 @@ export function Stat({
   sub,
   trend,
   icon,
+  farve = "accent",
   size = "md",
   className,
 }: {
@@ -92,6 +93,12 @@ export function Stat({
    * ingenting frem for et tilfældigt.
    */
   icon?: React.ComponentType<{ className?: string }>;
+  /**
+   * Datatypens farve. Samme metric har samme farve på tværs af sider, så
+   * kortet kan genkendes uden at læse etiketten — se `--data-*` i
+   * globals.css for hvorfor paletten er lille og dæmpet.
+   */
+  farve?: ChipFarve;
   size?: "sm" | "md";
   className?: string;
 }) {
@@ -106,6 +113,7 @@ export function Stat({
            konkurrere. */
         <IkonChip
           icon={icon}
+          farve={farve}
           size={lille ? "sm" : "lg"}
           className={cn("absolute right-4", lille ? "top-3" : "top-4")}
         />

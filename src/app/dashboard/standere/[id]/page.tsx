@@ -111,7 +111,7 @@ export default async function StandDetailPage({
         stander, der virker, ville lære folk at overse dem.
       */}
       {manglerLoyalitet ? (
-        <div className="box-shape mb-6 border border-accent/30 bg-accent/5 p-5">
+        <div className="box-shape mb-6 border border-accent/25 bg-card p-5 shadow-[var(--hoejde-1)]">
           <p className="font-medium">Du er ikke kommet i gang med loyalitet</p>
           <p className="mt-1 text-sm leading-relaxed text-muted">
             Standeren virker — men dine kunder får kun valget “Del din

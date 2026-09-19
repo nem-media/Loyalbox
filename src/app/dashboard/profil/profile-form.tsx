@@ -196,7 +196,7 @@ export function ProfileForm({
                      svarer kun `pro` eller `basic` — så kunden blev bedt om at
                      opgradere til noget, der ikke kan købes. Navnene hentes nu
                      fra de varer, der FAKTISK låser logoet op. */
-                  <div className="box-shape border border-accent/20 bg-accent/5 p-4 text-sm text-muted">
+                  <div className="box-shape border border-border bg-surface-subtle p-4 text-sm text-muted">
                     Dit eget logo på den side, dine kunder lander på, følger med{" "}
                     {MED_BRANDING.join(" og ")}.{" "}
                     <a

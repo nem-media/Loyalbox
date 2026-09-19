@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { Besked } from "@/components/ui/besked";
 import {
   givPointAction,
   justerPointAction,
@@ -110,9 +111,7 @@ export function GivPointForm({
       ) : null}
 
       {state.error ? (
-        <p role="alert" className="text-sm text-danger">
-          {state.error}
-        </p>
+        <Besked slags="fejl">{state.error}</Besked>
       ) : null}
       {state.ok ? (
         <p className="text-sm font-medium text-success">
@@ -189,9 +188,7 @@ export function IndloesKnap({
         </span>
       </p>
       {state.error ? (
-        <p role="alert" className="text-sm text-danger">
-          {state.error}
-        </p>
+        <Besked slags="fejl">{state.error}</Besked>
       ) : null}
       <div className="flex gap-2">
         <Button type="submit" size="sm" disabled={pending}>
@@ -288,9 +285,7 @@ export function JusterPointForm({
       </Field>
 
       {state.error ? (
-        <p role="alert" className="text-sm text-danger">
-          {state.error}
-        </p>
+        <Besked slags="fejl">{state.error}</Besked>
       ) : null}
       {state.ok ? (
         <p className="text-sm font-medium text-success">Justeringen er gemt.</p>

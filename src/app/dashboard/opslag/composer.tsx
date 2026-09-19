@@ -211,7 +211,7 @@ export function Composer({
                     type="button"
                     onClick={() => pickReview(r)}
                     className={`box-shape block w-full border p-3 text-left text-sm transition-colors ${
-                      reviewId === r.id ? "border-accent bg-accent/5" : "border-border bg-card hover:bg-muted-bg"
+                      reviewId === r.id ? "border-accent bg-accent-tint/70" : "border-border bg-card hover:bg-muted-bg"
                     }`}
                   >
                     <span className="text-star">★★★★★</span>
@@ -239,7 +239,7 @@ export function Composer({
                     type="button"
                     onClick={() => pickTemplate(t)}
                     className={`box-shape block w-full border p-3 text-left text-sm transition-colors ${
-                      templateId === t.id ? "border-accent bg-accent/5" : "border-border bg-card hover:bg-muted-bg"
+                      templateId === t.id ? "border-accent bg-accent-tint/70" : "border-border bg-card hover:bg-muted-bg"
                     }`}
                   >
                     {preview}

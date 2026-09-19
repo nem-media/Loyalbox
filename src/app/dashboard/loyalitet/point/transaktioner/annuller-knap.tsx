@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { Besked } from "@/components/ui/besked";
 import { annullerPointAction } from "../actions";
 import type { FormResult } from "@/app/dashboard/loyalitet/actions";
 import { Button } from "@/components/ui/button";
@@ -61,9 +62,7 @@ export function AnnullerKnap({
         aria-label="Begrundelse"
       />
       {state.error ? (
-        <p role="alert" className="text-sm text-danger">
-          {state.error}
-        </p>
+        <Besked slags="fejl">{state.error}</Besked>
       ) : null}
       <div className="flex gap-2">
         <Button type="submit" size="sm" variant="danger" disabled={pending}>
