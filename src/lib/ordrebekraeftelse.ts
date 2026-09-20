@@ -1,4 +1,5 @@
 import { PRORATA_FORKLARING, COMPANY, BRAND_NAVN } from "./constants";
+import { SVARTID } from "./kontakt";
 import type { Ordredetaljer } from "./ordrevarsel";
 
 /**
@@ -148,7 +149,15 @@ export function ordrebekraeftelse(d: Ordredetaljer): {
 
   linjer.push(
     "",
-    `Har du spørgsmål, så svar bare på denne mail eller skriv til ${COMPANY.email}.`,
+    /*
+      SVARLØFTET SKAL VÆRE DET SAMME I MAILEN SOM PÅ SIDEN. Kunden får at
+      vide, at de bare kan svare — men ikke hvornår der så kommer et svar,
+      og et løfte, der kun står på /kontakt, hjælper ikke den, der sidder i
+      indbakken. `SVARTID` er ét sted (`lib/kontakt.ts`), så mailen og siden
+      ikke kan komme til at sige hver sit; kontortiden BÆRER løftet og skal
+      med, fordi "få minutter" er forkert klokken 22.
+    */
+    `Har du spørgsmål, så svar bare på denne mail eller skriv til ${COMPANY.email}. ${SVARTID}`,
     "",
     "Venlig hilsen",
     /*

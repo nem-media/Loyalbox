@@ -26,7 +26,22 @@ const NAV_LINKS: NavLink[] = [
   { href: "/loyalitetsprogram", label: "Loyalitetsprogram" },
   { href: "/reviewstander", label: "Reviewstander" },
   { href: "/produkter", label: "Priser" },
-  { href: "/blog", label: "Blog" },
+  /*
+   * BLOGGEN STÅR KUN I FOOTEREN, og det er et valg om, hvad menuen er til.
+   * Hovedmenuen er vejen til det, man kan KØBE — de to loyalitetsformer,
+   * standeren, priserne og os. Bloggen er nitten artikler, der skal findes
+   * fra en søgning, ikke fra en købers menu, og den lå mellem "Priser" og
+   * "Kontakt" og delte dem ad.
+   *
+   * DEN MISTER INGEN LINKVÆRDI: footeren står på hver eneste side, præcis
+   * som menuen, så bloglisten har lige så mange indgående interne links som
+   * før — og artiklerne linker indbyrdes (se `blog.test.ts`, hvor ingen
+   * artikel må være et blad).
+   *
+   * DET GIVER OGSÅ LUFTEN TILBAGE: menuen bar syv punkter, og det syvende
+   * kostede så meget plads, at LOGOET krympede fra 204 til 86 px mellem
+   * 1024 og 1199 px — se AGENTS.md. Seks punkter er under den grænse igen.
+   */
   { href: "/kontakt", label: "Kontakt" },
 ];
 

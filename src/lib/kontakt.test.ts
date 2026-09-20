@@ -1,4 +1,9 @@
 import { describe, it, expect } from "vitest";
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
+
+/** Linjeskiftet. Som et tegn frem for en escape — se fejeprøven nedenfor. */
+const SKIFT = String.fromCharCode(10);
 import {
   laesKontakt,
   kontaktMail,
@@ -130,6 +135,42 @@ describe("SVARTID", () => {
     expect(SVARTID).toContain(KONTORTID);
     expect(KONTORTID).toMatch(/9/);
     expect(KONTORTID).toMatch(/16/);
+  });
+
+  it("står ÉT sted — ingen skriver svartiden af", () => {
+    /*
+     * FEJEPRØVE. Svartiden blev rettet fra "to timer" til "få minutter" ét
+     * sted og dækkede fem forekomster, netop fordi den er en konstant. Skriver
+     * nogen den af i en ny mail eller på en ny side, er den rettelse kun sand
+     * den dag, den blev lavet — og en forældet svartid er et løfte, vi bryder
+     * uden at vide det.
+     *
+     * Der ledes efter et TIMETAL i et svarløfte. "Få minutter" fanges ikke:
+     * det er dét, konstanten selv siger, og en side må gerne citere den.
+     */
+    function* filer(mappe: string): Generator<string> {
+      for (const navn of readdirSync(mappe)) {
+        const sti = join(mappe, navn);
+        if (statSync(sti).isDirectory()) yield* filer(sti);
+        else if (/[.]tsx?$/.test(navn) && !navn.includes(".test.")) yield sti;
+      }
+    }
+
+    const synder: string[] = [];
+    for (const fil of filer("src")) {
+      const tekst = readFileSync(fil, "utf8")
+        .replace(/[/][*][^]*?[*][/]/g, "")
+        .replace(/^[ 	]*[/][/].*$/gm, "");
+      /* Linje for linje, så et løfte og et timetal i to forskellige
+         sætninger ikke kan blive læst som ét. */
+      for (const linje of tekst.split(SKIFT)) {
+        if (/svar[^.]{0,40}[0-9]+ ?timer/i.test(linje)) {
+          synder.push(fil);
+          break;
+        }
+      }
+    }
+    expect(synder, "svartiden er skrevet af i timer").toEqual([]);
   });
 });
 
