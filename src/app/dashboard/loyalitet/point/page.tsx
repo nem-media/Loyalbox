@@ -16,7 +16,7 @@ import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
-import { StampCardIcon } from "@/components/nav-icons";
+import { PointDuo } from "@/components/duotone-ikoner";
 import { PointProgramForm } from "./program-form";
 
 export const dynamic = "force-dynamic";
@@ -93,7 +93,10 @@ export default async function PointProgrammerPage() {
       {programmer.length === 0 ? (
         <div className="grid gap-6 lg:grid-cols-[1fr_1fr] lg:items-start">
           <EmptyState
-            icon={StampCardIcon}
+            /* MØNTEN OG IKKE STEMPLET. Tomme tilstande er dét sted, hvor
+               ikonet bærer mest — der er ingen data at kigge på — og et
+               stempel over en tekst om point sagde det modsatte af teksten. */
+            icon={PointDuo}
             title="Du har ikke oprettet et pointprogram endnu."
             description={
               <>

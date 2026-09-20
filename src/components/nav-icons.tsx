@@ -101,14 +101,36 @@ export function StandIcon(p: P) {
   );
 }
 
-/** Stempelkort — kortet med stempler. */
+/**
+ * Loyalitet — et STEMPEL og ikke endnu et kort.
+ *
+ * DET VAR ET AF TRE REKTANGLER I SAMME MENU. Ikonet var et kort med tre
+ * cirkler, Abonnement var et kort med en stribe, og Standere er et skilt på
+ * en fod. Ved 18 px er det tre rektangler: silhuetten er ens, og det er
+ * silhuetten, man kender et menupunkt på, når man ikke læser. De tre cirkler
+ * hjalp ikke — tre ens ringe kan lige så godt være en skyder.
+ *
+ * Stemplet har en silhuet, intet andet i menuen har (et T på en linje), og
+ * det er dét motiv, folk kender. Punktet dækker OGSÅ pointprogrammet, og det
+ * er et bevidst valg: der findes ikke ét tegn, der siger både "stempel" og
+ * "point" uden at sige ingenting, og stemplet er den form, kunderne selv
+ * bruger om det. Samme begrundelse som menupunktets navn — se
+ * `dashboard/layout.tsx`.
+ */
 export function StampCardIcon(p: P) {
   return (
-    <Icon {...p} krop={<rect x="2.5" y="5" width="19" height="14" rx="2" />}>
-      <rect x="2.5" y="5" width="19" height="14" rx="2" />
-      <circle cx="7.5" cy="12" r="1.75" />
-      <circle cx="12" cy="12" r="1.75" />
-      <circle cx="16.5" cy="12" r="1.75" />
+    <Icon
+      {...p}
+      krop={
+        <>
+          <path d="M9.2 4.6h5.6l-.75 4.4H9.95Z" />
+          <rect x="5.4" y="9" width="13.2" height="5.6" rx="1.8" />
+        </>
+      }
+    >
+      <path d="M9.2 4.6h5.6l-.75 4.4H9.95Z" />
+      <rect x="5.4" y="9" width="13.2" height="5.6" rx="1.8" />
+      <path d="M4.2 18.6h15.6" />
     </Icon>
   );
 }
@@ -178,10 +200,18 @@ export function StoreIcon(p: P) {
 /** Abonnement — kortet der betales med. */
 export function BillingIcon(p: P) {
   return (
-    <Icon {...p} krop={<rect x="2.5" y="5" width="19" height="14" rx="2" />}>
-      <rect x="2.5" y="5" width="19" height="14" rx="2" />
+    <Icon
+      {...p}
+      krop={<rect x="2.5" y="5" width="19" height="14" rx="2.5" />}
+    >
+      <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
       <path d="M2.5 9.5h19" />
-      <path d="M6 14.5h4" />
+      {/* CHIPPEN ER DÉT, DER GØR REKTANGLET TIL ET KORT.
+          Den gamle korte streg nederst til venstre var bare en streg og kunne
+          være hvad som helst; en lille afrundet firkant dér er det ene
+          kendetegn, alle betalingskort har. Stregen foroven er magnetstriben
+          og bliver. */}
+      <rect x="5.5" y="12.4" width="4.2" height="3.2" rx="0.9" />
     </Icon>
   );
 }
@@ -249,11 +279,18 @@ export function SearchIcon(p: P) {
  */
 export function SubscriptionIcon(p: P) {
   return (
-    <Icon {...p} krop={<circle cx="12" cy="12" r="8" />}>
+    <Icon {...p} krop={<circle cx="12" cy="12" r="3.6" />}>
       <path d="M20 12a8 8 0 0 1-13.6 5.7" />
       <path d="M4 12a8 8 0 0 1 13.6-5.7" />
       <path d="M17.6 3v3.3h-3.3" />
       <path d="M6.4 21v-3.3h3.3" />
+      {/* MØNTEN I MIDTEN. To buer med pilespidser og ingenting indeni er en
+          GENINDLÆSNING — det er præcis dét, en spinner er. Det, der skal
+          gentage sig, er en betaling, og så skal den kunne ses. Ringen siger
+          gentagelsen, mønten siger hvad der gentages.
+          Den fyldte krop er derfor MØNTEN og ikke hele cirklen: en fyldt
+          skive bag to buer ville lukke ringen og gøre ikonet til et ur. */}
+      <circle cx="12" cy="12" r="3.6" />
     </Icon>
   );
 }
