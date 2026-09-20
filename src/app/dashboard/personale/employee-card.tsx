@@ -86,7 +86,7 @@ export function EmployeeCard({ employee }: { employee: EmployeeRow }) {
                   type="checkbox"
                   name={f.name}
                   defaultChecked={employee[f.name]}
-                  className="h-4 w-4 accent-[color:var(--color-accent,#26616e)]"
+                  className="h-4 w-4 accent-[color:var(--color-accent,#0f5b66)]"
                 />
                 {f.label}
               </label>

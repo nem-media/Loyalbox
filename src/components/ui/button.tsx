@@ -35,8 +35,20 @@ const variants: Record<Variant, string> = {
      se globals.css. Hover hæver knappen 1 px og gør skæret dybere. */
   primary:
     "knap-flade text-accent-fg hover:-translate-y-px hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_2px_4px_rgba(30,28,26,0.14),0_10px_22px_-8px_color-mix(in_srgb,var(--accent)_55%,transparent)]",
+  /*
+    SEKUNDÆR ER DEN LYSE PILLE PÅ EN MØRK FLADE.
+    Den var `bg-secondary`, altså husets beige — og da sekundærfarven blev
+    blødt guld med paletten, ville hver eneste "Kom i gang" på en mørk hero
+    være blevet en gul knap. Guld er en ILLUSTRATIONSFARVE (pointmønter,
+    stjerner) og aldrig en handling.
+
+    I designreferencerne er den anden knap på en mørk flade hvid med mørk
+    tekst — den højeste kontrast, der findes, og derfor dén, der skal bære
+    det primære valg, når baggrunden allerede er mørk. Teksten er `--dark`
+    på hvidt: 15:1.
+  */
   secondary:
-    "bg-secondary text-secondary-fg shadow-[var(--hoejde-1)] hover:-translate-y-px hover:brightness-[1.04] hover:shadow-[var(--hoejde-2)]",
+    "bg-white text-dark shadow-[var(--hoejde-1)] hover:-translate-y-px hover:bg-white/92 hover:shadow-[var(--hoejde-2)]",
   outline:
     "border border-border bg-card text-foreground shadow-[var(--hoejde-1)] hover:-translate-y-px hover:border-accent/35 hover:bg-surface-subtle hover:shadow-[var(--hoejde-2)]",
   "outline-invert":

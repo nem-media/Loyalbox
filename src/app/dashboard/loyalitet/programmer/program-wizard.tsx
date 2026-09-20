@@ -84,7 +84,7 @@ export function ProgramWizard({
   const [requiredStamps, setRequiredStamps] = useState(initial?.requiredStamps ?? "10");
   const [rewardDescription, setRewardDescription] = useState(initial?.rewardDescription ?? "");
   const [rewardValue, setRewardValue] = useState(initial?.rewardValue ?? "");
-  const [color, setColor] = useState(initial?.color ?? "#1e1c1a");
+  const [color, setColor] = useState(initial?.color ?? "#08303c");
   const [icon, setIcon] = useState(initial?.icon ?? "star");
   const [cardText, setCardText] = useState(initial?.cardText ?? "");
   const [resetOnRedeem, setResetOnRedeem] = useState(initial?.resetOnRedeem ?? true);

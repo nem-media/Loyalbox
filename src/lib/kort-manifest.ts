@@ -43,8 +43,8 @@ export function kortManifest(token: string, butiksnavn?: string | null) {
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#f6f4ee",
-    theme_color: "#1e1c1a",
+    background_color: "#eff5f7",
+    theme_color: "#08303c",
     icons: [
       { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },

@@ -9,7 +9,7 @@ import { formatDate } from "@/lib/utils";
  */
 export function StampCardPreview({
   name,
-  color = "#1e1c1a",
+  color = "#08303c",
   requiredStamps,
   filled = 0,
   rewardName,

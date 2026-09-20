@@ -131,7 +131,7 @@ export function StanderDesigner({
     STANDARD_STANDERFARVE,
   );
   const [egenFront, setEgenFront] = useState(false);
-  const [hex, setHex] = useState("#26616e");
+  const [hex, setHex] = useState("#0f5b66");
   /*
    * Accentfarven: stjernerne og "Scan eller tap" på det trykte skilt.
    * IKKE ringen — den afledes af baggrunden (`ringFarve()`), og ikke
@@ -397,7 +397,7 @@ export function StanderDesigner({
               <div className="mt-3 flex flex-wrap items-center gap-3 pl-7">
                 <input
                   type="color"
-                  value={normaliserHex(hex) ?? "#26616e"}
+                  value={normaliserHex(hex) ?? "#0f5b66"}
                   onChange={(e) => setHex(e.target.value)}
                   aria-label="Vælg frontfarve"
                   className="h-10 w-14 cursor-pointer border border-border bg-transparent p-1"

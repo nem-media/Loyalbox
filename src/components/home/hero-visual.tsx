@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Stars } from "@/components/ui/stars";
 import { cn } from "@/lib/utils";
 
@@ -79,33 +80,80 @@ export function StempelkortVisual({ className }: { className?: string }) {
  * små notifikationer omkring. Det skal aflæses på et sekund som "anmeldelser
  * + loyalitet i ét system", uden at blive et rodet collage.
  */
+/**
+ * Forsidens hero-visual.
+ *
+ * DET ER TO RIGTIGE FOTOGRAFIER OG IKKE EN TEGNING — OG DET ER SELVE
+ * BUDSKABET. Heroen bar før `StempelkortVisual`, altså husets egen tegning af
+ * et stempelkort. Den er præcis og ærlig, men den viser ÉN funktion, mens
+ * sætningen ved siden af lover en platform; og en tegning på det første, en
+ * besøgende ser, læses som en illustration af et produkt frem for som
+ * produktet.
+ *
+ * Designreferencerne gør det modsatte hele vejen igennem: fotografi af de
+ * faktiske ting på et bord — skærm, telefon, skilt — med blødt dagslys.
+ * Begge filer her er husets EGNE produktfotos og fandtes i forvejen; der er
+ * ikke lavet nye billeder, og der er ikke tegnet en stander.
+ *
+ * DE TO LAG SIGER HVER SIN HALVDEL AF SÆTNINGEN:
+ *   bagest  `loyalsum-komplet-online-dashboard-og-mobil.jpg` — platformen,
+ *           altså dashboardet på en skærm og kundens kort på en telefon
+ *   forrest `reviewstander-cafe-komplet.jpg` — det fysiske skilt på disken
+ * Sammen er de "én platform, fysisk og digital", uden at en eneste ny
+ * funktion er påstået.
+ *
+ * DET FORRESTE BILLEDE BRYDER DET BAGESTES KANT med vilje. Lagt ved siden af
+ * hinanden ville de være to billeder; når det ene overlapper, bliver de til
+ * én scene med dybde — det greb, referencerne bruger i hver eneste hero.
+ *
+ * `priority` KUN PÅ DET BAGESTE. Det er sidens LCP-element; det forreste er
+ * mindre og må gerne komme bagefter. Begge har faste mål gennem
+ * `aspect`-forholdet på beholderen, så heroen ikke hopper, når de lander.
+ */
 export function HeroVisual() {
   return (
     <div
-      className="relative mx-auto w-full max-w-[22rem] select-none"
+      className="relative mx-auto w-full max-w-[34rem] select-none"
       aria-hidden="true"
     >
-      <StempelkortVisual />
+      {/* PLATFORMEN — det bagerste og største lag. */}
+      <div className="relative overflow-hidden rounded-[var(--radius-stor)] shadow-[var(--hoejde-foto)] ring-1 ring-white/12">
+        <Image
+          src="/loyalsum-komplet-online-dashboard-og-mobil.jpg"
+          alt=""
+          width={1120}
+          height={747}
+          sizes="(min-width: 1024px) 34rem, 92vw"
+          priority
+          className="h-auto w-full"
+        />
+      </div>
 
-      {/* Notifikation: ny anmeldelse */}
-      <div className="absolute -right-3 -top-5 sm:-right-8">
-        {/* text-foreground er nødvendig: heroen sætter text-dark-fg (hvid),
-            som ellers arves ned i den hvide chip og gør teksten usynlig. */}
-        <div className="btn-shape flex items-center gap-2 bg-white px-3 py-2 text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_2px_5px_rgba(107,95,87,0.14),0_16px_30px_-14px_rgba(0,0,0,0.5)]">
+      {/* SKILTET — det forreste lag, forskudt ud over kanten forneden. */}
+      <div className="absolute -bottom-8 -left-4 w-[46%] overflow-hidden rounded-[var(--radius-shape)] shadow-[var(--hoejde-3)] ring-1 ring-white/20 sm:-left-10">
+        <Image
+          src="/reviewstander-cafe-komplet.jpg"
+          alt=""
+          width={560}
+          height={560}
+          sizes="(min-width: 1024px) 16rem, 44vw"
+          className="h-auto w-full"
+        />
+      </div>
+
+      {/*
+        ÉN CHIP OG IKKE TRE. Den flydende notifikation er referencernes eget
+        greb, men to af dem oven på to fotografier bliver til rod. Stjernerne
+        er den ene ting, hele sitet handler om at få flere af.
+      */}
+      <div className="absolute -right-3 -top-5 sm:-right-7">
+        {/* `text-foreground` er nødvendig: heroen sætter `text-dark-fg`
+            (hvid), som ellers arves ned i den hvide chip. */}
+        <div className="btn-shape flex items-center gap-2 bg-white px-3.5 py-2 text-foreground shadow-[0_2px_5px_rgba(8,48,60,0.16),0_18px_34px_-14px_rgba(0,0,0,0.5)]">
           <Stars value={5} size={13} />
           <span className="text-xs font-semibold tracking-tight">
             Ny anmeldelse
           </span>
-        </div>
-      </div>
-
-      {/* Notifikation: feedback fanget internt */}
-      <div className="absolute -bottom-6 -left-3 sm:-left-10">
-        <div className="btn-shape flex items-center gap-2 bg-dark px-3 py-2 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_2px_5px_rgba(0,0,0,0.3),0_16px_30px_-14px_rgba(0,0,0,0.55)] ring-1 ring-white/15">
-          <span className="grid h-5 w-5 place-items-center rounded-full bg-secondary text-[11px] font-bold text-secondary-fg">
-            !
-          </span>
-          <span className="text-xs font-medium">Feedback besvaret</span>
         </div>
       </div>
     </div>

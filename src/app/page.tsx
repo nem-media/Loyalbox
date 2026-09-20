@@ -232,18 +232,23 @@ export default function LandingPage() {
             className="absolute inset-0 -z-10"
             style={{
               /*
-                TRE SKÆR OG IKKE TO. De to beige holdt heroen varm, men
-                accenten fandtes ikke i den — så det første, en besøgende så,
-                var den eneste flade på sitet uden husets egen farve. Det
-                turkise skær ligger LAVT (12 %) og bag produktvisningen til
-                højre, hvor det giver skærmen en glød at stå i frem for at
-                ligge som en farvet plet på en sort flade.
+TRE SKÆR, OG TEALEN FØRER NU AN.
+                De to varme lå øverst og holdt heroen beige — rigtigt dengang
+                paletten var det. Efter omvendingen til den kølige palet ville
+                to beige skær på en petroleumsgrund være den ENESTE varme
+                flade på sitet, altså præcis den fejl, de før løste.
+
+                Nu er den lyse teal det bærende skær (18 % bag produktet, hvor
+                den giver skærmen en glød at stå i), og guldet er ét lille
+                kys øverst til højre — supporting-farven set som lys og ikke
+                som flade. Det tredje ligger i bunden til venstre og hindrer,
+                at den store mørke flade bliver flad.
 
                 Alle tre er radiale og uden skarp kant: en gradient, man kan
                 SE, er en gradient for meget.
               */
               backgroundImage:
-                "radial-gradient(55% 55% at 72% 18%, rgba(78,164,173,0.16), transparent 62%), radial-gradient(60% 60% at 82% 6%, rgba(180,161,137,0.18), transparent 62%), radial-gradient(55% 55% at 4% 96%, rgba(180,161,137,0.10), transparent 60%)",
+                "radial-gradient(58% 58% at 70% 20%, rgba(26,144,137,0.20), transparent 64%), radial-gradient(42% 42% at 88% 2%, rgba(217,164,65,0.12), transparent 60%), radial-gradient(55% 55% at 2% 98%, rgba(26,144,137,0.10), transparent 60%)",
             }}
           />
           <div className="mx-auto max-w-side px-4 py-20 sm:py-28">
@@ -251,7 +256,7 @@ export default function LandingPage() {
               <div>
                 <span className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/8 px-3.5 py-1.5 text-xs font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] ring-1 ring-white/15 backdrop-blur-sm">
                   <span
-                    className="h-1.5 w-1.5 rounded-full bg-secondary shadow-[0_0_8px_rgba(180,161,137,0.8)]"
+                    className="h-1.5 w-1.5 rounded-full bg-secondary shadow-[0_0_8px_rgba(217,164,65,0.8)]"
                     aria-hidden="true"
                   />
                   Anmeldelser · Synlighed · Feedback · Loyalitet
@@ -296,7 +301,7 @@ export default function LandingPage() {
         <ProduktStribe />
 
         {/* --------------------------------------------------- trust-stribe */}
-        <section className="varm-lys border-t border-border bg-muted-bg">
+        <section className="sektion-skaer border-t border-border bg-muted-bg">
           <div className="mx-auto max-w-side px-4 py-5">
             <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-sm text-muted">
               {[
@@ -380,7 +385,7 @@ export default function LandingPage() {
         {/* ------------------------------------------------ LoyalSum-loopet */}
         <section
           id="loop"
-          className="varm-lys scroll-mt-24 border-t border-border bg-muted-bg"
+          className="sektion-skaer scroll-mt-24 border-t border-border bg-muted-bg"
         >
           <div className="mx-auto max-w-side px-4 py-16 sm:py-20">
             <div className="mx-auto max-w-2xl text-center">
@@ -428,7 +433,7 @@ export default function LandingPage() {
                 </ul>
               </div>
 
-              <div className="box-shape border border-secondary/50 bg-card p-7 shadow-[0_20px_40px_-28px_rgba(180,161,137,0.55)]">
+              <div className="box-shape border border-secondary/50 bg-card p-7 shadow-[0_20px_40px_-28px_rgba(217,164,65,0.55)]">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-secondary-fg">
                   {IconRepeat}
                 </div>
@@ -532,7 +537,7 @@ export default function LandingPage() {
         {/* ----------------------------------------------------- platformen */}
         <section
           id="platform"
-          className="varm-lys scroll-mt-24 border-t border-border bg-muted-bg"
+          className="sektion-skaer scroll-mt-24 border-t border-border bg-muted-bg"
         >
           <div className="mx-auto max-w-side px-4 py-16 sm:py-20">
             <div className="mx-auto max-w-2xl text-center">
@@ -595,7 +600,7 @@ export default function LandingPage() {
         <Udtalelser />
 
         {/* -------------------------------------------------------- brancher */}
-        <section className="varm-lys border-t border-border bg-muted-bg">
+        <section className="sektion-skaer border-t border-border bg-muted-bg">
           <div className="mx-auto max-w-side px-4 py-16 sm:py-20">
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
