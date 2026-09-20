@@ -1,4 +1,6 @@
 import { COMPANY, SITE_NAME } from "@/lib/constants";
+import { getSiteUrl } from "@/lib/site";
+import { mailHtml } from "@/lib/mail-skabelon";
 
 /**
  * Udgående mail.
@@ -32,6 +34,20 @@ async function send(
    * selv, og beskeden ville se besvaret ud, uden at nogen havde fået noget.
    */
   svarTil?: string,
+  /**
+   * Skal mailen også sendes som HTML?
+   *
+   * KUN KUNDEMAILS. En alarm og et ordrevarsel læses i en travl indbakke og
+   * ofte på en telefon, og dér er ren tekst bedre end pæn: man kan søge i
+   * den, citere den og se hele beskeden i ét blik uden at rulle forbi en
+   * bjælke. En designet alarm er en alarm, der tager længere tid at forstå.
+   *
+   * `text` sendes ALTID med ved siden af. Det er ikke høflighed: en mail med
+   * kun HTML scorer dårligere hos spamfiltre, og en klient, der er sat til
+   * ren tekst, ville ellers vise ingenting. Begge udgaver kommer ud af den
+   * SAMME tekst, så de aldrig kan sige hver sit.
+   */
+  somHtml = false,
 ): Promise<boolean> {
   const noegle = process.env.RESEND_API_KEY;
   if (!noegle) {
@@ -51,6 +67,7 @@ async function send(
         to: til,
         subject: emne,
         text: tekst,
+        ...(somHtml ? { html: mailHtml(tekst, getSiteUrl()) } : {}),
         ...(svarTil ? { reply_to: svarTil } : {}),
       }),
     });
@@ -105,5 +122,5 @@ export function sendKundeMail(
   emne: string,
   tekst: string,
 ): Promise<boolean> {
-  return send(AFSENDER_KUNDE, [til], emne, tekst);
+  return send(AFSENDER_KUNDE, [til], emne, tekst, undefined, true);
 }
