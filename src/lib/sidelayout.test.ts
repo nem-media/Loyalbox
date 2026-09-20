@@ -105,3 +105,42 @@ describe("gitteret skifter til fire på en bærbar", () => {
     expect(KATALOG).toHaveLength(4);
   });
 });
+
+describe("hovedmenuen bærer højst seks punkter", () => {
+  /*
+   * MÅLT 2026-09-19: da menuen fik sit syvende punkt, krympede LOGOET fra
+   * 204 til 86 px mellem 1024 og 1199 px, så bomærket lå oven i det første
+   * menupunkt. Intet stak uden for headeren, siden kunne ikke skubbes til
+   * siden, og ingen prøve sagde fra — flex løser pladsmangel ved at KRYMPE,
+   * ikke ved at brække. Se AGENTS.md.
+   *
+   * BLOGGEN ER DEN, DER RØG UD, og det er et valg om, hvad menuen er til:
+   * den er vejen til det, man kan købe. Bloggen står i footeren, som også
+   * er på hver side, så den mister ingen intern linkværdi.
+   *
+   * Tallet er et LOFT og ikke en påstand om, at seks er rigtigt. Skal der et
+   * syvende ind, skal logoets `right` måles mod navens `left` ved 1024, 1100,
+   * 1200, 1280, 1440 og 1920 først — og så må tallet hæves bevidst.
+   */
+  const header = readFileSync("src/components/site-header.tsx", "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/^\s*\/\/.*$/gm, "");
+
+  const punkter = [...header.matchAll(/\{\s*href:\s*"([^"]+)"/g)].map(
+    (m) => m[1],
+  );
+
+  it("menuen har punkter at tælle", () => {
+    expect(punkter.length).toBeGreaterThan(3);
+  });
+
+  it("der er højst seks", () => {
+    expect(punkter, `menuen står med ${punkter.length}`).toHaveLength(6);
+  });
+
+  it("bloggen står i footeren og ikke i menuen", () => {
+    expect(punkter).not.toContain("/blog");
+    const footer = readFileSync("src/components/site-footer.tsx", "utf8");
+    expect(footer, "bloggen skal stadig kunne findes").toContain('"/blog"');
+  });
+});

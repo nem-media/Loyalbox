@@ -54,15 +54,42 @@ export function DashboardShell({
         en meget lav skygge indad mod indholdet: den bliver stadig læst som
         et lag foran, men nu i samme materiale som resten.
       */}
-      <aside className="flex shrink-0 flex-col border-b border-border bg-card md:w-64 md:border-b-0 md:border-r md:shadow-[1px_0_0_rgba(30,28,26,0.02),4px_0_24px_-12px_rgba(30,28,26,0.08)]">
+      {/*
+        MENUEN FØLGER MED NED, OG DEN SKAL DERFOR HAVE SIN EGEN HØJDE.
+        Et flex-element strækker sig som udgangspunkt til hele rækkens højde
+        — altså hele sidens. `position: sticky` har intet at klæbe med, når
+        elementet allerede er lige så højt som det, der rulles: `top-0`
+        rammer aldrig. `md:h-screen` er dét, der gør menuen til en spalte på
+        skærmhøjde i stedet, og først dér virker klæbningen.
+
+        RULNINGEN LIGGER INDE I MENUEN OG IKKE UDEN OM. Ti punkter, to
+        gruppeoverskrifter, logo, genvej og brugerblokken er omkring 750 px.
+        Det går på en fuld skærm, men IKKE på en bærbar med 768 px i højden,
+        hvor der er cirka 640 px tilbage til siden — og uden `overflow-y-auto`
+        ville Log ud og brugerblokken være skåret af med ingen måde at nå dem
+        på. Det er den bærbare, personalet står med, ikke skærmen her.
+
+        KUN FRA `md`. På mobil ligger menuen vandret øverst og bærer ALLE
+        punkter i en rulbar stribe; klæbede den, ville den tage en tredjedel
+        af en telefonskærm på hver eneste side.
+      */}
+      <aside className="menu-rul flex shrink-0 flex-col border-b border-border bg-card md:sticky md:top-0 md:h-screen md:w-64 md:overflow-y-auto md:border-b-0 md:border-r md:shadow-[1px_0_0_rgba(30,28,26,0.02),4px_0_24px_-12px_rgba(30,28,26,0.08)]">
         <div className="flex items-center justify-between p-4 md:pb-6">
-          <Logo image="dark" prioritet />
+          <Logo image="dark" prioritet className="shrink-0" />
 
           {/* På mobil er brugerblokken i bunden skjult, og dermed var der
               INGEN vej ud af sin egen konto på en telefon. Niveau og Log ud
               står derfor her, hvor der er plads. */}
-          <div className="flex items-center gap-2 md:hidden">
-            <Badge tone="accent">{roleLabel}</Badge>
+          <div className="flex min-w-0 items-center gap-2 md:hidden">
+            {/*
+              PAKKENAVNET KAN VÆRE LANGT — "LoyalSum Komplet Online" er 23
+              tegn, hvor der før stod "Pro". `title` bærer hele navnet, og
+              det fulde står under Abonnement; her er pladsen delt med
+              logoet og Log ud på en telefonskærm.
+            */}
+            <Badge tone="accent" className="min-w-0" title={roleLabel}>
+              <span className="truncate">{roleLabel}</span>
+            </Badge>
             <form action={signout}>
               <button className="btn-shape px-2.5 py-1.5 text-xs text-muted transition-colors hover:bg-accent-tint hover:text-accent">
                 Log ud
@@ -117,7 +144,9 @@ export function DashboardShell({
           </div>
 
           <div className="mt-3 flex items-center justify-between gap-2">
-            <Badge tone="neutral">{roleLabel}</Badge>
+            <Badge tone="neutral" className="min-w-0" title={roleLabel}>
+              <span className="truncate">{roleLabel}</span>
+            </Badge>
             <form action={signout}>
               <button className="btn-shape px-2.5 py-1.5 text-xs text-muted transition-colors hover:bg-accent-tint hover:text-accent">
                 Log ud

@@ -14,11 +14,25 @@ import {
   RewardIcon,
   ReturnVisitIcon,
   ProgressIcon,
-  FreeProductIcon,
-  AmountOffIcon,
-  PercentOffIcon,
-  ServiceIcon,
 } from "@/components/illustrations";
+/*
+  TO IKONSÆT PÅ ÉN SIDE, OG DET ER MED VILJE. Stregerne fra
+  `illustrations.tsx` står frit i funktionslisten, hvor de er 40 px og har
+  luft omkring sig. Duotone bruges DÉR, HVOR IKONET SKAL IND I ET FELT: i et
+  44 px ikonfelt bliver en tynd streg til en skygge af et ikon — se reglen i
+  AGENTS.md. Det er feltet, der afgør sættet, ikke siden.
+*/
+import {
+  ScanDuo,
+  PointDuo,
+  SaldoDuo,
+  BeloenningDuo,
+  GratisProduktDuo,
+  RabatBeloebDuo,
+  RabatProcentDuo,
+  YdelseDuo,
+} from "@/components/duotone-ikoner";
+import { IkonChip, type ChipFarve } from "@/components/ui/ikon-chip";
 import { ProduktStribe } from "@/components/produkt-stribe";
 
 /**
@@ -64,22 +78,22 @@ export const metadata: Metadata = {
 
 const STEPS = [
   {
-    Icon: ScanIcon,
+    Icon: ScanDuo,
     title: "Kunden tilmelder sig",
     body: "Gæsten scanner QR-koden på din stander og skriver sin e-mail eller sit telefonnummer. Det tager få sekunder, der er ingen app, og kortet er en helt almindelig webside. Kører du både pointprogram og stempelkort, kommer kunden med i begge ved den ene tilmelding.",
   },
   {
-    Icon: StampIcon,
+    Icon: PointDuo,
     title: "Kunden optjener point",
     body: "Ved disken taster personalet købets beløb — eller trykker bare én gang, hvis hvert køb giver det samme. Skærmen viser, hvad kunden optjener, og hvad saldoen bliver, før der trykkes. Point kan også gives manuelt, hvis det passer bedre til din forretning.",
   },
   {
-    Icon: ProgressIcon,
+    Icon: SaldoDuo,
     title: "Kunden ser sin saldo",
     body: "Kortet viser saldoen, alle dine belønninger og hvor mange point der mangler til den næste. Kunden kan åbne det fra sit eget link — eller samle sine kort fra flere butikker på en gratis LoyalSum-konto.",
   },
   {
-    Icon: RewardIcon,
+    Icon: BeloenningDuo,
     title: "Kunden bruger sine point",
     body: "Kunden vælger den belønning, hun vil have, og personalet indløser den. Pointene trækkes med det samme, og både kunde og butik kan se det i historikken bagefter.",
   },
@@ -118,27 +132,40 @@ const FEATURES = [
   },
 ];
 
+/** Chipfarvens navn → datatokenets navn. Se `IkonChip` for paletten. */
+const DATA_TOKEN: Record<ChipFarve, string> = {
+  accent: "teal",
+  violet: "violet",
+  blaa: "blaa",
+  guld: "guld",
+  groen: "groen",
+};
+
 const REWARDS = [
   {
-    Icon: FreeProductIcon,
+    Icon: GratisProduktDuo,
+    farve: "groen" as ChipFarve,
     label: "Gratis produkt",
     body: "Den kaffe, dessert eller ting, kunden helst vil have.",
     chip: "Gratis kaffe · 50 point",
   },
   {
-    Icon: AmountOffIcon,
+    Icon: RabatBeloebDuo,
+    farve: "guld" as ChipFarve,
     label: "Beløb i rabat",
     body: "Et fast beløb trukket fra næste køb.",
     chip: "20 kr. rabat · 100 point",
   },
   {
-    Icon: PercentOffIcon,
+    Icon: RabatProcentDuo,
+    farve: "violet" as ChipFarve,
     label: "Procent i rabat",
     body: "En procentdel af næste besøg.",
     chip: "20 % rabat · 150 point",
   },
   {
-    Icon: ServiceIcon,
+    Icon: YdelseDuo,
+    farve: "blaa" as ChipFarve,
     label: "En ydelse",
     body: "En behandling, en service, noget ekstra oveni.",
     chip: "Gratis behandling · 500 point",
@@ -350,9 +377,9 @@ export default function LoyalitetsprogramPage() {
         <ProduktStribe aktuel="loyalsum-komplet" />
 
         {/* ------------------------------------------- hvad er det */}
-        <section className="px-4 py-16">
+        <section className="border-t border-border px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-3xl">
-            <h2 className="text-2xl font-bold tracking-tight">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Hvad er LoyalSums loyalitetsprogram?
             </h2>
             <p className="mt-4 leading-relaxed text-muted">
@@ -372,19 +399,19 @@ export default function LoyalitetsprogramPage() {
         </section>
 
         {/* ------------------------------------------- sådan fungerer det */}
-        <section className="bg-muted-bg px-4 py-16">
+        <section className="varm-lys border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-5xl">
-            <h2 className="text-2xl font-bold tracking-tight">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Sådan fungerer det
             </h2>
             <ol className="mt-8 grid gap-6 sm:grid-cols-2">
               {STEPS.map((s, i) => (
                 <li
                   key={s.title}
-                  className="box-shape border border-border bg-card p-5"
+                  className="box-shape border border-border bg-card p-5 shadow-[var(--hoejde-1)]"
                 >
                   <div className="flex items-start gap-4">
-                    <s.Icon className="h-10 w-10 shrink-0 text-accent" />
+                    <IkonChip icon={s.Icon} size="lg" />
                     <div>
                       <p className="font-medium">
                         {i + 1}. {s.title}
@@ -401,9 +428,9 @@ export default function LoyalitetsprogramPage() {
         </section>
 
         {/* ------------------------------------------------ features */}
-        <section className="px-4 py-16">
+        <section className="border-t border-border px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-5xl">
-            <h2 className="text-2xl font-bold tracking-tight">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Det, programmet kan
             </h2>
             <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -421,9 +448,9 @@ export default function LoyalitetsprogramPage() {
         </section>
 
         {/* ------------------------------------------------ belønninger */}
-        <section className="bg-muted-bg px-4 py-16">
+        <section className="varm-lys border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-5xl">
-            <h2 className="text-2xl font-bold tracking-tight">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Belønninger, kunden selv vælger
             </h2>
             <p className="mt-3 max-w-2xl text-muted">
@@ -435,12 +462,28 @@ export default function LoyalitetsprogramPage() {
               {REWARDS.map((r) => (
                 <div
                   key={r.label}
-                  className="box-shape border border-border bg-card p-5"
+                  className="box-shape border border-border bg-card p-5 shadow-[var(--hoejde-1)]"
                 >
-                  <r.Icon className="h-10 w-10 text-accent" />
+                  <IkonChip icon={r.Icon} size="lg" farve={r.farve} />
                   <p className="mt-3 font-medium">{r.label}</p>
                   <p className="mt-1 text-sm text-muted">{r.body}</p>
-                  <p className="mt-3 inline-block rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
+                  {/*
+                    EKSEMPLET BÆRER SAMME FARVE SOM IKONET, og det er ikke
+                    pynt. Fik ikonet typens farve, mens chippen blev stående
+                    teal, ville kortet have to farvesystemer på fire linjer
+                    — dét er lige præcis, hvad "farverigt kaos" betyder i
+                    praksis. Én farve pr. kort, båret af de to elementer,
+                    der siger hvilken TYPE belønningen er.
+
+                    Farven er målt: datatonerne klarer 5,0-6,5:1 på deres
+                    egen tint (se `--data-*`), så teksten er læsbar i alle
+                    fire. Tinten her er 10 % og altså lysere end de 12 %,
+                    tallene er målt på — kontrasten kan kun blive bedre.
+                  */}
+                  <p
+                    style={{ "--chip": `var(--data-${DATA_TOKEN[r.farve]})` } as React.CSSProperties}
+                    className="mt-3 inline-block rounded-full bg-[color-mix(in_srgb,var(--chip)_10%,transparent)] px-3 py-1 text-xs font-medium text-[var(--chip)]"
+                  >
                     {r.chip}
                   </p>
                 </div>
@@ -450,9 +493,9 @@ export default function LoyalitetsprogramPage() {
         </section>
 
         {/* ------------------------------- fysisk eller online adgang */}
-        <section className="px-4 py-16">
+        <section className="border-t border-border px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-3xl">
-            <h2 className="text-2xl font-bold tracking-tight">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Brug loyalitetsprogrammet fysisk eller online
             </h2>
             <p className="mt-4 leading-relaxed text-muted">
@@ -477,10 +520,10 @@ export default function LoyalitetsprogramPage() {
         </section>
 
         {/* ------------------------------------------ samme kundekonto */}
-        <section className="px-4 py-16">
+        <section className="border-t border-border px-4 py-16 sm:py-20">
           <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-2 lg:items-center">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
                 Samme LoyalSum-konto som stempelkortet
               </h2>
               <p className="mt-4 leading-relaxed text-muted">
@@ -494,7 +537,7 @@ export default function LoyalitetsprogramPage() {
                 Hvad kunden har hos naboen, kommer ingen andre ved.
               </p>
             </div>
-            <div className="box-shape border border-border bg-card p-5">
+            <div className="box-shape border border-border bg-card p-5 shadow-[var(--hoejde-1)]">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted">
                 Mine fordele
               </p>
@@ -526,9 +569,9 @@ export default function LoyalitetsprogramPage() {
         </section>
 
         {/* --------------------------------- stempelkort vs pointprogram */}
-        <section className="bg-muted-bg px-4 py-16">
+        <section className="varm-lys border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-5xl">
-            <h2 className="text-2xl font-bold tracking-tight">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Stempelkort eller pointprogram?
             </h2>
             <p className="mt-3 max-w-2xl text-muted">
@@ -536,7 +579,7 @@ export default function LoyalitetsprogramPage() {
               Du kan også køre dem samtidig.
             </p>
             <div className="mt-8 grid gap-6 sm:grid-cols-2">
-              <div className="box-shape border border-border bg-card p-6">
+              <div className="box-shape border border-border bg-card p-6 shadow-[var(--hoejde-1)]">
                 <p className="font-medium">Stempelkort</p>
                 <p className="mt-1 text-sm text-muted">
                   Fast progression mod én belønning.
@@ -553,7 +596,7 @@ export default function LoyalitetsprogramPage() {
                   Se stempelkortet →
                 </Link>
               </div>
-              <div className="box-shape border border-accent/40 bg-card p-6">
+              <div className="box-shape border border-accent/40 bg-card p-6 shadow-[var(--hoejde-2)]">
                 <p className="font-medium">Pointprogram</p>
                 <p className="mt-1 text-sm text-muted">
                   En saldo og flere belønninger at vælge imellem.
@@ -572,9 +615,9 @@ export default function LoyalitetsprogramPage() {
         </section>
 
         {/* ------------------------------------------------- brancher */}
-        <section className="px-4 py-16">
+        <section className="border-t border-border px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-5xl">
-            <h2 className="text-2xl font-bold tracking-tight">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Hvor det giver mening
             </h2>
             <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -592,9 +635,9 @@ export default function LoyalitetsprogramPage() {
         </section>
 
         {/* ------------------------------------------------------ FAQ */}
-        <section className="bg-muted-bg px-4 py-16">
+        <section className="varm-lys border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-3xl">
-            <h2 className="text-2xl font-bold tracking-tight">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Ofte stillede spørgsmål
             </h2>
             <div className="mt-8 divide-y divide-border">
@@ -611,9 +654,9 @@ export default function LoyalitetsprogramPage() {
         </section>
 
         {/* ------------------------------------------------------- CTA */}
-        <section className="px-4 py-16">
+        <section className="border-t border-border px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-2xl font-bold tracking-tight">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Kom i gang med dit loyalitetsprogram
             </h2>
             <p className="mt-3 leading-relaxed text-muted">

@@ -10,6 +10,7 @@ import {
   TIER_LABELS,
   tierCan,
   hasLoyaltyAccess,
+  getProduct,
   type Tier,
 } from "@/lib/constants";
 import { abonnementTilstand } from "@/lib/abonnement";
@@ -46,6 +47,24 @@ export default async function DashboardLayout({
   }
 
   const plan = (user.company?.plan ?? "basic") as Tier;
+
+  /*
+   * CHIPPEN SIGER PAKKEN, IKKE NIVEAUET — OG DET ER SAMME FEJL SOM PÅ
+   * ABONNEMENTSSIDEN, BARE ET STED MERE.
+   *
+   * `TIER_LABELS[plan]` gav "Pro" til en kunde, der havde købt LoyalSum
+   * Komplet: begge abonnementsvarer ligger på niveau `pro`, så niveaunavnet
+   * kan ikke skelne dem. Abonnementssiden blev rettet dengang, men chippen
+   * her står i SIDEBJÆLKEN, altså på hver eneste side i dashboardet — det
+   * var det mest synlige sted, det stod forkert.
+   *
+   * NAVNET SLÅS OP I KATALOGET og skrives ikke af: `product_slug` sættes af
+   * webhooken ved et abonnementskøb og af admin ved `setCompanyProduct`, så
+   * en op- eller nedgradering flytter chippen af sig selv. Uden et produkt
+   * (en konto uden køb) er niveaunavnet stadig det bedste, vi har.
+   */
+  const pakkeNavn =
+    getProduct(user.company?.product_slug ?? "")?.name ?? TIER_LABELS[plan];
 
   /**
    * Under en suspension lukkes dashboardets stempelkort-afsnit sammen med
@@ -128,7 +147,7 @@ export default async function DashboardLayout({
     <DashboardShell
       sections={sections}
       email={user.email}
-      roleLabel={TIER_LABELS[plan]}
+      roleLabel={pakkeNavn}
       companyName={user.company?.name}
       // Kun sat, når en ADMIN ser på en kundes dashboard — se getCurrentUser().
       support={

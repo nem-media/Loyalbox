@@ -635,7 +635,7 @@ export default function StempelkortPage() {
         </section>
 
         {/* ------------------------------------------------ hvorfor det virker */}
-        <section className="border-t border-border bg-muted-bg">
+        <section className="varm-lys border-t border-border bg-muted-bg">
           <div className="mx-auto max-w-4xl px-4 py-16">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Giv kunderne en grund til at vælge dig igen
@@ -720,7 +720,7 @@ export default function StempelkortPage() {
         </section>
 
         {/* ---------------------------------------------- digitalt vs. fysisk */}
-        <section className="border-t border-border bg-muted-bg">
+        <section className="varm-lys border-t border-border bg-muted-bg">
           <div className="mx-auto max-w-4xl px-4 py-16">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Digitalt eller fysisk stempelkort?
@@ -940,7 +940,7 @@ export default function StempelkortPage() {
         </section>
 
         {/* ----------------------------------------------------------- brancher */}
-        <section className="border-t border-border bg-muted-bg">
+        <section className="varm-lys border-t border-border bg-muted-bg">
           <div className="mx-auto max-w-side px-4 py-16">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Digitalt stempelkort til din virksomhed
@@ -1082,7 +1082,7 @@ export default function StempelkortPage() {
         ) : null}
 
         {/* ---------------------------------------------------------------- FAQ */}
-        <section className="border-t border-border bg-muted-bg">
+        <section className="varm-lys border-t border-border bg-muted-bg">
           <div className="mx-auto max-w-3xl px-4 py-16">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Ofte stillede spørgsmål om digitale stempelkort
