@@ -19,16 +19,21 @@ import { erGyldigEmail } from "./bestilling-uden-konto";
 /**
  * Hvornår vi sidder ved skærmen, og hvor hurtigt der plejer at komme svar.
  *
- * KONTORTIDEN SKAL MED I SÆTNINGEN. "Vi svarer typisk inden for to timer" er
- * sandt om formiddagen og forkert klokken 22 — og en, der skriver om aftenen
- * og intet hører, tror ikke, at beskeden er nået frem. Forbeholdet er derfor
- * ikke en juridisk garde, men dét, der gør løftet brugbart.
+ * KONTORTIDEN SKAL MED I SÆTNINGEN, OG DEN BÆRER HELE LØFTET. "Vi svarer
+ * typisk inden for få minutter" er sandt om formiddagen og forkert klokken 22
+ * — og en, der skriver om aftenen og intet hører, tror ikke, at beskeden er
+ * nået frem. Forbeholdet er derfor ikke en juridisk garde, men dét, der gør
+ * løftet brugbart.
+ *
+ * JO SKARPERE LØFTET ER, JO MERE BÆRER FORBEHOLDET. "To timer" kunne næsten
+ * holde uden for kontortiden; "få minutter" kan ikke. Skrives kontortiden
+ * væk fra sætningen, bliver løftet til noget, vi bryder hver aften.
  *
  * Ét sted, så svartiden kan rettes uden at lede: den står på /kontakt (tre
  * steder) og på hjælpesiden i dashboardet.
  */
 export const KONTORTID = "hverdage kl. 9-16";
-export const SVARTID = `Skriver du inden for kontortiden (${KONTORTID}), får du typisk svar inden for to timer.`;
+export const SVARTID = `Skriver du inden for kontortiden (${KONTORTID}), får du typisk svar inden for få minutter.`;
 
 /**
  * Emnerne.
