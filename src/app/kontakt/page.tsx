@@ -25,9 +25,9 @@ import { SVARTID } from "@/lib/kontakt";
  */
 export const metadata: Metadata = {
   title: "Kontakt os",
-  // 198 tegn klippede SVARTID væk — og løftet om svar inden for to timer er
-  // netop dét, der er værd at læse i et søgeresultat. Første halvdel er
-  // forkortet, så den anden overlever.
+  // 198 tegn klippede SVARTID væk — og svarløftet er netop dét, der er værd
+  // at læse i et søgeresultat. Første halvdel er forkortet, så den anden
+  // overlever.
   description: `Skriv til ${SITE_NAME} om bestilling, priser eller din konto. ${SVARTID}`,
   alternates: { canonical: "/kontakt" },
 };
