@@ -361,8 +361,39 @@ export default function ReviewstanderPage() {
                 Fotoet bag den bliver stående; kortet har sin egen skygge og
                 lægger sig oven på det i stedet for at erstatte det. */}
             <div className="lg:justify-self-end lg:pl-8">
-              <div className="relative mx-auto w-full max-w-[23rem]">
-                <div className="relative">
+              <div className="relative mx-auto w-full max-w-[26rem]">
+                {/*
+                  SKILTET ER KOMMET IND I HEROEN, OG DET ER DEN RIGTIGE MODEL.
+                  Her stod kun den TEGNEDE kundeskærm, fordi det daværende
+                  hero-foto viste en stander af den gamle model — sort akryl
+                  og gammelt logo. Det argument gælder ikke for
+                  `reviewstander-boutique.jpg`: det er husets nuværende hvide
+                  stander med det nuværende mærke, og det er allerede varens
+                  produktfoto i kataloget.
+
+                  Siden hedder /reviewstander og sælger et FYSISK produkt.
+                  Stod der kun en tegnet telefon i heroen, var det eneste
+                  billede af varen et klik længere nede — og
+                  designreferencerne viser netop de to SAMMEN: skiltet på
+                  disken og skærmen, kunden lander på.
+
+                  Fotoet ligger bagest og en anelse forskudt, så den tegnede
+                  skærm bryder dets kant. To lag frem for to billeder ved
+                  siden af hinanden.
+                */}
+                <div className="absolute -left-4 top-12 w-[62%] overflow-hidden rounded-[var(--radius-shape)] shadow-[var(--hoejde-3)] ring-1 ring-white/15 sm:-left-14">
+                  <Image
+                    src={PRODUKT_FOTO.reviewstander}
+                    alt=""
+                    aria-hidden="true"
+                    width={560}
+                    height={560}
+                    sizes="(min-width: 1024px) 15rem, 40vw"
+                    className="h-auto w-full"
+                  />
+                </div>
+
+                <div className="relative ml-auto w-[68%]">
                   <AnmeldelseVisual />
 
                   {/* To emblemer, ét pr. ende af flowet: hvordan kunden
@@ -393,7 +424,7 @@ export default function ReviewstanderPage() {
                 </div>
 
                 <p className="mt-10 text-center text-xs text-white/50">
-                  Sådan ser kundens skærm ud efter et tap
+                  Standeren på disken og kundens skærm efter et tap
                 </p>
               </div>
             </div>
