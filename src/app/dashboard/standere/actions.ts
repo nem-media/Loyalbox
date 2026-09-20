@@ -366,7 +366,7 @@ async function varslOmEkstraButik(v: {
       beloeb: v.kvittering.beloebExMoms,
       /*
        * DET SAMLEDE MÅNEDSBELØB OG IKKE PRISEN FOR DEN ENE BUTIK. Kunden
-       * skal kunne genkende det, der bliver trukket den 20. — står der 399,
+       * skal kunne genkende det, der bliver trukket ved fornyelsen — står der 399,
        * mens der trækkes 798, ser mailen ud til at handle om noget andet.
        */
       maanedligt: prAdresse ? prAdresse * v.kvittering.adresserTilladt : null,

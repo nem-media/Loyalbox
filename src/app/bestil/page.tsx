@@ -307,8 +307,8 @@ export default async function OrderPage({
                 */}
                 <p className="mt-1 mb-3 text-sm text-muted">
                   {harFysiskSkilt(selected)
-                    ? "Du betaler standeren nu. Abonnementet trækkes den 20. hver måned for den kommende måned."
-                    : "Der er ingen stander og ingen engangspris. Abonnementet trækkes den 20. hver måned for den kommende måned."}
+                    ? "Du betaler standeren og den første måned nu. Derefter trækkes abonnementet automatisk samme dato hver måned."
+                    : "Der er ingen stander og ingen engangspris. Du betaler den første måned nu, og derefter trækkes abonnementet automatisk samme dato hver måned."}
                 </p>
                 <CheckoutButton
                   slug={selected.slug}

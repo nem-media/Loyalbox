@@ -1,5 +1,4 @@
 import Stripe from "stripe";
-import { TRAEKDAG } from "@/lib/constants";
 
 /**
  * Stripe-klient. Server-only — nøglen må aldrig nå browseren.
@@ -34,21 +33,27 @@ export function stripe(): Stripe {
  */
 export const INTEGRATION_ID = "loyalsum-checkout-hjkmnpqr";
 
-/**
- * Næste faktureringsdato: den 20. i måneden.
+/*
+ * DER SÆTTES INTET FAKTURERINGSANKER — OG DET ER ET VALG, IKKE EN MANGEL.
  *
- * Abonnementet trækkes den 20. for den kommende måned. De ti dage frem til
- * månedsskiftet er dunning-vinduet: fejler betalingen, når Stripe at sende to
- * rykkere, før adgangen falder til Basic.
+ * Her lå `nextBillingAnchor()`, som ankrede hver kundes abonnement til den 20.
+ * i måneden. Stripe kan ikke ankre en cyklus til en fast dato OG opkræve fuld
+ * pris for en periode, der starter en anden dag, så den skæve første periode
+ * blev faktureret pro rata. Beløbet var rigtigt; det var bare ikke det, der
+ * stod på siden — og et beløb, kunden ikke kan genkende, er dét, indsigelser
+ * og opkald er lavet af. Ordrebekræftelsen gjorde det værre: den skrev
+ * "Betalt nu: 399 kr.", fordi ordrens beløb er LISTEPRISEN, mens kortet blev
+ * trukket for noget andet.
  *
- * Er vi allerede forbi den 20., ankres der på den 20. i næste måned.
+ * Uden anker bruger Stripe købsdatoen som cyklussens start: fuld pris med det
+ * samme, og derefter samme dato hver måned. Prisen for det er, at
+ * trækdatoerne spreder sig ud over månedens dage — rykkervinduet ligger, hvor
+ * det nu falder, og et tilkøb kan ikke længere love en bestemt fakturadato.
+ * Det er byttet bevidst for, at første betaling er den pris, kunden har set.
+ *
+ * TILKØB PRORATERES STADIG, og det er en anden sag: køber en butik adresse
+ * nr. 2 midt i en periode, hæves antallet på den linje, der allerede kører
+ * (se `ekstra-adresse.ts`), og Stripe beregner forskellen for de resterende
+ * dage. Alternativet ville være at nulstille hele kundens cyklus, fordi de
+ * købte et skilt mere.
  */
-export function nextBillingAnchor(now = new Date()): number {
-  const anchor = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), TRAEKDAG, 9, 0, 0),
-  );
-  if (anchor.getTime() <= now.getTime()) {
-    anchor.setUTCMonth(anchor.getUTCMonth() + 1);
-  }
-  return Math.floor(anchor.getTime() / 1000);
-}

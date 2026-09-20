@@ -228,9 +228,17 @@ describe("abonnement uden konto: det Basic ikke havde brug for", () => {
     expect(FORM).toMatch(/databehandleraftale/);
   });
 
-  /** Første betaling er hverken standerens pris eller abonnementets. */
-  it("forklarer hvorfor første betaling er mindre", () => {
-    expect(FORM).toMatch(/PRORATA_FORKLARING/);
+  /**
+   * ET ABONNEMENT UDEN EN DATO ER DÉT, FOLK OPSIGER FOR EN SIKKERHEDS SKYLD.
+   *
+   * Prøven hed før "forklarer hvorfor første betaling er mindre" — dengang
+   * var cyklussen ankret til den 20., og første betaling derfor pro rata.
+   * Beløbet er nu hele månedsprisen, og spørgsmålet, der står tilbage, er
+   * hvornår det gentager sig. Konstanten sikrer, at de to veje ind og
+   * ordrebekræftelsen siger det med de samme ord.
+   */
+  it("siger hvornår abonnementet trækkes igen", () => {
+    expect(FORM).toMatch(/FORNYELSE_FORKLARING/);
   });
 });
 

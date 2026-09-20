@@ -19,7 +19,7 @@ import { SkiltPreview } from "@/components/skilt-preview";
 import { FRONT_MAAL } from "@/lib/skilt-format";
 import {
   MAX_QTY,
-  PRORATA_FORKLARING,
+  FORNYELSE_FORKLARING,
   TERMS_VERSION,
   VOLUME_DISCOUNTS,
   priceFor,
@@ -616,11 +616,11 @@ export function StanderDesigner({
                     </dd>
                   </div>
                   {/* SAMME FORKLARING BEGGE VEJE IND. Bestillingen uden konto
-                      siger det samme med de samme ord — to formuleringer af
-                      hvorfor første betaling er mindre ville før eller siden
-                      blive til to forskellige løfter. */}
+                      siger det samme med de samme ord — to formuleringer af,
+                      hvornår der trækkes, ville før eller siden blive til to
+                      forskellige løfter. */}
                   <p className="pt-1 text-xs leading-relaxed text-muted">
-                    {PRORATA_FORKLARING}
+                    {FORNYELSE_FORKLARING}
                   </p>
                 </>
               ) : null}
