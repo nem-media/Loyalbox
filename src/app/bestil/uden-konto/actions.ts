@@ -1,7 +1,7 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { stripe, INTEGRATION_ID, nextBillingAnchor } from "@/lib/stripe";
+import { stripe, INTEGRATION_ID } from "@/lib/stripe";
 import {
   stripeIdsFor,
   stripeMode,
@@ -624,13 +624,15 @@ export async function bestilUdenKonto(
        * ABONNEMENTETS EGEN METADATA. Webhooken finder virksomheden på
        * `sub.metadata.company_id`, når Stripe siden melder om en ændret eller
        * ophørt betaling — uden den ville en fejlet fornyelse ikke kunne
-       * knyttes til nogen. Trækdatoen er den 20., samme anker som den vej ind,
-       * der kræver login, så to kunder ikke får hver sin rytme.
+       * knyttes til nogen.
+       *
+       * DER SÆTTES INTET ANKER, samme som den vej ind, der kræver login:
+       * cyklussen starter på købsdatoen, så første betaling er hele
+       * månedsprisen. Begrundelsen står i `stripe.ts`.
        */
       ...(abonnement
         ? {
             subscription_data: {
-              billing_cycle_anchor: nextBillingAnchor(),
               metadata: {
                 company_id: companyId,
                 product_slug: product.slug,

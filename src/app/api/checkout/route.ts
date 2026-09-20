@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { DESTINATIONER, erGyldigUrl } from "@/lib/bestilling-uden-konto";
 import type { DestinationType } from "@/lib/types/database";
-import { stripe, nextBillingAnchor, INTEGRATION_ID } from "@/lib/stripe";
+import { stripe, INTEGRATION_ID } from "@/lib/stripe";
 import {
   stripeIdsFor,
   stripeMode,
@@ -619,10 +619,9 @@ export async function POST(request: NextRequest) {
       ...(sub
         ? {
             subscription_data: {
-              // Fast trækdato den 20. Perioden fra køb til første fulde træk
-              // faktureres med det samme (Stripes standard create_prorations),
-              // så kunden betaler fra købsdato og derefter fast den 20.
-              billing_cycle_anchor: nextBillingAnchor(),
+              // INTET ANKER: cyklussen starter på købsdatoen, så første
+              // betaling er hele månedsprisen og ikke en skæv periode.
+              // Begrundelsen står i `nextBillingAnchor`s plads i stripe.ts.
               metadata: {
                 company_id: company.id,
                 product_slug: product.slug,

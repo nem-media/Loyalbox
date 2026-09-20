@@ -1,4 +1,4 @@
-import { PRORATA_FORKLARING, COMPANY, BRAND_NAVN } from "./constants";
+import { FORNYELSE_FORKLARING, COMPANY, BRAND_NAVN } from "./constants";
 import { SVARTID } from "./kontakt";
 import type { Ordredetaljer } from "./ordrevarsel";
 
@@ -78,13 +78,13 @@ export function ordrebekraeftelse(d: Ordredetaljer): {
   if (d.maanedligt) {
     linjer.push(`Herefter:  ${kroner(d.maanedligt)} ex moms pr. måned`);
     /*
-     * HVORFOR DET TRUKNE BELØB IKKE ER MÅNEDSPRISEN. Første betaling dækker
-     * dagene frem til trækdatoen, så beløbet på kontoudskriften er hverken
-     * standerens pris eller abonnementets. Står forklaringen ikke her, er
-     * mailen det eneste sted, kunden kunne have fået den — og et beløb, man
-     * ikke kan genkende, ender som et opkald eller en indsigelse.
+     * HVORNÅR DER TRÆKKES IGEN. Beløbet ovenfor er hele månedsprisen — her
+     * stod før en forklaring på, hvorfor det IKKE var det, fordi cyklussen
+     * var ankret til den 20. og første periode derfor pro rata. Nu er
+     * spørgsmålet et andet og lige så vigtigt: hvornår kommer næste træk?
+     * Et abonnement uden en dato er dét, folk opsiger for en sikkerheds skyld.
      */
-    linjer.push("", PRORATA_FORKLARING);
+    linjer.push("", FORNYELSE_FORKLARING);
   }
 
   /*

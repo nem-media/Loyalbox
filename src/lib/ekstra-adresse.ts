@@ -58,7 +58,8 @@ export interface EkstraAdresseKvittering {
    * resten af perioden.
    *
    * LÆSES AF FAKTURAEN OG REGNES IKKE SELV. Prorataen afhænger af, hvor
-   * mange dage der er til den 20., og et regnestykke her ville blive et
+   * mange dage der er til kundens fornyelse, og et regnestykke her ville
+   * blive et
    * andet tal end det, kunden ser trukket på kortet. Det er kundens udgave,
    * der bliver troet på — så den skal komme fra samme sted som pengene.
    */
@@ -192,7 +193,7 @@ async function findAbonnementslinje(
  * `always_invoice`). Kunden har ringet eller skrevet — de har ikke trykket på
  * noget. Et øjeblikkeligt træk på deres kort, udløst af et klik hos OS, er
  * ikke noget, de har sagt ja til. Beløbet for de resterende dage lægges i
- * stedet på næste faktura den 20., hvor de kan se det komme.
+ * stedet på næste faktura, hvor de kan se det komme.
  *
  * DER FØLGER INTET SKILT MED. Kunden, der klikker selv, skal have et skilt,
  * fordi en ny QR-kode kræver et nyt tryk — men en kæde, vi taler med, har som
@@ -300,8 +301,10 @@ export async function koebEkstraAdresse(
      * `always_invoice` er valgt frem for Stripes standard (`create_prorations`,
      * der venter til næste træk): kunden skal betale for butikken i samme
      * øjeblik, de får den, og skiltet skal faktureres nu og ikke om tre uger.
-     * Beløbet er de resterende dage af perioden — trækdatoen er stadig den
-     * 20., og næste træk dækker begge butikker.
+     * Beløbet er de resterende dage af perioden — fornyelsesdatoen rykker
+     * sig IKKE, og næste træk dækker begge butikker. Det er derfor, tilkøb
+     * stadig prorateres, selv om selve abonnementet ikke gør: alternativet
+     * ville være at nulstille kundens cyklus, fordi de købte et skilt mere.
      */
     const opdateret = await stripe().subscriptionItems.update(linje.id, {
       quantity: (linje.quantity ?? 1) + 1,

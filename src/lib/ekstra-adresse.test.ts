@@ -340,7 +340,7 @@ describe("købet må ikke kunne bygges om til noget farligt", () => {
    * ET ADMIN-KLIK MÅ IKKE TRÆKKE PÅ KUNDENS KORT.
    *
    * Kunden har ringet — de har ikke trykket på noget. Derfor
-   * `create_prorations` (beløbet lægges på næste faktura den 20.) og ikke
+   * `create_prorations` (beløbet lægges på kundens næste faktura) og ikke
    * `always_invoice`, som er rigtigt dér, hvor kunden selv trykker.
    */
   it("fakturerer ikke straks, når det er admin der hæver", () => {

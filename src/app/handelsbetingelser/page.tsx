@@ -31,7 +31,8 @@ import {
  *
  * REGEL FOR DENNE SIDE, samme som for landingssiderne: her må kun stå det,
  * produktet faktisk gør. Hvert vilkår herunder svarer til noget i koden —
- * trækdatoen den 20. (nextBillingAnchor i src/lib/stripe.ts), mængderabatten
+ * at cyklussen starter på købsdatoen (intet anker i src/lib/stripe.ts),
+ * mængderabatten
  * (VOLUME_DISCOUNTS), at adgangen falder til Basic ved manglende betaling
  * (webhooken i src/app/api/stripe/webhook/route.ts), og at standeren virker
  * videre med sit eget link. Ændres et af de steder, skal teksten følge med.
@@ -138,9 +139,9 @@ export default function TermsPage() {
             aftaler vi opsætningen med dig først.
           </p>
           <p>
-            Tilføjer du en adresse midt i en måned, betaler du samme dag for
-            de resterende dage frem til næste trækdato, og fra da af dækker
-            det månedlige beløb alle dine adresser. Et nyt skilt til den nye
+            Tilføjer du en adresse midt i en periode, betaler du samme dag
+            for de resterende dage frem til din næste fornyelse, og fra da af
+            dækker det månedlige beløb alle dine adresser. Et nyt skilt til den nye
             adresse købes med og betales samtidig — en QR-kode er trykt, så
             en ny adresse kræver et nyt skilt.
           </p>
@@ -152,10 +153,11 @@ export default function TermsPage() {
             aldrig dine kortoplysninger — de håndteres udelukkende af Stripe.
           </p>
           <p>
-            Standerne betales ved bestilling. Abonnementet trækkes den{" "}
-            <strong>20. i måneden</strong> for den kommende måned. Køber du midt
-            i en måned, betaler du kun for dagene frem til den 20., og derefter
-            fast den 20.
+            Standerne betales ved bestilling. Abonnementet betales forud:
+            du betaler <strong>hele månedsprisen ved købet</strong>, og
+            derefter trækkes det samme beløb automatisk samme dato hver måned,
+            indtil du opsiger det. Der er ingen opstartsgebyrer og ingen
+            delvise perioder.
           </p>
           <p>
             Kvittering og faktura med moms sendes på mail og kan altid hentes

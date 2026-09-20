@@ -60,7 +60,7 @@ export function SaelgAdresse({
           !confirm(
             `Hæv abonnementet til ${adresserTilladt + 1} QR-adresser?\n\n` +
               `Månedsbeløbet går fra ${maanedspris * adresserTilladt} til ${efter} kr. ex moms. ` +
-              `De resterende dage af denne måned lægges på næste faktura den 20. — ikke på kortet nu.`,
+              `De resterende dage af perioden lægges på kundens næste faktura — ikke på kortet nu.`,
           )
         ) {
           e.preventDefault();
@@ -75,7 +75,7 @@ export function SaelgAdresse({
         Hæver abonnementet hos Stripe til {adresserTilladt + 1} QR-adresser —{" "}
         {formatCurrency(maanedspris * adresserTilladt)} →{" "}
         {formatCurrency(efter)} pr. måned ex moms. De resterende dage af denne
-        måned lægges på næste faktura den 20., ikke på kortet nu. Der bestilles
+        periode lægges på kundens næste faktura, ikke på kortet nu. Der bestilles
         ikke et skilt — aftal det med kunden for sig.
       </p>
 

@@ -12,7 +12,7 @@ import { StoreIcon, StandIcon, LinkIcon } from "@/components/nav-icons";
 import { FRONT_MAAL } from "@/lib/skilt-format";
 import {
   MAX_QTY,
-  PRORATA_FORKLARING,
+  FORNYELSE_FORKLARING,
   TERMS_VERSION,
   VOLUME_DISCOUNTS,
   priceFor,
@@ -764,13 +764,15 @@ export function BestilUdenKontoForm({
                   </dd>
                 </div>
               ) : null}
-              {/* HVORFOR FØRSTE BETALING IKKE ER MÅNEDSPRISEN. Stripe
-                  fakturerer dagene frem til trækdatoen med det samme, så
-                  beløbet i checkouten er hverken 499 eller 399 — og et beløb,
-                  kunden ikke kan genkende, er dét, indsigelser er lavet af. */}
+              {/* HVORNÅR DER TRÆKKES IGEN. Her stod før en forklaring på,
+                  hvorfor første betaling var MINDRE end månedsprisen — den
+                  var ankret til den 20. og derfor pro rata. Nu er beløbet i
+                  checkouten hele prisen, og det spørgsmål, der står tilbage,
+                  er hvornår det gentager sig. Et abonnement uden en dato er
+                  dét, folk opsiger for en sikkerheds skyld. */}
               {product.monthlyPrice ? (
                 <p className="pt-1 text-xs leading-relaxed text-muted">
-                  {PRORATA_FORKLARING}
+                  {FORNYELSE_FORKLARING}
                 </p>
               ) : null}
             </dl>
