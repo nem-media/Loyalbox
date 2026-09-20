@@ -434,7 +434,7 @@ export default function ReviewstanderPage() {
         </section>
 
         {/* ------------------------------------------------------- problemet */}
-        <section className="border-t border-border bg-muted-bg">
+        <section className="varm-lys border-t border-border bg-muted-bg">
           <div className="mx-auto max-w-3xl px-4 py-16">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               De fleste tilfredse kunder anmelder dig aldrig
@@ -507,7 +507,7 @@ export default function ReviewstanderPage() {
         {/* Egen sektion med ANKER, så Trustpilot-guiden kan sende læseren
             direkte hertil i stedet for til toppen af en side, hvor det første
             afsnit handler om Google. */}
-        <section id="platforme" className="border-t border-border bg-muted-bg">
+        <section id="platforme" className="varm-lys border-t border-border bg-muted-bg">
           {/* max-w-4xl (896 px) gav fire kort ~200 px hver. Sektionen bruger
               nu sidens fælles ramme; brødteksten nedenfor bliver ikke bredere,
               fordi den har sin egen max-w-2xl. */}
@@ -775,7 +775,7 @@ export default function ReviewstanderPage() {
         </section>
 
         {/* ------------------------------------------ reviewstander + LoyalSum */}
-        <section className="border-t border-border bg-muted-bg">
+        <section className="varm-lys border-t border-border bg-muted-bg">
           <div className="mx-auto max-w-4xl px-4 py-16">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Reviewstanderen er kun begyndelsen
@@ -1003,7 +1003,7 @@ export default function ReviewstanderPage() {
         </section>
 
         {/* -------------------------------------------------- produktdetaljer */}
-        <section className="border-t border-border bg-muted-bg">
+        <section className="varm-lys border-t border-border bg-muted-bg">
           <div className="mx-auto max-w-4xl px-4 py-16">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Produktdetaljer

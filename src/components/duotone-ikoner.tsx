@@ -251,3 +251,113 @@ export function OpslagDuo({ className }: P) {
     </Ramme>
   );
 }
+
+/*
+ * BELØNNINGSTYPERNE — fem motiver, der kom til med de offentlige sider.
+ *
+ * De fandtes allerede som streger i `illustrations.tsx`, men DE BAR DERES
+ * EGEN FARVE: detaljen var hårdkodet `GOLD` eller `ACCENT`. Det er præcis
+ * dét, regel 2 forbyder — et ikon, der bærer sin egen farve, kan ikke stå i
+ * et felt, der har en anden. Geometrien er den samme, så de to udgaver af
+ * samme motiv ikke bliver to forskellige tegninger; kun farven er løftet ud.
+ *
+ * KROPPEN ER SILHUETTEN, IKKE DETALJEN. I stregudgaven var den farvede del
+ * det lille accentstykke (båndet, mønten, prikken). Vendes det om her: den
+ * YDRE form fyldes, fordi det er den, der skal ses på afstand, og detaljen
+ * bliver streg ovenpå. Ellers ville ikonet have masse ét tilfældigt sted.
+ */
+
+/** Gratis produkt — posen, kunden får med. */
+export function GratisProduktDuo({ className }: P) {
+  const pose = "M4.6 7.6h14.8l-1.1 11.7a1.6 1.6 0 0 1-1.6 1.45H7.3a1.6 1.6 0 0 1-1.6-1.45Z";
+  return (
+    <Ramme className={className}>
+      <path d={pose} fill="currentColor" stroke="none" opacity={KROP} />
+      <path d={pose} />
+      {/* Hanken skal BRYDE posens overkant, ellers læses de to som én form. */}
+      <path d="M9 10.4V6.4a3 3 0 0 1 6 0v4" />
+    </Ramme>
+  );
+}
+
+/** Beløb i rabat — sedlen med værdien i midten. */
+export function RabatBeloebDuo({ className }: P) {
+  return (
+    <Ramme className={className}>
+      <rect
+        x="2.5"
+        y="6"
+        width="19"
+        height="12"
+        rx="1.5"
+        fill="currentColor"
+        stroke="none"
+        opacity={KROP}
+      />
+      <rect x="2.5" y="6" width="19" height="12" rx="1.5" />
+      <circle cx="12" cy="12" r="3" />
+      {/* De to lodrette streger er sedlens kant-mønster. Dæmpet, fordi de
+          skal kunne anes og ikke tælles — samme greb som ScanDuos midterlinje. */}
+      <path d="M5.8 9.4v5.2M18.2 9.4v5.2" opacity="0.45" />
+    </Ramme>
+  );
+}
+
+/** Procent i rabat — de to ringe om skråstregen. */
+export function RabatProcentDuo({ className }: P) {
+  return (
+    <Ramme className={className}>
+      {/*
+        HER ER KROPPEN TO RINGE OG IKKE ÉN FLADE. Motivet har ingen ydre
+        silhuet at fylde — en skråstreg har ingen masse — så de to ringe
+        bærer den, og skråstregen holder dem sammen som ét tegn.
+      */}
+      <circle cx="8" cy="8" r="2.7" fill="currentColor" stroke="none" opacity={KROP} />
+      <circle cx="16" cy="16" r="2.7" fill="currentColor" stroke="none" opacity={KROP} />
+      <path d="M5.5 18.5 18.5 5.5" />
+      <circle cx="8" cy="8" r="2.7" />
+      <circle cx="16" cy="16" r="2.7" />
+    </Ramme>
+  );
+}
+
+/** En ydelse — den store gnist med den lille ved siden af. */
+export function YdelseDuo({ className }: P) {
+  const gnist = "M11 3.5 12.6 9.4 18.5 11 12.6 12.6 11 18.5 9.4 12.6 3.5 11 9.4 9.4Z";
+  return (
+    <Ramme className={className}>
+      <path d={gnist} fill="currentColor" stroke="none" opacity={KROP} />
+      <path d={gnist} />
+      {/* Den lille gnist starter på x=15 — uden for den store krops inderste
+          punkt (12,6; 12,6), så de to ikke smelter sammen ved 22 px. */}
+      <path d="M18.5 15 19.3 17.7 22 18.5 19.3 19.3 18.5 22 17.7 19.3 15 18.5 17.7 17.7Z" />
+    </Ramme>
+  );
+}
+
+/** Saldo — bjælken med det, der er optjent. */
+export function SaldoDuo({ className }: P) {
+  return (
+    <Ramme className={className}>
+      {/*
+        DEN ENESTE I SÆTTET, DER HAR BRUG FOR TO STYRKER I FLADEN, og den
+        eneste, hvor det ikke bryder regel 1: banen er kroppen på 18 %, og
+        det optjente stykke er FULDT. Et duotone-ikon med to 18 %-flader
+        ville ikke kunne vise en saldo — forskellen på de to ER motivet.
+      */}
+      <rect
+        x="2.5"
+        y="7.5"
+        width="19"
+        height="9"
+        rx="4.5"
+        fill="currentColor"
+        stroke="none"
+        opacity={KROP}
+      />
+      <rect x="2.5" y="7.5" width="19" height="9" rx="4.5" />
+      <rect x="5" y="10" width="8" height="4" rx="2" fill="currentColor" stroke="none" />
+    </Ramme>
+  );
+}
+

@@ -6,14 +6,22 @@ import { ButtonLink } from "@/components/ui/button";
 import { getProduct } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 import { getSiteUrl } from "@/lib/site";
+/*
+  DUOTONE OG IKKE STREGER, FORDI IKONERNE HER STÅR I ET FELT. En tynd streg
+  i et 44 px ikonfelt bliver en skygge af et ikon — reglen står i AGENTS.md.
+  Sættet er samme 24-net og samme stregtykkelse som `illustrations.tsx`, så
+  de to kan stå på hver sin side uden at ligne to huse.
+*/
 import {
-  CreateCardIcon,
-  ScanIcon,
-  StampIcon,
-  RewardIcon,
-  ProgressIcon,
-  ReturningIcon,
-} from "@/components/illustrations";
+  ScanDuo,
+  KlikDuo,
+  FeedbackDuo,
+  StempelDuo,
+  PointDuo,
+  KundeDuo,
+  OpslagDuo,
+} from "@/components/duotone-ikoner";
+import { IkonChip } from "@/components/ui/ikon-chip";
 import { ProduktStribe } from "@/components/produkt-stribe";
 
 /**
@@ -64,22 +72,22 @@ export const metadata: Metadata = {
 
 const TRIN = [
   {
-    Icon: CreateCardIcon,
+    Icon: StempelDuo,
     title: "Du opretter LoyalSum",
     body: "Du får din egen konto og dit eget dashboard. Herfra sætter du op, hvad dine kunder skal møde: et stempelkort, et pointprogram eller begge dele.",
   },
   {
-    Icon: ProgressIcon,
+    Icon: ScanDuo,
     title: "Du får dit LoyalSum-link",
     body: "Hver LoyalSum-adresse har sit eget link og sin egen QR-kode. Du finder begge dele i dashboardet, kopierer linket med ét klik og henter QR-koden som billede.",
   },
   {
-    Icon: ScanIcon,
+    Icon: OpslagDuo,
     title: "Du deler det, hvor du møder kunderne",
     body: "På din hjemmeside, i din webshop, i en mail, på en kvittering eller som QR på et opslag. Det er det samme link — du bestemmer selv hvor det står.",
   },
   {
-    Icon: RewardIcon,
+    Icon: KlikDuo,
     title: "Kunden åbner LoyalSum",
     body: "Kunden lander på din LoyalSum-side, kan give feedback, tilmelde sig dit stempelkort eller pointprogram og se sine belønninger. Uden app og uden at oprette noget.",
   },
@@ -97,32 +105,32 @@ const VEJE = [
 
 const FUNKTIONER = [
   {
-    Icon: StampIcon,
+    Icon: StempelDuo,
     title: "Digitalt stempelkort",
     body: "Kunden samler stempler på telefonen, og personalet giver dem med ét scan. Du bestemmer antal og belønning.",
   },
   {
-    Icon: RewardIcon,
+    Icon: PointDuo,
     title: "Pointprogram",
     body: "Kunden optjener point efter beløb eller pr. køb og vælger selv mellem dine belønninger.",
   },
   {
-    Icon: ReturningIcon,
+    Icon: FeedbackDuo,
     title: "Feedback og kundescore",
     body: "Utilfredse kunder når dig først — i din private indbakke — og du kan se din score og udvikling i dashboardet.",
   },
   {
-    Icon: CreateCardIcon,
+    Icon: OpslagDuo,
     title: "Opslag til sociale medier",
     body: "Lav et delbart opslag ud af dine bedste anmeldelser: vælg tekst og baggrund, hent billedet og del det selv.",
   },
   {
-    Icon: ScanIcon,
+    Icon: ScanDuo,
     title: "Dit eget link og din QR-kode",
     body: "Linket er dynamisk: du kan skifte, hvor det fører hen, uden at lave en ny QR-kode.",
   },
   {
-    Icon: ProgressIcon,
+    Icon: KundeDuo,
     title: "Kunder og medarbejdere",
     body: "Se dine kunder og deres aktivitet, og giv dine ansatte adgang til at stemple og indløse — uden at dele din egen kode.",
   },
@@ -293,9 +301,9 @@ export default function KompletOnlinePage() {
         <ProduktStribe aktuel="loyalsum-komplet-online" />
 
         {/* -------------------------------------------- hvad er produktet */}
-        <section className="px-4 py-16">
+        <section className="border-t border-border px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-3xl">
-            <h2 className="text-2xl font-bold tracking-tight">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Hvad er LoyalSum Komplet Online?
             </h2>
             <p className="mt-4 leading-relaxed text-muted">
@@ -313,19 +321,19 @@ export default function KompletOnlinePage() {
         </section>
 
         {/* ----------------------------------------------- sådan fungerer det */}
-        <section className="bg-muted-bg px-4 py-16">
+        <section className="varm-lys border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-5xl">
-            <h2 className="text-2xl font-bold tracking-tight">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Sådan fungerer det
             </h2>
             <ol className="mt-8 grid gap-6 sm:grid-cols-2">
               {TRIN.map((t, i) => (
                 <li
                   key={t.title}
-                  className="box-shape border border-border bg-card p-5"
+                  className="box-shape border border-border bg-card p-5 shadow-[var(--hoejde-1)]"
                 >
                   <div className="flex items-start gap-4">
-                    <t.Icon className="h-10 w-10 shrink-0 text-accent" />
+                    <IkonChip icon={t.Icon} size="lg" />
                     <div>
                       <p className="font-medium">
                         {i + 1}. {t.title}
@@ -342,9 +350,9 @@ export default function KompletOnlinePage() {
         </section>
 
         {/* ------------------------------------- én side, mange adgangsveje */}
-        <section className="px-4 py-16">
+        <section className="border-t border-border px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-5xl">
-            <h2 className="text-2xl font-bold tracking-tight">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Én LoyalSum-side. Mange måder at dele den på.
             </h2>
             <p className="mt-3 max-w-2xl text-muted">
@@ -355,7 +363,7 @@ export default function KompletOnlinePage() {
               {VEJE.map(([navn, hvordan]) => (
                 <div
                   key={navn}
-                  className="box-shape border border-border bg-card p-5"
+                  className="box-shape border border-border bg-card p-5 shadow-[var(--hoejde-1)]"
                 >
                   <p className="font-medium">{navn}</p>
                   <p className="mt-1 text-sm text-muted">{hvordan}</p>
@@ -372,15 +380,15 @@ export default function KompletOnlinePage() {
         </section>
 
         {/* ---------------------------------------------------- funktioner */}
-        <section className="bg-muted-bg px-4 py-16">
+        <section className="varm-lys border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-5xl">
-            <h2 className="text-2xl font-bold tracking-tight">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Det, du får med
             </h2>
             <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {FUNKTIONER.map((f) => (
                 <div key={f.title}>
-                  <f.Icon className="h-10 w-10 text-accent" />
+                  <IkonChip icon={f.Icon} size="lg" />
                   <p className="mt-3 font-medium">{f.title}</p>
                   <p className="mt-1 text-sm leading-relaxed text-muted">
                     {f.body}
@@ -392,9 +400,9 @@ export default function KompletOnlinePage() {
         </section>
 
         {/* ------------------------------------------ Komplet vs Komplet Online */}
-        <section className="px-4 py-16">
+        <section className="border-t border-border px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-5xl">
-            <h2 className="text-2xl font-bold tracking-tight">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Med eller uden stander?
             </h2>
             <p className="mt-3 max-w-2xl text-muted">
@@ -402,7 +410,7 @@ export default function KompletOnlinePage() {
               den.
             </p>
             <div className="mt-8 grid gap-6 sm:grid-cols-2">
-              <div className="box-shape border border-border bg-card p-6">
+              <div className="box-shape border border-border bg-card p-6 shadow-[var(--hoejde-1)]">
                 <p className="font-medium">{komplet?.name}</p>
                 <p className="mt-1 text-sm text-muted">
                   Hele platformen + fysisk stander
@@ -420,7 +428,7 @@ export default function KompletOnlinePage() {
                   Se LoyalSum Komplet →
                 </Link>
               </div>
-              <div className="box-shape border border-accent/40 bg-card p-6">
+              <div className="box-shape border border-accent/40 bg-card p-6 shadow-[var(--hoejde-2)]">
                 <p className="font-medium">{online?.name}</p>
                 <p className="mt-1 text-sm text-muted">
                   Hele platformen — uden fysisk stander
@@ -443,9 +451,9 @@ export default function KompletOnlinePage() {
         </section>
 
         {/* ------------------------------------------------------------ FAQ */}
-        <section className="bg-muted-bg px-4 py-16">
+        <section className="varm-lys border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-3xl">
-            <h2 className="text-2xl font-bold tracking-tight">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Ofte stillede spørgsmål
             </h2>
             <div className="mt-8 divide-y divide-border">
@@ -462,9 +470,9 @@ export default function KompletOnlinePage() {
         </section>
 
         {/* ------------------------------------------------------------ CTA */}
-        <section className="px-4 py-16">
+        <section className="border-t border-border px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-2xl font-bold tracking-tight">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Kom i gang med LoyalSum Komplet Online
             </h2>
             <p className="mt-3 leading-relaxed text-muted">

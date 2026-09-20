@@ -596,3 +596,53 @@ body {
   --muted-bg: #eef0f2;
   --surface-subtle: #f9fafb;
 }
+
+/*
+  MENUENS EGEN RULNING MÅ IKKE TEGNE EN GRÅ SØJLE NED AD EN HVID SPALTE.
+
+  Menuen er klæbende og ruller indeni på lave skærme (se dashboard-shell).
+  Standardrullepanelet i Chrome på Windows er 15 px bredt med en grå bane —
+  bredere end mellemrummet mellem ikon og tekst, og den eneste lodrette
+  streg i hele spalten ud over selve kanten. Den ville læses som struktur.
+
+  `thin` + en gennemsigtig bane efterlader kun grebet, og grebet er
+  `--border`: samme streg som menuens kant, altså ikke en ny farve i huset.
+  Hover gør det MØRKERE og ikke lysere: `--muted-bg` er lysere end
+  `--border` i begge grundsæt, så den nærliggende variabel ville få grebet
+  til at forsvinde under markøren. Blandingen med `--muted` er en tone, der
+  allerede findes i huset, holdt nede på 40 %, fordi et fuldt `--muted` greb
+  (7:1 på hvidt) er en tekstfarve og ville råbe ad en menu, der er rolig.
+
+  BANEN ER GENNEMSIGTIG OG IKKE HVID: menuen står på `bg-card`, og admin og
+  kundens dashboard kan have hver sin grund gennem `.app-flade`. En hvid
+  bane ville være rigtig ét sted og forkert det andet.
+
+  Reglen rammer kun elementet selv — ikke dets børn — så tabellernes
+  vandrette rulning i indholdet beholder sit almindelige panel.
+*/
+.menu-rul {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.menu-rul::-webkit-scrollbar {
+  width: 8px;
+}
+
+.menu-rul::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.menu-rul::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 999px;
+  /* Bredden er 8, men grebet skal se ud som 4: en gennemsigtig kant klemmer
+     det ind på midten, så der er luft på begge sider af det. */
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.menu-rul::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--muted) 40%, transparent);
+  background-clip: padding-box;
+}
