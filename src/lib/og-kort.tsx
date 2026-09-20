@@ -26,9 +26,9 @@ export const OG_TYPE = "image/png";
 
 // Brandets egne værdier fra `globals.css`. Skrevet ud, fordi Satori ikke
 // kender CSS-variabler — de er kopieret, ikke opfundet.
-const MOERK = "#1e1c1a";
-const ACCENT = "#26616e";
-const RAAHVID = "#f6f4ee";
+const MOERK = "#08303c";
+const ACCENT = "#0f5b66";
+const RAAHVID = "#eff5f7";
 
 /** Inter i to vægte, hentet fra disken — ingen netværkskald under byggeriet. */
 export async function ogSkrifter() {

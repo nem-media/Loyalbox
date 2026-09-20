@@ -3,9 +3,11 @@ import { cn } from "@/lib/utils";
 /*
  * FELTET SKAL SE UD SOM NOGET, MAN KAN SKRIVE I.
  *
- * `btn-shape` og ikke `box-shape`: et felt er 44 px højt, og husets store
- * radius (16 px) ville æde hele siden af det. Samme forhold, mindre flade —
- * se begrundelsen ved tokenet i globals.css.
+ * `kontrol-shape` og ikke `box-shape` eller `btn-shape`: et felt er 44 px
+ * højt, så kortenes store radius ville æde hele siden af det — og knappens
+ * PILLE ville gøre feltet til noget, man trykker på, med markøren klemt inde
+ * i en rund ende. Kontrollerne har derfor deres eget trin i formfamilien;
+ * se `--radius-kontrol` i globals.css.
  *
  * Den indadgående skygge er en enkelt streg i toppen på 3 %. Den er dét, der
  * gør forskellen på en hvid firkant med en kant om og et felt, der ligger en
@@ -17,7 +19,7 @@ import { cn } from "@/lib/utils";
  * resten blev det.
  */
 const fieldBase =
-  "btn-shape w-full border border-border bg-background px-3.5 text-sm shadow-[inset_0_1px_2px_rgba(30,28,26,0.03)] transition-colors placeholder:text-muted hover:border-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:border-accent";
+  "kontrol-shape w-full border border-border bg-background px-3.5 text-sm shadow-[inset_0_1px_2px_rgba(30,28,26,0.03)] transition-colors placeholder:text-muted hover:border-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:border-accent";
 
 export function Input({
   className,

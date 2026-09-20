@@ -399,7 +399,7 @@ export default function LoyalitetsprogramPage() {
         </section>
 
         {/* ------------------------------------------- sådan fungerer det */}
-        <section className="varm-lys border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
+        <section className="sektion-skaer border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-5xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Sådan fungerer det
@@ -448,7 +448,7 @@ export default function LoyalitetsprogramPage() {
         </section>
 
         {/* ------------------------------------------------ belønninger */}
-        <section className="varm-lys border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
+        <section className="sektion-skaer border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-5xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Belønninger, kunden selv vælger
@@ -569,7 +569,7 @@ export default function LoyalitetsprogramPage() {
         </section>
 
         {/* --------------------------------- stempelkort vs pointprogram */}
-        <section className="varm-lys border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
+        <section className="sektion-skaer border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-5xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Stempelkort eller pointprogram?
@@ -635,7 +635,7 @@ export default function LoyalitetsprogramPage() {
         </section>
 
         {/* ------------------------------------------------------ FAQ */}
-        <section className="varm-lys border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
+        <section className="sektion-skaer border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-3xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Ofte stillede spørgsmål

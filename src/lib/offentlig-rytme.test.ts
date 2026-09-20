@@ -43,7 +43,7 @@ describe("de offentlige siders rytme", () => {
       /*
        * `bg-muted-bg` er den råhvide sektionsgrund. To ting følger ALTID med:
        * `border-t border-border`, så sektionen har en kant mod den hvide over
-       * den, og `varm-lys`, som er beigen i 9 % øverst. Uden skæret er feltet
+       * den, og `sektion-skaer`, som er beigen i 9 % øverst. Uden skæret er feltet
        * en flad grå — og forskellen på en flade og et fotografi er netop, at
        * lyset kommer et sted fra.
        */
@@ -52,7 +52,7 @@ describe("de offentlige siders rytme", () => {
       );
       expect(lyse.length, `${navn} har lyse sektioner`).toBeGreaterThan(0);
       for (const k of lyse) {
-        expect(k, `lys sektion uden varm-lys: ${k}`).toContain("varm-lys");
+        expect(k, `lys sektion uden sektion-skaer: ${k}`).toContain("sektion-skaer");
         expect(k, `lys sektion uden hårlinje: ${k}`).toContain("border-t");
       }
     });

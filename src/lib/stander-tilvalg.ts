@@ -72,7 +72,7 @@ export const EGEN_FRONTFARVE_PRIS = 49;
  * farvekode, mens baggrunden er et selvstændigt tryk. Prisen følger, hvad der
  * faktisk koster noget.
  *
- * BEMÆRK at det ikke er sitets accentfarve (#26616e). Skiltet er tegnet i
+ * BEMÆRK at det ikke er sitets accentfarve (#0f5b66). Skiltet er tegnet i
  * logoets lysere turkis, som holder på både sort og hvid bund.
  */
 export const STANDARD_ACCENT = "#4ea4ad";

@@ -128,7 +128,7 @@ export function BestilUdenKontoForm({
     fortrudt?.standerFarve ?? STANDARD_STANDERFARVE,
   );
   const [egenFront, setEgenFront] = useState(fortrudt?.egenFrontfarve ?? false);
-  const [hex, setHex] = useState(fortrudt?.frontHex ?? "#26616e");
+  const [hex, setHex] = useState(fortrudt?.frontHex ?? "#0f5b66");
   /*
    * PREVIEWET STARTER MED DET GEMTE LOGO — en almindelig https-adresse fra
    * lageret og ikke en blob. Derfor må oprydningen kun kalde
@@ -505,7 +505,7 @@ export function BestilUdenKontoForm({
               <div className="mt-3 flex flex-wrap items-center gap-3 pl-7">
                 <input
                   type="color"
-                  value={normaliserHex(hex) ?? "#26616e"}
+                  value={normaliserHex(hex) ?? "#0f5b66"}
                   onChange={(e) => setHex(e.target.value)}
                   aria-label="Vælg frontfarve"
                   className="h-10 w-14 cursor-pointer border border-border bg-transparent p-1"

@@ -224,7 +224,7 @@ export default function KompletOnlinePage() {
             className="absolute inset-0 -z-10"
             style={{
               backgroundImage:
-                "radial-gradient(50% 55% at 76% 22%, rgba(78,164,173,0.16), transparent 64%), radial-gradient(55% 60% at 88% 4%, rgba(180,161,137,0.14), transparent 62%)",
+                "radial-gradient(50% 55% at 76% 22%, rgba(26,144,137,0.16), transparent 64%), radial-gradient(55% 60% at 88% 4%, rgba(217,164,65,0.14), transparent 62%)",
             }}
           />
           <div className="mx-auto grid max-w-side gap-10 lg:grid-cols-[1.1fr_1fr] lg:items-center">
@@ -321,7 +321,7 @@ export default function KompletOnlinePage() {
         </section>
 
         {/* ----------------------------------------------- sådan fungerer det */}
-        <section className="varm-lys border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
+        <section className="sektion-skaer border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-5xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Sådan fungerer det
@@ -380,7 +380,7 @@ export default function KompletOnlinePage() {
         </section>
 
         {/* ---------------------------------------------------- funktioner */}
-        <section className="varm-lys border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
+        <section className="sektion-skaer border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-5xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Det, du får med
@@ -451,7 +451,7 @@ export default function KompletOnlinePage() {
         </section>
 
         {/* ------------------------------------------------------------ FAQ */}
-        <section className="varm-lys border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
+        <section className="sektion-skaer border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-3xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Ofte stillede spørgsmål

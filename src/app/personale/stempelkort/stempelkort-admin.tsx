@@ -97,7 +97,7 @@ function Opret() {
             name="status"
             value="active"
             defaultChecked
-            className="h-4 w-4 accent-[color:var(--color-accent,#26616e)]"
+            className="h-4 w-4 accent-[color:var(--color-accent,#0f5b66)]"
           />
           <span className="text-sm">
             Gør kortet aktivt med det samme

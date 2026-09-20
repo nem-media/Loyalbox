@@ -29,15 +29,30 @@
 */
 :root {
   --background: #ffffff;
-  --foreground: #0a0a0a;
-  /* Neutralerne er tonet mod brandet i hver sin retning: teksten mod navyen,
-     stregerne mod råhvidt. Før var begge Tailwinds standardgrå (#6b7280 /
-     #e5e7eb), som er BLÅLIGE — de sad på en varm baggrund og trak i hver sin
-     retning. Det er dét, der læses som "ikke gennemtænkt", uden at man kan
-     sætte fingeren på hvorfor. */
-  --muted: #5f5b55;
-  --muted-bg: #f6f4ee; /* råhvid — til sektioner uden ren hvid baggrund */
-  --border: #e6e1d7;
+  /*
+    BLÆKKET ER DYB PETROLEUM OG IKKE SORT.
+    Målt i designreferencerne: overskrifterne står på #001c29–#001928, altså
+    et næsten-sort med en tydelig blågrøn kulde. Ren sort ved siden af en
+    teal accent ser gråt og tilfældigt ud; blækket her hører til samme
+    familie som accenten og er dét, der får en overskrift til at se
+    *designet* ud frem for bare mørk. Klarer 16,8:1 på hvidt.
+  */
+  --foreground: #06232e;
+  /*
+    HELE SITET ER GÅET FRA VARMT TIL KØLIGT, OG DET ER EN BEVIDST OMVENDING.
+    Grunden var råhvid #f6f4ee med beige streger — varmt, og rigtigt dengang
+    paletten var beige. Designreferencerne er konsekvent KØLIGE: sektionerne
+    måler #eff5f9 og #e2ecef, altså en meget lys aqua, og brødteksten
+    #4c5861–#57636b. En varm creme under en kold teal er præcis dét, der
+    læses som "to systemer klistret sammen" — samme fejl som den mørke menu
+    ved siden af den lyse flade i dashboardet.
+
+    `--muted-bg` bæres af 77 steder og `--border` af hele fladen, så
+    omvendingen sker HER og ikke i en enkelt komponent.
+  */
+  --muted: #51606a;
+  --muted-bg: #eff5f7; /* lys aqua — sektioner uden ren hvid baggrund */
+  --border: #dde7ea;
   --card: #ffffff;
   /* Panelets grund. EGET token og ikke `--background`, fordi `--background`
      er hvid på ALLE inputfelter (`bg-background` i input.tsx og et dusin
@@ -48,13 +63,32 @@
      PÅ noget. Kun en 1px streg og en skygge på 4 % skilte dem ad, og 4 % er
      under det, øjet kan opfatte på hvidt. Menuen så gennemført ud, fordi den
      var det eneste element på siden med en grund at stå på. */
-  --app-bg: #f6f4ee;
-  --accent: #26616e; /* accent — handling på LYS bund: knapper og links */
+  --app-bg: #f4f7f8;
+  /*
+    ACCENTEN ER GÅET DYBERE. Målt midt i referencernes primærknapper:
+    #024e57–#0b525f, altså mørkere og koldere end den gamle #26616e. Det er
+    ikke en nuanceforskel, man vælger efter smag — en dyb petroleum bærer
+    hvid tekst med 8,9:1 og kan derfor være en STOR flade uden at skrige,
+    og det er præcis dét, en pilleformet knap på 52 px er.
+  */
+  --accent: #0f5b66; /* accent — handling på LYS bund: knapper og links */
   --accent-fg: #ffffff;
-  --accent-hover: #1f5058;
-  --secondary: #b4a189; /* sekundær — bruges minimalt */
-  --secondary-fg: #1e1c1a;
-  --dark: #1e1c1a; /* mørk sektionsbaggrund */
+  --accent-hover: #0a4751;
+  /*
+    SEKUNDÆRFARVEN VAR BEIGE OG ER NU BLØDT GULD.
+    Beigen hørte til den varme palet og har intet at lave i en kølig. I
+    referencerne er den ene supporting-farve et dæmpet guld — pointmønterne,
+    stjernerne, den ene fremhævede chip. Den bruges STADIG minimalt: som
+    flade bag et ikon eller en chip, aldrig som knap og aldrig som tekst.
+  */
+  --secondary: #d9a441;
+  --secondary-fg: #2a1f08;
+  /*
+    DEN MØRKE SEKTIONSGRUND ER PETROLEUM OG IKKE VARM SORT.
+    #1e1c1a var en varm næsten-sort, valgt til den beige palet. Referencernes
+    mørke felter er dybt blågrønne, og hvid tekst på dem bærer 15:1.
+  */
+  --dark: #08303c; /* mørk sektionsbaggrund */
   --dark-fg: #ffffff;
   --success: #16a34a;
   --danger: #dc2626;
@@ -167,24 +201,39 @@
   --skala-4: #8ba85f;
   --skala-5: #4a8f68;
 
-  --surface-subtle: #faf8f4;
-  --accent-tint: #eaf1f2;
-  --accent-tint-staerk: #d5e5e8;
-  --accent-lys: #4ea4ad;
+  --surface-subtle: #f7fafb;
+  --accent-tint: #e8f2f4;
+  --accent-tint-staerk: #d2e6e9;
+  /*
+    DEN LYSE TEAL ER FLUEBENENES OG ILLUSTRATIONERNES, aldrig tekstens.
+    Målt på fluebenene i referencerne: #128c86 — grønnere og lysere end
+    accenten. Den er den lyse ende i hver gradient (knap, ikonfelt, loop) og
+    giver dem retning; som tekst klarer den 3,89:1 på hvidt (målt) og må derfor ikke
+    bruges til et ord, nogen skal læse.
+  */
+  --accent-lys: #1a9089;
 
   --radius: 0.75rem; /* fallback til bokse der endnu ikke bruger .box-shape */
-  /* SIGNATURFORMEN BLEV STØRRE, IKKE ANDERLEDES.
-     Det skarpe øverste venstre hjørne er husets mærke og bliver — men 6 px
-     på de tre øvrige er en radius fra 2015: på et kort på 320 px læses den
-     som "firkant med lidt slebne kanter", og det er halvdelen af grunden til,
-     at fladerne lignede rektangler frem for kort. 16 px er dér, hvor et kort
-     begynder at se blødt ud uden at blive en pille.
+  /*
+    DET SKARPE ØVERSTE VENSTRE HJØRNE ER VÆK, OG DET ER ET BEVIDST BRUD.
+    Det var husets mærke i to år. I designreferencerne findes det ikke ét
+    eneste sted: hver knap er en PILLE (radius = halv højde, målt på den
+    forstørrede "Se løsningerne"), og hvert kort er blødt afrundet i alle
+    fire hjørner. Et skarpt hjørne midt i den flade ville være den eneste
+    kant på siden og læses som en fejl frem for som et mærke.
 
-     TO STØRRELSER OG IKKE ÉN: knapper, små felter og tælleknapper er
-     28-44 px høje, og 16 px på dem ville æde hele siden af elementet. De har
-     10 px, som er det samme forhold på en mindre flade. */
-  --radius-shape: 0 16px 16px 16px;
-  --radius-shape-btn: 0 10px 10px 10px;
+    TRE STØRRELSER OG IKKE ÉN — formfamilien skal kunne kende forskel på,
+    hvor stor fladen er:
+      `--radius-kontrol`  små kontroller: felter, chips, tælleknapper
+      `--radius-shape`    kort og paneler
+      `--radius-stor`     store marketingflader, billeder, device-rammer
+    Knapper får deres egen pille og står uden for skalaen, fordi en pille
+    ikke er en radius men et forhold.
+  */
+  --radius-kontrol: 12px;
+  --radius-shape: 20px;
+  --radius-stor: 28px;
+  --radius-shape-btn: 999px;
 
   /* HØJDESKALA — tre trin, ikke ét.
      Hver skygge er FLERE lag: en stram, næsten usynlig tæt på kanten (den,
@@ -198,10 +247,10 @@
      overskrive Tailwinds egne `shadow-*`-utilities overalt i projektet.
      Bruges som `shadow-[var(--hoejde-1)]`. */
   --hoejde-1:
-    0 1px 2px rgba(30, 28, 26, 0.04), 0 2px 8px -3px rgba(30, 28, 26, 0.06);
+    0 1px 2px rgba(8, 48, 60, 0.05), 0 2px 8px -3px rgba(8, 48, 60, 0.07);
   --hoejde-2:
-    0 1px 2px rgba(30, 28, 26, 0.04), 0 4px 10px -4px rgba(30, 28, 26, 0.06),
-    0 12px 28px -10px rgba(30, 28, 26, 0.1);
+    0 1px 2px rgba(8, 48, 60, 0.05), 0 4px 10px -4px rgba(8, 48, 60, 0.07),
+    0 12px 28px -10px rgba(8, 48, 60, 0.12);
   /* PRODUKTSKYGGEN ER MÅLT I VORES EGET PRODUKTFOTO.
      Kaffebaren med den bærbare og telefonen er husets visuelle retning, og
      den holder tre ting, en CSS-skygge normalt ikke gør: skyggen under den
@@ -218,8 +267,8 @@
     0 44px 70px -30px rgba(107, 95, 87, 0.3);
 
   --hoejde-3:
-    0 2px 4px rgba(30, 28, 26, 0.05), 0 10px 20px -8px rgba(30, 28, 26, 0.08),
-    0 26px 50px -16px rgba(30, 28, 26, 0.16);
+    0 2px 4px rgba(8, 48, 60, 0.06), 0 10px 20px -8px rgba(8, 48, 60, 0.1),
+    0 26px 50px -16px rgba(8, 48, 60, 0.18);
 }
 
 @theme inline {
@@ -292,6 +341,18 @@
 
 .btn-shape {
   border-radius: var(--radius-shape-btn);
+}
+
+/*
+  FELTER ER IKKE KNAPPER, OG PILLEN AFSLØREDE DET.
+  Da `--radius-shape-btn` blev en pille, fulgte hvert eneste inputfelt med —
+  de deler `.btn-shape`. Et navnefelt formet som en kapsel ser ud som en
+  knap, man kan trykke på, og markøren står klemt inde i en rund ende.
+  Kontrollerne har derfor deres egen radius: blød nok til at høre til
+  familien, firkantet nok til at en tekstlinje kan begynde i venstre kant.
+*/
+.kontrol-shape {
+  border-radius: var(--radius-kontrol);
 }
 
 * {
@@ -462,16 +523,24 @@ body {
      inderkant foroven er den samme idé som på ikonfeltet.
      Kontrasten er uændret: hvid på den MØRKESTE ende er stadig 6,2:1. */
   .knap-flade {
+    /*
+      PILLEN HAR LYS OPPE TIL VENSTRE. Gradienten går på tværs (135°) og ikke
+      lodret, fordi en pille er bredere end høj — en lodret overgang på 52 px
+      ses ikke, mens den diagonale løber hele vejen og giver knappen en
+      retning. Den lyse ende er `--accent-lys` blandet ned, altså husets egen
+      turkis og ikke et tilfældigt lysere teal.
+      Hvid tekst står på den MØRKESTE ende: 8,9:1.
+    */
     background-image: linear-gradient(
-      175deg,
-      color-mix(in srgb, var(--accent) 88%, #ffffff) 0%,
-      var(--accent) 45%,
+      135deg,
+      color-mix(in srgb, var(--accent-lys) 34%, var(--accent)) 0%,
+      var(--accent) 52%,
       var(--accent-hover) 100%
     );
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.16),
-      0 1px 2px rgba(30, 28, 26, 0.12),
-      0 4px 12px -4px color-mix(in srgb, var(--accent) 45%, transparent);
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      0 1px 2px rgba(8, 48, 60, 0.14),
+      0 8px 20px -6px color-mix(in srgb, var(--accent) 48%, transparent);
   }
 
   /* ET PRODUKTBILLEDE ER ET EMNE, IKKE ET BILLEDE I EN RAMME.
@@ -498,18 +567,30 @@ body {
       0 60px 90px -34px rgba(107, 95, 87, 0.34);
   }
 
-  /* VARMT OMGIVELSESLYS I EN LYS SEKTION.
-     Baggrunden i fotoet måler #a18f7a — praktisk talt husets egen beige
-     (#b4a189). Sitets lyse sektioner var flade råhvide felter, og forskellen
-     på dem og et fotografi er netop, at lyset kommer et sted fra. Skæret er
-     beigen i 7 % øverst og forsvinder ned gennem sektionen; det kan mærkes,
-     men ikke ses som en farve. */
-  .varm-lys {
-    background-image: linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--secondary) 9%, transparent) 0%,
-      transparent 42%
-    );
+  /*
+    OMGIVELSESLYS I EN LYS SEKTION — NU KØLIGT.
+    Klassen hed `.sektion-skaer` og lagde husets beige i 7 % øverst i en sektion.
+    Den hørte til den varme palet. Designreferencerne har samme greb, men
+    lyset er aqua: sektionerne går fra #e2ecef foroven mod næsten hvidt, og
+    flere af dem har et blødt rundt skær bag indholdet.
+
+    TO LAG, OG DET RUNDE ER DET VIGTIGSTE: en lineær overgang alene læses som
+    "farvet foroven", mens den radiale giver sektionen et midtpunkt at samle
+    sig om. Begge er så svage, at de kan mærkes og ikke ses som en farve —
+    over 12 % bliver en sektion til et farvet felt.
+  */
+  .sektion-skaer {
+    background-image:
+      radial-gradient(
+        74% 58% at 50% 0%,
+        color-mix(in srgb, var(--accent-lys) 11%, transparent) 0%,
+        transparent 72%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--accent) 7%, transparent) 0%,
+        transparent 46%
+      );
   }
 
   /* SKELETTET — fladen, der holder pladsen, mens der hentes.

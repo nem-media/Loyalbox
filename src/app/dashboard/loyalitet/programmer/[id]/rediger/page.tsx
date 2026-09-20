@@ -55,7 +55,7 @@ export default async function EditProgramPage({
     requiredStamps: s(reward?.required_stamps) || "10",
     rewardDescription: s(reward?.description),
     rewardValue: s(reward?.value),
-    color: s(program.color) || "#1e1c1a",
+    color: s(program.color) || "#08303c",
     icon: s(program.icon) || "star",
     resetOnRedeem: program.reset_on_redeem ?? true,
     keepOverflow: program.keep_overflow ?? false,

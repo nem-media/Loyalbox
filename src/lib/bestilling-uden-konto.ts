@@ -184,7 +184,7 @@ export function laesBestilling(
   const egenFrontfarve = raw.egenFrontfarve === true;
   const frontHex = egenFrontfarve ? normaliserHex(tekst(raw.frontHex)) : null;
   if (egenFrontfarve && !frontHex) {
-    fejl.frontHex = "Skriv en gyldig farvekode, fx #26616e.";
+    fejl.frontHex = "Skriv en gyldig farvekode, fx #0f5b66.";
   }
 
   const destinationType = raw.destinationType;

@@ -35,15 +35,15 @@ import { laesBlokke, type Blok } from "./mail-blokke";
 
 /** Husets farver, skrevet som hex — en mail kan ikke slå en variabel op. */
 const F = {
-  grund: "#f6f4ee",
+  grund: "#eff5f7",
   kort: "#ffffff",
-  streg: "#e6e1d7",
-  tekst: "#1e1c1a",
-  daempet: "#5f5b55",
-  accent: "#26616e",
-  accentTint: "#eaf1f2",
-  accentStreg: "#d5e5e8",
-  moerk: "#1e1c1a",
+  streg: "#dde7ea",
+  tekst: "#06232e",
+  daempet: "#51606a",
+  accent: "#0f5b66",
+  accentTint: "#e8f2f4",
+  accentStreg: "#d2e6e9",
+  moerk: "#08303c",
 } as const;
 
 const SKRIFT = [
