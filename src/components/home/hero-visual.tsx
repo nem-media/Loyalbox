@@ -221,7 +221,16 @@ export function AnmeldelseVisual({ className }: { className?: string }) {
           (valg) => (
             <div
               key={valg}
-              className="btn-shape grid h-11 place-items-center bg-accent text-sm font-medium text-accent-fg"
+              /*
+                `min-h-11` OG IKKE `h-11`, OG MED SIDEPOLSTRING.
+                Med fast højde og uden polstring brød "Anmeld os på
+                Trustpilot" ud af pillen, i samme øjeblik kortet blev
+                smallere — set på /reviewstander, da standerfotoet kom ind
+                ved siden af. En pille med fast højde kan ikke bære en linje,
+                der ombrydes, og en pilles runde ender æder teksten, hvis der
+                ingen polstring er.
+              */
+              className="btn-shape grid min-h-11 place-items-center bg-accent px-4 py-2 text-center text-sm font-medium leading-tight text-accent-fg"
             >
               {valg}
             </div>
