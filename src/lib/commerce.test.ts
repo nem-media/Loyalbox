@@ -160,15 +160,27 @@ describe("alle varer kan sælges i LIVE", () => {
   });
 
   it("test- og live-id'er er FORSKELLIGE priser", () => {
-    // De to tilstande er adskilte verdener. Et test-id sendt til live-API'et
-    // fejler — og et live-id i test ville tage imod rigtige penge.
+    /*
+      De to tilstande er adskilte verdener. Et test-id sendt til live-API'et
+      fejler — og et live-id i test ville tage imod rigtige penge.
+
+      ET FELT, VAREN IKKE HAR, ER IKKE EN OVERTRÆDELSE. Prøven sammenlignede
+      `priceId` ubetinget og faldt på LoyalSum Komplet Online: den har ingen
+      stander og dermed ingen engangspris, så begge sider var `undefined` —
+      og `undefined` er ikke "det samme objekt brugt to steder". Egenskaben
+      er, at et id, der FINDES, ikke må gå igen på tværs af tilstande.
+
+      ALLE TRE FELTER PRØVES. `yearlyPriceId` kom til med årsabonnementet, og
+      en prøve, der kun kender de to gamle, holder op med at beskytte i det
+      øjeblik der kommer et interval mere.
+    */
     for (const p of PRODUCTS) {
       const t = p.stripe?.test;
       const l = p.stripe?.live;
       if (!t || !l) continue;
-      expect(l.priceId, p.slug).not.toBe(t.priceId);
-      if (t.monthlyPriceId || l.monthlyPriceId) {
-        expect(l.monthlyPriceId, p.slug).not.toBe(t.monthlyPriceId);
+      for (const felt of ["priceId", "monthlyPriceId", "yearlyPriceId"] as const) {
+        if (!t[felt] && !l[felt]) continue;
+        expect(l[felt], `${p.slug}.${felt}`).not.toBe(t[felt]);
       }
     }
   });
