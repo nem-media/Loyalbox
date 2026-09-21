@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand";
+import { ButtonLink } from "@/components/ui/button";
 import { ConsentSettingsLink } from "@/components/analytics";
 import {
   SITE_NAME,
@@ -42,38 +43,73 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
       { href: "/kontakt", label: "Kontakt os" },
     ],
   },
-  {
-    title: "Konto",
-    links: [
-      { href: "/login", label: "Log ind" },
-      { href: "/signup", label: "Opret virksomhed" },
-    ],
-  },
 ];
+
+/*
+  KONTO ER IKKE LÆNGERE EN KOLONNE.
+  Den havde TO links ved siden af tre kolonner med fire til seks, så gitteret
+  stod ragget, og den sidste femtedel af footeren var tom — målt ved 1440 lå
+  der godt 300 px ubrugt til højre for "Opret virksomhed".
+
+  De to links er ikke fjernet; de er blevet til dét, de ER: de to handlinger,
+  en besøgende kan tage her. Som knapper i brandspalten giver de footeren en
+  afslutning frem for en liste, der ebber ud — og gitteret går op.
+*/
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border bg-muted-bg">
-      <div className="mx-auto max-w-side px-4 py-14">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(4,1fr)]">
+    /*
+      FOOTEREN ER SIDENS SIDSTE INDTRYK, og den var en flad grå liste.
+      `sektion-skaer` giver den samme lys som sitets øvrige lyse sektioner,
+      så den hører til huset frem for at være en bundplade. Luften er øget
+      fra py-14 til py-16, fordi en footer, der klemmer sig sammen, læses
+      som noget, der er sat på til sidst.
+    */
+    <footer className="sektion-skaer border-t border-border bg-muted-bg">
+      <div className="mx-auto max-w-side px-4 py-16">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.5fr_repeat(3,1fr)] lg:gap-12">
           {/* Brand */}
-          <div className="space-y-3">
+          <div>
             <Logo image="dark" />
-            <p className="max-w-xs text-sm text-muted">{SITE_TAGLINE}</p>
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted">
+              {SITE_TAGLINE}
+            </p>
+
+            {/*
+              DE TO HANDLINGER, footeren kan bære. `outline` og ikke to
+              primære: footeren må ikke konkurrere med sidens egen
+              afsluttende opfordring lige ovenover — den skal samle op efter
+              den, ikke råbe over den.
+            */}
+            <div className="mt-6 flex flex-wrap gap-3">
+              <ButtonLink href="/signup" variant="primary" size="sm">
+                Opret virksomhed
+              </ButtonLink>
+              <ButtonLink href="/login" variant="outline" size="sm">
+                Log ind
+              </ButtonLink>
+            </div>
+
+            {/* HER STOD MAILADRESSEN OGSÅ. Den er nu væk: den står i
+                selskabslinjen forneden, hvor den er et lovkrav, og
+                "Kontakt os" står i Ressourcer. Tre veje til det samme i én
+                footer er ikke tre tilbud, det er støj. */}
           </div>
 
           {/* Link-kolonner */}
           {COLUMNS.map((col) => (
             <nav key={col.title} aria-label={col.title}>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">
-                {col.title}
-              </h3>
-              <ul className="mt-3 space-y-2 text-sm">
+              {/* `.etiket` er husets fælles versalstil — den samme, der
+                  bærer sektionsnavnene i dashboardet. Footeren skrev sin
+                  egen udgave af den, og to udgaver af samme stil driver fra
+                  hinanden. */}
+              <h3 className="etiket">{col.title}</h3>
+              <ul className="mt-4 space-y-2.5 text-sm">
                 {col.links.map((l) => (
                   <li key={l.href + l.label}>
                     <Link
                       href={l.href}
-                      className="text-foreground/80 hover:text-accent"
+                      className="inline-block text-foreground/75 transition-colors hover:text-accent"
                     >
                       {l.label}
                     </Link>
