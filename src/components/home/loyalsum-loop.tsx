@@ -162,10 +162,22 @@ function Ring() {
 
 export function LoyalsumLoop() {
   return (
-    <div className="relative mx-auto max-w-5xl">
-      <Ring />
+    <div className="mx-auto max-w-5xl">
+      {/*
+        RINGEN CENTRERES PÅ DIAMANTEN OG IKKE PÅ BLOKKEN.
+        Den lå før i den ydre beholder, som OGSÅ rummer "Og så forfra"-linjen
+        forneden — så dens midte blev regnet ud af en kasse, der var højere
+        end figuren. MÅLT ved 1440: stjernens midte lå i 2320, ringens i
+        2359, altså 39 px for lavt, og de fire buer stod skævt om et
+        midtpunkt, der ikke var der.
 
-      <ol className="relative grid gap-5 lg:grid-cols-3 lg:grid-rows-3 lg:gap-x-10 lg:gap-y-8">
+        Nu ligger den inde i den samme kasse som gitteret, så de to kan ikke
+        komme fra hinanden igen, uanset hvad der står under figuren.
+      */}
+      <div className="relative">
+        <Ring />
+
+        <ol className="relative grid gap-5 lg:grid-cols-3 lg:grid-rows-3 lg:gap-x-10 lg:gap-y-8">
         {STEPS.map((s, i) => (
           <li
             key={s.label}
@@ -238,7 +250,8 @@ export function LoyalsumLoop() {
             </span>
           </div>
         </li>
-      </ol>
+        </ol>
+      </div>
 
       {/*
         LINJEN BLIVER — men den forklarer ikke længere figuren, den uddyber
