@@ -13,6 +13,7 @@ import {
   PRODUKT_FOTO_ALT,
   PRODUKT_FOTO_TEKST,
   getProduct,
+  arvetFra,
 } from "@/lib/constants";
 import { toProductJsonLd } from "@/lib/commerce";
 import { formatCurrency } from "@/lib/utils";
@@ -22,7 +23,7 @@ import {
   StanderPlaceholder,
   DigitalPlaceholder,
 } from "@/components/product-placeholder";
-import { FluebenListe } from "@/components/ui/flueben-liste";
+import { FluebenListe, FluebenIkon } from "@/components/ui/flueben-liste";
 
 export function generateStaticParams() {
   return KATALOG.map((p) => ({ slug: p.slug }));
@@ -92,6 +93,7 @@ export default async function ProductPage({
 }) {
   const { slug } = await params;
   const product = getProduct(slug);
+  const arvet = arvetFra(product);
   // Tilkøb har ingen offentlig side. De står ikke i generateStaticParams,
   // men en direkte adresse ville ellers stadig kunne rendere en side, ingen
   // uden konto kan bruge til noget.
@@ -215,7 +217,42 @@ export default async function ProductPage({
 
             <p className="mt-6 text-muted">{product.description}</p>
 
-            <FluebenListe punkter={product.features} className="mt-6" />
+            {/*
+              "ALT I REVIEWSTANDER PRO" SKAL KUNNE SES HERFRA.
+              Linjen stod som et punkt i `features` — sandt, men ubrugeligt
+              dér, hvor det stod: man kan ikke se, hvad der ER i Pro, uden at
+              forlade den side, man er ved at købe fra. Meldt af brugeren.
+
+              Nu er relationen data (`indeholder`), og punkterne foldes ud
+              under overskriften. Navn og indhold slås BEGGE op hos den vare,
+              der peges på, så de ikke kan sige hver sit den dag, Pro får en
+              funktion mere.
+
+              DE ARVEDE PUNKTER ER DÆMPEDE OG INDRYKKEDE. De er lige så
+              gyldige, men de er ikke dét, varen tilføjer — står de i samme
+              vægt som varens egne, forsvinder forskellen, og siden holder op
+              med at svare på "hvad får jeg MERE her?".
+            */}
+            {arvet ? (
+              <div className="mt-6 box-shape border border-border bg-muted-bg p-4">
+                <p className="flex gap-2 text-sm font-semibold">
+                  <FluebenIkon />
+                  <span>Alt i {arvet.navn}</span>
+                </p>
+                <ul className="mt-2 space-y-1.5 pl-6 text-sm text-muted">
+                  {arvet.punkter.map((punkt) => (
+                    <li key={punkt} className="leading-relaxed">
+                      {punkt}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            <FluebenListe
+              punkter={product.features}
+              className={arvet ? "mt-4" : "mt-6"}
+            />
 
 
             <div className="mt-4">

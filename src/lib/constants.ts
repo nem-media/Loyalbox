@@ -45,6 +45,30 @@ export const COMPANY = {
 } as const;
 
 /**
+ * "LoyalSum.dk – en del af Nem Media ApS".
+ *
+ * KUNDEN HAR KØBT HOS LOYALSUM OG ALDRIG HØRT OM NEM MEDIA. Selskabsnavnet
+ * stod alene dér, hvor loven kræver en identifikation — i footeren, i
+ * handelsbetingelserne, i mailfoden — og en kunde, der læser efter, hvem de
+ * lige har handlet med, mødte altså et navn, der ikke står nogen andre
+ * steder. Linjen binder de to sammen i stedet: brandet først, selskabet som
+ * den oplysning, det er.
+ *
+ * ÉT STED, FORDI DEN SKAL VÆRE ENS. Den står i footeren på hver eneste side,
+ * på /handelsbetingelser, på /privatliv og i foden af hver kundemail. Tre
+ * formuleringer af, hvem vi er, er præcis dét, der får nogen til at tro, at
+ * det er to virksomheder.
+ *
+ * OG DEN BRUGES KUN, HVOR NAVNET SKAL STÅ. Kræver loven det ikke, nævnes
+ * selskabet ikke — kontaktformularens privatlivslinje sagde fx "i vores
+ * mailboks hos Nem Media ApS", hvilket hverken var et krav eller en hjælp.
+ * Databehandleraftalen er en undtagelse og bruger `legalName` rent: dér ER
+ * selskabet aftaleparten, og en aftale skal navngive den, der forpligtes.
+ */
+export const SELSKABSLINJE_HALE = ` – en del af ${COMPANY.legalName}`;
+export const SELSKABSLINJE = `${SITE_NAME}${SELSKABSLINJE_HALE}`;
+
+/**
  * Handelsbetingelsernes version og dato.
  *
  * Accepten gemmes MED versionen på virksomheden ved købet, præcis som
@@ -321,6 +345,20 @@ export interface Product {
   setupPrice?: number;
   /** True hvis produktet inkluderer hele LoyalSum-platformen (komplet pakke). */
   includesLoyalSum?: boolean;
+  /**
+   * Slug på den vare, hvis funktioner varen indeholder FULDT UD.
+   *
+   * RELATIONEN ER DATA OG IKKE EN SÆTNING. Der stod "Alt i Reviewstander Pro"
+   * som første punkt i `features` — sandt, men ubrugeligt dér, hvor det stod:
+   * på produktsiden for Komplet kan man ikke se, hvad der ER i Pro, og så
+   * skal man væk fra den side, man er ved at købe fra. Meldt af brugeren.
+   * Nu slås varen op, og siden folder punkterne ud under linjen.
+   *
+   * SÆTNINGEN SKRIVES IKKE AF: `arvetFra()` bygger både overskriften og
+   * punkterne af den vare, der peges på, så de to ikke kan komme i utakt den
+   * dag, Pro får en funktion mere.
+   */
+  indeholder?: string;
   tagline: string;
   description: string;
   image: string;
@@ -537,8 +575,8 @@ export const PRODUCTS: Product[] = [
     description:
       "Alt i Reviewstander Pro — plus to måder at få kunderne til at komme igen: et digitalt stempelkort og et pointprogram, begge uden app. Kunderne tilmelder sig selv på standeren, personalet stempler eller giver point med ét scan, og du laver opslag af dine bedste anmeldelser. Flere nye kunder, og flere der kommer igen — samlet ét sted.",
     image: "/mockups/stander-loyalsum-komplet.svg",
+    indeholder: "reviewstander-pro",
     features: [
-      "Alt i Reviewstander Pro",
       "Digitalt stempelkort — uden app",
       "Pointprogram — kunden samler point og vælger selv belønning",
       "Scan-til-stempel over disken",
@@ -619,8 +657,8 @@ export const PRODUCTS: Product[] = [
      * søgeresultat og delt link viser det samme.
      */
     image: "/loyalsum-komplet-online-dashboard-og-mobil.jpg",
+    indeholder: "loyalsum-komplet",
     features: [
-      "Alle funktioner fra LoyalSum Komplet",
       "Dit eget LoyalSum-link og QR-kode",
       "Digitalt stempelkort og pointprogram",
       "Feedback, kundescore og opslag",
@@ -1003,6 +1041,27 @@ export function abonnementsRang(p: Product | undefined): number {
 
 export function getProduct(slug: string): Product | undefined {
   return PRODUCTS.find((p) => p.slug === slug);
+}
+
+/**
+ * Hvad arver varen fra en anden vare?
+ *
+ * Svarer med navnet OG punkterne, så en side kan skrive "Alt i X" og vise
+ * hvad X er — uden at kunden skal forlade den side, hun er ved at købe fra.
+ * Begge dele slås op, så overskriften og listen ikke kan sige hver sit.
+ *
+ * `null`, når varen ikke arver noget; kalderen tegner så bare sin egen liste.
+ * Peger `indeholder` på en vare, der ikke findes, er det også `null` — og
+ * `produkt-arv.test.ts` fejler, så en tastefejl i et slug ikke bliver til en
+ * tavst forsvundet funktionsliste.
+ */
+export function arvetFra(
+  p: Product | undefined,
+): { navn: string; punkter: readonly string[] } | null {
+  if (!p?.indeholder) return null;
+  const kilde = getProduct(p.indeholder);
+  if (!kilde) return null;
+  return { navn: kilde.name, punkter: kilde.features };
 }
 
 // ===========================================================================

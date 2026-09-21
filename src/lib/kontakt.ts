@@ -59,6 +59,17 @@ export function emneNavn(vaerdi: string): string | null {
 
 export interface KontaktFelter {
   navn: string;
+  /**
+   * Butikkens navn. FRIVILLIGT, og det er et valg.
+   *
+   * Det er dét, der oftest afgør, om vi kan svare i første mail: kender vi
+   * butikken, kan vi slå ordren, abonnementet eller standeren op, før vi
+   * skriver tilbage — i stedet for at bruge en runde på at spørge. Men den,
+   * der skriver, fordi hun OVERVEJER en stander, har endnu ingen butik hos
+   * os, og et påkrævet felt ville stille hende et spørgsmål, hun ikke kan
+   * svare på. Tom streng betyder "ikke oplyst".
+   */
+  virksomhed: string;
   email: string;
   /** Frivilligt. Tom streng betyder "ikke oplyst". */
   telefon: string;
@@ -75,7 +86,13 @@ export type KontaktFejl = Partial<Record<keyof KontaktFelter, string>>;
  * megabyte tekst af sted — det er ikke en sikkerhedsfejl, men det gør indbakken
  * ubrugelig og koster på en mailkvote, vi deler med ordrevarsler og alarmer.
  */
-const MAKS = { navn: 100, email: 200, telefon: 40, besked: 4000 } as const;
+const MAKS = {
+  navn: 100,
+  virksomhed: 120,
+  email: 200,
+  telefon: 40,
+  besked: 4000,
+} as const;
 const MINDST_BESKED = 10;
 
 export function laesKontakt(raw: Record<string, unknown>): {
@@ -89,6 +106,12 @@ export function laesKontakt(raw: Record<string, unknown>): {
   const navn = tekst(raw.navn);
   if (navn.length < 2) fejl.navn = "Skriv dit navn.";
   else if (navn.length > MAKS.navn) fejl.navn = "Navnet er for langt.";
+
+  /* Kun et loft. Der er ingen facitliste over butiksnavne, og en validering,
+     der afviser "Café Ø" eller "B&O", ville spærre for den rigtige kunde. */
+  const virksomhed = tekst(raw.virksomhed);
+  if (virksomhed.length > MAKS.virksomhed)
+    fejl.virksomhed = "Navnet er for langt.";
 
   const email = tekst(raw.email);
   if (!erGyldigEmail(email))
@@ -123,7 +146,11 @@ export function laesKontakt(raw: Record<string, unknown>): {
 
   if (Object.keys(fejl).length > 0) return { ok: false, fejl };
 
-  return { ok: true, fejl: {}, vaerdier: { navn, email, telefon, emne, besked } };
+  return {
+    ok: true,
+    fejl: {},
+    vaerdier: { navn, virksomhed, email, telefon, emne, besked },
+  };
 }
 
 /** Mailen til os selv. Alt det, der skal bruges for at svare. */
@@ -139,10 +166,15 @@ export function kontaktMail(v: KontaktFelter): {
     tekst: [
       `Nogen har skrevet via kontaktformularen på ${COMPANY.email.split("@")[1]}.`,
       "",
-      `Navn:     ${v.navn}`,
-      `E-mail:   ${v.email}`,
-      `Telefon:  ${v.telefon || "ikke oplyst"}`,
-      `Emne:     ${emne}`,
+      /* VÆRDIERNE BEGYNDER I SAMME KOLONNE. "Virksomhed:" er den længste
+         etiket og sætter dermed indrykningen for dem alle — se
+         `mail-blokke.ts`, hvor netop justeringen er dét, der gør en stribe
+         linjer til en opstilling frem for til løse sætninger. */
+      `Navn:        ${v.navn}`,
+      `Virksomhed:  ${v.virksomhed || "ikke oplyst"}`,
+      `E-mail:      ${v.email}`,
+      `Telefon:     ${v.telefon || "ikke oplyst"}`,
+      `Emne:        ${emne}`,
       "",
       "Besked:",
       v.besked,

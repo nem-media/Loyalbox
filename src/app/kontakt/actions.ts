@@ -47,6 +47,7 @@ export async function sendKontakt(
 
   const raa = {
     navn: formData.get("navn"),
+    virksomhed: formData.get("virksomhed"),
     email: formData.get("email"),
     telefon: formData.get("telefon"),
     emne: formData.get("emne"),

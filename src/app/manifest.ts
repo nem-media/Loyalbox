@@ -25,8 +25,18 @@ export default function manifest(): MetadataRoute.Manifest {
     icons: [
       { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      /*
+        MASKABLE HAR SIN EGEN FIL, OG DET ER IKKE PYNT.
+        En maskable-ikon er et LØFTE til styresystemet om, at hele fladen er
+        dækket: launcheren beskærer til sin egen form og fylder selv resten
+        ud. Her delte den fil med "any" — en GENNEMSIGTIG stjerne, der gik
+        helt ud til kanten — så Android lagde SORT bag mærket og klippede
+        spidserne af. Filerne laves af `scripts/lav-app-ikoner.mjs`, hvor
+        den ene fylder 64 % og den anden 52 %, fordi kun de inderste 80 %
+        er sikre.
+      */
       {
-        src: "/icon-512.png",
+        src: "/icon-maskable-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",

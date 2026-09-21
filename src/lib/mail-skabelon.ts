@@ -1,4 +1,4 @@
-import { COMPANY, BRAND_NAVN, SITE_NAME } from "./constants";
+import { COMPANY, BRAND_NAVN, SITE_NAME, SELSKABSLINJE_HALE } from "./constants";
 import { laesBlokke, type Blok } from "./mail-blokke";
 
 /**
@@ -265,7 +265,7 @@ ${krop}
 </td></tr>
 
 <tr><td style="padding:20px 28px 0;background-color:${F.grund};font-family:${SKRIFT};">
-<p style="margin:0 0 4px;font-size:12px;line-height:1.6;color:${F.daempet};"><strong style="color:${F.tekst};">${esc(SITE_NAME)}</strong> — ${esc(COMPANY.legalName)} · CVR ${esc(COMPANY.cvr)}</p>
+<p style="margin:0 0 4px;font-size:12px;line-height:1.6;color:${F.daempet};"><strong style="color:${F.tekst};">${esc(SITE_NAME)}</strong> ${esc(SELSKABSLINJE_HALE)} · CVR ${esc(COMPANY.cvr)}</p>
 <p style="margin:0 0 4px;font-size:12px;line-height:1.6;color:${F.daempet};">${esc(COMPANY.address)}, ${esc(COMPANY.postalCode)} ${esc(COMPANY.city)}</p>
 <p style="margin:0;font-size:12px;line-height:1.6;color:${F.daempet};">Du får denne mail, fordi du har handlet eller har et kort hos os.</p>
 </td></tr>
