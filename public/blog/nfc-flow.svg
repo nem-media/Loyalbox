@@ -2,15 +2,15 @@
   <style>
     .t { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
     .num { font: 700 22px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #ffffff; }
-    .h { font: 700 21px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #1e1c1a; }
-    .b { font: 400 17px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #1e1c1a; opacity: .72; }
+    .h { font: 700 21px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #06232e; }
+    .b { font: 400 17px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #06232e; opacity: .72; }
   </style>
-  <rect width="1200" height="400" fill="#f6f4ee"/>
+  <rect width="1200" height="400" fill="#eff5f7"/>
 
   <!-- Fire trin -->
   <g>
-    <rect x="40" y="90" width="250" height="220" rx="14" fill="#ffffff" stroke="#1e1c1a" stroke-opacity=".14" stroke-width="2"/>
-    <circle cx="76" cy="126" r="20" fill="#1b916a"/>
+    <rect x="40" y="90" width="250" height="220" rx="14" fill="#ffffff" stroke="#06232e" stroke-opacity=".14" stroke-width="2"/>
+    <circle cx="76" cy="126" r="20" fill="#1a9089"/>
     <text x="76" y="134" class="num" text-anchor="middle">1</text>
     <text x="112" y="134" class="h">Telefonen</text>
     <text x="68" y="188" class="b">Sender konstant et</text>
@@ -20,8 +20,8 @@
   </g>
 
   <g>
-    <rect x="330" y="90" width="250" height="220" rx="14" fill="#ffffff" stroke="#1e1c1a" stroke-opacity=".14" stroke-width="2"/>
-    <circle cx="366" cy="126" r="20" fill="#1b916a"/>
+    <rect x="330" y="90" width="250" height="220" rx="14" fill="#ffffff" stroke="#06232e" stroke-opacity=".14" stroke-width="2"/>
+    <circle cx="366" cy="126" r="20" fill="#1a9089"/>
     <text x="366" y="134" class="num" text-anchor="middle">2</text>
     <text x="402" y="134" class="h">Tagget</text>
     <text x="358" y="188" class="b">Feltet inducerer</text>
@@ -31,8 +31,8 @@
   </g>
 
   <g>
-    <rect x="620" y="90" width="250" height="220" rx="14" fill="#ffffff" stroke="#1e1c1a" stroke-opacity=".14" stroke-width="2"/>
-    <circle cx="656" cy="126" r="20" fill="#1b916a"/>
+    <rect x="620" y="90" width="250" height="220" rx="14" fill="#ffffff" stroke="#06232e" stroke-opacity=".14" stroke-width="2"/>
+    <circle cx="656" cy="126" r="20" fill="#1a9089"/>
     <text x="656" y="134" class="num" text-anchor="middle">3</text>
     <text x="692" y="134" class="h">Data</text>
     <text x="648" y="188" class="b">Chippen sender sit</text>
@@ -42,8 +42,8 @@
   </g>
 
   <g>
-    <rect x="910" y="90" width="250" height="220" rx="14" fill="#ffffff" stroke="#1e1c1a" stroke-opacity=".14" stroke-width="2"/>
-    <circle cx="946" cy="126" r="20" fill="#1b916a"/>
+    <rect x="910" y="90" width="250" height="220" rx="14" fill="#ffffff" stroke="#06232e" stroke-opacity=".14" stroke-width="2"/>
+    <circle cx="946" cy="126" r="20" fill="#1a9089"/>
     <text x="946" y="134" class="num" text-anchor="middle">4</text>
     <text x="982" y="134" class="h">Handling</text>
     <text x="938" y="188" class="b">Telefonen genkender</text>
@@ -53,7 +53,7 @@
   </g>
 
   <!-- Pile mellem trinene -->
-  <g fill="none" stroke="#ffb700" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="#e0a93f" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
     <path d="M296 200 L322 200"/><path d="M312 191 L322 200 L312 209"/>
     <path d="M586 200 L612 200"/><path d="M602 191 L612 200 L602 209"/>
     <path d="M876 200 L902 200"/><path d="M892 191 L902 200 L892 209"/>
