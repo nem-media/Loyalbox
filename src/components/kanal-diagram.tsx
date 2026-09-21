@@ -131,7 +131,7 @@ export function KanalDiagram({
           <div className="relative mx-auto max-w-xs text-center">
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute -inset-8 rounded-full bg-accent/15 blur-2xl"
+              className="pointer-events-none absolute -inset-4 rounded-full bg-accent/15 blur-2xl sm:-inset-8"
             />
             <div className="relative">
               <span
