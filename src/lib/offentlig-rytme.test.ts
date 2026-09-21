@@ -21,6 +21,12 @@ const SIDER = [
   "src/app/reviewstander/page.tsx",
   "src/app/loyalitetsprogram/page.tsx",
   "src/app/loyalsum-komplet-online/page.tsx",
+  /* /kontakt stod UDEN FOR rytmen i et år: ingen hero, ingen
+     sektionsgrunde, ingen hårlinjer og ikke ét ikon — én hvid flade fra
+     header til footer. Den står her nu, fordi de tre regler er lige så
+     rigtige for en kontaktside som for en salgsside, og fordi netop den
+     slags side er dén, en ombygning glemmer. */
+  "src/app/kontakt/page.tsx",
 ];
 
 /* Kilden uden kommentarer. Filerne her citerer med vilje den kode, de

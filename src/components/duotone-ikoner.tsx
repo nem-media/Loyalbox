@@ -480,3 +480,70 @@ export function KvitteringDuo({ className }: P) {
   );
 }
 
+
+/**
+ * Svartid — en urskive med viserne på fem minutter over.
+ *
+ * SILHUETTEN ER EN CIRKEL, og det er den tredje i sættet (`PointDuo` og
+ * `GenbesoegDuo` er de to andre). Det er forsvarligt her, fordi de tre
+ * aldrig står i samme gruppe: mønten hører til point, genbesøgspilen til
+ * statistik, og uret til svartiden på kontaktsiden. Står de en dag SAMMEN,
+ * skal en af dem tegnes om — ved 18 px er det kun den ydre form, der ses.
+ *
+ * Viserne peger ikke på hel time: et ur på 12.00 læses som et tomt felt.
+ */
+export function UrDuo({ className }: P) {
+  return (
+    <Ramme className={className}>
+      <circle
+        cx="12"
+        cy="12"
+        r="8.5"
+        fill="currentColor"
+        stroke="none"
+        opacity={KROP}
+      />
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.4V12l3.2 1.9" />
+      <path d="M12 3.5v1.1" opacity="0.55" />
+    </Ramme>
+  );
+}
+
+/**
+ * Adressen — nålen på kortet.
+ *
+ * Kroppen er hele dråben og ikke kun cirklen: silhuetten er dét, der ses på
+ * afstand, og en fyldt cirkel med en spids under ville være en ballon.
+ */
+export function AdresseDuo({ className }: P) {
+  const naal = "M12 21.3c4.4-4.6 6.6-7.9 6.6-10.7a6.6 6.6 0 1 0-13.2 0c0 2.8 2.2 6.1 6.6 10.7Z";
+  return (
+    <Ramme className={className}>
+      <path d={naal} fill="currentColor" stroke="none" opacity={KROP} />
+      <path d={naal} />
+      <circle cx="12" cy="10.4" r="2.5" />
+    </Ramme>
+  );
+}
+
+/**
+ * En artikel — arket med det knækkede hjørne.
+ *
+ * KNÆKKET ER MOTIVET. Et rektangel med tre streger i er også en kvittering
+ * (`KvitteringDuo`) og en skærm (`HjemmesideDuo`); det foldede hjørne er
+ * dét ene træk, der gør et ark til et dokument, og det overlever 18 px.
+ * Kroppen følger arket INKLUSIVE knækket, så fladen og stregen er samme
+ * form — ellers stikker fyldet ud i hjørnet.
+ */
+export function ArtikelDuo({ className }: P) {
+  const ark = "M6.4 3.4h7.1l4.9 4.9v10.9a2 2 0 0 1-2 2H6.4a2 2 0 0 1-2-2V5.4a2 2 0 0 1 2-2Z";
+  return (
+    <Ramme className={className}>
+      <path d={ark} fill="currentColor" stroke="none" opacity={KROP} />
+      <path d={ark} />
+      <path d="M13.5 3.4v4.9h4.9" />
+      <path d="M7.8 13h6.8M7.8 16.3h4.2" opacity="0.7" />
+    </Ramme>
+  );
+}
