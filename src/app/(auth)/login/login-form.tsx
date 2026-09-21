@@ -65,15 +65,30 @@ export function LoginForm({
           </Button>
         </form>
 
-        <div className="space-y-1 text-center text-sm text-muted">
-          <p>
-            <Link
-              href="/glemt-adgangskode"
-              className="font-medium text-accent"
-            >
-              Glemt adgangskode?
-            </Link>
-          </p>
+        {/*
+          GENVEJEN UD AF EN GLEMT KODE STÅR FOR SIG, OG DET ER ET TRYKMÅL.
+          De tre linjer lå i én stak med 4 px imellem. "Glemt adgangskode?"
+          er den eneste af dem, der er en HANDLING for sig — de to andre er
+          links midt i en sætning — og den målte 139 × 18 på en telefon.
+
+          `.trykmaal` alene ville ikke have virket: MÅLT ved 390 px var der
+          6 px ned til "Opret virksomhed", så de 10 px polstring ville have
+          lagt trykfeltet 4 px ind over nabolinjens tekst. Et trykmål, der
+          vokser ind i sin nabo, er ikke en forbedring — så rammer man bare
+          det forkerte i stedet for ingenting. Derfor er handlingen skilt
+          ud i sin egen blok med luft omkring, og de to oprettelseslinjer
+          står tilbage som dét, de er: en sætning hver.
+        */}
+        <p className="text-center text-sm">
+          <Link
+            href="/glemt-adgangskode"
+            className="trykmaal inline-block font-medium text-accent"
+          >
+            Glemt adgangskode?
+          </Link>
+        </p>
+
+        <div className="space-y-1.5 text-center text-sm text-muted">
           <p>
             Har du ikke en konto?{" "}
             <Link href="/signup" className="font-medium text-accent">
