@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -265,10 +266,42 @@ export default function KompletOnlinePage() {
             </div>
 
             {/* Linket, som kunden faktisk får at se i dashboardet. */}
+            {/*
+              PRODUKTET STÅR FØRST, OG DET ER PRÆCIS DET RIGTIGE BILLEDE.
+              Varen ER platformen uden hardware, og der findes ét foto i
+              huset, der viser netop dét: panelet på en skærm og kundens kort
+              på en telefon, uden et skilt nogen steder. Heroen havde kun
+              linkpanelet, altså en tegnet adresse — og en side, der sælger
+              en platform, bør vise platformen.
+
+              DER ER BEVIDST INGEN STANDER HER. Det er hele forskellen på
+              Komplet og Komplet Online, og et skilt i baggrunden ville sige
+              det modsatte af overskriften.
+
+              `priority`, fordi det står over folden og er sidens
+              LCP-element; målene er filens egne, så heroen ikke hopper.
+            */}
+            <div className="overflow-hidden rounded-[var(--radius-stor)] shadow-[var(--hoejde-foto)] ring-1 ring-white/12">
+              <Image
+                src="/loyalsum-komplet-online-dashboard-og-mobil.jpg"
+                alt=""
+                aria-hidden="true"
+                width={1000}
+                height={1250}
+                sizes="(min-width: 1024px) 30rem, 92vw"
+                priority
+                className="h-auto w-full"
+              />
+            </div>
+
             {/* Frostet og ikke bare gennemsigtig: en lys inderkant foroven
                 og en blød skygge under gør panelet til en flade, der ligger
-                FORAN heroen, frem for et felt malet ned i den. */}
-            <div className="box-shape border border-white/15 bg-white/[0.07] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_24px_50px_-24px_rgba(0,0,0,0.6)] backdrop-blur-sm">
+                FORAN heroen, frem for et felt malet ned i den.
+
+                Linkpanelet BLIVER — det er sidens egentlige løfte ("ét link,
+                mange kanaler") og kan ikke fotograferes. Det ligger nu under
+                billedet frem for i stedet for det. */}
+            <div className="box-shape mt-5 border border-white/15 bg-white/[0.07] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_24px_50px_-24px_rgba(0,0,0,0.6)] backdrop-blur-sm">
               <p className="text-xs font-semibold uppercase tracking-wider text-white/60">
                 Dit LoyalSum-link
               </p>
