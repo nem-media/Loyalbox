@@ -128,7 +128,10 @@ export function SiteFooter({
                   egen udgave af den, og to udgaver af samme stil driver fra
                   hinanden. */}
               <h3 className="etiket">{col.title}</h3>
-              <ul className="mt-4 space-y-1 text-sm sm:space-y-2.5">
+              {/* LUFTEN FØLGER POLSTRINGEN. Med `space-y-2.5` (10 px) og 20 px
+                  polstring ville to nabolinkes felter overlappe, og så rammer
+                  man det forkerte. Grænsen er den samme som `.trykmaal`s. */}
+              <ul className="mt-4 space-y-1 text-sm lg:space-y-2.5">
                 {col.links.map((l) => (
                   <li key={l.href + l.label}>
                     <Link

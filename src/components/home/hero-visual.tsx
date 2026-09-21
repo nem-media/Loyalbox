@@ -146,7 +146,7 @@ export function HeroVisual() {
         greb, men to af dem oven på to fotografier bliver til rod. Stjernerne
         er den ene ting, hele sitet handler om at få flere af.
       */}
-      <div className="absolute -right-3 -top-5 sm:-right-7">
+      <div className="absolute right-3 -top-5 lg:-right-7">
         {/* `text-foreground` er nødvendig: heroen sætter `text-dark-fg`
             (hvid), som ellers arves ned i den hvide chip. */}
         <div className="btn-shape flex items-center gap-2 bg-white px-3.5 py-2 text-foreground shadow-[0_2px_5px_rgba(8,48,60,0.16),0_18px_34px_-14px_rgba(0,0,0,0.5)]">

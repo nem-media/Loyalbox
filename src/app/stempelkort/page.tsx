@@ -536,7 +536,7 @@ export default function StempelkortPage() {
                       De to linjer læses som én sætning ovenfra og ned.
                       Teksten findes ikke andre steder i heroen — den linje,
                       der stod under knapperne, sagde det samme og er væk. */}
-                    <div className="absolute -top-6 -right-2 sm:-right-7">
+                    <div className="absolute -top-6 right-3 lg:-right-7">
                       {/* BEIGE OG IKKE HVID. Emblemet var hvidt som kortet, og
                           dér hvor de to overlapper, fandtes der ingen kant —
                           det læste som en linje INDE i stempelkortet frem for
@@ -557,7 +557,7 @@ export default function StempelkortPage() {
                       </div>
                     </div>
 
-                    <div className="absolute -bottom-6 -left-2 sm:-left-8">
+                    <div className="absolute -bottom-6 left-3 lg:-left-8">
                       <div className="btn-shape flex items-center gap-2 bg-dark px-3 py-2 text-white shadow-[0_16px_32px_-16px_rgba(0,0,0,0.6)] ring-1 ring-white/15">
                         {/* Beige og ikke accent: på koks giver beigen 6,79 i
                           kontrast, petroleum kun 2,44. */}
@@ -854,7 +854,7 @@ export default function StempelkortPage() {
                     {r.body}
                   </p>
                   <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border pt-3.5">
-                    <span className="text-xs text-muted sm:text-[11px]">
+                    <span className="text-xs text-muted">
                       På kundens kort:
                     </span>
                     <span className="rounded-full bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent">

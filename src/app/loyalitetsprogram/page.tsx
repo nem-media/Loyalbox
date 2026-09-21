@@ -318,7 +318,7 @@ export default function LoyalitetsprogramPage() {
                 "radial-gradient(58% 58% at 74% 24%, rgba(26,144,137,0.22), transparent 64%), radial-gradient(38% 38% at 90% 4%, rgba(217,164,65,0.14), transparent 62%)",
             }}
           />
-          <div className="mx-auto grid max-w-side gap-10 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+          <div className="mx-auto grid max-w-side gap-10 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:pr-10">
             <div>
               <p className="text-sm font-semibold uppercase tracking-wider text-white/60">
                 Loyalitetsprogram
@@ -367,7 +367,7 @@ export default function LoyalitetsprogramPage() {
                 påstand tilføjet af et layout — og heroen er dét sted, hvor
                 en påstand vejer mest.
               */}
-              <div className="absolute -right-2 -top-5 z-10 sm:-right-7">
+              <div className="absolute right-3 -top-5 z-10 lg:-right-7">
                 <div className="btn-shape flex items-center gap-2 bg-secondary px-3 py-2 text-secondary-fg shadow-[0_16px_32px_-16px_rgba(0,0,0,0.6)]">
                   <PointDuo className="h-4 w-4 shrink-0" />
                   <span className="text-xs font-semibold tracking-tight">
@@ -376,7 +376,7 @@ export default function LoyalitetsprogramPage() {
                 </div>
               </div>
 
-              <div className="absolute -bottom-5 -left-2 z-10 sm:-left-8">
+              <div className="absolute -bottom-5 left-3 z-10 lg:-left-8">
                 <div className="btn-shape flex items-center gap-2 bg-dark px-3 py-2 text-white shadow-[0_16px_32px_-16px_rgba(0,0,0,0.6)] ring-1 ring-white/15">
                   <BeloenningDuo className="h-4 w-4 shrink-0 text-secondary" />
                   <span className="text-xs font-medium">
@@ -567,7 +567,7 @@ export default function LoyalitetsprogramPage() {
             </p>
             <Link
               href="/loyalsum-komplet-online"
-              className="mt-4 inline-block font-medium text-accent hover:underline"
+              className="trykmaal mt-4 inline-block font-medium text-accent hover:underline"
             >
               Se LoyalSum Komplet Online →
             </Link>
