@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ButtonLink } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export interface NavLink {
   href: string;
@@ -54,6 +56,17 @@ function IconClose() {
  * udløser lint-fejl i dette projekt (React Compiler), og et onClick på hvert
  * link gør samme nytte.
  */
+/*
+  SAMME REGEL SOM I `HeaderNav`: `/#platform` er et anker på forsiden og må
+  ikke markere sig selv som aktivt, bare fordi man står dér — så ville to
+  punkter være tændt på én gang. Kun rene ruter sammenlignes.
+*/
+function erAktivFor(sti: string, href: string): boolean {
+  if (href.includes("#")) return false;
+  if (href === "/") return sti === "/";
+  return sti === href || sti.startsWith(href + "/");
+}
+
 export function MobileNav({
   links,
   loggedIn,
@@ -64,6 +77,8 @@ export function MobileNav({
   dashboardHref: string;
 }) {
   const [open, setOpen] = useState(false);
+  const sti = usePathname();
+  const erAktiv = (href: string) => erAktivFor(sti, href);
 
   useEffect(() => {
     if (!open) return;
@@ -111,7 +126,18 @@ export function MobileNav({
                     <Link
                       href={l.href}
                       onClick={() => setOpen(false)}
-                      className="btn-shape block px-3 py-3 text-base text-white/80 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                      aria-current={erAktiv(l.href) ? "page" : undefined}
+                    /* SAMME MARKERING SOM PÅ DESKTOP. Menuen viste ikke,
+                       hvor man var, og en besøgende, der åbner burgeren midt
+                       på /stempelkort, skal kunne se det uden at lukke den
+                       igen. To navigationer, der markerer forskelligt, er
+                       to navigationer. */
+                    className={cn(
+                      "btn-shape block px-3 py-3 text-base transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+                      erAktiv(l.href)
+                        ? "bg-white/12 font-medium text-white"
+                        : "text-white/80 hover:bg-white/10 hover:text-white",
+                    )}
                     >
                       {l.label}
                     </Link>

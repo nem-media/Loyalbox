@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { Logo } from "@/components/brand";
 import { HeaderKonto } from "@/components/header-konto";
+import { HeaderNav } from "@/components/header-nav";
 import { type NavLink } from "@/components/mobile-nav";
 
 /**
@@ -71,13 +71,14 @@ export function SiteHeader() {
             at skjule hele menuen indtil 1280 og sende en 13" bærbar over i
             burgeren; det koster mere end to punkter mindre luft. Målt igen ved
             1024, 1100, 1200, 1280, 1440 og 1920. */}
-        <nav className="hidden items-center gap-4 text-sm text-white/70 lg:flex xl:gap-7 xl:text-base">
-          {NAV_LINKS.map((l) => (
-            <Link key={l.href} href={l.href} className="hover:text-white">
-              {l.label}
-            </Link>
-          ))}
-        </nav>
+        {/* MENUEN VISER NU, HVOR MAN ER. Den havde ingen markering
+            overhovedet, så en besøgende på /stempelkort kunne ikke se sin
+            egen placering — samme mangel, dashboardets menu havde, før den
+            fik `aria-current`. Markeringen er en svag hvid flade og ikke en
+            understregning: en streg på 1-2 px forsvinder mod den lyse hero
+            nedenunder. Se `HeaderNav` for hvorfor den må være en
+            klientkomponent uden at koste sidens statiske gengivelse. */}
+        <HeaderNav links={NAV_LINKS} />
 
         <HeaderKonto links={NAV_LINKS} />
       </div>
