@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -483,7 +484,38 @@ export default function StempelkortPage() {
                   aria-hidden="true"
                   className="pointer-events-none absolute -inset-16 rounded-full bg-accent/30 blur-3xl"
                 />
-                <div className="relative">
+                {/*
+                  TELEFONEN FØRST, SKILTET BAGVED.
+                  Siden sælger en MOBIL oplevelse — "på mobilen, ingen app" —
+                  så det tegnede kort er og bliver motivet. Men stempelkortet
+                  fås kun med LoyalSum Komplet, og dét er en æske med et
+                  skilt i: `reviewstander-cafe-komplet.jpg` er netop den vare
+                  på en cafédisk, med mærkatet, der siger "indeholder
+                  stempelkort". Fotoet er derfor ikke stemning, det er varen.
+
+                  Det ligger BAGVED og mindre, fordi rækkefølgen i billedet
+                  skal være den samme som i overskriften: telefonen er
+                  løftet, skiltet er dét, man får med.
+
+                  `hero-cafe.jpg` og `stempelkort-app.webp` blev fravalgt og
+                  må ikke komme ind: det første viser en stander af den GAMLE
+                  sorte model med et andet logo, det andet er et skærmbillede
+                  i den forrige GRØNNE brandfarve med demo-data. Begge ville
+                  være en designø fra et tidligere LoyalSum.
+                */}
+                <div className="absolute -left-14 top-24 z-0 w-[52%] overflow-hidden rounded-[var(--radius-shape)] shadow-[var(--hoejde-3)] ring-1 ring-white/15 sm:-left-24">
+                  <Image
+                    src="/reviewstander-cafe-komplet.jpg"
+                    alt=""
+                    aria-hidden="true"
+                    width={1000}
+                    height={1250}
+                    sizes="(min-width: 1024px) 13rem, 38vw"
+                    className="h-auto w-full"
+                  />
+                </div>
+
+                <div className="relative z-10 w-full">
                   {/* EGEN relative-boks om KORTET ALENE. Lå emblemerne i den
                       ydre boks, målte `-bottom-6` fra bunden af billedteksten
                       og ikke fra kortet — og det nederste emblem landede oven

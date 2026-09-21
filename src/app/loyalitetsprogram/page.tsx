@@ -297,7 +297,27 @@ export default function LoyalitetsprogramPage() {
 
       <main id="indhold">
         {/* ------------------------------------------------------------ hero */}
-        <section className="bg-dark px-4 py-16 text-white sm:py-20">
+        <section className="relative isolate overflow-hidden bg-dark px-4 py-16 text-white sm:py-20">
+          {/*
+            SIDEN ER DIGITAL OG IKKE FOTOGRAFISK, OG DET ER ET VALG.
+            De øvrige heroer bærer et produktfoto, fordi de sælger noget, der
+            står på en disk. Et pointprogram er en SALDO på en telefon — der
+            er intet at fotografere, og en cafékop bag teksten ville sige, at
+            varen er en café.
+
+            I stedet gør skæret arbejdet: teal bag kortet, guld øverst til
+            højre. Guldet er pointmønternes farve i designreferencerne og er
+            her som LYS og ikke som flade — supporting-farven må aldrig blive
+            en knap eller et felt, man skal læse på.
+          */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 -z-10"
+            style={{
+              backgroundImage:
+                "radial-gradient(58% 58% at 74% 24%, rgba(26,144,137,0.22), transparent 64%), radial-gradient(38% 38% at 90% 4%, rgba(217,164,65,0.14), transparent 62%)",
+            }}
+          />
           <div className="mx-auto grid max-w-side gap-10 lg:grid-cols-[1.1fr_1fr] lg:items-center">
             <div>
               <p className="text-sm font-semibold uppercase tracking-wider text-white/60">
@@ -331,7 +351,41 @@ export default function LoyalitetsprogramPage() {
             </div>
 
             {/* Et rigtigt pointkort, tegnet som kunden ser det. */}
-            <div className="box-shape border border-white/15 bg-white/5 p-6">
+            <div className="relative">
+              {/* Skæret bag kortet — samme greb som stempelkortsiden, så de
+                  to loyalitetsformer ser ud til at høre sammen. */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -inset-12 rounded-full bg-accent/25 blur-3xl"
+              />
+
+              {/*
+                TO EMBLEMER, OG TEKSTEN ER SIDENS EGEN.
+                Begge sætninger står ordret i sidens trust-stribe længere
+                nede ("Fleksible pointregler" og "Kunderne vælger selv
+                belønninger"). Et emblem, der lover noget nyt, ville være en
+                påstand tilføjet af et layout — og heroen er dét sted, hvor
+                en påstand vejer mest.
+              */}
+              <div className="absolute -right-2 -top-5 z-10 sm:-right-7">
+                <div className="btn-shape flex items-center gap-2 bg-secondary px-3 py-2 text-secondary-fg shadow-[0_16px_32px_-16px_rgba(0,0,0,0.6)]">
+                  <PointDuo className="h-4 w-4 shrink-0" />
+                  <span className="text-xs font-semibold tracking-tight">
+                    Fleksible pointregler
+                  </span>
+                </div>
+              </div>
+
+              <div className="absolute -bottom-5 -left-2 z-10 sm:-left-8">
+                <div className="btn-shape flex items-center gap-2 bg-dark px-3 py-2 text-white shadow-[0_16px_32px_-16px_rgba(0,0,0,0.6)] ring-1 ring-white/15">
+                  <BeloenningDuo className="h-4 w-4 shrink-0 text-secondary" />
+                  <span className="text-xs font-medium">
+                    Kunderne vælger selv
+                  </span>
+                </div>
+              </div>
+
+              <div className="box-shape relative border border-white/15 bg-white/5 p-6 backdrop-blur-sm">
               <p className="text-xs font-semibold uppercase tracking-wider text-white/60">
                 Kaffeklubben
               </p>
@@ -366,7 +420,8 @@ export default function LoyalitetsprogramPage() {
                     </span>
                   </li>
                 ))}
-              </ul>
+                </ul>
+              </div>
             </div>
           </div>
         </section>
