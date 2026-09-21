@@ -11,11 +11,11 @@ import {
   FeedbackDuo,
   KundeDuo,
   KvitteringDuo,
+  LynDuo,
   RabatBeloebDuo,
   SkjoldDuo,
   StempelDuo,
   StjerneDuo,
-  UrDuo,
 } from "@/components/duotone-ikoner";
 import { COMPANY, SITE_NAME } from "@/lib/constants";
 import { SVARTID, KONTORTID } from "@/lib/kontakt";
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
  */
 const LOEFTER = [
   {
-    Icon: UrDuo,
+    Icon: LynDuo,
     titel: "Svar inden for få minutter",
     tekst: `Skriver du inden for kontortiden (${KONTORTID}).`,
   },
