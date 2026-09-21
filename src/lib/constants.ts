@@ -565,6 +565,7 @@ export const PRODUCTS: Product[] = [
         productId: "prod_V60HMfPVGevsVG",
         priceId: "price_1UFJN62LQpGDZNEWpXFjR4qA",
         monthlyPriceId: "price_1U5tg72LQpGDZNEW8omPhStB",
+        yearlyPriceId: "price_1UIDUo2LQpGDZNEWXaVCzaFO",
       },
     },
     mpn: "LS-REVIEW-PRO",
@@ -611,6 +612,7 @@ export const PRODUCTS: Product[] = [
         productId: "prod_V60HgN0EFCzxre",
         priceId: "price_1UFJN72LQpGDZNEWsbEPIvRG",
         monthlyPriceId: "price_1U5tg82LQpGDZNEWTFSgdiEe",
+        yearlyPriceId: "price_1UIDTW2LQpGDZNEWQ6RmdT1H",
       },
     },
     mpn: "LS-KOMPLET",
@@ -682,24 +684,38 @@ export const PRODUCTS: Product[] = [
       "Uden fysisk stander",
     ],
     /*
-      TEST-ID'ERNE ER OPRETTET, MEN SKRIVES IKKE IND ALENE.
+      BEGGE TILSTANDE SKREVET IND PÅ ÉN GANG — 21. september 2026.
 
-      `setup-stripe-products.mjs` har oprettet varen i TESTtilstand
-      (prod_VHrFc2PIk8a1vD · price_1UHHXKRr2uZmH0wdJvucMJLn, 399 kr./md, og
-      price_1UICdaRr2uZmH0wdZGBDzGZB, 4.389 kr./år). Live-nøglen ligger som
-      `[SENSITIVE]` i Vercel og kan ikke hentes ned, så live-halvdelen mangler
-      endnu — og dermed er ÅRSPRISEN på denne vare spærret af nøjagtig samme
-      grund som månedsprisen. Den følger med, i samme øjeblik blokken skrives.
+      Varen stod uden `stripe`-blok, fordi live-halvdelen manglede: live-
+      nøglen ligger som `[SENSITIVE]` i Vercel og kan ikke hentes ned. "EN
+      HALV OPSÆTNING ER VÆRRE END INGEN" — id'er i test og ikke i live giver
+      en købsknap, der virker for os og fejler for enhver rigtig kunde, og
+      `commerce.test.ts` kræver derfor, at en vare med en blok kan sælges i
+      BEGGE verdener.
 
-      EN HALV OPSÆTNING ER VÆRRE END INGEN. `commerce.test.ts` kræver, at en
-      vare med en `stripe`-blok kan sælges i BEGGE tilstande — netop fordi
-      id'er i test og ikke i live giver en købsknap, der virker for os og
-      fejler for enhver rigtig kunde. Tilkøbet "Ekstra stander" stod og gjorde
-      præcis dét indtil 13. september. Uden blokken er varen derimod spærret i
-      begge verdener, og dét er en tilstand, systemet kan forklare.
+      TEST er lavet af `setup-stripe-products.mjs`. LIVE er oprettet i
+      Stripes dashboard, fordi nøglen ikke kunne hentes — men med
+      `metadata.loyalsum_slug` sat i hånden, netop fordi scriptet FINDER
+      produkter på dét felt (`findProduct()`). Uden det ville en senere
+      kørsel med live-nøglen oprette en DUBLET af varen, og kunder ville
+      abonnere på hver sit produkt.
 
-      Kør scriptet med live-nøglen og skriv BEGGE tilstande ind på én gang.
+      DER ER INGEN `priceId` — og det er ikke en forglemmelse. De øvrige varer
+      har et engangs-prisobjekt til standeren; her er der ingen stander at
+      betale for. `commerce.test.ts` kræver kun feltet, når `price > 0`.
     */
+    stripe: {
+      test: {
+        productId: "prod_VHrFc2PIk8a1vD",
+        monthlyPriceId: "price_1UHHXKRr2uZmH0wdJvucMJLn",
+        yearlyPriceId: "price_1UICdaRr2uZmH0wdZGBDzGZB",
+      },
+      live: {
+        productId: "prod_VIpBrp94aCDyBt",
+        monthlyPriceId: "price_1UIDX32LQpGDZNEWS6JJeeyk",
+        yearlyPriceId: "price_1UIDX32LQpGDZNEWd6BAea97",
+      },
+    },
     shoppable: false,
     mpn: "LS-KOMPLET-ONLINE",
     productType: "LoyalSum > Abonnement > LoyalSum Komplet Online",

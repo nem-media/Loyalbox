@@ -331,26 +331,60 @@ describe("ingen hardware", () => {
   });
 });
 
-describe("Stripe er endnu ikke sat op — og varen er derfor spærret", () => {
+describe("Stripe er sat op i BEGGE tilstande", () => {
   /*
-   * ET OPDIGTET PRIS-ID ER VÆRRE END EN MANGLENDE KNAP. Indtil
-   * `scripts/setup-stripe-products.mjs` er kørt for varen, svarer canSell()
-   * nej, og både knappen og /api/checkout afviser. Prøven står her, så dagen
-   * id'erne kommer ind, er det et bevidst skifte — og så skal DENNE prøve
-   * fjernes sammen med det.
+   * HER STOD DET MODSATTE INDTIL 21. SEPTEMBER 2026, og prøvens egen
+   * kommentar sagde, at den skulle udskiftes den dag id'erne kom ind. Det
+   * gjorde de: test er lavet af `setup-stripe-products.mjs`, live er oprettet
+   * i Stripes dashboard, fordi live-nøglen ligger som `[SENSITIVE]` i Vercel
+   * og ikke kan hentes ned.
+   *
+   * EGENSKABEN ER NU DEN OMVENDTE — og den er vigtigere. "En halv opsætning
+   * er værre end ingen": id'er i test og ikke i live giver en købsknap, der
+   * virker for os og fejler for enhver rigtig kunde. Tilkøbet "Ekstra
+   * stander" stod og gjorde præcis dét indtil 13. september.
    */
-  it("har ingen Stripe-id'er endnu", () => {
-    expect(ONLINE.stripe).toBeUndefined();
+  it("har id'er i både test og live", () => {
+    expect(ONLINE.stripe?.test?.productId).toBeTruthy();
+    expect(ONLINE.stripe?.live?.productId).toBeTruthy();
+    expect(ONLINE.stripe?.test?.monthlyPriceId).toBeTruthy();
+    expect(ONLINE.stripe?.live?.monthlyPriceId).toBeTruthy();
   });
 
-  it("kan ikke sælges, så længe de mangler", () => {
+  it("kan sælges i begge tilstande", () => {
     const foer = process.env.STRIPE_SECRET_KEY;
     for (const noegle of ["sk_test_abc", "sk_live_abc"]) {
       process.env.STRIPE_SECRET_KEY = noegle;
-      expect(canSell(ONLINE), noegle).toBe(false);
+      expect(canSell(ONLINE), noegle).toBe(true);
     }
     if (foer === undefined) delete process.env.STRIPE_SECRET_KEY;
     else process.env.STRIPE_SECRET_KEY = foer;
+  });
+
+  /*
+   * DER ER INGEN `priceId`, OG DET ER IKKE EN FORGLEMMELSE. De øvrige varer
+   * har et engangs-prisobjekt til standeren; her er der ingen stander at
+   * betale for. Et prisobjekt på nul kroner ville være et beløb, der KUNNE
+   * blive opkrævet — se advarslen om `priceId` i AGENTS.md.
+   */
+  it("har ingen engangspris, fordi der ikke er en stander", () => {
+    expect(ONLINE.price).toBe(0);
+    expect(ONLINE.stripe?.test?.priceId).toBeUndefined();
+    expect(ONLINE.stripe?.live?.priceId).toBeUndefined();
+  });
+
+  /*
+   * SCRIPTET FINDER PRODUKTER PÅ `metadata.loyalsum_slug` (`findProduct()`).
+   * Live-produktet er oprettet i HÅNDEN i dashboardet, og feltet er sat
+   * manuelt dér — uden det ville en senere kørsel med live-nøglen oprette en
+   * DUBLET af varen, og kunder ville abonnere på hver sit produkt. Prøven
+   * kan ikke se ind i Stripe; den holder fast i, at de to produkt-id'er er
+   * forskellige objekter, så ingen kommer til at genbruge test-id'et i live.
+   */
+  it("test og live er to forskellige produkter", () => {
+    expect(ONLINE.stripe?.live?.productId).not.toBe(
+      ONLINE.stripe?.test?.productId,
+    );
   });
 });
 
