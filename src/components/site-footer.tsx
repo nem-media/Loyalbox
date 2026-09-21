@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand";
+import { cn } from "@/lib/utils";
 import { ButtonLink } from "@/components/ui/button";
 import { ConsentSettingsLink } from "@/components/analytics";
 import {
@@ -56,7 +57,24 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
   afslutning frem for en liste, der ebber ud — og gitteret går op.
 */
 
-export function SiteFooter() {
+export function SiteFooter({
+  /**
+   * Står footeren under en MØRK sektion?
+   *
+   * DEN MÅ IKKE VÆRE EN GÆTTET STANDARD. Løftet med afrundede hjørner er
+   * samme greb som produktstriben over heroen: en lys flade, der rejser sig
+   * op over en mørk. Men footeren følger kun en mørk sektion på TRE af ni
+   * offentlige sider — målt, ikke antaget. På de øvrige seks er fladen over
+   * den hvid, og så ville de afrundede hjørner vise to hvide hak i stedet
+   * for en overgang.
+   *
+   * Derfor siger siden det selv, og `.qa/redesign-qa.mjs` MÅLER den
+   * faktiske baggrund over footeren og fejler, hvis flaget og virkeligheden
+   * ikke passer. Uden den måling ville flaget være en note, der holder op
+   * med at være sand, første gang nogen skifter sidens sidste sektion.
+   */
+  overMoerk = false,
+}: { overMoerk?: boolean } = {}) {
   return (
     /*
       FOOTEREN ER SIDENS SIDSTE INDTRYK, og den var en flad grå liste.
@@ -65,7 +83,13 @@ export function SiteFooter() {
       fra py-14 til py-16, fordi en footer, der klemmer sig sammen, læses
       som noget, der er sat på til sidst.
     */
-    <footer className="sektion-skaer border-t border-border bg-muted-bg">
+    <footer
+      className={cn(
+        "sektion-skaer border-t border-border bg-muted-bg",
+        overMoerk &&
+          "relative z-10 -mt-8 rounded-t-[var(--radius-stor)] border-t-0",
+      )}
+    >
       <div className="mx-auto max-w-side px-4 py-16">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.5fr_repeat(3,1fr)] lg:gap-12">
           {/* Brand */}

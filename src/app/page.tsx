@@ -653,7 +653,8 @@ TRE SKÆR, OG TEALEN FØRER NU AN.
         </section>
       </main>
 
-      <SiteFooter />
+      {/* Sidste sektion er mørk — se `overMoerk` i SiteFooter. */}
+      <SiteFooter overMoerk />
     </>
   );
 }

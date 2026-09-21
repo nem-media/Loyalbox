@@ -36,11 +36,31 @@ export function ProduktStribe({
   titel?: string;
 }) {
   return (
+    /*
+      STRIBEN REJSER SIG OP OVER HEROEN — ÉN REGEL, FEM SIDER.
+      Den ligger på alle fem salgssider lige under en mørk hero, og de to
+      stødte sammen i en lige, vandret kant. To flader, der mødes på en linje,
+      læses som "blok oven på blok"; en lys flade, der rejser sig et stykke op
+      over den mørke med afrundede hjørner, læses som ÉT dokument med lag.
+
+      `-mt-8` OG IKKE MERE. Løftet skal være mindre end heroens nederste
+      polstring, ellers dækker striben heroens eget indhold. Den strammeste
+      er `py-16` på mobil = 64 px, og 32 px er halvdelen af den — også ved
+      390, hvor der er mindst plads.
+
+      `z-10` ER NØDVENDIG: heroerne bærer `isolate` og deres egne skær i
+      `-z-10`, og uden et eksplicit lag her ville striben kunne havne bag
+      dem i stablingsrækkefølgen.
+
+      Kun de ØVERSTE hjørner rundes: den nederste kant er en rigtig
+      sektionsgrænse mod det, der følger efter, og skal blive ved med at være
+      en streg.
+    */
     <section
       aria-labelledby="produktstribe"
-      className="border-b border-border bg-muted-bg"
+      className="relative z-10 -mt-8 rounded-t-[var(--radius-stor)] border-b border-border bg-muted-bg"
     >
-      <div className="mx-auto max-w-side px-4 py-8">
+      <div className="mx-auto max-w-side px-4 pb-8 pt-10">
         <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
           <h2 id="produktstribe" className="text-sm font-semibold">
             {titel}
