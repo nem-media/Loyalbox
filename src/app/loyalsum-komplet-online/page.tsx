@@ -24,6 +24,7 @@ import {
 } from "@/components/duotone-ikoner";
 import { IkonChip } from "@/components/ui/ikon-chip";
 import { ProduktStribe } from "@/components/produkt-stribe";
+import { KanalDiagram } from "@/components/kanal-diagram";
 
 /**
  * Salgsside for LoyalSum Komplet Online.
@@ -95,7 +96,7 @@ const TRIN = [
 ];
 
 /** Adgangsvejene — alle sammen det SAMME link. */
-const VEJE = [
+const VEJE: readonly (readonly [string, string])[] = [
   ["Hjemmeside", "Sæt linket på en knap eller i menuen."],
   ["Webshop", "Brug linket på kundesiden eller i ordrebekræftelsen."],
   ["E-mail", "Skriv linket ind i nyhedsbrevet eller signaturen."],
@@ -392,16 +393,15 @@ export default function KompletOnlinePage() {
               Det er det samme link og den samme QR-kode hver gang. Hvor du
               lægger dem, bestemmer du selv.
             </p>
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {VEJE.map(([navn, hvordan]) => (
-                <div
-                  key={navn}
-                  className="box-shape border border-border bg-card p-5 shadow-[var(--hoejde-1)]"
-                >
-                  <p className="font-medium">{navn}</p>
-                  <p className="mt-1 text-sm text-muted">{hvordan}</p>
-                </div>
-              ))}
+            {/*
+              SEKS ENS KORT I ET GITTER SAGDE "SEKS TING", og pointen er den
+              modsatte: ÉT link, der kan stå seks steder. Diagrammet sætter
+              navet i midten og kanalerne omkring, så formen bærer det samme
+              som overskriften. Teksten er uændret — den kommer stadig fra
+              `VEJE` og er efterprøvet mod, hvad produktet kan.
+            */}
+            <div className="mt-10">
+              <KanalDiagram kanaler={VEJE} link="loyalsum.dk/r/din-butik" />
             </div>
             <p className="mt-6 max-w-2xl text-sm text-muted">
               LoyalSum bruges <strong>sammen med</strong> din webshop — der er

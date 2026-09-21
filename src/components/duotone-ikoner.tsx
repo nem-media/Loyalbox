@@ -361,3 +361,122 @@ export function SaldoDuo({ className }: P) {
   );
 }
 
+/*
+ * KANALERNE — hvor kundens link kan stå.
+ *
+ * Fem motiver kom til med "Ét link. Mange kanaler." De sjette, opslaget, er
+ * `OpslagDuo` ovenfor: den findes allerede og betyder præcis det samme her.
+ *
+ * DE SKAL KUNNE SKELNES VED 22 px, OG TO AF DEM VAR FÆLDEN. Webshoppen blev
+ * først tegnet som en pose — men `GratisProduktDuo` ER en pose, og to poser
+ * i samme mail ville være samme ikon to gange. Den er en KURV med hjul i
+ * stedet. Og QR-koden må ikke blive `ScanDuo`: dén er søgerens fire hjørner
+ * OM noget, mens QR-koden er selve mønstret, altså to finder-felter og
+ * prikker. Silhuetterne er forskellige, og det er dét, der tæller.
+ */
+
+/** Hjemmeside — browservinduet med sin linje foroven. */
+export function HjemmesideDuo({ className }: P) {
+  return (
+    <Ramme className={className}>
+      <rect
+        x="2.6"
+        y="4.5"
+        width="18.8"
+        height="15"
+        rx="2.4"
+        fill="currentColor"
+        stroke="none"
+        opacity={KROP}
+      />
+      <rect x="2.6" y="4.5" width="18.8" height="15" rx="2.4" />
+      <path d="M2.6 9h18.8" />
+      {/* De tre prikker er browserens eget kendetegn — uden dem er det bare
+          et rektangel med en streg. */}
+      <path d="M5.4 6.8h.01M7.8 6.8h.01M10.2 6.8h.01" opacity="0.6" />
+    </Ramme>
+  );
+}
+
+/** Webshop — kurven, ikke posen. */
+export function WebshopDuo({ className }: P) {
+  return (
+    <Ramme className={className}>
+      <path
+        d="M5.2 7.5h14.4l-1.7 7.6a1.8 1.8 0 0 1-1.76 1.4H8.66a1.8 1.8 0 0 1-1.76-1.4Z"
+        fill="currentColor"
+        stroke="none"
+        opacity={KROP}
+      />
+      <path d="M2.4 4.2h1.9l.9 3.3m0 0h14.4l-1.7 7.6a1.8 1.8 0 0 1-1.76 1.4H8.66a1.8 1.8 0 0 1-1.76-1.4L5.2 7.5Z" />
+      <circle cx="9.4" cy="19.6" r="1.3" />
+      <circle cx="16.2" cy="19.6" r="1.3" />
+    </Ramme>
+  );
+}
+
+/** E-mail — konvolutten med sit ombuk. */
+export function EmailDuo({ className }: P) {
+  return (
+    <Ramme className={className}>
+      <rect
+        x="2.6"
+        y="5"
+        width="18.8"
+        height="14"
+        rx="2.4"
+        fill="currentColor"
+        stroke="none"
+        opacity={KROP}
+      />
+      <rect x="2.6" y="5" width="18.8" height="14" rx="2.4" />
+      <path d="m3.6 7.2 7.2 5.1a2 2 0 0 0 2.4 0l7.2-5.1" />
+    </Ramme>
+  );
+}
+
+/** QR-kode — mønstret selv og ikke søgeren om det. */
+export function QrDuo({ className }: P) {
+  return (
+    <Ramme className={className}>
+      <rect
+        x="3.2"
+        y="3.2"
+        width="7.2"
+        height="7.2"
+        rx="1.6"
+        fill="currentColor"
+        stroke="none"
+        opacity={KROP}
+      />
+      <rect
+        x="13.6"
+        y="13.6"
+        width="7.2"
+        height="7.2"
+        rx="1.6"
+        fill="currentColor"
+        stroke="none"
+        opacity={KROP}
+      />
+      <rect x="3.2" y="3.2" width="7.2" height="7.2" rx="1.6" />
+      <rect x="13.6" y="3.2" width="7.2" height="7.2" rx="1.6" />
+      <rect x="3.2" y="13.6" width="7.2" height="7.2" rx="1.6" />
+      <path d="M13.6 13.6h3.2M20.8 17.4v3.4M13.6 20.8h.01" opacity="0.7" />
+    </Ramme>
+  );
+}
+
+/** Kvittering — strimlen med den takkede bund. */
+export function KvitteringDuo({ className }: P) {
+  const strimmel =
+    "M5.6 3.2h12.8v17.6l-2.13-1.4-2.14 1.4-2.13-1.4-2.14 1.4-2.13-1.4-2.14 1.4Z";
+  return (
+    <Ramme className={className}>
+      <path d={strimmel} fill="currentColor" stroke="none" opacity={KROP} />
+      <path d={strimmel} />
+      <path d="M8.6 8h6.8M8.6 11.6h6.8M8.6 15.2h4" opacity="0.75" />
+    </Ramme>
+  );
+}
+
