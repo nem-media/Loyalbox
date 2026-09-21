@@ -7,8 +7,7 @@ import {
   stripeMode,
   koebSpaerreUdenKonto,
   kraeverDestination,
-  checkoutMode,
-} from "@/lib/commerce";
+  checkoutMode, kanKoebesAarligt } from "@/lib/commerce";
 import {
   getProduct,
   priceFor,
@@ -143,6 +142,7 @@ export async function bestilUdenKonto(
       destinationType: formData.get("destinationType"),
       destinationUrl: formData.get("destinationUrl"),
       accepterVilkaar: formData.get("accepterVilkaar") === "1",
+      interval: formData.get("interval"),
     },
     undefined,
     /*
@@ -533,8 +533,16 @@ export async function bestilUdenKonto(
    * ellers er tavs.
    */
   if (abonnement) {
+    /*
+      ÅRLIGT ELLER MÅNEDLIGT — OG RUTEN AFGØR DET, IKKE FORMULAREN.
+      Findes årsprisen ikke i den tilstand, sitet kører i, er svaret måned,
+      uanset hvad der kom ind. En knap kan skjules; en POST kan sendes
+      alligevel. Samme regel som i `/api/checkout`.
+    */
+    const aarligt =
+      laest.vaerdier!.interval === "aar" && kanKoebesAarligt(product);
     lineItems.push({
-      price: ids.monthlyPriceId,
+      price: aarligt ? ids.yearlyPriceId : ids.monthlyPriceId,
       quantity: 1,
       tax_rates: [taxRate],
     });

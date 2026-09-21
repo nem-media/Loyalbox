@@ -115,6 +115,23 @@ if (!products.length) {
   process.exit(1);
 }
 
+/*
+  AARSREGLEN LAESES OGSAA I KILDEN og skrives ikke af. Elleve maaneder for
+  tolv staar ÉT sted; et tal skrevet af her ville komme i utakt den dag,
+  reglen aendres - og begge steder ville se rigtige ud hver for sig.
+*/
+const MAANEDER_I_AARSPRIS = Number(
+  src.match(/export const MAANEDER_I_AARSPRIS\s*=\s*(\d+)/)?.[1] ?? 0,
+);
+if (!MAANEDER_I_AARSPRIS) {
+  console.error(
+    "Kunne ikke laese MAANEDER_I_AARSPRIS fra constants.ts. Uden den ville " +
+      "aarspriserne blive oprettet paa et gaet — og et forkert prisobjekt " +
+      "opkraever rigtige penge. Stopper.",
+  );
+  process.exit(1);
+}
+
 /* -------------------------------------------------------------- Stripe API */
 
 async function stripe(path, params, method = "POST") {
@@ -181,7 +198,17 @@ async function findProduct(slug) {
   }
 }
 
-async function findPrice(productId, amountOere, recurring) {
+/**
+ * Findes prisen allerede?
+ *
+ * `interval` er `null` for et engangsbeloeb, ellers "month" eller "year".
+ * DET SKAL MATCHES PRAECIST: aarsprisen og maanedsprisen staar paa SAMME
+ * produkt, og uden interval i sammenligningen ville en soegning efter
+ * aarsprisen kunne finde en maanedspris med samme beloeb - og omvendt. De
+ * beloeb er forskellige i dag (399 mod 4389), men reglen maa ikke hvile paa,
+ * at de bliver ved med at vaere det.
+ */
+async function findPrice(productId, amountOere, interval) {
   const r = await stripe(
     `prices?product=${productId}&active=true&limit=100`,
     null,
@@ -192,7 +219,7 @@ async function findPrice(productId, amountOere, recurring) {
       (p) =>
         p.unit_amount === amountOere &&
         p.currency === "dkk" &&
-        (recurring ? p.recurring?.interval === "month" : !p.recurring),
+        (interval ? p.recurring?.interval === interval : !p.recurring),
     ) ?? null
   );
 }
@@ -249,13 +276,26 @@ for (const p of products) {
   */
   const wanted = [
     p.price
-      ? { label: "engangs (stander)", amount: p.price, recurring: false }
+      ? { label: "engangs (stander)", amount: p.price, interval: null, kind: "one_time" }
       : null,
     p.setupPrice
-      ? { label: "engangs (opsætning)", amount: p.setupPrice, recurring: false }
+      ? { label: "engangs (opsætning)", amount: p.setupPrice, interval: null, kind: "one_time" }
       : null,
     p.monthlyPrice
-      ? { label: "månedligt", amount: p.monthlyPrice, recurring: true }
+      ? { label: "månedligt", amount: p.monthlyPrice, interval: "month", kind: "monthly" }
+      : null,
+    /*
+      AARSPRISEN REGNES AF MAANEDSPRISEN og skrives aldrig i haanden: elleve
+      maaneder for tolv. Staar tallet to steder, kommer de i utakt den dag,
+      maanedsprisen aendres, og begge ser rigtige ud hver for sig.
+    */
+    p.monthlyPrice
+      ? {
+          label: `årligt (${MAANEDER_I_AARSPRIS} mdr.)`,
+          amount: p.monthlyPrice * MAANEDER_I_AARSPRIS,
+          interval: "year",
+          kind: "yearly",
+        }
       : null,
   ].filter(Boolean);
 
@@ -265,21 +305,21 @@ for (const p of products) {
       console.log(`  ville sikre pris ${w.label}: ${w.amount} kr.`);
       continue;
     }
-    let price = await findPrice(product.id, oere, w.recurring);
+    let price = await findPrice(product.id, oere, w.interval);
     if (!price) {
       price = await stripe("prices", {
         product: product.id,
         currency: "dkk",
         unit_amount: oere,
         tax_behavior: "exclusive",
-        ...(w.recurring ? { recurring: { interval: "month" } } : {}),
-        metadata: { loyalsum_slug: p.slug, kind: w.recurring ? "monthly" : "one_time" },
+        ...(w.interval ? { recurring: { interval: w.interval } } : {}),
+        metadata: { loyalsum_slug: p.slug, kind: w.kind },
       });
       console.log(`  pris oprettet ${w.label}: ${w.amount} kr. → ${price.id}`);
     } else {
       console.log(`  pris findes ${w.label}: ${w.amount} kr. → ${price.id}`);
     }
-    lines.push({ kind: w.recurring ? "monthly" : "one_time", id: price.id });
+    lines.push({ kind: w.kind, id: price.id });
   }
 
   if (product) {
@@ -288,6 +328,7 @@ for (const p of products) {
       productId: product.id,
       priceId: lines.find((l) => l.kind === "one_time")?.id ?? null,
       monthlyPriceId: lines.find((l) => l.kind === "monthly")?.id ?? null,
+      yearlyPriceId: lines.find((l) => l.kind === "yearly")?.id ?? null,
     });
   }
   console.log("");
@@ -336,6 +377,8 @@ if (result.length) {
     if (r.priceId) console.log(`      priceId: "${r.priceId}",`);
     if (r.monthlyPriceId)
       console.log(`      monthlyPriceId: "${r.monthlyPriceId}",`);
+    if (r.yearlyPriceId)
+      console.log(`      yearlyPriceId: "${r.yearlyPriceId}",`);
     console.log("    },");
     console.log("  },");
     console.log("");

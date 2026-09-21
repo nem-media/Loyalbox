@@ -65,9 +65,25 @@ describe("engangsbeløbet regnes ud og hentes ikke fra et gemt prisobjekt", () =
       expect(kode).not.toMatch(/price:\s*\w*\.?priceId\b/);
     });
 
-    /** Abonnementslinjen SKAL derimod bruge det gemte månedsprisobjekt. */
-    it(`${navn} bruger monthlyPriceId til abonnementet`, () => {
-      expect(udenKommentarer(kilde)).toMatch(/price:\s*ids\.monthlyPriceId/);
+    /**
+     * Abonnementslinjen SKAL derimod bruge et GEMT prisobjekt.
+     *
+     * EGENSKABEN ER "et gemt objekt", ikke ét bestemt felt. Prøven krævede
+     * før ordret `price: ids.monthlyPriceId` og faldt i det sekund,
+     * årsbetalingen kom til og linjen blev et valg mellem to gemte priser —
+     * altså en prøve, der gik i stykker af en udvidelse, den burde tillade.
+     * Begrundelsen er uændret: månedsprisen OG årsprisen er efterprøvet hos
+     * Stripe, og en linje, der regner beløbet ud på stedet, kunne opkræve
+     * noget andet end det, prisobjektet siger.
+     */
+    it(`${navn} bruger et gemt prisobjekt til abonnementet`, () => {
+      const kode = udenKommentarer(kilde);
+      expect(kode).toMatch(/price:.*ids\.monthlyPriceId/);
+      /* Og årsprisen må kun komme fra det gemte objekt — aldrig regnet ud
+         af månedsprisen i checkout, hvor tallet ikke kan efterprøves. */
+      if (/yearlyPriceId/.test(kode)) {
+        expect(kode).toMatch(/price:.*ids\.yearlyPriceId/);
+      }
     });
   }
 });

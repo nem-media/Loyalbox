@@ -13,6 +13,7 @@ import {
   TERMS_VERSION,
   TERMS_DATE,
   LEVERINGSLAND_NAVN,
+  MAANEDER_I_AARSPRIS,
 } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 import {
@@ -160,6 +161,19 @@ export default function TermsPage() {
             delvise perioder.
           </p>
           <p>
+            Du kan i stedet vælge at <strong>betale for et år ad gangen</strong>.
+            Så betaler du for {MAANEDER_I_AARSPRIS} måneder og får tolv — den
+            aktuelle årspris står på produktsiden og i dit dashboard. Beløbet
+            trækkes forud for hele perioden, og derefter samme dato hvert år,
+            indtil du opsiger.
+          </p>
+          <p>
+            Skifter du fra måned til år undervejs, trækkes årsprisen med det
+            samme, og det, du allerede har betalt for den igangværende måned,
+            modregnes. <strong>Årsbetaling er ikke en bindingsperiode</strong> —
+            opsigelsesreglerne i punkt 6 gælder uændret.
+          </p>
+          <p>
             Kvittering og faktura med moms sendes på mail og kan altid hentes
             under Betaling og kvitteringer i dit dashboard.
           </p>
@@ -212,12 +226,15 @@ export default function TermsPage() {
         <LegalSection id="opsigelse" title="6. Opsigelse af abonnement">
           <p>
             Du kan opsige når som helst under Betaling og kvitteringer i
-            dashboardet. Der er ingen bindingsperiode.
+            dashboardet. Der er ingen bindingsperiode — heller ikke hvis du har
+            valgt at betale for et år ad gangen.
           </p>
           <p>
             Opsigelsen træder i kraft ved udgangen af den periode, du allerede
             har betalt for — du beholder altså adgangen perioden ud. Vi
-            refunderer ikke en påbegyndt periode.
+            refunderer ikke en påbegyndt periode. Betaler du årligt, er den
+            periode tolv måneder: du beholder adgangen året ud og trækkes ikke
+            igen.
           </p>
           <p>
             Derefter lukkes dashboardets indsigt og redigering: statistik,

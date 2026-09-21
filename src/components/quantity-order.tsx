@@ -25,8 +25,17 @@ export function QuantityOrder({
   initialQty = 1,
   mode = "order",
   ctaLabel,
+  aarPris = null,
 }: {
   product: Product;
+  /**
+   * Årsprisen, eller `null` når årsvejen ikke findes i denne Stripe-tilstand.
+   *
+   * VISES SOM ET ALTERNATIV OG ALDRIG SOM HOVEDPRISEN. Månedsprisen er den,
+   * varen markedsføres på; årsprisen er en rabat, man kan vælge. Byttes de
+   * om, ser varen fire tusind kroner dyrere ud, end den er.
+   */
+  aarPris?: number | null;
   initialQty?: number;
   /**
    * "order"    → produktsiden: pris og et link videre til /bestil.
@@ -90,7 +99,22 @@ export function QuantityOrder({
               <span className="text-sm font-normal text-muted">/md</span>
             </span>
           </div>
-          <p className="text-right text-xs text-muted">Alle priser ex moms</p>
+          {p.monthly > 0 && aarPris !== null ? (
+          /* ELLEVE MÅNEDER FOR TOLV. Linjen står i BEGGE prisbokse — den
+             digitale og den med stander. Står den kun i den ene, mangler den
+             præcis på de varer, folk faktisk køber. */
+          <div className="flex items-baseline justify-between text-xs">
+            <span className="text-muted">eller betal for et år</span>
+            <span className="font-medium">
+              {formatCurrency(aarPris)}
+              <span className="font-normal text-muted">/år</span>{" "}
+              <span className="font-normal text-success">
+                − spar {formatCurrency(p.monthly)}
+              </span>
+            </span>
+          </div>
+        ) : null}
+        <p className="text-right text-xs text-muted">Alle priser ex moms</p>
         </div>
         {mode === "kun-pris" ? null : (
           <Link
@@ -227,6 +251,21 @@ export function QuantityOrder({
             <span className="font-semibold">
               {formatCurrency(p.monthly)}
               <span className="text-xs font-normal text-muted">/md</span>
+            </span>
+          </div>
+        ) : null}
+        {p.monthly > 0 && aarPris !== null ? (
+          /* ELLEVE MÅNEDER FOR TOLV. Linjen står i BEGGE prisbokse — den
+             digitale og den med stander. Står den kun i den ene, mangler den
+             præcis på de varer, folk faktisk køber. */
+          <div className="flex items-baseline justify-between text-xs">
+            <span className="text-muted">eller betal for et år</span>
+            <span className="font-medium">
+              {formatCurrency(aarPris)}
+              <span className="font-normal text-muted">/år</span>{" "}
+              <span className="font-normal text-success">
+                − spar {formatCurrency(p.monthly)}
+              </span>
             </span>
           </div>
         ) : null}

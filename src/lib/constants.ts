@@ -98,8 +98,8 @@ export const SELSKABSLINJE = `${SITE_NAME}${SELSKABSLINJE_HALE}`;
 // længere ankret til en fast dato: cyklussen starter på købsdatoen, første
 // betaling er hele månedsprisen, og fornyelsen sker samme dato hver måned.
 // Hvornår og hvor meget der trækkes er materielt, derfor en ny version.
-export const TERMS_VERSION = "1.6";
-export const TERMS_DATE = "2026-09-20";
+export const TERMS_VERSION = "1.7";
+export const TERMS_DATE = "2026-09-21";
 
 /**
  * Hvor vi sælger og leverer.
@@ -315,6 +315,21 @@ export interface StripeIds {
   priceId?: string;
   /** Det månedlige abonnement. Kun på abonnementsvarer. BRUGES ved købet. */
   monthlyPriceId?: string;
+  /**
+   * Årsprisen — elleve måneder for tolv.
+   *
+   * VALGFRI, OG DET ER SELVE SPÆRREN. Mangler den i den tilstand, sitet
+   * kører i, findes årsvalget ikke: hverken knappen i bestillingen eller
+   * skiftet i dashboardet. Det er dét, der gør, at den kan rulles ud i test
+   * før live uden at efterlade "en halv opsætning" — en knap, der virker for
+   * os og fejler for enhver rigtig kunde. Se advarslen ved `stripe`-blokken
+   * og `commerce.test.ts`.
+   *
+   * Beløbet må ALDRIG skrives i hånden her: `aarsPris()` regner det ud af
+   * månedsprisen, og `pris-graenseflade.test.ts` kræver, at prisobjektet hos
+   * Stripe står på nøjagtig dét tal.
+   */
+  yearlyPriceId?: string;
 }
 
 export interface Product {
@@ -544,6 +559,7 @@ export const PRODUCTS: Product[] = [
         productId: "prod_V60HMfPVGevsVG",
         priceId: "price_1U5oH8Rr2uZmH0wdDsW9uYPy",
         monthlyPriceId: "price_1U5oH8Rr2uZmH0wdyDTaXF1J",
+        yearlyPriceId: "price_1UICdYRr2uZmH0wdEbrYYXgI",
       },
       live: {
         productId: "prod_V60HMfPVGevsVG",
@@ -589,6 +605,7 @@ export const PRODUCTS: Product[] = [
         productId: "prod_V60HgN0EFCzxre",
         priceId: "price_1U5oH9Rr2uZmH0wdOE6p6lJ1",
         monthlyPriceId: "price_1U5oH9Rr2uZmH0wdVzW1v3Wc",
+        yearlyPriceId: "price_1UICdZRr2uZmH0wdvvUQWmwz",
       },
       live: {
         productId: "prod_V60HgN0EFCzxre",
@@ -668,9 +685,11 @@ export const PRODUCTS: Product[] = [
       TEST-ID'ERNE ER OPRETTET, MEN SKRIVES IKKE IND ALENE.
 
       `setup-stripe-products.mjs` har oprettet varen i TESTtilstand
-      (prod_VHrFc2PIk8a1vD · price_1UHHXKRr2uZmH0wdJvucMJLn, 399 kr./md).
-      Live-nøglen ligger som `[SENSITIVE]` i Vercel og kan ikke hentes ned,
-      så live-halvdelen mangler endnu.
+      (prod_VHrFc2PIk8a1vD · price_1UHHXKRr2uZmH0wdJvucMJLn, 399 kr./md, og
+      price_1UICdaRr2uZmH0wdZGBDzGZB, 4.389 kr./år). Live-nøglen ligger som
+      `[SENSITIVE]` i Vercel og kan ikke hentes ned, så live-halvdelen mangler
+      endnu — og dermed er ÅRSPRISEN på denne vare spærret af nøjagtig samme
+      grund som månedsprisen. Den følger med, i samme øjeblik blokken skrives.
 
       EN HALV OPSÆTNING ER VÆRRE END INGEN. `commerce.test.ts` kræver, at en
       vare med en `stripe`-blok kan sælges i BEGGE tilstande — netop fordi
@@ -1037,6 +1056,32 @@ export function planForProduct(slug: string | null | undefined): Tier {
  */
 export function abonnementsRang(p: Product | undefined): number {
   return p?.monthlyPrice ?? 0;
+}
+
+/**
+ * ELLEVE MÅNEDER FOR TOLV — én gratis ved årsbetaling.
+ *
+ * TALLET STÅR ÉT STED, OG PRISEN REGNES. Skrev vi 4.389 i kataloget ved
+ * siden af 399, ville de to komme i utakt den dag, månedsprisen ændres — og
+ * fejlen ville være tavs, for begge tal ser rigtige ud hver for sig. Det er
+ * samme regel som fodens højde på skiltet, der UDLEDES af de to mål frem for
+ * at stå som sit eget.
+ */
+export const MAANEDER_I_AARSPRIS = 11;
+
+/**
+ * Årsprisen for en abonnementsvare (DKK ex moms), eller `null`.
+ *
+ * `null` betyder "varen har ingen månedspris" — altså et engangskøb eller et
+ * tilkøb. Der findes ikke et årsabonnement på en stander.
+ */
+export function aarsPris(p: Product | undefined): number | null {
+  return p?.monthlyPrice ? p.monthlyPrice * MAANEDER_I_AARSPRIS : null;
+}
+
+/** Hvad kunden sparer ved at betale for et år. Altså én månedspris. */
+export function aarsBesparelse(p: Product | undefined): number | null {
+  return p?.monthlyPrice ?? null;
 }
 
 export function getProduct(slug: string): Product | undefined {

@@ -4,8 +4,8 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { BestilUdenKontoForm } from "./bestil-form";
 import { KanIkkeBestilles } from "@/components/kan-ikke-bestilles";
-import { getProduct } from "@/lib/constants";
-import { koebSpaerreUdenKonto, kanBestillesUdenKonto } from "@/lib/commerce";
+import { getProduct, aarsPris } from "@/lib/constants";
+import { koebSpaerreUdenKonto, kanBestillesUdenKonto, kanKoebesAarligt } from "@/lib/commerce";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { laesGendanNoegle } from "@/lib/gendan-noegle";
 import { valgtDestination } from "@/lib/stands";
@@ -175,6 +175,9 @@ export default async function UdenKontoPage({
             product={product}
             initialQty={Number(antal) || 1}
             fortrudt={fortrudt}
+            /* `null`, når årsprisen ikke findes i den Stripe-tilstand, sitet
+               kører i — så tegnes valget slet ikke. Se `kanKoebesAarligt()`. */
+            aarPris={kanKoebesAarligt(product) ? aarsPris(product) : null}
           />
         </div>
 

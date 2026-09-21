@@ -17,6 +17,8 @@ import {
 import { formatCurrency } from "@/lib/utils";
 import { PlanPicker } from "./plan-picker";
 import { PortalButton } from "./portal-button";
+import { AarsSkifte } from "./aars-skifte";
+import { aarsTilbud } from "@/lib/aarsabonnement";
 import { DPA_VERSION, dpaIsCurrent } from "@/lib/dpa";
 import { formatDate } from "@/lib/utils";
 import { adresserTilladt } from "@/lib/abonnement";
@@ -38,6 +40,10 @@ export default async function SubscriptionPage() {
   const user = await getCurrentUser();
   const company = user!.company;
   const plan = (company?.plan ?? "basic") as Tier;
+  /* `null`, når årsvejen ikke findes — enten fordi varen ikke har et
+     årsprisobjekt i den tilstand, sitet kører i, eller fordi kunden ikke
+     betaler lige nu. Så tegnes kortet slet ikke. */
+  const aarTilbud = aarsTilbud(company);
 
   /** Abonnementsvarerne — dem der faktisk koster noget om måneden. */
   const subscriptions = PRODUCTS.filter((p) => p.monthlyPrice);
@@ -146,6 +152,14 @@ export default async function SubscriptionPage() {
             </li>
           ))}
         </ul>
+
+        {aarTilbud ? (
+          <AarsSkifte
+            aarPris={aarTilbud.aarPris}
+            sparer={aarTilbud.sparer}
+            maanedPris={aarTilbud.maanedPris}
+          />
+        ) : null}
 
         {/* Databehandleraftalen indgås ved købet. Den skal kunne findes igen
             bagefter — ellers har kunden en aftale, de ikke kan læse. */}
