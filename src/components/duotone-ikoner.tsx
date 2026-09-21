@@ -482,30 +482,31 @@ export function KvitteringDuo({ className }: P) {
 
 
 /**
- * Svartid — en urskive med viserne på fem minutter over.
+ * Svartid — lynet.
  *
- * SILHUETTEN ER EN CIRKEL, og det er den tredje i sættet (`PointDuo` og
- * `GenbesoegDuo` er de to andre). Det er forsvarligt her, fordi de tre
- * aldrig står i samme gruppe: mønten hører til point, genbesøgspilen til
- * statistik, og uret til svartiden på kontaktsiden. Står de en dag SAMMEN,
- * skal en af dem tegnes om — ved 18 px er det kun den ydre form, der ses.
+ * DEN VAR ET UR, OG ET UR ER EN CIRKEL. Sættet havde to i forvejen
+ * (`PointDuo` og `GenbesoegDuo`), og ved 18 px er det kun den ydre form,
+ * der ses — tre cirkler, der kun kan skelnes på det, der står indeni, er
+ * tre ens ikoner. Et stopur løser det ikke: kronen ovenpå gør det til
+ * præcis dét, `GenbesoegDuo` allerede er, nemlig en cirkel med noget, der
+ * bryder ud foroven.
  *
- * Viserne peger ikke på hel time: et ur på 12.00 læses som et tomt felt.
+ * OG ET TIMEGLAS SAGDE DET MODSATTE AF KORTET. Silhuetten er unik nok,
+ * men et timeglas betyder VENTETID, og linjen under ikonet lover "svar
+ * inden for få minutter". Et tegn må ikke trække i den anden retning end
+ * den sætning, det står over.
+ *
+ * Lynet er en diagonal zigzag og deler ikke form med noget i sættet:
+ * `StjerneDuo` er radial, og `KlikDuo` er en kasse med en pil ud af
+ * hjørnet. Zigzagget er sin egen detalje, så der er ingen streg indeni —
+ * en detalje mere ville lukke formen ved den størrelse, den bruges i.
  */
-export function UrDuo({ className }: P) {
+export function LynDuo({ className }: P) {
+  const lyn = "M13 2.4 5.9 13.2H11.2L10.3 21.6 18.1 10.6H12.8Z";
   return (
     <Ramme className={className}>
-      <circle
-        cx="12"
-        cy="12"
-        r="8.5"
-        fill="currentColor"
-        stroke="none"
-        opacity={KROP}
-      />
-      <circle cx="12" cy="12" r="8.5" />
-      <path d="M12 7.4V12l3.2 1.9" />
-      <path d="M12 3.5v1.1" opacity="0.55" />
+      <path d={lyn} fill="currentColor" stroke="none" opacity={KROP} />
+      <path d={lyn} />
     </Ramme>
   );
 }
