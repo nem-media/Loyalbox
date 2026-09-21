@@ -103,7 +103,7 @@ export default async function SubscriptionPage() {
           </p>
         ) : null}
 
-        <ul className="mt-5 space-y-2.5 text-sm">
+        <ul className="mt-5 max-w-2xl space-y-2.5 text-sm">
           {/*
             KOMPLET-FUNKTIONERNE FØRST — det er hele forskellen på Komplet og
             Pro, og de er IKKE niveau-flag, men følger produktet
@@ -152,7 +152,7 @@ export default async function SubscriptionPage() {
         {company?.dpa_accepted_at ? (
           <div className="mt-6 border-t border-border pt-5">
             <p className="text-sm font-medium">Databehandleraftale</p>
-            <p className="mt-1 text-sm text-muted">
+            <p className="mt-1 max-w-2xl text-sm text-muted">
               Indgået {formatDate(company.dpa_accepted_at)}
               {company.dpa_version ? ` · version ${company.dpa_version}` : null}.
               {dpaIsCurrent(company.dpa_version) ? null : (
@@ -165,7 +165,7 @@ export default async function SubscriptionPage() {
             </p>
             <Link
               href="/databehandleraftale"
-              className="mt-2 inline-block text-sm font-medium text-accent hover:underline"
+              className="trykmaal mt-2 inline-block text-sm font-medium text-accent hover:underline"
             >
               Læs databehandleraftalen
             </Link>
@@ -178,7 +178,7 @@ export default async function SubscriptionPage() {
         {company?.terms_accepted_at ? (
           <div className="mt-6 border-t border-border pt-5">
             <p className="text-sm font-medium">Handelsbetingelser</p>
-            <p className="mt-1 text-sm text-muted">
+            <p className="mt-1 max-w-2xl text-sm text-muted">
               Accepteret {formatDate(company.terms_accepted_at)}
               {company.terms_version ? ` · version ${company.terms_version}` : null}
               .
@@ -192,7 +192,7 @@ export default async function SubscriptionPage() {
             </p>
             <Link
               href="/handelsbetingelser"
-              className="mt-2 inline-block text-sm font-medium text-accent hover:underline"
+              className="trykmaal mt-2 inline-block text-sm font-medium text-accent hover:underline"
             >
               Læs handelsbetingelserne
             </Link>
@@ -202,7 +202,7 @@ export default async function SubscriptionPage() {
         {company?.stripe_customer_id ? (
           <div className="mt-6 border-t border-border pt-5">
             <p className="text-sm font-medium">Betaling og bilag</p>
-            <p className="mt-1 mb-3 text-sm text-muted">
+            <p className="mt-1 mb-3 max-w-2xl text-sm text-muted">
               Skift betalingskort, ret fakturamailen til bogholderiet, hent
               kvitteringer eller opsig — det hele sker sikkert hos Stripe.
             </p>
@@ -221,14 +221,14 @@ export default async function SubscriptionPage() {
             den, der leder efter den, og ikke rammes af den, der ikke gør. */}
         <div className="mt-6 border-t border-border pt-5">
           <p className="text-sm font-medium">Dine data</p>
-          <p className="mt-1 mb-3 text-sm text-muted">
+          <p className="mt-1 mb-3 max-w-2xl text-sm text-muted">
             Dine kunders oplysninger er dine. Vil du af med dem permanent, kan
             du selv sætte det i gang — det kræver en bekræftelse på mail og
             kan fortrydes i syv dage.
           </p>
           <Link
             href="/dashboard/abonnement/slet"
-            className="text-sm font-medium text-accent hover:underline"
+            className="trykmaal inline-block text-sm font-medium text-accent hover:underline"
           >
             Slet alle data →
           </Link>
@@ -255,7 +255,7 @@ export default async function SubscriptionPage() {
                 className="box-shape flex flex-col border border-border bg-card p-5"
               >
                 <h3 className="font-bold tracking-tight">{p.name}</h3>
-                <p className="mt-1 text-sm text-muted">{p.tagline}</p>
+                <p className="mt-1 max-w-2xl text-sm text-muted">{p.tagline}</p>
                 <p className="mt-3 text-xl font-bold">
                   {formatCurrency(p.monthlyPrice!)}
                   <span className="text-sm font-normal text-muted">
@@ -279,7 +279,7 @@ export default async function SubscriptionPage() {
                 )}
                 <Link
                   href={`/produkter/${p.slug}`}
-                  className="mt-4 text-sm font-medium text-accent"
+                  className="trykmaal mt-4 text-sm font-medium text-accent"
                 >
                   Se {p.name} →
                 </Link>

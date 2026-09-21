@@ -105,7 +105,13 @@ export function Stat({
   const lille = size === "sm";
 
   return (
-    <Card className={cn("relative", lille ? "p-4" : "p-5", className)}>
+    <Card
+      className={cn(
+        "relative flex flex-col",
+        lille ? "p-4" : "p-5",
+        className,
+      )}
+    >
       {icon ? (
         /* Øverste HØJRE hjørne og ikke over etiketten: tallet skal være det
            første, øjet lander på, og et ikon foran etiketten ville skubbe
@@ -118,10 +124,40 @@ export function Stat({
           className={cn("absolute right-4", lille ? "top-3" : "top-4")}
         />
       ) : null}
-      {/* Etiketstilen frem for endnu en linje brødtekst. Da label og tal var
-          samme skriftsnit i to nærliggende størrelser, havde kortet én
-          stemme, og tallet skilte sig ikke ud som DET, man kom for. */}
-      <p className={cn("etiket", lille && "text-[10px]", icon && "pr-12")}>
+      {/*
+        Etiketstilen frem for endnu en linje brødtekst. Da label og tal var
+        samme skriftsnit i to nærliggende størrelser, havde kortet én stemme,
+        og tallet skilte sig ikke ud som DET, man kom for.
+
+        ETIKETTEN FYLDER TO LINJER, OGSÅ NÅR DEN KUN BRUGER ÉN.
+        Kortene står i rækker af fire, og rækken læses som en RÆKKE — øjet
+        springer fra tal til tal. MÅLT på /dashboard/loyalitet ved 1440:
+        "BELØNNINGER INDLØST" brød i to linjer, fordi `pr-12` giver plads
+        til ikonet, og så stod dét ene tal 17 px lavere end de tre andre.
+        Det koster ikke højde at reservere linjen: kortene er lige høje i
+        forvejen (gitteret strækker dem), så pladsen ligger der allerede —
+        den lå bare i bunden i stedet for under etiketten.
+
+        `em` og ikke `rem`: `.etiket` er 12 px på en telefon og 11 på
+        desktop, og 2 × 1,4em er to linjer begge steder.
+
+        KUN på de store kort. De små har korte etiketter uden ikon at vige
+        for, og dér ville en reserveret linje være tom plads uden en fejl
+        at rette.
+
+        OG KUN FRA `sm`. Hvert eneste nøgletalsgitter i huset står i ÉN
+        spalte under 640 px (`sm:grid-cols-2 lg:grid-cols-4`), og et kort,
+        der ikke har en nabo, har ikke noget at flugte med. Dér ville den
+        reserverede linje være 17 px luft pr. kort på den skærm, hvor der
+        er mindst af den.
+      */}
+      <p
+        className={cn(
+          "etiket",
+          lille ? "text-[10px]" : "sm:min-h-[2.8em]",
+          icon && "pr-12",
+        )}
+      >
         {label}
       </p>
       <p
@@ -135,14 +171,25 @@ export function Stat({
       >
         {value}
       </p>
-      {sub ? (
-        <p className={cn("mt-1 text-muted", lille ? "text-[11px]" : "text-xs")}>
-          {sub}
-        </p>
-      ) : null}
-      {trend && typeof value === "number" ? (
-        <TrendLine value={value} trend={trend} />
-      ) : null}
+      {/*
+        UNDERLINJEN OG UDVIKLINGEN HÆNGER I BUNDEN.
+        Ikke alle kort har en underlinje — "Stempler givet" har kun en
+        udvikling — og i flow lå dens pil derfor én linje højere end
+        naboernes. `mt-auto` binder gruppen til kortets nederste kant, så
+        pilene står på linje uanset hvilke felter det enkelte kort har.
+      */}
+      <div className="mt-auto">
+        {sub ? (
+          <p
+            className={cn("mt-1 text-muted", lille ? "text-[11px]" : "text-xs")}
+          >
+            {sub}
+          </p>
+        ) : null}
+        {trend && typeof value === "number" ? (
+          <TrendLine value={value} trend={trend} />
+        ) : null}
+      </div>
     </Card>
   );
 }

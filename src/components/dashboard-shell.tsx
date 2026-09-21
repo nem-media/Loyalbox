@@ -90,8 +90,13 @@ export function DashboardShell({
             <Badge tone="accent" className="min-w-0" title={roleLabel}>
               <span className="truncate">{roleLabel}</span>
             </Badge>
-            <form action={signout}>
-              <button className="btn-shape px-2.5 py-1.5 text-xs text-muted transition-colors hover:bg-accent-tint hover:text-accent">
+            {/* `shrink-0` + `whitespace-nowrap`: MÅLT ved 390 px brækkede
+                knappen i "Log" og "ud" på hver sin linje. Flex løser
+                pladsmangel ved at krympe, og uden de to ord er det
+                HANDLINGEN, der giver efter — mens badgen ved siden af
+                netop har en `truncate` til at give efter med. */}
+            <form action={signout} className="shrink-0">
+              <button className="trykmaal-min btn-shape inline-flex items-center whitespace-nowrap px-2.5 py-1.5 text-xs text-muted transition-colors hover:bg-accent-tint hover:text-accent">
                 Log ud
               </button>
             </form>
@@ -147,8 +152,13 @@ export function DashboardShell({
             <Badge tone="neutral" className="min-w-0" title={roleLabel}>
               <span className="truncate">{roleLabel}</span>
             </Badge>
-            <form action={signout}>
-              <button className="btn-shape px-2.5 py-1.5 text-xs text-muted transition-colors hover:bg-accent-tint hover:text-accent">
+            {/* `shrink-0` + `whitespace-nowrap`: MÅLT ved 390 px brækkede
+                knappen i "Log" og "ud" på hver sin linje. Flex løser
+                pladsmangel ved at krympe, og uden de to ord er det
+                HANDLINGEN, der giver efter — mens badgen ved siden af
+                netop har en `truncate` til at give efter med. */}
+            <form action={signout} className="shrink-0">
+              <button className="trykmaal-min btn-shape inline-flex items-center whitespace-nowrap px-2.5 py-1.5 text-xs text-muted transition-colors hover:bg-accent-tint hover:text-accent">
                 Log ud
               </button>
             </form>
@@ -247,7 +257,7 @@ export function Sektion({
         {link ? (
           <Link
             href={link.href}
-            className="shrink-0 text-xs font-medium text-accent hover:underline"
+            className="trykmaal-taet shrink-0 text-xs font-medium text-accent hover:underline"
           >
             {link.label}
           </Link>

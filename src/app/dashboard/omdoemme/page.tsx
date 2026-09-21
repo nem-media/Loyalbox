@@ -259,7 +259,10 @@ export default async function OmdoemmePage() {
           {/* ------------------------------------------------- breakdown */}
           <Card>
             <CardHeader>
-              <CardTitle>Score breakdown</CardTitle>
+              {/* DANSK. Her stod "Score breakdown" — den eneste engelske
+                  overskrift i panelet. Kortet viser, hvad scoren er SAT
+                  SAMMEN AF, og det er dét, ordet skal sige. */}
+              <CardTitle>Sådan er scoren sammensat</CardTitle>
             </CardHeader>
             <CardBody className="pt-0">
               <ul className="divide-y divide-border text-sm">
@@ -317,7 +320,7 @@ export default async function OmdoemmePage() {
             </p>
             <Link
               href="/dashboard/feedback"
-              className="mt-3 inline-block text-sm font-medium text-accent hover:underline"
+              className="trykmaal mt-3 inline-block text-sm font-medium text-accent hover:underline"
             >
               Se feedback →
             </Link>
@@ -414,7 +417,7 @@ export default async function OmdoemmePage() {
       <Sektion titel="Sådan beregnes scoren">
         <Card>
           <CardBody className="space-y-4 text-sm">
-            <p>
+            <p className="max-w-2xl">
               Scoren går fra 0 til 100 og er{" "}
               <strong>LoyalSums egen indikator</strong> for dit samlede
               kundeomdømme. Den beregnes ud fra de kundeoplevelser, der er
@@ -432,12 +435,12 @@ export default async function OmdoemmePage() {
               ))}
             </ul>
 
-            <p className="text-muted">
+            <p className="max-w-2xl text-muted">
               Hvis der mangler data til en del af beregningen, fordeles vægten
               mellem de øvrige tilgængelige datapunkter — så du ikke bliver
               straffet for en datatype, du ikke har.
             </p>
-            <p className="text-muted">{EKSTERNE_FORBEHOLD}</p>
+            <p className="max-w-2xl text-muted">{EKSTERNE_FORBEHOLD}</p>
             <p className="text-muted">{OMDOEMME_FORBEHOLD}</p>
           </CardBody>
         </Card>

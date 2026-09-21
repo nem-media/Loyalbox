@@ -37,7 +37,7 @@ export function LoyaltySubnav() {
               href={i.href}
               aria-current={active ? "page" : undefined}
               className={
-                "box-shape px-3 py-1.5 text-sm transition-colors " +
+                "trykmaal-min box-shape inline-flex items-center px-3 py-1.5 text-sm transition-colors " +
                 (active
                   ? "bg-card font-medium text-foreground shadow-[0_1px_2px_rgba(30,28,26,0.06)]"
                   : "text-muted hover:text-foreground")

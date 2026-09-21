@@ -15,6 +15,19 @@ function stepText(step: GuideStep): string {
   return typeof step === "string" ? step : step.text;
 }
 
+/**
+ * ET VEJLEDNINGSKORT.
+ *
+ * `max-w-2xl` PÅ BRØDTEKSTEN OG IKKE PÅ KORTET. Panelets indhold står i
+ * `max-w-5xl`, så et kort er 944 px bredt ved 1440 — og en linje på 14 px
+ * skrift bliver dermed 125-150 tegn. Over ca. 96 mister øjet linjen på vej
+ * tilbage til venstre kant; det er den samme grund til, at de lange tekster
+ * på marketingsiden har deres egen bredde inde i en bredere ramme.
+ *
+ * Kortet selv beholder hele bredden: en smal hvid flade midt i panelet ville
+ * se ud som et layout, der er gået i stykker, og knappen nederst skal stå,
+ * hvor de andre korts knapper står.
+ */
 export function GuideCard({ guide }: { guide: Guide }) {
   return (
     // scroll-mt sørger for, at overskriften ikke gemmer sig under toppen,
@@ -23,10 +36,10 @@ export function GuideCard({ guide }: { guide: Guide }) {
       <CardBody className="space-y-4">
         <div>
           <h2 className="font-bold tracking-tight">{guide.title}</h2>
-          <p className="mt-1 text-sm text-muted">{guide.summary}</p>
+          <p className="mt-1 max-w-2xl text-sm text-muted">{guide.summary}</p>
         </div>
 
-        <ol className="space-y-2.5">
+        <ol className="max-w-2xl space-y-2.5">
           {guide.steps.map((step, i) => {
             const text = stepText(step);
             const items = typeof step === "string" ? null : step.items;
@@ -56,7 +69,7 @@ export function GuideCard({ guide }: { guide: Guide }) {
         </ol>
 
         {guide.notes?.length ? (
-          <div className="box-shape border border-border bg-muted-bg p-3">
+          <div className="box-shape max-w-2xl border border-border bg-muted-bg p-3">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted">
               Godt at vide
             </p>

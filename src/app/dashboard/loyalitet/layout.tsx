@@ -100,10 +100,13 @@ export default async function LoyaltyLayout({
           ) : null}
 
           <div className="mt-5 flex flex-wrap gap-4 text-sm font-medium">
-            <Link href="/produkter/loyalsum-komplet" className="text-accent">
+            <Link
+              href="/produkter/loyalsum-komplet"
+              className="trykmaal text-accent"
+            >
               Se LoyalSum Komplet →
             </Link>
-            <Link href="/dashboard/abonnement" className="text-accent">
+            <Link href="/dashboard/abonnement" className="trykmaal text-accent">
               Se dit abonnement →
             </Link>
           </div>

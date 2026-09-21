@@ -31,12 +31,27 @@ export function Skelet({
   );
 }
 
-/** Et nøgletalskort under indlæsning — samme polstring og højde som `Stat`. */
+/**
+ * Et nøgletalskort under indlæsning — samme polstring og højde som `Stat`.
+ *
+ * `.etiket` PÅ EN TOM BEHOLDER er ikke en fejl: den reserverer etikettens to
+ * linjer i etikettens EGNE mål, og `.etiket` er 12 px på en telefon og 11 på
+ * desktop. Et fast rem-tal ville passe det ene sted og ikke det andet.
+ *
+ * MÅLT efter at `Stat` begyndte at reservere den anden etiketlinje: kortet
+ * er 167 px, skelettet var 150. Siden hoppede altså 17 px pr. kort, i det
+ * øjeblik tallene kom — præcis dét, et skelet findes for at undgå.
+ *
+ * `sm:` SKAL FØLGE `Stat`S EGEN GRÆNSE. Reserverer det ene sin linje på en
+ * telefon og det andet ikke, er hoppet tilbage — bare kun på mobil.
+ */
 export function SkeletStat() {
   return (
     <div className="box-shape border border-border bg-card p-5 shadow-[var(--hoejde-1)]">
-      <Skelet className="h-3 w-24" />
-      <Skelet className="mt-3.5 h-9 w-20" />
+      <div className="etiket sm:min-h-[2.8em]">
+        <Skelet className="h-3 w-24" />
+      </div>
+      <Skelet className="mt-2 h-10 w-20" />
       <Skelet className="mt-3 h-3 w-16" />
       <Skelet className="mt-2.5 h-3 w-32" />
     </div>

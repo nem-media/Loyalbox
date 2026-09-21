@@ -61,7 +61,7 @@ export async function DesignListe({ companyId }: { companyId: string }) {
     return (
       <Card>
         <CardBody>
-          <p className="text-sm text-muted">
+          <p className="max-w-2xl text-sm text-muted">
             Dit design bliver gemt automatisk, første gang du bestiller en
             stander med logo og farve. Bagefter kan du bestille flere af det
             uden at vælge forfra — og uden at betale for farven igen.

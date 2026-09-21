@@ -266,7 +266,7 @@ export function Composer({
               <button
                 type="button"
                 onClick={() => setDraft(seedCaption(template, selectedReview, category))}
-                className="font-medium text-accent hover:underline"
+                className="trykmaal-taet font-medium text-accent hover:underline"
               >
                 Nulstil
               </button>
@@ -326,7 +326,7 @@ export function Composer({
                 <button
                   type="button"
                   onClick={() => setBgId(EGEN_FARVE_ID)}
-                  className="block w-full px-2 py-1.5 text-left text-xs font-medium"
+                  className="trykmaal-min flex w-full items-center px-2 py-1.5 text-left text-xs font-medium"
                 >
                   Egen farve
                 </button>

@@ -150,7 +150,7 @@ export default async function StandsPage() {
               <p className="mt-3 text-sm">
                 <Link
                   href={`mailto:${COMPANY.email}`}
-                  className="font-medium text-accent hover:underline"
+                  className="trykmaal inline-block font-medium text-accent hover:underline"
                 >
                   Skriv til os om en butik mere →
                 </Link>
@@ -168,10 +168,10 @@ export default async function StandsPage() {
                 kommer med abonnementet.
               </p>
               <div className="mt-4 flex flex-wrap gap-4 text-sm font-medium">
-                <Link href="/dashboard/abonnement" className="text-accent">
+                <Link href="/dashboard/abonnement" className="trykmaal text-accent">
                   Se dit abonnement →
                 </Link>
-                <Link href="/bestil" className="text-accent">
+                <Link href="/bestil" className="trykmaal text-accent">
                   Design og bestil et skilt →
                 </Link>
               </div>
