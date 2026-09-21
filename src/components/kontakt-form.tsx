@@ -24,6 +24,7 @@ export function KontaktForm() {
   );
 
   const navnId = useId();
+  const firmaId = useId();
   const mailId = useId();
   const tlfId = useId();
   const emneId = useId();
@@ -92,7 +93,26 @@ export function KontaktForm() {
         </Field>
       </div>
 
+      {/*
+        VIRKSOMHEDEN ER DÉT, DER OFTEST AFGØR, OM VI KAN SVARE I FØRSTE MAIL.
+        Kender vi butikken, kan vi slå ordren, abonnementet eller standeren op,
+        før vi skriver tilbage. Feltet er FRIVILLIGT, fordi den, der skriver,
+        fordi hun overvejer en stander, endnu ikke HAR en butik hos os — et
+        påkrævet felt ville stille hende et spørgsmål, hun ikke kan svare på.
+      */}
       <div className="grid gap-4 sm:grid-cols-2">
+        <Field
+          label="Virksomhed (valgfrit)"
+          fejl={state.fejl?.virksomhed}
+          hint="Så kan vi slå din butik op, før vi svarer."
+        >
+          <Input
+            id={firmaId}
+            name="virksomhed"
+            autoComplete="organization"
+            defaultValue={state.udfyldt?.virksomhed ?? ""}
+          />
+        </Field>
         <Field
           label="Telefon (valgfrit)"
           fejl={state.fejl?.telefon}
@@ -105,7 +125,14 @@ export function KontaktForm() {
             defaultValue={state.udfyldt?.telefon ?? ""}
           />
         </Field>
-        <Field label="Hvad handler det om?" fejl={state.fejl?.emne}>
+      </div>
+
+      {/* EMNET FÅR HELE BREDDEN. Det stod som tredje barn i gitteret ovenfor
+          og landede derfor alene i venstre halvdel, da virksomhedsfeltet kom
+          til — en halvbred kontrol med tom plads ved siden af læses som et
+          layout, der er gået i stykker. Emnet bliver til mailens emnelinje og
+          er dermed et felt for sig. */}
+      <Field label="Hvad handler det om?" fejl={state.fejl?.emne}>
           <select
             id={emneId}
             name="emne"
@@ -118,8 +145,7 @@ export function KontaktForm() {
               </option>
             ))}
           </select>
-        </Field>
-      </div>
+      </Field>
 
       <Field
         label="Din besked"
@@ -146,15 +172,25 @@ export function KontaktForm() {
         <span className="text-xs text-muted">{SVARTID}</span>
       </div>
 
-      {/* Oplysningspligten skal opfyldes DÉR, hvor der indsamles — ikke kun i
-          en politik, ingen åbner. Kort, og med link til resten. */}
+      {/*
+        OPLYSNINGSPLIGTEN SKAL OPFYLDES DÉR, HVOR DER INDSAMLES — ikke kun i en
+        politik, ingen åbner. Linjen KAN derfor ikke bare fjernes: et navn og
+        en mailadresse er personoplysninger, og GDPR art. 13 kræver, at den,
+        der afgiver dem, får at vide hvad der sker med dem.
+
+        MEN DEN VAR TRE SÆTNINGER OG NÆVNTE SELSKABET. "…i vores mailboks hos
+        Nem Media ApS" var hverken et krav eller en hjælp — den, der skriver,
+        har aldrig hørt om Nem Media, og navnet hører hjemme dér, hvor loven
+        beder om en identifikation (footeren, betingelserne, aftalen). Nu er
+        det én sætning: hvad vi bruger det til, at det ikke gemmes, og
+        advarslen, der faktisk beskytter afsenderen.
+      */}
       {/* `max-w-lg` og ikke `xl`: linjen er 12 px skrift, og 36rem giver 96
           tegn — lige over dét, oejet kan foelge tilbage til venstre kant.
           Spalten skal foelge skriftstoerrelsen og ikke omvendt. */}
       <p className="max-w-lg text-xs leading-relaxed text-muted">
-        Vi bruger kun det, du skriver, til at svare dig. Beskeden gemmes ikke i
-        systemet — den står i vores mailboks hos {COMPANY.legalName}. Skriv
-        derfor ikke følsomme oplysninger her. Se{" "}
+        Vi bruger kun det, du skriver, til at svare dig, og beskeden gemmes
+        ikke i systemet — skriv derfor ikke følsomme oplysninger her. Se{" "}
         <a href="/privatliv" className="font-medium text-accent">
           privatlivspolitikken
         </a>

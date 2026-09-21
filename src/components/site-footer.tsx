@@ -8,8 +8,7 @@ import {
   SITE_TAGLINE,
   KATALOG,
   COMPANY,
-  mangler,
-} from "@/lib/constants";
+  mangler, SELSKABSLINJE } from "@/lib/constants";
 
 interface FooterLink {
   href: string;
@@ -156,7 +155,7 @@ export function SiteFooter({
               flere genbesøg for lokale forretninger.
             </p>
             <p className="mt-2">
-              {COMPANY.legalName}
+              {SELSKABSLINJE}
               {mangler(COMPANY.cvr) ? null : ` · CVR ${COMPANY.cvr}`}
               {mangler(COMPANY.address)
                 ? null

@@ -1,4 +1,4 @@
-import { COMPANY, mangler } from "@/lib/constants";
+import { COMPANY, mangler, SELSKABSLINJE } from "@/lib/constants";
 
 /**
  * Fælles byggeklodser til handelsbetingelser og privatlivspolitik.
@@ -45,7 +45,7 @@ export function Udfyld({ hvad }: { hvad: string }) {
 export function CompanyDetails() {
   return (
     <address className="not-italic">
-      {COMPANY.legalName}
+      {SELSKABSLINJE}
       <br />
       {mangler(COMPANY.address) ? (
         <Udfyld hvad="adresse" />

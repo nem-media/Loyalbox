@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SITE_NAME, SEO_KEYWORDS } from "@/lib/constants";
 import { getSiteUrl } from "@/lib/site";
+import { PwaFang } from "@/components/pwa-fang";
 import { PwaRegister } from "@/components/pwa-register";
 import { Analytics } from "@/components/analytics";
 
@@ -78,6 +79,11 @@ export default function RootLayout({
           Det er dét, der gør, at det ikke koster noget for alle andre.
           `#indhold` findes på hver enkelt `<main>` — efterprøvet: alle 18.
         */}
+        {/* FØR ALT ANDET: fanger browserens installationsdialog, mens siden
+            parses. Se `pwa-fang.tsx` for hvorfor det ikke kan ligge i en
+            komponent. Et `<script>` har ingen tabrækkefølge, så springlinket
+            nedenfor er stadig første tabstop. */}
+        <PwaFang />
         <a
           href="#indhold"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:box-shape focus:bg-dark focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus:outline-none focus:ring-2 focus:ring-accent"
