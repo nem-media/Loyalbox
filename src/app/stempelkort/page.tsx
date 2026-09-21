@@ -1184,7 +1184,8 @@ export default function StempelkortPage() {
         </section>
       </main>
 
-      <SiteFooter />
+      {/* Sidste sektion er mørk — se `overMoerk` i SiteFooter. */}
+      <SiteFooter overMoerk />
     </>
   );
 }
