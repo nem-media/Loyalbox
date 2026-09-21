@@ -483,7 +483,7 @@ export default function ReviewstanderPage() {
                 Den gør vejen fra god oplevelse til anmeldelse kortere.
               </strong>
             </p>
-            <p className="mt-4 text-sm text-muted">
+            <p className="mt-4 max-w-2xl text-sm text-muted">
               Vil du have hele billedet først, så læs guiden til{" "}
               <Link
                 href="/blog/saadan-faar-du-flere-google-anmeldelser"

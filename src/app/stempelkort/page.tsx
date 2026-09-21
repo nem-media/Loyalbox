@@ -800,7 +800,7 @@ export default function StempelkortPage() {
               </div>
             </div>
 
-            <p className="mt-6 text-sm text-muted">
+            <p className="mt-6 max-w-2xl text-sm text-muted">
               Har din forretning få genbesøg og ingen interesse i tallene
               bagved, gør papkortet det fint. Det digitale kort betaler sig, når
               kunderne kommer igen — og du vil vide hvor mange.
@@ -812,7 +812,7 @@ export default function StempelkortPage() {
                 ene eller det andet, og en fordele/ulemper-oversigt, der ikke
                 nævner den udvej, sender en læser videre med et halvt svar.
                 Pointprogrammet følger med den samme vare. */}
-            <p className="mt-3 text-sm text-muted">
+            <p className="mt-3 max-w-2xl text-sm text-muted">
               Er købene hos dig meget forskellige i størrelse — en kop kaffe den
               ene dag, en hel frokost den næste — passer et stempel pr. besøg
               skævt. Så er et{" "}
@@ -956,7 +956,7 @@ export default function StempelkortPage() {
               <h3 className="font-bold tracking-tight">
                 Belønninger kobles aldrig til anmeldelser
               </h3>
-              <p className="mt-2 text-sm leading-relaxed">
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed">
                 Det er bevidst umuligt at give stempler eller belønninger for,
                 at en kunde skriver, ændrer eller sletter en offentlig
                 anmeldelse. Den slags er i strid med både Googles og Trustpilots

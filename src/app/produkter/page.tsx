@@ -93,7 +93,7 @@ export default function ProductsPage() {
               {/* "de to til højre" ville være forkert på en telefon, hvor
                   kortene står under hinanden. Varenavne i stedet for en
                   placering holder, uanset hvor mange spor gitteret har. */}
-              <p className="mt-1 max-w-2xl text-sm text-muted">
+              <p className="mt-1 max-w-xl text-sm text-muted">
                 Tre standere til disken og hele platformen uden skilt. Alle
                 fire indeholder anmeldelsesflowet; de to Komplet-varer har også
                 stempelkort, pointprogram og opslag.
@@ -211,7 +211,7 @@ export default function ProductsPage() {
             <h2 id="paa-vej" className="text-xl font-bold tracking-tight">
               På vej
             </h2>
-            <p className="mt-2 max-w-2xl text-sm text-muted">
+            <p className="mt-2 max-w-xl text-sm text-muted">
               Vi er i gang med flere materialer, så kunderne møder dig flere
               steder end ved disken. Priserne er på plads, men de kan ikke
               bestilles endnu — står der ingen pris, er den ikke fastlagt.

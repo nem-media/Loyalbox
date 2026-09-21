@@ -259,7 +259,11 @@ export function LoyalsumLoop() {
         "rundt" betyder for forretningen. Stod den ikke her, ville løftet kun
         findes som en pil.
       */}
-      <div className="mt-8 flex items-center gap-3 rounded-full border border-accent/25 bg-accent/5 px-5 py-3">
+      {/* `max-w-3xl`: linjen var 111 tegn bred i en pille, der gik hele
+          figurens bredde. Over ca. 90 mister øjet linjen på vej tilbage til
+          venstre kant. Pillen er nu centreret og så bred, som teksten skal
+          være — ikke så bred, som der er plads til. */}
+      <div className="mx-auto mt-8 flex max-w-2xl items-center gap-3 rounded-full border border-accent/25 bg-accent/5 px-5 py-3">
         <svg
           viewBox="0 0 24 24"
           fill="none"
