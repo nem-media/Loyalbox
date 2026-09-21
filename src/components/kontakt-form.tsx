@@ -148,7 +148,10 @@ export function KontaktForm() {
 
       {/* Oplysningspligten skal opfyldes DÉR, hvor der indsamles — ikke kun i
           en politik, ingen åbner. Kort, og med link til resten. */}
-      <p className="max-w-xl text-xs leading-relaxed text-muted">
+      {/* `max-w-lg` og ikke `xl`: linjen er 12 px skrift, og 36rem giver 96
+          tegn — lige over dét, oejet kan foelge tilbage til venstre kant.
+          Spalten skal foelge skriftstoerrelsen og ikke omvendt. */}
+      <p className="max-w-lg text-xs leading-relaxed text-muted">
         Vi bruger kun det, du skriver, til at svare dig. Beskeden gemmes ikke i
         systemet — den står i vores mailboks hos {COMPANY.legalName}. Skriv
         derfor ikke følsomme oplysninger her. Se{" "}
