@@ -187,12 +187,29 @@
      De er ALLE dæmpede og trukket mod petroleum i mætning, så de står som en
      familie. En ren violet (#7c3aed) eller en ren blå (#2563eb) ved siden af
      #26616e ligner farver fra et andet produkt.
-     Målt mod deres egen tint (12 % på hvidt): 5,0-6,5:1, altså læsbare selv
-     hvis nogen en dag sætter dem som tekst. */
-  --data-teal: #26616e;
+     DE ER IKONFARVER OG IKKE TEKSTFARVER. Noten her lovede før, at alle fem
+     var "læsbare, selv hvis nogen en dag satte dem som tekst" (5,0-6,5:1 på
+     deres egen tint). Det var en ubrugt garanti: `--data-*` bruges KUN
+     gennem `IkonChip` og står ikke som tekst ét eneste sted. Den garanti
+     kostede guldet — en gylden tone, der skal klare 4,5 som tekst, er
+     nødt til at være mørk, og som FLADE i den fyldte tone blev den bronze.
+
+     GULDET ER DERFOR LØFTET TIL #a2741c, og prisen står her målt:
+     hvid på fladen falder fra 5,35 til 4,16, og ikonet på sin egen tint fra
+     4,55 til 3,60. Begge ligger over 3:1, som er grænsen for et GRAFISK
+     element — og det er dét, de er. Skal en datafarve en dag bære tekst,
+     skal den have sit eget `-tekst`-token, præcis som `--star` har.
+
+     `--data-teal` stod stadig på den GAMLE accent (#26616e) efter
+     paletteskiftet — en overset rest, så et nøgletalskort i dashboardet
+     havde en anden teal end knappen ved siden af.
+
+     Målt mod egen tint: teal 6,40 · violet 5,51 · blå 5,24 · grøn 4,73 ·
+     guld 3,60. */
+  --data-teal: #0f5b66;
   --data-violet: #5f5496;
   --data-blaa: #36648f;
-  --data-guld: #8a6420;
+  --data-guld: #a2741c;
   --data-groen: #3c7355;
 
   --skala-1: #c05a4a;
