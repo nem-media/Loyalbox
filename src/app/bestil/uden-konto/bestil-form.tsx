@@ -39,6 +39,7 @@ import {
 import { kraeverDestination } from "@/lib/commerce";
 import { requiresDpa } from "@/lib/dpa";
 import { DESTINATION_INTRO } from "@/components/destination-felt";
+import { AbonnementInterval } from "@/components/abonnement-interval";
 import { formatCurrency } from "@/lib/utils";
 
 /** Sender browseren til Stripe. Uden for komponenten — se stander-designer.tsx. */
@@ -98,8 +99,19 @@ export function BestilUdenKontoForm({
   product,
   initialQty = 1,
   fortrudt = null,
+  aarPris = null,
 }: {
   product: Product;
+  /**
+   * Årsprisen, eller `null` når årsvejen ikke findes.
+   *
+   * KOMMER FRA SERVEREN OG REGNES IKKE HER. Om varen kan købes årligt
+   * afhænger af, om prisobjektet er oprettet i den Stripe-tilstand, sitet
+   * kører i — og den tilstand kan en klientkomponent ikke se. Regnede vi
+   * bare `monthlyPrice * 11` her, ville knappen dukke op i live, længe før
+   * prisen fandtes dér, og købet ville fejle for enhver rigtig kunde.
+   */
+  aarPris?: number | null;
   /** Antallet, kunden valgte på produktsiden. Se `/bestil/uden-konto/page.tsx`. */
   initialQty?: number;
   /**
@@ -160,6 +172,9 @@ export function BestilUdenKontoForm({
   // Accenten er gratis at skifte — se STANDARD_ACCENT i stander-tilvalg.ts.
   const [egenAccent, setEgenAccent] = useState(Boolean(fortrudt?.accentHex));
   const [accent, setAccent] = useState(fortrudt?.accentHex ?? STANDARD_ACCENT);
+  /* MÅNEDLIGT ER FORVALGT — et forvalg, der koster tolv gange mere, er ikke
+     et forvalg. Se `AbonnementInterval`. */
+  const [interval, setInterval] = useState<"maaned" | "aar">("maaned");
   const [logoFejl, setLogoFejl] = useState<string | null>(null);
   const [advarsler, setAdvarsler] = useState<string[]>([]);
   const [destination, setDestination] = useState(
@@ -757,9 +772,15 @@ export function BestilUdenKontoForm({
                 <div className="flex items-baseline justify-between gap-4">
                   <dt className="font-medium">Herefter</dt>
                   <dd className="tabular-nums">
-                    {formatCurrency(product.monthlyPrice)}{" "}
+                    {formatCurrency(
+                      interval === "aar" && aarPris !== null
+                        ? aarPris
+                        : product.monthlyPrice,
+                    )}{" "}
                     <span className="text-xs font-normal text-muted">
-                      ex moms pr. måned
+                      {interval === "aar" && aarPris !== null
+                        ? "ex moms pr. år"
+                        : "ex moms pr. måned"}
                     </span>
                   </dd>
                 </div>
@@ -778,6 +799,17 @@ export function BestilUdenKontoForm({
             </dl>
           </div>
         </div>
+
+        {aarPris !== null ? (
+          <div className="mt-5">
+            <AbonnementInterval
+              maanedPris={product.monthlyPrice!}
+              aarPris={aarPris}
+              vaerdi={interval}
+              onVaelg={setInterval}
+            />
+          </div>
+        ) : null}
 
         {/* ----------------------------------------------------- betaling */}
         <div className="mt-4">

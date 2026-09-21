@@ -54,6 +54,20 @@ export interface BestillingFelter {
   destinationType: DestinationType;
   destinationUrl: string;
   accepterVilkaar: boolean;
+  /**
+   * Betales abonnementet pr. måned eller pr. år?
+   *
+   * `"maaned"` ER STANDARDEN OG OGSÅ SVARET PÅ ET UKENDT ORD. Feltet kommer
+   * fra to knapper, vi selv har tegnet, så alt andet er en formular på
+   * afveje — og måneden er den billigste antagelse for kunden. Et gæt den
+   * anden vej ville trække tolv gange beløbet.
+   *
+   * Om årsvejen overhovedet FINDES, afgøres ikke her: `kanKoebesAarligt()`
+   * spørger, om prisobjektet er oprettet i den tilstand, sitet kører i. Den
+   * her funktion har ingen Stripe-adgang og skal ikke have det — den læser
+   * en formular.
+   */
+  interval: "maaned" | "aar";
 }
 
 /**
@@ -144,6 +158,9 @@ export function laesBestilling(
 ): Laest {
   const fejl: Fejl = {};
   const tekst = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+
+  /* Se `BestillingFelter.interval`: alt andet end "aar" bliver til måned. */
+  const interval: "maaned" | "aar" = raw.interval === "aar" ? "aar" : "maaned";
 
   const firmanavn = tekst(raw.firmanavn);
   if (firmanavn.length < 2) {
@@ -237,6 +254,7 @@ export function laesBestilling(
         : "custom") as DestinationType,
       destinationUrl,
       accepterVilkaar: true,
+      interval,
     },
   };
 }

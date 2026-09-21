@@ -14,8 +14,9 @@ import {
   PRODUKT_FOTO_TEKST,
   getProduct,
   arvetFra,
+  aarsPris,
 } from "@/lib/constants";
-import { toProductJsonLd } from "@/lib/commerce";
+import { toProductJsonLd, kanKoebesAarligt } from "@/lib/commerce";
 import { formatCurrency } from "@/lib/utils";
 import { getSiteUrl, kortMetabeskrivelse } from "@/lib/site";
 import { QuantityOrder } from "@/components/quantity-order";
@@ -256,7 +257,11 @@ export default async function ProductPage({
 
 
             <div className="mt-4">
-              <QuantityOrder product={product} mode="order" />
+              <QuantityOrder
+                product={product}
+                mode="order"
+                aarPris={kanKoebesAarligt(product) ? aarsPris(product) : null}
+              />
             </div>
             <div className="mt-3">
               <Link href="/produkter" className="trykmaal text-sm font-medium text-accent">

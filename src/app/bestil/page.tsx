@@ -8,15 +8,14 @@ import {
   PRODUCTS,
   getProduct,
   LEVERINGSLAND_NAVN,
-  harFysiskSkilt,
-} from "@/lib/constants";
+  harFysiskSkilt, aarsPris } from "@/lib/constants";
 import { StanderDesigner } from "@/components/stander-designer";
 import {
   GenbestilDesign,
   type GemtDesign,
 } from "@/components/genbestil-design";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { kraeverDestination, kanBestillesUdenKonto } from "@/lib/commerce";
+import { kraeverDestination, kanBestillesUdenKonto, kanKoebesAarligt } from "@/lib/commerce";
 import { enesteAdresse } from "@/lib/abonnement";
 import { valgtDestination } from "@/lib/stands";
 import type { DestinationType } from "@/lib/types/database";
@@ -295,6 +294,11 @@ export default async function OrderPage({
                 standId={standTilTryk}
                 kraeverDestination={skalHaveDestination}
                 destinationStart={standDest}
+                /* `null`, når årsprisen ikke findes i den tilstand, sitet
+                   kører i — så tegnes valget ikke. Se `kanKoebesAarligt()`. */
+                aarPris={
+                  kanKoebesAarligt(selected) ? aarsPris(selected) : null
+                }
               />
             ) : spaerre === null ? (
               <div className="box-shape border border-accent/30 bg-accent/5 p-4">

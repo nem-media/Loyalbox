@@ -84,13 +84,36 @@ export interface EkstraAdresseKvittering {
  * Skilt ud som ren funktion, fordi det er det eneste her, der kan prøves uden
  * et netværk.
  */
-export function findMaanedslinje(
+export function findPrislinje(
   sub: Pick<Stripe.Subscription, "items">,
-  monthlyPriceId: string,
+  /* BEGGE PRISER, OG DET ER IKKE EN FINESSE. Abonnementet kører på ÉN af dem
+     ad gangen — månedligt eller årligt — og hvilken, kan kun abonnementet
+     svare på. Ledte den kun efter månedsprisen, ville en kunde, der har
+     skiftet til årsbetaling, ikke kunne købe en adresse mere: linjen findes,
+     men vi kan ikke se den. Og `adresserPaaAbonnementet()` ville svare
+     "spørg ikke mig", så `adresser_tilladt` stille holdt op med at følge
+     virkeligheden. Samme fejlklasse som da pointprogrammet kom til, og
+     resten af systemet blev ved med kun at kigge efter et stempelkort. */
+  priser: { monthlyPriceId?: string; yearlyPriceId?: string },
 ): Stripe.SubscriptionItem | null {
-  return (
-    sub.items.data.find((linje) => linje.price?.id === monthlyPriceId) ?? null
+  const gyldige = [priser.monthlyPriceId, priser.yearlyPriceId].filter(
+    (id): id is string => Boolean(id),
   );
+  if (!gyldige.length) return null;
+  return (
+    sub.items.data.find((linje) =>
+      gyldige.includes(linje.price?.id as string),
+    ) ?? null
+  );
+}
+
+/** Kører abonnementet på årsprisen? Bruges til at sige det rigtige til kunden. */
+export function erAarsabonnement(
+  sub: Pick<Stripe.Subscription, "items">,
+  yearlyPriceId: string | undefined,
+): boolean {
+  if (!yearlyPriceId) return false;
+  return sub.items.data.some((linje) => linje.price?.id === yearlyPriceId);
 }
 
 /**
@@ -116,7 +139,7 @@ export function adresserPaaAbonnementet(
   const ids = stripeIdsFor(produkt);
   if (!ids?.monthlyPriceId) return null;
 
-  const linje = findMaanedslinje(sub, ids.monthlyPriceId);
+  const linje = findPrislinje(sub, ids);
   const antal = linje?.quantity;
   return typeof antal === "number" && antal >= 1 ? antal : null;
 }
@@ -172,7 +195,7 @@ async function findAbonnementslinje(
     const sub = await stripe().subscriptions.retrieve(
       company.stripe_subscription_id,
     );
-    const linje = findMaanedslinje(sub, ids.monthlyPriceId);
+    const linje = findPrislinje(sub, ids);
     if (!linje) return { ok: false, fejl: "linjen-mangler" };
     return { ok: true, sub, linje };
   } catch (err) {

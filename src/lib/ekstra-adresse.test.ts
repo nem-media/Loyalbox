@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type Stripe from "stripe";
 import {
-  findMaanedslinje,
+  findPrislinje,
   adresserPaaAbonnementet,
   standerPrisForDesign,
 } from "./ekstra-adresse";
@@ -54,12 +54,31 @@ describe("månedslinjen findes på pris-id og ikke på position", () => {
       { id: "si_andet", priceId: "price_noget_helt_andet" },
       { id: "si_maaned", priceId: komplet, quantity: 2 },
     ]);
-    expect(findMaanedslinje(sub, komplet)?.id).toBe("si_maaned");
+    expect(findPrislinje(sub, { monthlyPriceId: komplet })?.id).toBe("si_maaned");
+  });
+
+  /**
+   * EN ÅRSKUNDE HAR IKKE MÅNEDSPRISEN PÅ SIT ABONNEMENT.
+   *
+   * Funktionen ledte før kun efter månedsprisen. Fra den dag årsbetaling kom
+   * til, ville en kunde, der havde skiftet, ikke kunne købe en adresse mere —
+   * linjen ER der, vi kunne bare ikke se den — og `adresserPaaAbonnementet()`
+   * ville svare "spørg ikke mig", så kolonnen stille holdt op med at følge
+   * virkeligheden. Samme fejlklasse som da pointprogrammet kom til.
+   */
+  it("finder også linjen, når abonnementet kører på årsprisen", () => {
+    const sub = abonnement([{ id: "si_aar", priceId: "price_aar", quantity: 3 }]);
+    expect(
+      findPrislinje(sub, {
+        monthlyPriceId: komplet,
+        yearlyPriceId: "price_aar",
+      })?.id,
+    ).toBe("si_aar");
   });
 
   it("svarer null, når linjen slet ikke er der", () => {
     const sub = abonnement([{ id: "si_andet", priceId: "price_andet" }]);
-    expect(findMaanedslinje(sub, komplet)).toBeNull();
+    expect(findPrislinje(sub, { monthlyPriceId: komplet })).toBeNull();
   });
 });
 

@@ -45,6 +45,7 @@ import {
   type PngHoved,
 } from "@/lib/logo";
 import { LogoFelt } from "@/components/logo-felt";
+import { AbonnementInterval } from "@/components/abonnement-interval";
 import { formatCurrency } from "@/lib/utils";
 
 /**
@@ -99,8 +100,18 @@ export function StanderDesigner({
   standId,
   kraeverDestination = false,
   destinationStart,
+  aarPris = null,
 }: {
   product: Product;
+  /**
+   * Årsprisen, eller `null` når årsvejen ikke findes.
+   *
+   * SERVEREN AFGØR DET. Om varen kan købes årligt afhænger af, om
+   * prisobjektet er oprettet i den Stripe-tilstand, sitet kører i — og den
+   * kan en klientkomponent ikke se. Regnede vi selv `monthlyPrice * 11`,
+   * ville valget dukke op i live, før prisen fandtes dér.
+   */
+  aarPris?: number | null;
   companyId: string;
   initialQty?: number;
   kraeverDpa?: boolean;
@@ -151,6 +162,8 @@ export function StanderDesigner({
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoFejl, setLogoFejl] = useState<string | null>(null);
   const [advarsler, setAdvarsler] = useState<string[]>([]);
+  /* MÅNEDLIGT ER FORVALGT — se `AbonnementInterval`. */
+  const [interval, setInterval] = useState<"maaned" | "aar">("maaned");
   const [accepteret, setAccepteret] = useState(false);
   const [destType, setDestType] = useState<DestinationType>(
     destinationStart?.type ?? "google",
@@ -257,6 +270,9 @@ export function StanderDesigner({
           produkt: product.slug,
           antal: qty,
           accepterVilkaar: accepteret,
+          /* Ruten afgør, om årsvejen findes — knappen kan skjules, men en
+             POST kan sendes alligevel. Se `/api/checkout`. */
+          interval,
           ...(standId ? { stand: standId } : {}),
           ...(kraeverDestination
             ? { destination_type: destType, destination_url: destUrl.trim() }
@@ -627,6 +643,17 @@ export function StanderDesigner({
             </dl>
           </div>
         </div>
+
+        {aarPris !== null ? (
+          <div className="mt-5">
+            <AbonnementInterval
+              maanedPris={product.monthlyPrice!}
+              aarPris={aarPris}
+              vaerdi={interval}
+              onVaelg={setInterval}
+            />
+          </div>
+        ) : null}
 
         {/* ----------------------------------------------------- betaling */}
         <div className="mt-4">

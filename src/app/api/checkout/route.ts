@@ -7,6 +7,7 @@ import type { DestinationType } from "@/lib/types/database";
 import { stripe, INTEGRATION_ID } from "@/lib/stripe";
 import {
   stripeIdsFor,
+  kanKoebesAarligt,
   stripeMode,
   isTestBuyer,
   canSell,
@@ -354,6 +355,30 @@ export async function POST(request: NextRequest) {
   const base = getSiteUrl();
   const sub = Boolean(product.monthlyPrice);
 
+  /*
+    ÅRLIGT ELLER MÅNEDLIGT.
+    Valget kommer fra kunden, men det AFGØRES her: findes årsprisen ikke i
+    den tilstand, sitet kører i, findes årsvejen ikke — uanset hvad kroppen
+    siger. En knap kan skjules; en POST kan sendes alligevel, og det er
+    ruten, der er stedet, det afgøres. Samme regel som
+    `abonnementsSkifteSpaerre()`.
+
+    ET UKENDT ORD BLIVER TIL MÅNEDLIGT frem for at give en fejl: feltet
+    kommer fra en `<select>`, vi selv har tegnet, så en anden værdi er en
+    formular på afveje — og månedligt er den billigste antagelse for kunden.
+  */
+  const aarligt = sub && body.interval === "aar" && kanKoebesAarligt(product);
+
+  if (body.interval === "aar" && !aarligt) {
+    return NextResponse.json(
+      {
+        error:
+          "Årsbetaling er ikke åben for denne vare lige nu. Vælg månedligt, eller skriv til os.",
+      },
+      { status: 400 },
+    );
+  }
+
   // Standeren sendes som price_data med den rabatterede enhedspris, så
   // mængderabatten kun findes ét sted (VOLUME_DISCOUNTS). Produktet peger på
   // det rigtige Stripe-produkt, så fakturaen viser varens navn.
@@ -415,7 +440,11 @@ export async function POST(request: NextRequest) {
      * vej er uændret.
      */
     lineItems.push({
-      price: ids.monthlyPriceId,
+      /* ÉN LINJE, TO MULIGE PRISER. Abonnementet har ét prisobjekt ad gangen
+         — det er også dét, `findAbonnementslinje()` leder efter, når en
+         adresse mere skal lægges på. To linjer ville give to abonnementer
+         at holde styr på i ét `stripe_subscription_id`. */
+      price: aarligt ? ids.yearlyPriceId : ids.monthlyPriceId,
       quantity: adresserTilladt(company),
       tax_rates: [taxRate],
     });

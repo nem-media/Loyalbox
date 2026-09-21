@@ -297,6 +297,29 @@ export function stripeIdsFor(product: Product): StripeIds | undefined {
 }
 
 /**
+ * KAN VAREN KØBES PÅ ÅRSBASIS I DEN TILSTAND, SITET KØRER I?
+ *
+ * DET ER SPØRGSMÅLET, HELE ÅRSMODELLEN HÆNGER PÅ, og det er stillet sådan
+ * her med vilje. Årsprisen blev oprettet i TEST, før den findes i live —
+ * live-nøglen ligger som `[SENSITIVE]` i Vercel og kan ikke hentes ned. Uden
+ * denne spærre ville en knap "Betal for et år" stå og virke for os og fejle
+ * for enhver rigtig kunde, i præcis samme øjeblik nøglen skiftede.
+ *
+ * "EN HALV OPSÆTNING ER VÆRRE END INGEN" — det er samme regel som for
+ * `canSell()` og for varen uden `stripe`-blok. Årsvalget FINDES ikke, før
+ * pris-id'et gør: hverken i bestillingen eller som skift i dashboardet.
+ *
+ * Bemærk at der ikke spørges til `canSell()` her. De to er forskellige
+ * spørgsmål: "må varen sælges overhovedet" og "findes årsvejen". Kalderen
+ * spørger begge, og de skal kunne svare hver for sig — ellers kan man ikke
+ * se, HVILKEN af dem der mangler.
+ */
+export function kanKoebesAarligt(product: Product): boolean {
+  if (!product.monthlyPrice) return false;
+  return Boolean(stripeIdsFor(product)?.yearlyPriceId);
+}
+
+/**
  * Stripe Checkout-mode: abonnement for løbende produkter (Pro), engangsbetaling
  * for resten. Bruges når checkout-sessionen skal oprettes.
  */
