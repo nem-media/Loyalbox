@@ -404,7 +404,7 @@ export default function ReviewstanderPage() {
                       et hvidt kort har ingen kant, hvor de overlapper, og
                       læses som en linje inde i kortet. Beige giver 6,79 mod
                       den mørke sektion, petroleum kun 2,44. */}
-                  <div className="absolute -top-6 -right-2 sm:-right-7">
+                  <div className="absolute -top-6 right-3 lg:-right-7">
                     <div className="btn-shape flex items-center gap-2 bg-secondary px-3 py-2 text-secondary-fg shadow-[0_16px_32px_-16px_rgba(0,0,0,0.6)]">
                       <TapIcon className="h-4 w-4 shrink-0" />
                       <span className="text-xs font-semibold tracking-tight">
@@ -413,7 +413,7 @@ export default function ReviewstanderPage() {
                     </div>
                   </div>
 
-                  <div className="absolute -bottom-6 -left-2 sm:-left-8">
+                  <div className="absolute -bottom-6 left-3 lg:-left-8">
                     <div className="btn-shape flex items-center gap-2 bg-dark px-3 py-2 text-white shadow-[0_16px_32px_-16px_rgba(0,0,0,0.6)] ring-1 ring-white/15">
                       <ShareExperienceIcon className="h-4 w-4 shrink-0 text-secondary" />
                       <span className="text-xs font-medium">

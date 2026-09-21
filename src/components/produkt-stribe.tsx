@@ -96,7 +96,7 @@ export function ProduktStribe({
                   {p.tagline}
                 </span>
                 <span className="mt-2 block text-sm font-semibold">{pris}</span>
-                <span className="mt-0.5 block text-xs text-muted sm:text-[11px]">
+                <span className="mt-0.5 block text-xs text-muted">
                   ex moms
                 </span>
               </>

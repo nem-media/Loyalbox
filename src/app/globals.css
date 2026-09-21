@@ -393,12 +393,25 @@
   felter — så rammer man det forkerte. De links er bevidst ladt urørt.
 */
 .trykmaal {
-  padding-block: 0.625rem;
+  padding-block: 0;
 }
 
-@media (min-width: 640px) {
+/*
+  SPØRGSMÅLET ER IKKE BREDDEN, DET ER FINGEREN.
+  Første udgave slog polstringen fra over 640 px — og en tablet er 768 til
+  1024 OG en berøringsskærm. MÅLT ved 768: hvert footerlink og hver
+  "→"-handling var tilbage på 20 px, altså præcis dét, rettelsen skulle
+  fjerne, på en enhed hvor man rammer med en tommelfinger.
+
+  `pointer: coarse` er dét, der faktisk skelner: den er sand på telefon og
+  tablet og falsk på en bærbar med pegefelt — uanset hvor bredt vinduet er.
+  Breddegrænsen står ved siden af som sikkerhedsnet, for en browser uden
+  understøttelse af forespørgslen skal stadig give et brugbart trykmål på en
+  smal skærm.
+*/
+@media (max-width: 1023.98px), (pointer: coarse) {
   .trykmaal {
-    padding-block: 0;
+    padding-block: 0.625rem;
   }
 }
 
@@ -465,13 +478,19 @@ body {
 @layer components {
   .etiket {
     /*
-      12 PX PÅ MOBIL, 11 PÅ DESKTOP.
-      Versaler med sperring er en etiketstil, ikke brødtekst, og 11 px er
-      rigtigt i et gitter, man overskuer med øjnene. På en telefon holdes
-      skærmen længere væk end en bærbar, og MÅLT ved 390 px var `.etiket`
-      den mindste tekst på hele sitet. Én pixel er nok til at flytte den
-      væk fra grænsen, og etiketterne er så korte, at intet layout flytter
-      sig af det.
+      12 PX PÅ BERØRINGSSKÆRME, 11 PÅ DESKTOP.
+      Versaler med sperring er en etiketstil og ikke brødtekst, og 11 px er
+      rigtigt på en skærm, man overskuer med musen. MÅLT ved 390 px var
+      `.etiket` den mindste tekst på hele sitet — under de 12, der almindeligt
+      regnes som gulvet for læsbarhed på en lille skærm, og dér er der ingen
+      hover eller zoom at falde tilbage på uden at layoutet skrider.
+
+      HER STOD EN FORKERT BEGRUNDELSE: at en telefon holdes længere væk end
+      en bærbar. Det er omvendt. Grunden er gulvet, ikke afstanden.
+
+      Grænsen er den SAMME som `.trykmaal`s, så de to regler ikke kan komme
+      i utakt — en tablet er 768 px og stadig en finger og en lille skærm.
+      Etiketterne er så korte, at intet layout flytter sig af den ene pixel.
     */
     font-size: 0.75rem;
     font-weight: 500;
@@ -481,7 +500,7 @@ body {
     color: var(--muted);
   }
 
-  @media (min-width: 640px) {
+  @media (min-width: 1024px) and (pointer: fine) {
     .etiket {
       font-size: 0.6875rem;
     }

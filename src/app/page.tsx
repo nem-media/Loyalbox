@@ -252,7 +252,7 @@ TRE SKÆR, OG TEALEN FØRER NU AN.
             }}
           />
           <div className="mx-auto max-w-side px-4 py-20 sm:py-28">
-            <div className="grid items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="grid items-center gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:pr-10">
               <div>
                 <span className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/8 px-3.5 py-1.5 text-xs font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] ring-1 ring-white/15 backdrop-blur-sm">
                   <span
