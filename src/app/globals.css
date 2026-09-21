@@ -372,6 +372,36 @@
   border-radius: var(--radius-kontrol);
 }
 
+/*
+  TRYKMÅLET ER STØRRE END TEGNINGEN.
+
+  Et tekstlink er 18-20 px højt. Det er, hvad man kan LÆSE — ikke hvad man
+  kan RAMME med en tommelfinger. MÅLT ved 390 px på hele det offentlige
+  site: footerens linkspalter og hvert "→"-link stod på 18-21 px, altså
+  under halvdelen af de 44, Apple anbefaler, og under WCAG 2.2's 24.
+
+  KLASSEN VOKSER MÅLET UDEN AT FLYTTE NOGET. På et `inline-block` tæller
+  lodret polstring IKKE med i linjeboksen: feltet, man kan trykke på, bliver
+  højere, mens teksten står, hvor den stod. Det er derfor, der ikke skal en
+  modsat margin til.
+
+  KUN UNDER `sm`. På en mus er markøren et punkt, og 40 px høje links ville
+  gøre en tæt footer unødigt lang uden at hjælpe nogen.
+
+  DEN DÆKKER IKKE ET LINK MIDT I EN SÆTNING. Dér er linjeafstanden
+  tryksfeltet, og to linjer med hvert sit link ville få overlappende
+  felter — så rammer man det forkerte. De links er bevidst ladt urørt.
+*/
+.trykmaal {
+  padding-block: 0.625rem;
+}
+
+@media (min-width: 640px) {
+  .trykmaal {
+    padding-block: 0;
+  }
+}
+
 * {
   border-color: var(--border);
 }
@@ -434,12 +464,27 @@ body {
 
 @layer components {
   .etiket {
-    font-size: 0.6875rem;
+    /*
+      12 PX PÅ MOBIL, 11 PÅ DESKTOP.
+      Versaler med sperring er en etiketstil, ikke brødtekst, og 11 px er
+      rigtigt i et gitter, man overskuer med øjnene. På en telefon holdes
+      skærmen længere væk end en bærbar, og MÅLT ved 390 px var `.etiket`
+      den mindste tekst på hele sitet. Én pixel er nok til at flytte den
+      væk fra grænsen, og etiketterne er så korte, at intet layout flytter
+      sig af det.
+    */
+    font-size: 0.75rem;
     font-weight: 500;
     line-height: 1.4;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--muted);
+  }
+
+  @media (min-width: 640px) {
+    .etiket {
+      font-size: 0.6875rem;
+    }
   }
 }
 

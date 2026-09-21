@@ -855,7 +855,7 @@ export default function ReviewstanderPage() {
             </p>
 
             <p className="mt-6">
-              <Link href="/" className="font-medium text-accent">
+              <Link href="/" className="trykmaal font-medium text-accent">
                 Se hele LoyalSum →
               </Link>
             </p>
@@ -1086,7 +1086,7 @@ export default function ReviewstanderPage() {
             <div className="mt-8 divide-y divide-border border-y border-border">
               {FAQ.map((item) => (
                 <details key={item.q} className="group py-4">
-                  <summary className="cursor-pointer list-none font-bold tracking-tight marker:content-none">
+                  <summary className="trykmaal cursor-pointer list-none font-bold tracking-tight marker:content-none">
                     <span className="flex items-start justify-between gap-4">
                       {item.q}
                       <span

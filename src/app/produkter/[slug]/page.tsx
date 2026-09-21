@@ -141,7 +141,7 @@ export default async function ProductPage({
       <SiteHeader />
       <main id="indhold" className="mx-auto max-w-side px-4 py-12 sm:py-16">
         <nav className="mb-8 text-sm text-muted">
-          <Link href="/produkter" className="hover:text-foreground">
+          <Link href="/produkter" className="trykmaal hover:text-foreground">
             Produkter
           </Link>
           <span className="mx-2">/</span>
@@ -222,7 +222,7 @@ export default async function ProductPage({
               <QuantityOrder product={product} mode="order" />
             </div>
             <div className="mt-3">
-              <Link href="/produkter" className="text-sm font-medium text-accent">
+              <Link href="/produkter" className="trykmaal text-sm font-medium text-accent">
                 Se alle produkter →
               </Link>
             </div>
@@ -284,7 +284,7 @@ export default async function ProductPage({
                 </p>
                 <Link
                   href="/produkter/loyalsum-komplet"
-                  className="mt-3 inline-block text-sm font-medium text-accent"
+                  className="trykmaal mt-3 inline-block text-sm font-medium text-accent"
                 >
                   Se LoyalSum Komplet →
                 </Link>

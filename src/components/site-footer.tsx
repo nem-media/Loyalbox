@@ -128,12 +128,12 @@ export function SiteFooter({
                   egen udgave af den, og to udgaver af samme stil driver fra
                   hinanden. */}
               <h3 className="etiket">{col.title}</h3>
-              <ul className="mt-4 space-y-2.5 text-sm">
+              <ul className="mt-4 space-y-1 text-sm sm:space-y-2.5">
                 {col.links.map((l) => (
                   <li key={l.href + l.label}>
                     <Link
                       href={l.href}
-                      className="inline-block text-foreground/75 transition-colors hover:text-accent"
+                      className="trykmaal block text-foreground/75 transition-colors hover:text-accent"
                     >
                       {l.label}
                     </Link>
@@ -159,7 +159,7 @@ export function SiteFooter({
                 ? null
                 : ` · ${COMPANY.address}, ${COMPANY.postalCode} ${COMPANY.city}`}
               {" · "}
-              <a href={`mailto:${COMPANY.email}`} className="hover:text-accent">
+              <a href={`mailto:${COMPANY.email}`} className="trykmaal hover:text-accent">
                 {COMPANY.email}
               </a>
             </p>
@@ -174,13 +174,13 @@ export function SiteFooter({
             aria-label="Juridisk"
             className="flex flex-wrap gap-x-4 gap-y-2 sm:justify-end"
           >
-            <Link href="/handelsbetingelser" className="hover:text-accent">
+            <Link href="/handelsbetingelser" className="trykmaal hover:text-accent">
               Handelsbetingelser
             </Link>
-            <Link href="/privatliv" className="hover:text-accent">
+            <Link href="/privatliv" className="trykmaal hover:text-accent">
               Privatlivspolitik
             </Link>
-            <Link href="/databehandleraftale" className="hover:text-accent">
+            <Link href="/databehandleraftale" className="trykmaal hover:text-accent">
               Databehandleraftale
             </Link>
             <ConsentSettingsLink />

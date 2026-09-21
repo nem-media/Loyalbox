@@ -67,7 +67,7 @@ export function ProduktStribe({
           </h2>
           <Link
             href="/produkter"
-            className="text-sm font-medium text-accent hover:underline"
+            className="trykmaal text-sm font-medium text-accent hover:underline"
           >
             Sammenlign alle fire →
           </Link>
@@ -96,7 +96,7 @@ export function ProduktStribe({
                   {p.tagline}
                 </span>
                 <span className="mt-2 block text-sm font-semibold">{pris}</span>
-                <span className="mt-0.5 block text-[11px] text-muted">
+                <span className="mt-0.5 block text-xs text-muted sm:text-[11px]">
                   ex moms
                 </span>
               </>

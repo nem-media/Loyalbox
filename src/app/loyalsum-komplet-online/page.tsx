@@ -456,7 +456,7 @@ export default function KompletOnlinePage() {
                 </ul>
                 <Link
                   href="/produkter/loyalsum-komplet"
-                  className="mt-4 inline-block text-sm font-medium text-accent hover:underline"
+                  className="trykmaal mt-4 inline-block text-sm font-medium text-accent hover:underline"
                 >
                   Se LoyalSum Komplet →
                 </Link>
@@ -474,7 +474,7 @@ export default function KompletOnlinePage() {
                 </ul>
                 <Link
                   href="/produkter/loyalsum-komplet-online"
-                  className="mt-4 inline-block text-sm font-medium text-accent hover:underline"
+                  className="trykmaal mt-4 inline-block text-sm font-medium text-accent hover:underline"
                 >
                   Se pris →
                 </Link>
@@ -492,7 +492,7 @@ export default function KompletOnlinePage() {
             <div className="mt-8 divide-y divide-border">
               {FAQ.map((item) => (
                 <details key={item.q} className="group py-4">
-                  <summary className="cursor-pointer list-none font-medium">
+                  <summary className="trykmaal cursor-pointer list-none font-medium">
                     {item.q}
                   </summary>
                   <p className="mt-2 leading-relaxed text-muted">{item.a}</p>

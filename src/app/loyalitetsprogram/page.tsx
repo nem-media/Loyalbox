@@ -646,7 +646,7 @@ export default function LoyalitetsprogramPage() {
                 </ul>
                 <Link
                   href="/stempelkort"
-                  className="mt-4 inline-block text-sm font-medium text-accent hover:underline"
+                  className="trykmaal mt-4 inline-block text-sm font-medium text-accent hover:underline"
                 >
                   Se stempelkortet →
                 </Link>
@@ -698,7 +698,7 @@ export default function LoyalitetsprogramPage() {
             <div className="mt-8 divide-y divide-border">
               {FAQ.map((item) => (
                 <details key={item.q} className="group py-4">
-                  <summary className="cursor-pointer list-none font-medium">
+                  <summary className="trykmaal cursor-pointer list-none font-medium">
                     {item.q}
                   </summary>
                   <p className="mt-2 leading-relaxed text-muted">{item.a}</p>

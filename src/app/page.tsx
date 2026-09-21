@@ -644,7 +644,7 @@ TRE SKÆR, OG TEALEN FØRER NU AN.
               </ButtonLink>
               <Link
                 href="/produkter"
-                className="text-sm font-medium text-white/75 underline-offset-4 hover:text-white hover:underline"
+                className="trykmaal text-sm font-medium text-white/75 underline-offset-4 hover:text-white hover:underline"
               >
                 Se priser og produkter →
               </Link>

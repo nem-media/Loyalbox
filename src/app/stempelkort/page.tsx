@@ -854,7 +854,7 @@ export default function StempelkortPage() {
                     {r.body}
                   </p>
                   <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border pt-3.5">
-                    <span className="text-[11px] text-muted">
+                    <span className="text-xs text-muted sm:text-[11px]">
                       På kundens kort:
                     </span>
                     <span className="rounded-full bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent">
@@ -1041,7 +1041,7 @@ export default function StempelkortPage() {
             </div>
 
             <p className="mt-8">
-              <Link href="/" className="font-medium text-secondary">
+              <Link href="/" className="trykmaal font-medium text-secondary">
                 Se hele LoyalSum →
               </Link>
             </p>
@@ -1122,7 +1122,7 @@ export default function StempelkortPage() {
             <div className="mt-8 divide-y divide-border border-y border-border">
               {FAQ.map((item) => (
                 <details key={item.q} className="group py-4">
-                  <summary className="cursor-pointer list-none font-bold tracking-tight marker:content-none">
+                  <summary className="trykmaal cursor-pointer list-none font-bold tracking-tight marker:content-none">
                     <span className="flex items-start justify-between gap-4">
                       {item.q}
                       <span
