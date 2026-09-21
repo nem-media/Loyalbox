@@ -73,7 +73,7 @@ export function OffentligKundescoreVisning({
         type="button"
         onClick={() => setAaben((v) => !v)}
         aria-expanded={aaben}
-        className="mt-2 text-[11px] text-muted underline underline-offset-2"
+        className="trykmaal mt-2 text-[11px] text-muted underline underline-offset-2"
       >
         {OFFENTLIG_TEKST.forklaringLink}
       </button>

@@ -52,7 +52,7 @@ export function SupportForm({
 
   return (
     <form action={action} className="space-y-4">
-      <p className="text-sm text-muted">
+      <p className="max-w-2xl text-sm text-muted">
         Vi kan se, hvem du skriver fra
         {butik ? (
           <>

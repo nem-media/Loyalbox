@@ -148,17 +148,22 @@ export default async function DashboardPage({
               </ButtonLink>
             </div>
 
-            <p className="mt-5 border-t border-border pt-4 text-sm leading-relaxed text-muted">
-              Din QR-adresse, din anmeldelsesside og indsigten følger med{" "}
-              {ABONNEMENTER.join(" eller ")} — de kommer, så snart du har
-              bestilt.{" "}
-              <Link
-                href="/dashboard/abonnement"
-                className="font-medium text-accent hover:underline"
-              >
-                Se dit abonnement →
-              </Link>
-            </p>
+            {/* STREGEN GÅR HELE VEJEN, TEKSTEN GØR IKKE. `max-w-2xl` på
+                selve afsnittet ville skære skillestregen af midt i kortet.
+                Læsebredden hører til teksten, ikke til rammen. */}
+            <div className="mt-5 border-t border-border pt-4">
+              <p className="max-w-2xl text-sm leading-relaxed text-muted">
+                Din QR-adresse, din anmeldelsesside og indsigten følger med{" "}
+                {ABONNEMENTER.join(" eller ")} — de kommer, så snart du har
+                bestilt.{" "}
+                <Link
+                  href="/dashboard/abonnement"
+                  className="font-medium text-accent hover:underline"
+                >
+                  Se dit abonnement →
+                </Link>
+              </p>
+            </div>
           </CardBody>
         </Card>
       </>
@@ -284,7 +289,7 @@ export default async function DashboardPage({
                         <TD>
                           <Link
                             href={`/dashboard/standere/${a.standId}`}
-                            className="font-medium text-accent hover:underline"
+                            className="trykmaal-taet font-medium text-accent hover:underline"
                           >
                             {a.navn}
                           </Link>
@@ -415,7 +420,7 @@ export default async function DashboardPage({
               </CardTitle>
               <Link
                 href="/dashboard/feedback"
-                className="text-xs font-medium text-accent"
+                className="trykmaal-taet text-xs font-medium text-accent"
               >
                 Se alle
               </Link>

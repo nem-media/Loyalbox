@@ -224,7 +224,7 @@ export function ProfileForm({
                   VISES OGSÅ UDEN BRANDING: den, der overvejer at opgradere,
                   skal kunne have filen klar til den dag.
                 */}
-                <ul className="mt-3 space-y-1 text-xs leading-relaxed text-muted">
+                <ul className="mt-3 max-w-xl space-y-1 text-xs leading-relaxed text-muted">
                   <li>{LOGO_TEKSTER.raadFormat}</li>
                   <li>{LOGO_TEKSTER.raadBredde}</li>
                   <li>

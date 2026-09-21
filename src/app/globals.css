@@ -415,6 +415,46 @@
   }
 }
 
+/*
+  TO VARIANTER MERE — SAMME SPØRGSMÅL, TO ANDRE SITUATIONER.
+  `.trykmaal` blev lavet til det bare link i en footerspalte, hvor 20 px
+  polstring er gratis: rækken må gerne blive højere. Panelet har to slags
+  trykmål, den ikke kan bære, og de blev derfor aldrig rettet dér — samme
+  halvhed som da salgssiderne ikke fik moderniseringen.
+
+  `.trykmaal-taet` er til et link i en RÆKKE, DER IKKE MÅ VOKSE: "Se alle"
+  står ved siden af en sektionsoverskrift, og 20 px mere pr. sektion er en
+  halv telefonskærm på oversigten. Polstringen er den samme; den negative
+  margen tager den ud af layoutet igen, så feltet vokser og rækken står.
+  Tryksfeltet er det, der tæller — ikke linjeboksen.
+
+  `.trykmaal-min` er til en KNAP, DER ALLEREDE HAR POLSTRING (Log ud,
+  fanerne på loyalitetssiden, farvevalget i opslag). Dér ville `.trykmaal`
+  gøre skade frem for gavn: den sætter `padding-block: 0` på en mus og ville
+  altså FJERNE knappens egen polstring på desktop. En mindstehøjde lægger
+  sig oven i det, der er, og er et rent nul på en pegefingerfri enhed.
+
+  Grænsen er den samme som `.trykmaal`s — de tre må ikke kunne komme i
+  utakt, og en tablet er 768 px og stadig en finger.
+*/
+.trykmaal-taet {
+  padding-block: 0;
+}
+
+/* `.trykmaal-min` roerer BEVIDST ikke polstringen - hverken her eller
+   nedenfor. Knappen har sin egen, og en nulstilling ville aendre den paa
+   desktop for at rette noget, der kun er galt paa en telefon. */
+@media (max-width: 1023.98px), (pointer: coarse) {
+  .trykmaal-taet {
+    padding-block: 0.625rem;
+    margin-block: -0.625rem;
+  }
+
+  .trykmaal-min {
+    min-height: 2.25rem;
+  }
+}
+
 * {
   border-color: var(--border);
 }

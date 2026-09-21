@@ -88,8 +88,16 @@ export default async function HelpPage() {
                 key={g.id}
                 className="box-shape border border-border bg-card p-4"
               >
+                {/* `min-w-0` PÅ TITLEN, fordi mærket ved siden af er
+                    `shrink-0`. Et flex-element er mindst så bredt som sit
+                    indhold, så uden den kunne rækken ikke brække: MÅLT ved
+                    768 px stak "LoyalSum Komplet" 11 px ud, og hele siden
+                    kunne skubbes til siden. Samme fælde som `<main>` i
+                    skallen — se AGENTS.md. */}
                 <div className="flex items-baseline justify-between gap-3">
-                  <p className="font-semibold tracking-tight">{g.title}</p>
+                  <p className="min-w-0 font-semibold tracking-tight">
+                    {g.title}
+                  </p>
                   <span className="etiket shrink-0">
                     {g.kraever === "komplet" ? KOMPLET_NAVN : "Abonnement"}
                   </span>
@@ -103,7 +111,7 @@ export default async function HelpPage() {
           <p className="mt-4 text-sm">
             <Link
               href="/dashboard/abonnement"
-              className="font-medium text-accent hover:underline"
+              className="trykmaal inline-block font-medium text-accent hover:underline"
             >
               Se dit abonnement →
             </Link>
