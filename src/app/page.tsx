@@ -476,7 +476,7 @@ TRE SKÆR, OG TEALEN FØRER NU AN.
                 Bevidst en SÆTNING og ikke en prissektion: prissektionen blev
                 taget af forsiden, dengang den blev positioneret som platform
                 frem for som stander, og "Priser" peger på /produkter. */}
-            <p className="mx-auto mt-3 max-w-2xl text-center text-sm leading-relaxed text-muted">
+            <p className="mx-auto mt-3 max-w-xl text-center text-sm leading-relaxed text-muted">
               Anmeldelsessiden og den private feedback følger med{" "}
               <Link
                 href="/produkter/reviewstander-pro"
@@ -519,7 +519,7 @@ TRE SKÆR, OG TEALEN FØRER NU AN.
               funktion, men om der følger et skilt med, og det er en anden
               slags oplysning end de tre foran.
             */}
-            <p className="mx-auto mt-3 max-w-2xl text-center text-sm leading-relaxed text-muted">
+            <p className="mx-auto mt-3 max-w-xl text-center text-sm leading-relaxed text-muted">
               Har du ingen disk at stille et skilt på, findes hele platformen
               også uden stander:{" "}
               <Link

@@ -148,7 +148,7 @@ export function KontaktForm() {
 
       {/* Oplysningspligten skal opfyldes DÉR, hvor der indsamles — ikke kun i
           en politik, ingen åbner. Kort, og med link til resten. */}
-      <p className="text-xs leading-relaxed text-muted">
+      <p className="max-w-xl text-xs leading-relaxed text-muted">
         Vi bruger kun det, du skriver, til at svare dig. Beskeden gemmes ikke i
         systemet — den står i vores mailboks hos {COMPANY.legalName}. Skriv
         derfor ikke følsomme oplysninger her. Se{" "}
