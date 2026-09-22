@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
-import { UDTALELSER, synligeUdtalelser } from "./testimonials";
+import { UDTALELSER, synligeUdtalelser, initialer } from "./testimonials";
 
 /**
  * EN OPDIGTET KUNDEUDTALELSE ER VILDLEDENDE MARKEDSFØRING.
@@ -49,19 +49,70 @@ describe("udtalelser", () => {
     expect(UDTALELSER.length).toBeGreaterThan(0);
   });
 
-  it("hvert citat uden mærke er en påstand, nogen har sagt ja til", () => {
-    /*
-     * Prøven kan ikke vide, om et citat er ægte. Den kan holde fast i, at
-     * listen i dag kun rummer pladsholdere — så den dag nogen skriver en
-     * udtalelse ind UDEN mærke, fejler den og tvinger et bevidst valg frem
-     * for en glidning.
-     */
+  /*
+   * HER STOD DET MODSATTE INDTIL 22. SEPTEMBER 2026.
+   *
+   * Prøven krævede, at listen KUN rummede pladsholdere, og fejlede med
+   * "bekræft samtykket og opdatér denne prøve" den dag nogen skrev en rigtig
+   * udtalelse ind. Det var hele dens formål: at tvinge et bevidst valg frem
+   * for en glidning. Samtykket ER bekræftet — seks kunder har sagt ja til at
+   * blive citeret anonymt — og prøven er derfor skiftet ud med den egenskab,
+   * der gælder herfra.
+   *
+   * SPÆRREN SELV BLIVER STÅENDE (`synligeUdtalelser()` filtrerer stadig), så
+   * den NÆSTE udtalelse kan skrives ind og ses lokalt, før nogen har sagt ja.
+   */
+  it("der ER godkendte citater, og de er alle sammen med", () => {
     const godkendte = UDTALELSER.filter((u) => !u.isPlaceholder);
-    expect(
-      godkendte,
-      "en udtalelse uden isPlaceholder skal være et godkendt citat — " +
-        "bekræft samtykket og opdatér denne prøve",
-    ).toHaveLength(0);
+    expect(godkendte.length).toBe(6);
+  });
+
+  /*
+   * AFSENDEREN MÅ IKKE BLIVE EN PERSON.
+   *
+   * Kunderne er citeret anonymt som branche og landsdel. Kommer der en dag
+   * et `navn`, et `virksomhed` eller et billedfelt på typen, er vi tilbage
+   * ved personoplysninger, der kræver deres eget samtykke — og ved den
+   * fælde, hele filen handler om: et ansigt eller et firmanavn ved siden af
+   * et citat er en påstand om nogen. Prøven læser KILDEN, fordi et felt, der
+   * ikke bruges endnu, er lige så meget en invitation.
+   */
+  it("der findes hverken navn, virksomhed eller billede på en udtalelse", () => {
+    const s = kilde("src/lib/testimonials.ts");
+    for (const felt of ["navn", "virksomhed", "billede", "foto", "avatar"]) {
+      expect(
+        new RegExp(`^\s*${felt}\??:`, "m").test(s),
+        `\`${felt}\`ved siden af et citat er en påstand om et menneske`,
+      ).toBe(false);
+    }
+  });
+
+  /*
+   * INITIALERNE UDLEDES, SÅ DE IKKE KAN SIGE NOGET ANDET END TEKSTEN UNDER.
+   * Stod bogstaverne som deres eget felt, ville en rettet afsender efterlade
+   * en avatar, der passer til den gamle — og dét er ikke til at få øje på.
+   */
+  it("hver afsender giver brugbare initialer", () => {
+    expect(initialer("Bager i København")).toBe("BK");
+    expect(initialer("Salon i Trekantsområdet")).toBe("ST");
+    /* Ét ord giver ét bogstav — ikke det samme to gange. */
+    expect(initialer("Bager")).toBe("B");
+    for (const u of UDTALELSER) {
+      const i = initialer(u.afsender);
+      expect(i.length, `${u.id} giver ingen initialer`).toBeGreaterThan(0);
+      expect(i.length, `${u.id} giver for mange initialer`).toBeLessThanOrEqual(2);
+    }
+  });
+
+  /*
+   * CITATET ER SAGT AF ET MENNESKE OG MÅ IKKE REDIGERES.
+   * Prøven holder fast i ét af dem ordret. Den fanger ikke enhver
+   * omskrivning, men den fanger dén, der sker ved et uheld: et søg-og-erstat
+   * hen over filen.
+   */
+  it("citaterne står, som de er sagt", () => {
+    const nr5 = UDTALELSER.find((u) => u.id === "butik-nordsj");
+    expect(nr5?.citat.startsWith("Det har fungeret rigtig godt.")).toBe(true);
   });
 
   it("sektionen tegner ingenting, når der ikke er noget at vise", () => {
