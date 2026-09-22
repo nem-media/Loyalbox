@@ -516,6 +516,25 @@ body {
 }
 
 @layer components {
+  /*
+    EN RULLEFLADE UDEN RULLEPANEL.
+    Udtalelsernes slider rulles med pile, swipe og tastatur, og et
+    rullepanel under kortene ville være den eneste vandrette streg i en
+    sektion, der ellers kun består af kort. Fladen KAN stadig rulles — kun
+    panelet er skjult, og derfor er `overflow` uberørt.
+
+    Ikke det samme som `.menu-rul`, som gør det modsatte: dér SKAL panelet
+    kunne ses, fordi menuen er høj, og der er intet andet, der røber, at
+    den kan rulles.
+  */
+  .skjul-rullepanel {
+    scrollbar-width: none;
+  }
+
+  .skjul-rullepanel::-webkit-scrollbar {
+    display: none;
+  }
+
   .etiket {
     /*
       12 PX PÅ BERØRINGSSKÆRME, 11 PÅ DESKTOP.
