@@ -13,8 +13,7 @@ import {
   TERMS_VERSION,
   TERMS_DATE,
   LEVERINGSLAND_NAVN,
-  MAANEDER_I_AARSPRIS,
-} from "@/lib/constants";
+  MAANEDER_I_AARSPRIS, UDLAND_TEKST } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 import {
   SUSPENSION_MAANEDER,
@@ -184,6 +183,7 @@ export default function TermsPage() {
             Standeren fremstilles til dig med dit logo og dine links og sendes
             derefter til den leveringsadresse, du oplyser ved betalingen.{" "}
             <strong>Vi leverer kun i {LEVERINGSLAND_NAVN}.</strong>{" "}
+            {UDLAND_TEKST}{" "}
             {mangler(COMPANY.deliveryDays) ? (
               <>
                 Forventet leveringstid: <Udfyld hvad="leveringstid" />
