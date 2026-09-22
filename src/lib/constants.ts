@@ -134,6 +134,33 @@ export const FORNYELSE_FORKLARING =
 export const LEVERINGSLANDE = ["DK"] as const;
 export const LEVERINGSLAND_NAVN = "Danmark";
 
+/**
+ * VEJEN UD FOR DEN, DER BOR UDEN FOR DANMARK.
+ *
+ * Selvbetjeningen er låst til Danmark (se `LEVERINGSLANDE`), og det er
+ * hverken moms eller fragt bygget til at lave om på. Men et nej uden en vej
+ * videre er et tabt salg: der ER interesse fra Grønland, og en butik dér kan
+ * sagtens betjenes — bare i hånden.
+ *
+ * LINJEN LOVER TRE TING OG IKKE FLERE: skriv til os, vi fakturerer direkte,
+ * og abonnementet betales for et år ad gangen. Den siger BEVIDST intet om
+ * moms eller fragtpris. Grønland og Færøerne ligger uden for EU's
+ * momsområde, og hvad det koster at sende dertil, afhænger af ordren —
+ * begge dele hører til i en samtale, ikke i en sætning på et website, hvor
+ * den ville stå som et tilbud.
+ *
+ * ÅRLIG BETALING ER IKKE EN DETALJE. En manuel faktura hver måned til en
+ * enkelt kunde er tolv gange arbejdet for det samme beløb; det er dét, der
+ * gør den manuelle vej mulig i det hele taget. Derfor står det i linjen og
+ * ikke kun i hovedet på den, der svarer.
+ *
+ * ÉT STED, fordi den står tre steder på sitet — bestillingen med konto,
+ * bestillingen uden, og handelsbetingelsernes §4. Tre formuleringer af det
+ * samme tilbud bliver før eller siden til tre forskellige løfter.
+ */
+export const UDLAND_TEKST =
+  "Bor du uden for Danmark — fx i Grønland eller på Færøerne — kan du ikke bestille her, men skriv til os: så aftaler vi levering og fakturering direkte. Abonnementet betales for et år ad gangen.";
+
 /** True hvis feltet stadig venter på en rigtig værdi. */
 export function mangler(v: string): boolean {
   return !v || v === "UDFYLD";

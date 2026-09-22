@@ -5,7 +5,7 @@ import { useActionState, useEffect, useId, useRef, useState } from "react";
 import { bestilUdenKonto, type BestillingResultat } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input, Field } from "@/components/ui/input";
-import { COMPANY } from "@/lib/constants";
+import { COMPANY, UDLAND_TEKST, harFysiskSkilt } from "@/lib/constants";
 import { SkiltPreview } from "@/components/skilt-preview";
 import { FormSektion, TilvalgRaekke } from "@/components/ui/form-sektion";
 import { StoreIcon, StandIcon, LinkIcon } from "@/components/nav-icons";
@@ -794,6 +794,17 @@ export function BestilUdenKontoForm({
               {product.monthlyPrice ? (
                 <p className="pt-1 text-xs leading-relaxed text-muted">
                   {FORNYELSE_FORKLARING}
+                </p>
+              ) : null}
+              {/* VEJEN UD FOR DEN, DER BOR UDEN FOR DANMARK.
+                  Her siger formularen ingenting om levering — landet vælges
+                  først i Stripes eget adressetrin, som kun tillader DK. Uden
+                  linjen her ville en kunde i Grønland altså udfylde hele
+                  bestillingen OG designe sit skilt, før muren kom. Se
+                  `UDLAND_TEKST`. */}
+              {harFysiskSkilt(product) ? (
+                <p className="pt-1 text-xs leading-relaxed text-muted">
+                  {UDLAND_TEKST}
                 </p>
               ) : null}
             </dl>

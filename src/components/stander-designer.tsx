@@ -23,8 +23,7 @@ import {
   TERMS_VERSION,
   VOLUME_DISCOUNTS,
   priceFor,
-  type Product,
-} from "@/lib/constants";
+  type Product, UDLAND_TEKST } from "@/lib/constants";
 import {
   ACCENT_TEKSTER,
   EGEN_FRONTFARVE_PRIS,
@@ -640,6 +639,17 @@ export function StanderDesigner({
                   </p>
                 </>
               ) : null}
+              {/*
+                VEJEN UD FOR DEN, DER BOR UDEN FOR DANMARK — OG DEN HØRER TIL
+                HER. Leveringsadressen vælges først i Stripes eget
+                adressetrin, som kun tillader DK, så uden linjen her ville en
+                kunde i Grønland designe hele sit skilt, før muren kom.
+                Designeren tegnes KUN for varer med et fysisk skilt, så
+                sætningen er sand hver gang den står her. Se `UDLAND_TEKST`.
+              */}
+              <p className="pt-1 text-xs leading-relaxed text-muted">
+                {UDLAND_TEKST}
+              </p>
             </dl>
           </div>
         </div>
