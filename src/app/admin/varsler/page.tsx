@@ -107,7 +107,20 @@ export default async function VarslerPage() {
           <p className="mt-1 text-sm text-muted">
             Emne: <span className="font-medium text-foreground">{eksempel.emne}</span>
           </p>
-          <pre className="box-shape mt-4 overflow-x-auto border border-border bg-surface-subtle p-4 text-xs leading-relaxed">
+          {/*
+            `whitespace-pre-wrap` OG IKKE `overflow-x-auto`.
+            Forhåndsvisningens ENESTE formål er, at mailen kan læses igennem,
+            før den sendes til hver eneste kunde — og med vandret rulning stod
+            de lange afsnit klippet af ved kortets kant ("…du allerede har
+            accept"). Man kan godt rulle derhen, men man gør det ikke, og så
+            er visningen en bekræftelse frem for en kontrol. Set på den live
+            side; i koden så begge klasser fornuftige ud.
+
+            `pre-wrap` bevarer BÅDE linjeskift og mellemrum, så opstillingens
+            kolonner bliver stående — det er justeringen, der gør en stribe
+            linjer til en opstilling, og et almindeligt ombrud ville æde den.
+          */}
+          <pre className="box-shape mt-4 border border-border bg-surface-subtle p-4 text-xs leading-relaxed whitespace-pre-wrap break-words">
             {eksempel.tekst}
           </pre>
         </CardBody>
