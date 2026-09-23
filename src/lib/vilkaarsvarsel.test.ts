@@ -5,7 +5,6 @@ import { DPA_VERSION } from "./dpa";
 import { VILKAARSVARSEL_DAGE } from "./abonnement";
 import { varselMail, ikrafttraedelse, versionerFor } from "./vilkaarsvarsel";
 import { mailHtml } from "./mail-skabelon";
-import { readFileSync } from "node:fs";
 import { isTestBuyer } from "./commerce";
 
 /**

@@ -95,8 +95,21 @@ export default async function VarslerPage() {
                       key={m.id}
                       className="flex flex-wrap items-baseline justify-between gap-2 py-2"
                     >
-                      <span className="font-medium">{m.navn}</span>
-                      <span className="text-xs text-muted">
+                      <span className="min-w-0 font-medium">
+                        {m.navn}{" "}
+                        {/* ADRESSEN STÅR DER, FORDI DET ER DEN, DER AFGØR DET.
+                            Filteret tager kun `@loyalbox.test`, og det skal
+                            det: en rigtig butik må gerne hedde "Testkiosk".
+                            Men så bliver der navne tilbage på listen, som
+                            KAN være vores eget rod — og uden adressen kan
+                            den, der trykker, ikke se forskel på en kunde og
+                            en kladde. Admin ser den i forvejen på
+                            virksomheden. */}
+                        <span className="font-normal text-muted">
+                          · {m.email}
+                        </span>
+                      </span>
+                      <span className="shrink-0 text-xs text-muted">
                         står på {m.nuvaerende ?? "ingen version"}
                       </span>
                     </li>
