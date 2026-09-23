@@ -1,3 +1,4 @@
+import { VILKAARSVARSEL_DAGE } from "./abonnement";
 import { COMPANY, type Product } from "@/lib/constants";
 import { FRISTER } from "@/lib/opbevaring";
 import {
@@ -151,7 +152,7 @@ export const DPA_SECTIONS: DpaSection[] = [
     paragraphs: [
       "Kunden giver hermed generel tilladelse til, at LoyalSum benytter de underdatabehandlere, der er anført nedenfor.",
       "LoyalSum pålægger hver underdatabehandler de samme databeskyttelsesforpligtelser, som følger af denne aftale, og LoyalSum hæfter fuldt ud over for kunden for underdatabehandlerens opfyldelse af dem. Opfylder underdatabehandleren ikke sine forpligtelser, er det altså os, kunden skal holde sig til.",
-      "Ændres listen, får kunden besked senest 30 dage før, og kunden kan gøre indsigelse. Kan der ikke findes en løsning, kan kunden opsige abonnementet.",
+      `Ændres listen, får kunden besked senest ${VILKAARSVARSEL_DAGE} dage før, og kunden kan gøre indsigelse. Kan der ikke findes en løsning, kan kunden opsige abonnementet.`,
     ],
   },
   {
@@ -217,7 +218,7 @@ export const DPA_SECTIONS: DpaSection[] = [
     id: "oevrigt",
     title: "14. Ændringer, ansvar og lovvalg",
     paragraphs: [
-      "Kræver ny lovgivning eller praksis ændringer i aftalen, varsles de senest 30 dage før. Hæves aftalens version, får kunden besked på mail.",
+      `Kræver ny lovgivning eller praksis ændringer i aftalen, varsles de senest ${VILKAARSVARSEL_DAGE} dage før. Hæves aftalens version, får kunden besked på mail.`,
       "Parterne hæfter over for hinanden efter dansk rets almindelige regler for tab, der skyldes en tilsidesættelse af denne aftale eller af databeskyttelsesforordningen. En ansvarsbegrænsning aftalt i handelsbetingelserne begrænser IKKE ansvaret over for de registrerede efter forordningens artikel 82 — det kan den ikke, og det skal den ikke se ud til at kunne.",
       "Aftalen er underlagt dansk ret, og tvister afgøres ved de danske domstole.",
       `Spørgsmål til aftalen og til behandlingen af personoplysninger sendes til ${COMPANY.email}, som er kundens kontaktpunkt hos os. LoyalSum har ikke pligt til at udpege en databeskyttelsesrådgiver og har ikke udpeget en.`,

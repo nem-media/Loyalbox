@@ -36,6 +36,18 @@ export type AdminHandling =
    * Det, der manglede, var svaret på "var vi overhovedet inde?" — og det er
    * netop dét, en kunde vil spørge om.
    */
+  /*
+   * VILKÅRSVARSEL. Noteres PR. VIRKSOMHED og ikke som én linje pr. udsendelse,
+   * og det er hele spærren mod at sende to gange: listen over modtagere
+   * trækker dem fra, der allerede har en linje med samme nøgle. Ligger tallet
+   * i en variabel i stedet, ville to samtidige tryk begge sende — en
+   * serverfunktion kører i mange eksemplarer.
+   *
+   * `efter` bærer KUN nøglen og ikrafttrædelsesdatoen. Hverken navn eller
+   * mailadresse: loggen skal kunne besvare "hvem blev varslet om hvad", ikke
+   * være endnu en kopi af kunden, der skal huskes ved en sletning.
+   */
+  | "vilkaarsvarsel-sendt"
   | "support-adgang-aabnet"
   | "support-adgang-lukket"
   /*
@@ -77,6 +89,7 @@ export const HANDLING_TEKST: Record<AdminHandling, string> = {
   "abonnement-opsagt": "Opsagde abonnementet ved periodens udløb",
   "opsigelse-fortrudt": "Fortrød opsigelsen",
   "kundeforhold-genoptaget": "Genoptog kundeforholdet",
+  "vilkaarsvarsel-sendt": "Sendte varsel om ændrede vilkår",
   "support-adgang-aabnet": "Åbnede kundens dashboard (support)",
   "support-adgang-lukket": "Forlod kundens dashboard",
   "adresse-solgt": "Solgte en QR-adresse mere (abonnementet hævet)",

@@ -23,6 +23,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { justerLager, saetLager, erLagerFarve } from "@/lib/lager";
 import { SUPPORT_COOKIE } from "@/lib/support-adgang";
 import type { OrderStatus } from "@/lib/types/database";
+import { sendVilkaarsvarsel } from "@/lib/vilkaarsvarsel-udsendelse";
+import type { VarselSlags } from "@/lib/vilkaarsvarsel";
 
 async function requireAdmin() {
   const user = await getCurrentUser();
@@ -797,4 +799,51 @@ export async function saetStanderLager(
   }
   revalidatePath("/admin/lager");
   return { ok: true };
+}
+
+/* ------------------------------------------------------ vilkårsvarsel --- */
+
+/**
+ * SEND VARSEL OM ÆNDREDE VILKÅR TIL ALLE, DER MANGLER DET.
+ *
+ * DEN FARLIGSTE KNAP I ADMIN: den skriver til hver eneste kunde. Derfor er
+ * den en HANDLING og ikke noget, en udrulning kan udløse — se begrundelsen i
+ * `vilkaarsvarsel-udsendelse.ts`. Handelsbetingelsernes §15 lover mailen, og
+ * indtil nu fandtes den ikke.
+ *
+ * `slags` læses med `laesValg()`-tankegangen: et ukendt ord bliver til
+ * "begge" frem for at kaste. Feltet kommer fra knapper, vi selv har tegnet,
+ * så alt andet er en formular på afveje — og "begge" er den sikreste
+ * antagelse, fordi den varsler for meget frem for for lidt.
+ */
+export async function sendVarselTilAlle(
+  formData: FormData,
+): Promise<FormResult> {
+  const admin = await requireAdmin();
+
+  const raa = String(formData.get("slags") ?? "");
+  const slags: VarselSlags =
+    raa === "vilkaar" || raa === "dpa" ? raa : "begge";
+
+  try {
+    const r = await sendVilkaarsvarsel({
+      slags,
+      actorId: admin.id,
+      actorEmail: admin.email,
+    });
+    revalidatePath("/admin/varsler");
+    if (r.sendt === 0 && r.fejlede === 0) {
+      return { ok: true, error: "Ingen manglede varslet — der blev ikke sendt noget." };
+    }
+    return {
+      ok: true,
+      error:
+        `Sendt til ${r.sendt}. Træder i kraft ${r.ikrafttraeden}.` +
+        (r.fejlede > 0
+          ? ` ${r.fejlede} fejlede og står stadig på listen — prøv igen.`
+          : ""),
+    };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Ukendt fejl." };
+  }
 }

@@ -15,6 +15,10 @@ const SECTIONS: NavSection[] = [
       { href: "/admin/ordrer", label: "Ordrer", icon: "billing" },
       { href: "/admin/lager", label: "Lager", icon: "stand" },
       { href: "/admin/feedback", label: "Feedback", icon: "feedback" },
+      /* VARSLINGEN STÅR I MENUEN og ikke gemt inde på en virksomhed: den
+         gælder ALLE kunder på én gang, og den skal kunne findes den dag, en
+         version er hævet — ikke huskes. */
+      { href: "/admin/varsler", label: "Varsling", icon: "help" },
     ],
   },
 ];

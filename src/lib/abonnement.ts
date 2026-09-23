@@ -70,6 +70,24 @@ export const SLETNING_ANGREFRIST_DAGE = 7;
 export const SKIFT_VARSEL_MAANEDER = 1;
 
 /**
+ * HVOR LANGT FØR EN VILKÅRSÆNDRING VI VARSLER.
+ *
+ * Handelsbetingelsernes §15 lover det: "Ændringer varsles på mail senest 30
+ * dage før, de træder i kraft for dit abonnement, og du kan altid opsige
+ * inden da." Databehandleraftalen lover det samme ved en materiel ændring.
+ *
+ * TALLET STÅR ÉT STED, fordi det står tre: i §15, i aftalen og i den mail,
+ * der faktisk sendes. Tre håndskrevne tredivere bliver før eller siden til
+ * to forskellige løfter — og dét, kunden kan holde os op på, er teksten.
+ *
+ * Fristen er et LOFT og ikke en plan: "senest 30 dage" betyder, at der gerne
+ * må varsles tidligere. `ikrafttraedelse()` regner derfor altid fra dagen i
+ * dag og lægger fristen til, så en varsling ikke kan komme til at love en
+ * dato, der er for tæt på.
+ */
+export const VILKAARSVARSEL_DAGE = 30;
+
+/**
  * Overgangsperioden efter varslet. Artikel 25 sætter loftet ved 30
  * kalenderdage; er det teknisk umuligt, må den forlænges til højst syv måneder
  * mod en begrundelse.

@@ -24,6 +24,7 @@ import {
   SKIFT_HENTEPERIODE_DAGE,
   ADRESSER_PR_ABONNEMENT,
   ADRESSER_SELVBETJENING_MAKS,
+  VILKAARSVARSEL_DAGE,
 } from "@/lib/abonnement";
 
 /**
@@ -537,10 +538,10 @@ export default function TermsPage() {
 
         <LegalSection id="aendringer" title="15. Ændringer, overdragelse">
           <p>
-            Vi kan ændre priser og vilkår. Ændringer varsles på mail senest 30
-            dage før, de træder i kraft for dit abonnement, og du kan altid
-            opsige inden da. Det samme gælder, hvis databehandleraftalen ændres
-            materielt.
+            Vi kan ændre priser og vilkår. Ændringer varsles på mail senest{" "}
+            {VILKAARSVARSEL_DAGE} dage før, de træder i kraft for dit
+            abonnement, og du kan altid opsige inden da. Det samme gælder, hvis
+            databehandleraftalen ændres materielt.
           </p>
           <p>
             Vi kan overdrage aftalen til en anden virksomhed, fx hvis LoyalSum
