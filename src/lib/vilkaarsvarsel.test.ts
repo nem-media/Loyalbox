@@ -5,6 +5,8 @@ import { DPA_VERSION } from "./dpa";
 import { VILKAARSVARSEL_DAGE } from "./abonnement";
 import { varselMail, ikrafttraedelse, versionerFor } from "./vilkaarsvarsel";
 import { mailHtml } from "./mail-skabelon";
+import { readFileSync } from "node:fs";
+import { isTestBuyer } from "./commerce";
 
 /**
  * VARSLET SKAL HOLDE DET, AFTALEN LOVER.
@@ -203,5 +205,63 @@ describe("adresserne i den gengivne mail", () => {
     for (const sti of ["handelsbetingelser", "databehandleraftale"]) {
       expect(html).toContain(`href="https://loyalsum.dk/${sti}"`);
     }
+  });
+});
+
+/*
+  FILTERET FOR TESTKONTI — PRØVET PÅ DEN FARLIGE RETNING.
+
+  `modtagere()` rører databasen og kan ikke prøves uden den. Egenskaben, der
+  betyder noget, kan til gengæld læses i kilden: at der filtreres på
+  E-MAILEN og ikke på NAVNET. Listen rummer "Testkiosk Basic" og "Test Café
+  Aarhus", og et navnefilter ville udelade en rigtig butik fra et varsel,
+  handelsbetingelsernes §15 lover hende — tavst, og først opdaget den dag
+  nogen spørger, hvorfor hun aldrig hørte noget.
+
+  KILDEN LÆSES UDEN KOMMENTARER: begrundelserne i den fil citerer med vilje
+  den kode, de forklarer, så en prøve på den rå tekst ville også bestå, når
+  kaldet var slettet og forklaringen stod tilbage.
+*/
+describe("testkonti udelades", () => {
+  const kilde = readFileSync(
+    new URL("./vilkaarsvarsel-udsendelse.ts", import.meta.url),
+    "utf8",
+  ).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+
+  it("bruger husets egen isTestBuyer frem for en ny definition", () => {
+    expect(kilde).toMatch(/import\s*\{[^}]*isTestBuyer[^}]*\}\s*from\s*"@\/lib\/commerce"/);
+    expect(kilde).toContain("isTestBuyer(f.contact_email)");
+  });
+
+  it("skriver ikke domænet af", () => {
+    expect(kilde).not.toContain("@loyalbox.test");
+  });
+
+  it("filtrerer ALDRIG på virksomhedens navn", () => {
+    /* Enhver optræden af `name` sammen med en test-lignende sammenligning
+       er netop den fejl, der ikke må komme ind ad bagdøren. */
+    expect(kilde).not.toMatch(/name[^\n]*\.(includes|startsWith|match)\s*\(\s*["'`/][^"'`]*[Tt]est/);
+  });
+
+  it("tæller de udeladte, så listen ikke bare bliver kortere", () => {
+    expect(kilde).toContain("testkonti");
+  });
+});
+
+describe("isTestBuyer rammer domænet og ikke navnet", () => {
+  it("tager en seed-konto", () => {
+    expect(isTestBuyer("komplet@loyalbox.test")).toBe(true);
+    expect(isTestBuyer("Komplet@LoyalBox.Test")).toBe(true);
+  });
+
+  it("lader en rigtig butik med 'test' i navnet være i fred", () => {
+    /* Virksomheden hedder "Testkiosk Basic" — adressen er hendes egen. */
+    expect(isTestBuyer("kontakt@testkiosk.dk")).toBe(false);
+    expect(isTestBuyer("test@rigtigbutik.dk")).toBe(false);
+  });
+
+  it("svarer nej på ingenting", () => {
+    expect(isTestBuyer(null)).toBe(false);
+    expect(isTestBuyer(undefined)).toBe(false);
   });
 });

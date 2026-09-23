@@ -39,9 +39,9 @@ export default async function VarslerPage() {
   const eksempel = varselMail({ slags: "begge", ikrafttraeden: ikraft });
 
   const grupper = [
-    { slags: "vilkaar" as const, navn: "Handelsbetingelser", version: TERMS_VERSION, liste: vilkaar },
-    { slags: "dpa" as const, navn: "Databehandleraftale", version: DPA_VERSION, liste: dpa },
-    { slags: "begge" as const, navn: "Begge aftaler", version: `${TERMS_VERSION} + ${DPA_VERSION}`, liste: begge },
+    { slags: "vilkaar" as const, navn: "Handelsbetingelser", version: TERMS_VERSION, ...vilkaar },
+    { slags: "dpa" as const, navn: "Databehandleraftale", version: DPA_VERSION, ...dpa },
+    { slags: "begge" as const, navn: "Begge aftaler", version: `${TERMS_VERSION} + ${DPA_VERSION}`, ...begge },
   ];
 
   return (
@@ -70,6 +70,16 @@ export default async function VarslerPage() {
                       ? "Ingen mangler varslet."
                       : `${g.liste.length} kunde${g.liste.length === 1 ? "" : "r"} mangler varslet.`}
                   </p>
+                  {/* UDELADELSEN SIGES HØJT. En liste, der bare er kortere,
+                      er den farlige slags: spørgsmålet "hvorfor fik hun
+                      aldrig varslet?" skal kunne besvares HER og ikke i
+                      koden. */}
+                  {g.testkonti > 0 ? (
+                    <p className="mt-1 text-xs text-muted">
+                      {g.testkonti} testkonto
+                      {g.testkonti === 1 ? "" : "er"} udeladt (@loyalbox.test).
+                    </p>
+                  ) : null}
                 </div>
                 {g.liste.length > 0 ? (
                   <VarselKnap slags={g.slags} antal={g.liste.length} />

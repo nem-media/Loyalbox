@@ -4,6 +4,7 @@ import { sendKundeMail } from "@/lib/mail";
 import { noterFejl } from "@/lib/drift";
 import { noterAdminHandling } from "@/lib/admin-log";
 import { TERMS_VERSION } from "@/lib/constants";
+import { isTestBuyer } from "@/lib/commerce";
 import { DPA_VERSION } from "@/lib/dpa";
 import {
   varselMail,
@@ -64,7 +65,7 @@ export function varselNoegle(slags: VarselSlags): string {
  * join ville binde listen til, at loggen bliver ved med at se ud som i dag.
  * Antallet af kunder er lille nok til, at forskellen ikke kan måles.
  */
-export async function modtagere(slags: VarselSlags): Promise<VarselModtager[]> {
+export async function modtagere(slags: VarselSlags): Promise<VarselListe> {
   const admin = createAdminClient();
   const noegle = varselNoegle(slags);
 
@@ -90,7 +91,28 @@ export async function modtagere(slags: VarselSlags): Promise<VarselModtager[]> {
       .map((r) => r.company_id),
   );
 
-  return (firmaer ?? [])
+  /*
+    TESTKONTIENE UDELADES — OG FILTERET HÆNGER PÅ E-MAILEN, ALDRIG PÅ NAVNET.
+
+    Basen deles af udvikling og produktion, så seed-virksomhederne står side
+    om side med rigtige kunder. De skal ikke have et varsel: adresserne findes
+    ikke, hver afvist mail ville lande i driftsloggen, og en alarm, der altid
+    larmer, er en alarm, man holder op med at læse.
+
+    `isTestBuyer()` er husets EGEN definition (`commerce.ts`) og genbruges
+    frem for at blive skrevet af — to definitioner af "testkonto" ville før
+    eller siden være uenige, og uenigheden ville vise sig her.
+
+    DER FILTRERES IKKE PÅ NAVNET, selv om listen rummer "Testkiosk Basic" og
+    "Test Café Aarhus". En rigtig butik må gerne hedde noget med Test, og et
+    navnefilter ville udelade hende fra et varsel, handelsbetingelsernes §15
+    LOVER hende — tavst. Fejlen skal falde ud til den sikre side: hellere en
+    mail til vores egen indbakke end en kunde, der aldrig blev varslet.
+  */
+  const udenTest = (firmaer ?? []).filter((f) => !isTestBuyer(f.contact_email));
+  const testkonti = (firmaer ?? []).length - udenTest.length;
+
+  const liste = udenTest
     .filter((f) => {
       if (!f.contact_email) return false;
       if (alleredeSendt.has(f.id)) return false;
@@ -109,6 +131,22 @@ export async function modtagere(slags: VarselSlags): Promise<VarselModtager[]> {
       nuvaerende:
         slags === "dpa" ? (f.dpa_version ?? null) : (f.terms_version ?? null),
     }));
+
+  return { liste, testkonti };
+}
+
+export interface VarselListe {
+  liste: VarselModtager[];
+  /**
+   * Hvor mange testkonti der blev udeladt.
+   *
+   * TALLET VISES, OG DET ER IKKE PYNT. Et filter, der bare gør listen
+   * kortere, er den farlige slags: den dag nogen undrer sig over, hvorfor en
+   * kunde aldrig blev varslet, skal svaret kunne ses på siden og ikke kun i
+   * koden. Samme grund som at driftsloggen også noterer de GODE kørsler —
+   * stilhed ligner succes.
+   */
+  testkonti: number;
 }
 
 export interface UdsendelseResultat {
@@ -128,7 +166,7 @@ export async function sendVilkaarsvarsel(opts: {
   actorId: string | null;
   actorEmail: string;
 }): Promise<UdsendelseResultat> {
-  const liste = await modtagere(opts.slags);
+  const { liste } = await modtagere(opts.slags);
   const ikraft = ikrafttraedelse();
   const { emne, tekst } = varselMail({
     slags: opts.slags,
