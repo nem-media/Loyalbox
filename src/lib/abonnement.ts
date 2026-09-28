@@ -140,6 +140,8 @@ export interface AbonnementFelter {
    * sletningsdatoen respekterer det.
    */
   dataudtraek_frist?: string | null;
+  /** Første fejlede betaling i en igangværende betalingssag (0048). */
+  betaling_fejlet_siden?: string | null;
 }
 
 /** Betaler kunden lige nu? Prøveperiode tæller med. */
@@ -266,6 +268,63 @@ export function betalingManglerBroedtekst(
     "som altid." +
     hale
   );
+}
+
+/**
+ * TRE HØFLIGE VARSLER, FØR ADGANGEN LUKKER (ejerens beslutning 28. sep. 2026).
+ *
+ * Før lukkede adgangen ved FØRSTE fejlede betaling (`past_due` → basic),
+ * mens §7 lovede, at Stripe prøvede igen først. Nu er adgangen urørt, mens
+ * Stripe prøver, og kunden får tre mails: med det samme, efter fire dage og
+ * efter otte — den sidste med datoen. Går betalingen stadig ikke igennem,
+ * lukker adgangen efter elleve dage.
+ *
+ * KUN HVIS DER IKKE ER BETALT. Hvert varsel slår fakturaen op hos Stripe lige
+ * før, det sendes, og sendes kun, når den stadig står åben med et fejlet
+ * forsøg — se `betalingsvarsler.ts`.
+ *
+ * ELLEVE OG IKKE FJORTEN, fordi Stripe er sat til at prøve i to uger og
+ * derefter LUKKE abonnementet (Revenue recovery → Retries, målt 28. sep.). Vi
+ * skal nå at lukke adgangen selv og på den dato, vi har skrevet — ellers
+ * ville Stripes lukning komme først, og kunden ville have fået en dato, der
+ * aldrig blev brugt. Ændres Stripes vindue, skal tallet følge med.
+ */
+export const BETALINGSVARSEL_DAGE = [0, 4, 8] as const;
+export const BETALING_LUKKER_EFTER_DAGE = 11;
+
+/** Kan abonnementet reddes med et nyt kort? Så er det en betalingssag. */
+export function erBetalingssag(status: string | null | undefined): boolean {
+  return status === "past_due" || status === "unpaid";
+}
+
+/** Den dag adgangen lukker, hvis betalingen ikke kommer. */
+export function betalingLukker(fejletSiden: Date): Date {
+  const d = new Date(fejletSiden);
+  d.setDate(d.getDate() + BETALING_LUKKER_EFTER_DAGE);
+  return d;
+}
+
+/**
+ * Hvad skal der ske med en betalingssag i dag?
+ *
+ * REN REGNING PÅ TO TAL — hvornår betalingen fejlede, og hvor mange varsler
+ * der er sendt — så den kan prøves uden en base. Én ting ad gangen: er et
+ * varsel glemt en nat, sendes det næste nat og ikke to på én gang, og der
+ * lukkes aldrig, før alle tre er sendt.
+ */
+export function betalingssagIDag(
+  fejletSiden: Date,
+  sendt: number,
+  nu: Date = new Date(),
+): { varsel: 1 | 2 | 3 } | { luk: true } | null {
+  const dage = (nu.getTime() - fejletSiden.getTime()) / 86_400_000;
+  if (sendt < BETALINGSVARSEL_DAGE.length) {
+    const naeste = sendt as 0 | 1 | 2;
+    return dage >= BETALINGSVARSEL_DAGE[naeste]
+      ? { varsel: (naeste + 1) as 1 | 2 | 3 }
+      : null;
+  }
+  return dage >= BETALING_LUKKER_EFTER_DAGE ? { luk: true } : null;
 }
 
 /**

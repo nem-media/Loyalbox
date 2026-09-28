@@ -13,6 +13,7 @@ import { getProduct, STRIPE_TAX_RATES, type Product } from "@/lib/constants";
 import { findPrislinje, erAarsabonnement } from "@/lib/ekstra-adresse";
 import { periodeSlut } from "@/lib/stripe-abonnement";
 import { noterFejl } from "@/lib/drift";
+import { erBetalende } from "@/lib/abonnement";
 
 /**
  * OPGRADERING PÅ DET ABONNEMENT, DER ALLEREDE KØRER.
@@ -85,6 +86,9 @@ export async function opgraderAbonnement(
     return { ok: false, fejl: "ikke-opgradering" };
   }
   if (!company.stripe_subscription_id) return { ok: false, fejl: "ikke-opgradering" };
+  // Midt i en betalingssag: ret kortet først. En opgradering ville lægge en
+  // faktura mere oven på den, der ikke er betalt.
+  if (!erBetalende(company.stripe_status)) return { ok: false, fejl: "betaling-fejlede" };
   if (!isStripeConfigured() || !canSell(maal)) return { ok: false, fejl: "ikke-aabnet" };
 
   const nuvaerende = getProduct(company.product_slug!);

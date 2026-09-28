@@ -9,6 +9,7 @@ import { bestiltMail, bekraeftetMail, udfoertMail } from "./sletning";
 import { COMPANY } from "./constants";
 import {
   aarsskifteMail,
+  betalingsvarselMail,
   fortrudtMail,
   opgraderetMail,
   opsagtMail,
@@ -121,6 +122,20 @@ const MAILS: [string, string][] = [
       betalingFejlede: false,
     }).tekst,
   ],
+  ...([1, 2, 3] as const).map(
+    (nummer) =>
+      [
+        `betalingsvarsel ${nummer}`,
+        betalingsvarselMail({
+          firmanavn: "Café Aurora",
+          vare: "LoyalSum Komplet",
+          nummer,
+          lukker: new Date("2026-10-12T10:00:00Z"),
+          udestaaendeOere: 49875,
+          fakturaUrl: "https://invoice.stripe.com/i/test",
+        }).tekst,
+      ] as [string, string],
+  ),
   [
     "opgraderet",
     opgraderetMail({

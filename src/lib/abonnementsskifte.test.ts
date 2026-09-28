@@ -143,11 +143,19 @@ describe("abonnementsSkifteSpaerre", () => {
    * genoptagelse skal kunne købes. Spærrede vi her, ville en opsagt
    * Komplet-kunde hverken kunne komme tilbage eller vælge noget mindre.
    */
-  it("slipper alt igennem, når abonnementet ikke længere betaler", () => {
+  it("en betalingssag er stadig et abonnement — ingen ny betaling ved siden af", () => {
+    // past_due/unpaid venter på et kort og prøver igen hos Stripe; et køb her
+    // ville lave abonnement nummer to. Vejen er kundecentret.
+    for (const status of ["past_due", "unpaid"]) {
+      const firma = { product_slug: "loyalsum-komplet", stripe_status: status };
+      expect(abonnementsSkifteSpaerre(firma, KOMPLET)).toBe("har-den-allerede");
+      expect(abonnementsSkifteSpaerre(firma, PRO)).toBe("nedgradering");
+    }
+  });
+
+  it("slipper alt igennem, når abonnementet ikke længere findes", () => {
     for (const status of [
       "canceled",
-      "past_due",
-      "unpaid",
       "paused",
       "incomplete",
       null,

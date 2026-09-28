@@ -6,6 +6,8 @@ import { formatDate } from "@/lib/utils";
 import {
   abonnementTilstand,
   abonnementStoppetBroedtekst,
+  betalingLukker,
+  erBetalingssag,
   betalingManglerBroedtekst,
   dageTil,
   genoptagVej,
@@ -34,6 +36,38 @@ interface Props extends AbonnementFelter {
  */
 export async function BetalingMangler(firma: Props) {
   const tilstand = abonnementTilstand(firma);
+
+  /*
+   * BETALINGSSAGEN, FØR ADGANGEN LUKKER. Adgangen er åben, så dette er en
+   * påmindelse og ikke en mur: samme besked som mailene, med datoen og
+   * knappen til kundecentret. Uden den kunne kunden kun se sagen i sin
+   * indbakke, og netop dashboardet er dét, der lukker.
+   */
+  if (
+    tilstand === "aktiv" &&
+    erBetalingssag(firma.stripe_status) &&
+    firma.betaling_fejlet_siden
+  ) {
+    const lukker = betalingLukker(new Date(firma.betaling_fejlet_siden));
+    return (
+      <div
+        role="status"
+        className="box-shape mb-6 border border-secondary/50 bg-secondary/10 p-5"
+      >
+        <p className="text-base font-semibold">Betalingen gik ikke igennem</p>
+        <p className="mt-1.5 text-sm leading-relaxed">
+          Det skyldes oftest et udløbet eller spærret kort. Din adgang er
+          uændret, og Stripe prøver igen af sig selv. Er betalingen ikke på
+          plads den {formatDate(lukker.toISOString())}, sættes statistik,
+          feedback og redigering på pause — dine kunder mærker ingenting.
+        </p>
+        <div className="mt-4">
+          <GenoptagKnap vej="opdater_kort" slug={firma.product_slug} />
+        </div>
+      </div>
+    );
+  }
+
   if (tilstand === "aktiv") return null;
 
   const dage = dageTil(sletningSker(firma));

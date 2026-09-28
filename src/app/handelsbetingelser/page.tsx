@@ -25,6 +25,8 @@ import {
   ADRESSER_PR_ABONNEMENT,
   ADRESSER_SELVBETJENING_MAKS,
   VILKAARSVARSEL_DAGE,
+  BETALINGSVARSEL_DAGE,
+  BETALING_LUKKER_EFTER_DAGE,
 } from "@/lib/abonnement";
 
 /**
@@ -255,9 +257,13 @@ export default function TermsPage() {
           title="7. Manglende betaling — og hvad der sker med dine data"
         >
           <p>
-            Kan betalingen ikke gennemføres, forsøger Stripe igen og sender dig
-            besked. Lykkes det ikke, falder din adgang til det gratis niveau,
-            som beskrevet i afsnit 6.
+            Kan betalingen ikke gennemføres, forsøger Stripe igen automatisk,
+            og vi skriver til dig op til tre gange: med det samme, efter{" "}
+            {BETALINGSVARSEL_DAGE[1]} dage og efter {BETALINGSVARSEL_DAGE[2]}{" "}
+            dage. Din adgang er uændret imens, og der skrives kun, så længe
+            betalingen faktisk mangler. Er den stadig ikke gennemført{" "}
+            {BETALING_LUKKER_EFTER_DAGE} dage efter det første forsøg, falder
+            din adgang til det gratis niveau, som beskrevet i afsnit 6.
           </p>
           <p>
             <strong>

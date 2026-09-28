@@ -3,6 +3,7 @@ import { timingSafeEqual } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { noterKoersel, noterFejl } from "@/lib/drift";
 import { sendKundeMail } from "@/lib/mail";
+import { koerBetalingsvarsler } from "@/lib/betalingsvarsler";
 import { udfoertMail } from "@/lib/sletning";
 
 /**
@@ -150,8 +151,16 @@ export async function GET(request: NextRequest) {
     await noterFejl("oprydning", `forladte standere: ${standerFejl.message}`);
   }
 
+  /*
+   * 6) Betalingssagerne — varsel 2 og 3, og lukningen efter elleve dage. Hver
+   *    sag slås op friskt hos Stripe først; der sendes kun, hvis fakturaen
+   *    stadig står åben. Se `betalingsvarsler.ts`.
+   */
+  const betalingssager = await koerBetalingsvarsler(toerloeb);
+
   const resultat = {
     ...(data as object),
+    betalingssager,
     ophoer,
     efterladt,
     kvitteret,

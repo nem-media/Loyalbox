@@ -145,6 +145,13 @@ export interface Database {
            * `adresseSpaerre()` i src/lib/abonnement.ts.
            */
           adresser_tilladt: number;
+          /**
+           * Betalingssagen (0048): hvornår den første betaling fejlede, og hvor
+           * mange af de tre varsler der er sendt. Se BETALINGSVARSEL_DAGE i
+           * src/lib/abonnement.ts.
+           */
+          betaling_fejlet_siden: string | null;
+          betalingsvarsler_sendt: number;
         };
         Insert: {
           id?: string;
@@ -158,6 +165,8 @@ export interface Database {
           dpa_accepted_at?: string | null;
           dpa_version?: string | null;
           stripe_status?: string | null;
+          betaling_fejlet_siden?: string | null;
+          betalingsvarsler_sendt?: number;
           suspenderet_siden?: string | null;
           ophoert_den?: string | null;
           sletning_bestilt_den?: string | null;
