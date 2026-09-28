@@ -7,7 +7,8 @@ import { sendIntern, sendKundeMail } from "@/lib/mail";
 import { mailOmAbonnementet } from "@/lib/abonnementsmail-udsendelse";
 import { ordrevarsel, type Koebstype } from "@/lib/ordrevarsel";
 import { ordrebekraeftelse } from "@/lib/ordrebekraeftelse";
-import { erBetalende } from "@/lib/abonnement";
+import { erBetalende, erBetalingssag } from "@/lib/abonnement";
+import { startBetalingssag } from "@/lib/betalingsvarsler";
 import { noterFejl, noterKoersel } from "@/lib/drift";
 import { traekLagerForOrdre } from "@/lib/lager";
 import { generateSlug } from "@/lib/utils";
@@ -945,9 +946,25 @@ export async function POST(request: NextRequest) {
               stripe_status: sub.status,
               suspenderet_siden: null,
               ophoert_den: null,
+              // Betalingssagen er slut (0048): næste fejl starter forfra.
+              betaling_fejlet_siden: null,
+              betalingsvarsler_sendt: 0,
             })
             .eq("id", firmaId);
           break;
+        }
+
+        /*
+         * EN BETALING, DER FEJLEDE, LUKKER IKKE ADGANGEN (28. sep. 2026).
+         *
+         * `past_due`/`unpaid` betyder, at Stripe prøver igen. Adgangen er
+         * urørt, kunden får tre varsler (første nu, hvis fakturaen står
+         * åben), og natkørslen lukker først efter elleve dage. Se
+         * `betalingsvarsler.ts`. Svarer den false (0048 ikke kørt), falder vi
+         * igennem til den gamle suspension, så sagen ikke forsvinder.
+         */
+        if (erBetalingssag(sub.status)) {
+          if (await startBetalingssag(firmaId, sub)) break;
         }
 
         // SUSPENSION — ikke ophør. Adgangen til dashboardets indsigt falder til

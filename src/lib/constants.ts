@@ -98,8 +98,14 @@ export const SELSKABSLINJE = `${SITE_NAME}${SELSKABSLINJE_HALE}`;
 // længere ankret til en fast dato: cyklussen starter på købsdatoen, første
 // betaling er hele månedsprisen, og fornyelsen sker samme dato hver måned.
 // Hvornår og hvor meget der trækkes er materielt, derfor en ny version.
-export const TERMS_VERSION = "1.7";
-export const TERMS_DATE = "2026-09-21";
+// 1.8 (2026-09-28): §7 sagde, at Stripe prøver igen, og at adgangen falder,
+// "lykkes det ikke" — mens koden lukkede adgangen ved FØRSTE fejl. Nu er det
+// omvendt sandt og står der: tre varsler (dag 0, 4 og 8), adgangen uændret
+// imens, og lukning efter elleve dage. Til kundens fordel, men hvad der sker
+// ved manglende betaling er materielt, derfor en ny version. Gælder nye
+// kunder (ejerens beslutning samme dag); der sendes intet varsel.
+export const TERMS_VERSION = "1.8";
+export const TERMS_DATE = "2026-09-28";
 
 /**
  * Hvor vi sælger og leverer.

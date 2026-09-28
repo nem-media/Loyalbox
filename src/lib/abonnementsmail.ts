@@ -315,6 +315,92 @@ export function opgraderetMail(d: OpgraderetData): {
   };
 }
 
+export interface BetalingsvarselData {
+  firmanavn: string | null;
+  vare: string;
+  nummer: 1 | 2 | 3;
+  /** Den dag adgangen lukker, hvis betalingen ikke kommer. */
+  lukker: Date;
+  /** Det udestående, i øre inkl. moms — af Stripes faktura. */
+  udestaaendeOere: number | null;
+  /** Stripes side, hvor fakturaen kan betales med et andet kort. */
+  fakturaUrl: string | null;
+  /** Varen har ingen fysisk stander (`kunDigital`). */
+  digital?: boolean;
+}
+
+/**
+ * De tre varsler om en betaling, der ikke gik igennem.
+ *
+ * HØFLIGE, FORDI DET NÆSTEN ALTID ER ET KORT. Et udløbet eller spærret kort er
+ * den hyppigste grund, og kunden har ikke gjort noget forkert. Første mail
+ * siger derfor kun, hvad der er sket, og hvor det rettes — ingen dato, ingen
+ * trussel. Anden nævner datoen. Tredje siger den tydeligt, og hvad der så
+ * sker, og hvad der IKKE sker: der slettes intet, og kunderne mærker intet.
+ *
+ * SENDES KUN, HVIS FAKTURAEN STADIG ER ÅBEN — afgjort i
+ * `betalingsvarsler.ts` lige før afsendelsen. Teksten her kan derfor tale om
+ * en betaling, der mangler, uden forbehold.
+ */
+export function betalingsvarselMail(d: BetalingsvarselData): {
+  emne: string;
+  tekst: string;
+} {
+  const dato = datoTekst(d.lukker);
+  const beloeb =
+    d.udestaaendeOere !== null
+      ? ` på ${kroner(d.udestaaendeOere / 100)} inkl. moms`
+      : "";
+  const ting = d.digital ? "dit LoyalSum-link og din QR-kode" : "standeren";
+
+  const indledning: Record<1 | 2 | 3, string[]> = {
+    1: [
+      `Vi kunne ikke gennemføre den seneste betaling${beloeb} for ${d.vare}. Det skyldes oftest et kort, der er udløbet eller spærret, og det er let at rette.`,
+      "",
+      "Stripe prøver automatisk igen i løbet af de næste dage, og din adgang er helt uændret imens.",
+    ],
+    2: [
+      `En venlig påmindelse: betalingen${beloeb} for ${d.vare} er stadig ikke gået igennem.`,
+      "",
+      `Din adgang er uændret, men er betalingen ikke på plads den ${dato}, sættes statistik, feedback-indbakken og redigering på pause.`,
+    ],
+    3: [
+      `Sidste påmindelse: betalingen${beloeb} for ${d.vare} mangler stadig.`,
+      "",
+      `Er den ikke på plads den ${dato}, sætter vi dashboardets statistik, feedback-indbakken og redigering på pause. Alt det, dine kunder mærker, kører videre: ${ting} virker, stempelkort og pointprogrammer kører, og der slettes ingenting. Alt kommer tilbage i samme øjeblik, betalingen går igennem.`,
+    ],
+  };
+
+  const linjer = [
+    hej(d.firmanavn),
+    "",
+    ...indledning[d.nummer],
+    "",
+    ...(d.fakturaUrl
+      ? [
+          "Du kan betale fakturaen med det samme her, også med et andet kort:",
+          "",
+          d.fakturaUrl,
+          "",
+          "Vil du skifte kortet for fremtidige betalinger, gør du det under Betaling og kvitteringer i dit dashboard.",
+        ]
+      : [
+          "Du retter det under Betaling og kvitteringer i dit dashboard, hvor du kan lægge et nyt kort ind. Så prøver Stripe betalingen igen af sig selv.",
+        ]),
+    "",
+    "Har du allerede betalt, kan du se bort fra denne mail.",
+    ...hilsen(),
+  ];
+
+  const emner: Record<1 | 2 | 3, string> = {
+    1: `Betalingen for ${d.vare} gik ikke igennem`,
+    2: `Påmindelse: betalingen for ${d.vare} mangler stadig`,
+    3: `Sidste påmindelse: din adgang sættes på pause ${dato}`,
+  };
+
+  return { emne: emner[d.nummer], tekst: linjer.join("\n") };
+}
+
 // ---------------------------------------------------------------------------
 // HVAD SKETE DER? — læst af Stripes hændelse
 // ---------------------------------------------------------------------------

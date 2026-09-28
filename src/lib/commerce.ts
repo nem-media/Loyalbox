@@ -6,7 +6,7 @@
  * de kan tages i brug uændret, når integrationerne bygges.
  */
 import { getSiteUrl } from "@/lib/site";
-import { erBetalende } from "@/lib/abonnement";
+import { erBetalende, erBetalingssag } from "@/lib/abonnement";
 import {
   COMMERCE,
   PRODUCTS,
@@ -187,7 +187,16 @@ export function abonnementsSkifteSpaerre(
     ? getProduct(company.product_slug)
     : undefined;
   if (!nuvaerende?.monthlyPrice) return null;
-  if (!erBetalende(company.stripe_status)) return null;
+  /*
+   * EN BETALINGSSAG ER STADIG ET ABONNEMENT. `past_due` og `unpaid` venter på
+   * et kort, og abonnementet findes hos Stripe og prøver igen — et køb her
+   * ville lave abonnement nummer to ved siden af. Vejen er kundecentret
+   * (`genoptagVej()` = "opdater_kort"), ikke en ny betaling. Det hul fandtes
+   * også før, men var smalt, så længe adgangen lukkede ved første fejl; med
+   * elleve dages åben adgang er det bredt.
+   */
+  if (!erBetalende(company.stripe_status) && !erBetalingssag(company.stripe_status))
+    return null;
 
   if (nuvaerende.slug === product.slug) return "har-den-allerede";
   /*
