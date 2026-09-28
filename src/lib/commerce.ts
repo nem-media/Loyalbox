@@ -9,6 +9,7 @@ import { getSiteUrl } from "@/lib/site";
 import { erBetalende } from "@/lib/abonnement";
 import {
   COMMERCE,
+  PRODUCTS,
   abonnementsRang,
   getProduct,
   STRIPE_TAX_RATES,
@@ -138,7 +139,13 @@ export type KoebSpaerre =
   /** Kunden har et større abonnement; nedad går kun gennem os. */
   | "nedgradering"
   /** Kunden abonnerer allerede på præcis denne vare. */
-  | "har-den-allerede";
+  | "har-den-allerede"
+  /**
+   * Kunden har et MINDRE abonnement, der kører. Skiftet er lovligt, men det
+   * sker på det abonnement, der allerede findes (`opgraderAbonnement()`), og
+   * aldrig gennem en ny betaling — se `abonnementsSkifteSpaerre()`.
+   */
+  | "opgradering";
 
 /** Felterne, et abonnementsskifte afgøres ud fra. */
 export interface AbonnementsIndehav {
@@ -183,8 +190,16 @@ export function abonnementsSkifteSpaerre(
   if (!erBetalende(company.stripe_status)) return null;
 
   if (nuvaerende.slug === product.slug) return "har-den-allerede";
+  /*
+   * OPAD ER ET SKIFTE, IKKE ET KØB. Før svarede denne gren null, og så gik
+   * opgraderingen gennem en ny checkout: Stripe lavede abonnement nummer to,
+   * `stripe_subscription_id` blev overskrevet, og det gamle blev ved med at
+   * trække — usynligt. Når det gamle så fornyede, skrev webhooken dets vare
+   * tilbage på virksomheden, og kunden mistede tavst det, hun lige havde købt.
+   * Fundet 28. september 2026, før det ramte en rigtig kunde.
+   */
   return abonnementsRang(product) > abonnementsRang(nuvaerende)
-    ? null
+    ? "opgradering"
     : "nedgradering";
 }
 
@@ -294,6 +309,31 @@ export function canStartCheckout(
  */
 export function stripeIdsFor(product: Product): StripeIds | undefined {
   return product.stripe?.[stripeMode()];
+}
+
+/**
+ * HVILKEN VARE BETALER ABONNEMENTET FOR? — læst af PRISEN, ikke af metadata.
+ *
+ * `metadata.product_slug` er et øjebliksbillede fra købet og bliver ikke
+ * rettet af sig selv. Efter en opgradering står der den gamle vare, og det
+ * var netop metadataen, webhooken skrev tilbage på virksomheden. Prisen på
+ * linjen ER det, kunden betaler for, og kan ikke komme i utakt med det.
+ *
+ * Kun varer MED månedspris, og kun den tilstand, sitet kører i. Findes ingen,
+ * er svaret undefined, og kalderen falder tilbage på metadataen.
+ */
+export function produktForPriser(
+  prisIder: Array<string | null | undefined>,
+): Product | undefined {
+  const soegte = new Set(prisIder.filter(Boolean));
+  return PRODUCTS.find((p) => {
+    if (!p.monthlyPrice) return false;
+    const ids = stripeIdsFor(p);
+    return (
+      (ids?.monthlyPriceId && soegte.has(ids.monthlyPriceId)) ||
+      (ids?.yearlyPriceId && soegte.has(ids.yearlyPriceId))
+    );
+  });
 }
 
 /**

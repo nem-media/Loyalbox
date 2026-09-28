@@ -97,9 +97,11 @@ describe("rangordenen", () => {
 });
 
 describe("abonnementsSkifteSpaerre", () => {
-  it("lukker en Pro-kunde op til Komplet", () => {
+  it("sender en Pro-kunde op til Komplet ad OPGRADERINGEN og ikke ad en ny betaling", () => {
+    // Før svarede den null, og så åbnede checkout et abonnement nummer to,
+    // mens det gamle trak videre. Se `opgraderAbonnement()`.
     expect(abonnementsSkifteSpaerre(betaler("reviewstander-pro"), KOMPLET))
-      .toBeNull();
+      .toBe("opgradering");
   });
 
   it("afviser en Komplet-kunde på vej ned til Pro", () => {

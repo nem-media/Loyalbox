@@ -251,6 +251,70 @@ export function aarsskifteMail(d: AarsskifteData): {
   };
 }
 
+export interface OpgraderetData {
+  firmanavn: string | null;
+  fra: string;
+  til: string;
+  /** Den nye pris ex moms pr. QR-adresse — pr. måned eller pr. år. */
+  nyPris: number;
+  aarligt: boolean;
+  antal: number;
+  /** Trukket i dag, i øre INKL. moms, som det står på kortet. */
+  betaltOere: number | null;
+  naesteBetaling: Date | null;
+}
+
+/**
+ * Bekræftelsen på en opgradering.
+ *
+ * Før gik en opgradering gennem en ny checkout og fik ordrebekræftelsen. Nu
+ * sker den på det abonnement, der kører, og der er ingen ordre — men kunden
+ * skal stadig have på skrift, hvad der blev trukket, og hvad der trækkes
+ * fremover. Differencen er et tal, der kun står på Stripes kvittering, og
+ * dér hedder linjerne "Unused time" og "Remaining time".
+ */
+export function opgraderetMail(d: OpgraderetData): {
+  emne: string;
+  tekst: string;
+} {
+  const pris = d.nyPris * d.antal;
+  const raekker: [string, string][] = [
+    ["Før:", d.fra],
+    ["Nu:", d.til],
+    ...(d.betaltOere !== null
+      ? [["Betalt i dag:", `${kroner(d.betaltOere / 100)} inkl. moms`] as [string, string]]
+      : []),
+    [
+      d.aarligt ? "Herefter pr. år:" : "Herefter pr. md.:",
+      `${kroner(pris)} ex moms${d.antal > 1 ? ` (${d.antal} QR-adresser)` : ""}`,
+    ],
+    ...(d.naesteBetaling
+      ? [["Næste træk:", datoTekst(d.naesteBetaling)] as [string, string]]
+      : []),
+  ];
+  const bredde = Math.max(...raekker.map(([e]) => e.length)) + 2;
+
+  const linjer = [
+    hej(d.firmanavn),
+    "",
+    `Du har opgraderet til ${d.til}, og de nye funktioner er åbne i dit dashboard nu.`,
+    "",
+    ...raekker.map(([etiket, vaerdi]) => `${etiket.padEnd(bredde)}${vaerdi}`),
+    "",
+    /* DET, EJEREN BAD OM, SAGT SÅ KUNDEN KAN KONTROLLERE DET: differencen
+       nu, fuld pris fra næste dato, og ingen ny cyklus. */
+    `I dag har du kun betalt forskellen for resten af den nuværende periode — det, du allerede havde betalt for ${d.fra}, er trukket fra. Fra næste træk betaler du den fulde pris for ${d.til}, på samme dato som hidtil.`,
+    "",
+    "Din stander og dine QR-adresser er de samme som før. Kvitteringen med moms kommer fra Stripe i en separat mail.",
+    ...hilsen(),
+  ];
+
+  return {
+    emne: `Du har opgraderet til ${d.til}`,
+    tekst: linjer.join("\n"),
+  };
+}
+
 // ---------------------------------------------------------------------------
 // HVAD SKETE DER? — læst af Stripes hændelse
 // ---------------------------------------------------------------------------

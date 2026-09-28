@@ -23,6 +23,9 @@ import { designFrontfarve } from "@/lib/design";
 import { Badge } from "@/components/ui/badge";
 import { KanIkkeBestilles } from "@/components/kan-ikke-bestilles";
 import { SkiftAbonnement } from "@/components/skift-abonnement";
+import { OpgraderAbonnement } from "@/components/opgrader-abonnement";
+import { formatCurrency } from "@/lib/utils";
+import { betalerAarligt } from "@/lib/opgradering";
 import { ButtonLink } from "@/components/ui/button";
 import { CheckoutButton } from "@/components/checkout-button";
 import { getCurrentUser } from "@/lib/auth";
@@ -190,6 +193,10 @@ export default async function OrderPage({
   const standTilTryk = standId ?? (await enesteAdresseFor(user?.company?.id));
 
   const spaerre = koebSpaerre(user, selected);
+  // Kun i opgraderingsgrenen: betaler kunden årligt, skal boksen vise
+  // årsprisen på den nye vare. Ét Stripe-opslag, og kun dér.
+  const aarligtNu =
+    spaerre === "opgradering" ? await betalerAarligt(user?.company) : null;
 
   /*
    * EN VARE UDEN ABONNEMENT HAR INTET AT HENTE PÅ DENNE SIDE.
@@ -333,6 +340,25 @@ export default async function OrderPage({
                   erhvervskøb.
                 </p>
               </div>
+            ) : spaerre === "opgradering" ? (
+              /*
+                OPAD SKER PÅ DET ABONNEMENT, DER KØRER — aldrig med en ny
+                betaling. Se `opgraderAbonnement()`.
+              */
+              <OpgraderAbonnement
+                produkt={selected.slug}
+                vare={selected.name}
+                nuvaerende={
+                  getProduct(user?.company?.product_slug ?? "")?.name ??
+                  "dit nuværende abonnement"
+                }
+                nyPris={formatCurrency(
+                  (aarligtNu ? aarsPris(selected) : null) ??
+                    selected.monthlyPrice!,
+                )}
+                aarligt={Boolean(aarligtNu && aarsPris(selected) !== null)}
+                kraeverDpa={requiresDpa(selected)}
+              />
             ) : spaerre === "nedgradering" || spaerre === "har-den-allerede" ? (
               /*
                 ET SKIFTE, KUNDEN IKKE MÅ TAGE SELV. Beskeden hører til
