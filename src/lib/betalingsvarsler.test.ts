@@ -164,3 +164,58 @@ describe("koblingen", () => {
     expect(banner).toContain('vej="opdater_kort"');
   });
 });
+
+/**
+ * NYT KORT, GENÅBNING OG INGEN BETALING UDEN ADGANG.
+ *
+ * Målt mod Stripe test 28. sep. 2026: et nyt standardkort på kunden blev IKKE
+ * brugt af Stripe — abonnementet stod stadig `past_due` på det afviste kort,
+ * fordi checkout sætter kortet på abonnementet. Efter `betalMedNytKort()`:
+ * flyttet, betalt, `active`. Et ældre standardkort flyttede intet, og en
+ * åben faktura på et lukket abonnement blev annulleret (`void`).
+ */
+describe("nyt kort og genåbning", () => {
+  const lib = kode("./betalingsvarsler.ts");
+
+  it("flytter kun abonnementet til et NYERE kort end det, det bruger", () => {
+    const f = lib.slice(lib.indexOf("export async function brugNyesteKort"));
+    expect(f).toMatch(/if \(nyt\.created <= gammelt\.created\) return null;/);
+    expect(f).toContain("default_payment_method: kundensKort");
+  });
+
+  it("genåbningen rydder lukningen og sætter varen af prisen", () => {
+    const g = lib.slice(lib.indexOf("async function genaabn"));
+    const krop = g.slice(0, g.indexOf("\n}\n"));
+    expect(krop).toContain("suspenderet_siden: null");
+    expect(krop).toContain("betaling_fejlet_siden: null");
+    expect(krop).toContain("produktForPriser(");
+    expect(krop).toContain("planForProduct(slug)");
+  });
+
+  it("natkørslen tager også de LUKKEDE sager, så en betaling kan genåbne dem", () => {
+    const koer = lib.slice(lib.indexOf("export async function koerBetalingsvarsler"));
+    const opslag = koer.slice(koer.indexOf('.not("betaling_fejlet_siden"'), koer.indexOf("if (error)"));
+    expect(opslag).not.toContain("suspenderet_siden");
+    // … men sender ingen varsler til en konto, der allerede er lukket.
+    expect(koer).toMatch(/if \(firma\.suspenderet_siden\) continue;/);
+    // Nyt kort prøves FØR varsler og lukning.
+    expect(koer.indexOf("betalMedNytKort(sub)")).toBeLessThan(koer.indexOf("sendVarsel("));
+  });
+
+  it("første varsel prøver kundens nyeste kort først", () => {
+    const start = lib.slice(lib.indexOf("export async function startBetalingssag"));
+    expect(start.indexOf("betalMedNytKort(sub)")).toBeLessThan(start.indexOf("sendVarsel("));
+  });
+
+  it("et lukket abonnement får sine åbne fakturaer annulleret", () => {
+    const w = kode("../app/api/stripe/webhook/route.ts");
+    expect(w).toMatch(/customer\.subscription\.deleted"\) \{\s*try \{\s*await annullerAabneFakturaer\(sub\)/);
+    expect(lib).toContain("voidInvoice(");
+  });
+
+  it("en genoptagelse afslutter en gammel betalingssag", () => {
+    const w = kode("../app/api/stripe/webhook/route.ts");
+    const koeb = w.slice(w.indexOf("if (erAbonnement && typeof session.subscription"));
+    expect(koeb.slice(0, 900)).toMatch(/betaling_fejlet_siden: null,\s*betalingsvarsler_sendt: 0/);
+  });
+});
