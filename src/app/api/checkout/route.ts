@@ -193,7 +193,9 @@ export async function POST(request: NextRequest) {
         error:
           skifte === "har-den-allerede"
             ? `Du abonnerer allerede på ${product.name}. Skal du bruge et skilt mere, er det tilkøbet "Ekstra stander" — det ændrer ikke dit abonnement.`
-            : "Skift til et mindre abonnement klarer vi i hånden, så intet går tabt ved et uheld. Skriv til os, så ordner vi det.",
+            : skifte === "opgradering"
+              ? `Du opgraderer til ${product.name} på dit nuværende abonnement — ikke med en ny betaling. Brug knappen "Opgrader" på siden.`
+              : "Skift til et mindre abonnement klarer vi i hånden, så intet går tabt ved et uheld. Skriv til os, så ordner vi det.",
       },
       { status: 400 },
     );

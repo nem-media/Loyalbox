@@ -11,7 +11,11 @@ import { erBetalende } from "@/lib/abonnement";
 import { noterFejl, noterKoersel } from "@/lib/drift";
 import { traekLagerForOrdre } from "@/lib/lager";
 import { generateSlug } from "@/lib/utils";
-import { skalOpretteFoersteStander, sessionErBetalt } from "@/lib/commerce";
+import {
+  produktForPriser,
+  skalOpretteFoersteStander,
+  sessionErBetalt,
+} from "@/lib/commerce";
 import { qrAdresseFor } from "@/lib/qr-adresse";
 import { adresserPaaAbonnementet } from "@/lib/ekstra-adresse";
 import { getSiteUrl } from "@/lib/site";
@@ -816,6 +820,17 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: "kunne ikke hente" }, { status: 500 });
         }
 
+        /*
+         * VAREN LÆSES AF PRISEN, METADATAEN ER RESERVEN.
+         *
+         * `metadata.product_slug` er skrevet ved købet og følger ikke med en
+         * opgradering. Prisen på linjen er det, kunden faktisk betaler for.
+         * Kan prisen ikke genkendes (et prisobjekt fra før kataloget), bruges
+         * metadataen som før — og kun når den selv fandt virksomheden.
+         */
+        const slugFraPris = produktForPriser(
+          sub.items.data.map((i) => i.price?.id),
+        )?.slug;
         const slug = sub.metadata?.product_slug;
 
         /*
@@ -915,15 +930,17 @@ export async function POST(request: NextRequest) {
            */
           const adresser = adresserPaaAbonnementet(
             sub,
-            (slug && fraMetadata ? slug : null) ?? firmaSlug,
+            slugFraPris ?? (slug && fraMetadata ? slug : null) ?? firmaSlug,
           );
 
           await admin
             .from("companies")
             .update({
-              ...(slug && fraMetadata
-                ? { product_slug: slug, plan: planForProduct(slug) }
-                : {}),
+              ...(slugFraPris
+                ? { product_slug: slugFraPris, plan: planForProduct(slugFraPris) }
+                : slug && fraMetadata
+                  ? { product_slug: slug, plan: planForProduct(slug) }
+                  : {}),
               ...(adresser !== null ? { adresser_tilladt: adresser } : {}),
               stripe_status: sub.status,
               suspenderet_siden: null,

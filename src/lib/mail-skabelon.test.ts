@@ -10,6 +10,7 @@ import { COMPANY } from "./constants";
 import {
   aarsskifteMail,
   fortrudtMail,
+  opgraderetMail,
   opsagtMail,
   stoppetMail,
 } from "./abonnementsmail";
@@ -118,6 +119,19 @@ const MAILS: [string, string][] = [
       vare: "LoyalSum Komplet",
       stoppet: new Date("2026-10-20T09:00:00Z"),
       betalingFejlede: false,
+    }).tekst,
+  ],
+  [
+    "opgraderet",
+    opgraderetMail({
+      firmanavn: "Café Aurora",
+      fra: "Reviewstander Pro",
+      til: "LoyalSum Komplet",
+      nyPris: 399,
+      aarligt: false,
+      antal: 1,
+      betaltOere: 37500,
+      naesteBetaling: new Date("2026-10-28T10:00:00Z"),
     }).tekst,
   ],
   [
