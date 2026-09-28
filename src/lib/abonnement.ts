@@ -269,6 +269,34 @@ export function betalingManglerBroedtekst(
 }
 
 /**
+ * Det kunden får at vide, når abonnementet er STOPPET — ikke når en betaling
+ * mangler.
+ *
+ * DE TO BLEV VIST ENS, og det var forkert på den pinlige måde: en kunde, der
+ * selv havde opsagt, fik "Vi kunne ikke gennemføre betalingen" og en knap,
+ * der hed "Betal udestående nu" — for et abonnement, der ikke skyldte noget.
+ * Forløbet bagefter ER det samme (suspension, seks måneder, så ophør), så
+ * kun ordene skifter. Stripe-status `canceled` er skillelinjen: et abonnement,
+ * der venter på et kort, står som `past_due` eller `unpaid`.
+ */
+export const ABONNEMENT_STOPPET_OVERSKRIFT = "Dit abonnement er stoppet";
+
+export function abonnementStoppetBroedtekst(
+  dageTilSletning: number | null,
+): string {
+  const hale =
+    dageTilSletning === null
+      ? ""
+      : ` Dine data er urørte og bliver liggende ${dageTilSletning} dage endnu.`;
+  return (
+    "Din adgang til statistik, feedback og redigering er lukket. " +
+    "Standeren, stempelkortene, pointprogrammerne og dine kunders " +
+    "stempler og point kører videre som altid." +
+    hale
+  );
+}
+
+/**
  * Har virksomheden købt et af abonnementerne?
  *
  * DET ER PRODUKTET, DER SPØRGES OM — ikke `plan`, og det er med vilje.

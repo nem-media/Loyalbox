@@ -1141,6 +1141,21 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["drift_log"]["Insert"]>;
         Relationships: [];
       };
+      /** Se supabase/migrations/0047_kundemail_spaerre.sql. Kun service-role; ingen persondata. */
+      kundemail_spaerre: {
+        Row: {
+          noegle: string;
+          sendt: string;
+        };
+        Insert: {
+          noegle: string;
+          sendt?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["kundemail_spaerre"]["Insert"]
+        >;
+        Relationships: [];
+      };
       /** Se supabase/migrations/0025_admin_log.sql. Kun admin læser; skrives med service-role. */
       admin_log: {
         Row: {

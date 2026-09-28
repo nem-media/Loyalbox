@@ -16,8 +16,10 @@ import { laesBetalingssvar } from "@/lib/betalingssvar";
  *   nyt_abonnement   abonnementet er lukket og kan ikke vækkes. Der tegnes et
  *                    nyt — kun månedsprisen, for standeren er købt og betalt.
  *
- * Kunden skal ikke kende forskellen. Derfor står valget i abonnement.ts og
- * ikke her: knappen viser den samme sætning uanset hvad.
+ * Kunden skal ikke kende den TEKNISKE forskel. Valget står derfor i
+ * abonnement.ts og ikke her. Men ordet på knappen skal passe: "Betal
+ * udestående nu" er sandt, når en faktura venter, og usandt for et abonnement,
+ * der er opsagt — dér er der intet udestående, kun et abonnement at genoptage.
  */
 export function GenoptagKnap({
   vej,
@@ -58,7 +60,11 @@ export function GenoptagKnap({
   return (
     <div>
       <Button type="button" onClick={betal} disabled={pending}>
-        {pending ? "Åbner…" : "Betal udestående nu"}
+        {pending
+          ? "Åbner…"
+          : vej === "opdater_kort"
+            ? "Betal udestående nu"
+            : "Genoptag abonnementet"}
       </Button>
       {error ? <p className="mt-2 text-sm text-danger">{error}</p> : null}
     </div>

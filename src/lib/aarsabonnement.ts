@@ -9,6 +9,7 @@ import {
 import { erBetalende } from "@/lib/abonnement";
 import { getProduct, aarsPris, aarsBesparelse } from "@/lib/constants";
 import { findPrislinje, erAarsabonnement } from "@/lib/ekstra-adresse";
+import { periodeSlut } from "@/lib/stripe-abonnement";
 
 /**
  * SKIFT FRA MÅNED TIL ÅR — elleve måneder for tolv.
@@ -104,6 +105,9 @@ export interface AarsSkifteSvar {
   ok: boolean;
   fejl?: AarsSkifteFejl;
   besked?: string;
+  /** Kun ved ok: det, bekræftelsesmailen skal bruge — læst af Stripes svar. */
+  antal?: number;
+  naesteBetaling?: Date | null;
 }
 
 /**
@@ -142,7 +146,7 @@ export async function skiftTilAarsbetaling(
     const linje = findPrislinje(sub, ids);
     if (!linje) return { ok: false, fejl: "linjen-mangler" };
 
-    await stripe().subscriptions.update(company!.stripe_subscription_id!, {
+    const opdateret = await stripe().subscriptions.update(company!.stripe_subscription_id!, {
       items: [
         {
           id: linje.id,
@@ -156,7 +160,13 @@ export async function skiftTilAarsbetaling(
       metadata: { ...(sub.metadata ?? {}), loyalsum_interval: "aar" },
     } satisfies Stripe.SubscriptionUpdateParams);
 
-    return { ok: true };
+    // Af STRIPES svar og ikke af det, vi sendte: det er dét, der faktisk står
+    // på abonnementet nu, og dét, kunden skal have på skrift.
+    return {
+      ok: true,
+      antal: findPrislinje(opdateret, ids)?.quantity ?? linje.quantity ?? 1,
+      naesteBetaling: periodeSlut(opdateret),
+    };
   } catch (err) {
     return {
       ok: false,

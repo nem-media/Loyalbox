@@ -66,6 +66,10 @@ const TABELLER = [
   // noget. Det værste, en gendannet række kan koste, er en alarm, der
   // holdes tilbage i op til en time.
   "alarm_daempning",
+  // Samme slags spærre (0047): én nøgle pr. sendt abonnementsmail, ingen
+  // persondata og ingen fremmednøgler. Gendannes den ikke, kan en gentaget
+  // Stripe-hændelse sende én mail mere — ikke andet.
+  "kundemail_spaerre",
   // Herunder: peger kun på companies (og admin_log desuden på users), så de
   // kan lægges tilbage til sidst.
   "subscriptions",

@@ -2,6 +2,7 @@ import "server-only";
 import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { isStripeConfigured } from "@/lib/commerce";
+import { erOpsagt } from "@/lib/abonnementsmail";
 
 /**
  * Betalingsoplysningerne til admin — hentet LIVE hos Stripe.
@@ -76,7 +77,7 @@ const MAKS_ABONNEMENTER = 500;
  * Vi tager den SENESTE af linjerne. Vi har én linje pr. abonnement i dag, men
  * med to ville den tidligste være en dato, hvor kunden ikke er færdigbetalt.
  */
-function periodeSlut(sub: Stripe.Subscription): Date | null {
+export function periodeSlut(sub: Stripe.Subscription): Date | null {
   const slutninger = sub.items.data
     .map((i) => i.current_period_end)
     .filter((n): n is number => typeof n === "number" && n > 0);
@@ -156,7 +157,9 @@ export async function hentBetalinger(
         naesteBetaling: periodeSlut(sub),
         beloebOere: beloebOere(sub),
         valuta: (sub.currency ?? "dkk").toUpperCase(),
-        stopperVedPeriodeslut: Boolean(sub.cancel_at_period_end),
+        // Begge felter — se `erOpsagt()`. En opsigelse på en valgt dato
+        // sætter kun `cancel_at` og ville ellers ikke stå på listen.
+        stopperVedPeriodeslut: erOpsagt(sub),
         kort: laesKort(sub),
       });
     }
