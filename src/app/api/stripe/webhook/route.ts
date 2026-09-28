@@ -4,6 +4,7 @@ import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { planForProduct, getProduct, harFysiskSkilt } from "@/lib/constants";
 import { sendIntern, sendKundeMail } from "@/lib/mail";
+import { mailOmAbonnementet } from "@/lib/abonnementsmail-udsendelse";
 import { ordrevarsel, type Koebstype } from "@/lib/ordrevarsel";
 import { ordrebekraeftelse } from "@/lib/ordrebekraeftelse";
 import { erBetalende } from "@/lib/abonnement";
@@ -872,6 +873,17 @@ export async function POST(request: NextRequest) {
           );
           break;
         }
+
+        /*
+         * MAILEN TIL KUNDEN — opsagt, fortrudt eller stoppet.
+         *
+         * Stripe sender ingen af dem selv, og før 28. september 2026 hørte en
+         * kunde, der opsagde, ingenting bagefter. Kaldet kaster aldrig og
+         * sender højst én gang pr. hændelse (spærren i 0047), så det kan stå
+         * før skrivningerne: fejler de og Stripe prøver igen, er mailen
+         * allerede sendt og sendes ikke igen. Se `abonnementsmail.ts`.
+         */
+        await mailOmAbonnementet({ event, sub, firmaId });
 
         if (erBetalende(sub.status)) {
           /*

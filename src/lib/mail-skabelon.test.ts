@@ -7,6 +7,12 @@ import { type Ordredetaljer } from "./ordrevarsel";
 import { kortLinkMail } from "./loyalty/kort-link";
 import { bestiltMail, bekraeftetMail, udfoertMail } from "./sletning";
 import { COMPANY } from "./constants";
+import {
+  aarsskifteMail,
+  fortrudtMail,
+  opsagtMail,
+  stoppetMail,
+} from "./abonnementsmail";
 
 /**
  * MAILENS HTML-UDGAVE.
@@ -88,6 +94,42 @@ const MAILS: [string, string][] = [
       .tekst,
   ],
   ["sletning udført", udfoertMail("Café Aurora").tekst],
+  /* ABONNEMENTETS LIV — opsagt, fortrudt, stoppet og skiftet til år. */
+  [
+    "abonnement opsagt",
+    opsagtMail({
+      firmanavn: "Café Aurora",
+      vare: "LoyalSum Komplet",
+      stopper: new Date("2026-10-20T09:00:00Z"),
+    }).tekst,
+  ],
+  [
+    "opsigelse fortrudt",
+    fortrudtMail({
+      firmanavn: "Café Aurora",
+      vare: "LoyalSum Komplet",
+      naesteBetaling: new Date("2026-10-20T09:00:00Z"),
+    }).tekst,
+  ],
+  [
+    "abonnement stoppet",
+    stoppetMail({
+      firmanavn: "Café Aurora",
+      vare: "LoyalSum Komplet",
+      stoppet: new Date("2026-10-20T09:00:00Z"),
+      betalingFejlede: false,
+    }).tekst,
+  ],
+  [
+    "skiftet til årsbetaling",
+    aarsskifteMail({
+      firmanavn: "Café Aurora",
+      vare: "LoyalSum Komplet",
+      aarPris: 4389,
+      antal: 2,
+      naesteBetaling: new Date("2027-09-28T09:00:00Z"),
+    }).tekst,
+  ],
 ];
 
 /** HTML uden tags og entiteter — altså dét, en læser rent faktisk ser. */

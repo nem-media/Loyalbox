@@ -5,10 +5,12 @@ import { COMPANY } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 import {
   abonnementTilstand,
+  abonnementStoppetBroedtekst,
   betalingManglerBroedtekst,
   dageTil,
   genoptagVej,
   sletningSker,
+  ABONNEMENT_STOPPET_OVERSKRIFT,
   BETALING_MANGLER_OVERSKRIFT,
   type AbonnementFelter,
 } from "@/lib/abonnement";
@@ -38,6 +40,9 @@ export async function BetalingMangler(firma: Props) {
   const vej = genoptagVej(firma);
   const ubesvarede = await ubesvaredeSiden(firma.id, firma.suspenderet_siden);
   const ophoert = tilstand === "ophoert";
+  // Opsagt eller lukket efter de sidste betalingsforsøg — der er intet
+  // udestående at betale, så "Betaling mangler" ville være usandt.
+  const stoppet = firma.stripe_status === "canceled";
 
   return (
     <div
@@ -49,7 +54,11 @@ export async function BetalingMangler(firma: Props) {
       }`}
     >
       <p className="text-base font-semibold">
-        {ophoert ? "Din aftale er ophørt" : BETALING_MANGLER_OVERSKRIFT}
+        {ophoert
+          ? "Din aftale er ophørt"
+          : stoppet
+            ? ABONNEMENT_STOPPET_OVERSKRIFT
+            : BETALING_MANGLER_OVERSKRIFT}
       </p>
 
       <p className="mt-1.5 text-sm leading-relaxed">
@@ -57,7 +66,9 @@ export async function BetalingMangler(firma: Props) {
           ? "De seks måneder er gået, og aftalen er ophørt. Dine data slettes " +
             "endeligt, når fristen udløber — indtil da kan alt komme tilbage, " +
             "hvis du genoptager abonnementet."
-          : betalingManglerBroedtekst(dage)}
+          : stoppet
+            ? abonnementStoppetBroedtekst(dage)
+            : betalingManglerBroedtekst(dage)}
       </p>
 
       {/* Det, der IKKE er sket. Står som sin egen linje, fordi det er den
@@ -75,7 +86,7 @@ export async function BetalingMangler(firma: Props) {
             {ubesvarede === 1
               ? "Én kunde har skrevet til dig"
               : `${ubesvarede} kunder har skrevet til dig`}
-            , siden betalingen stoppede.
+            , siden {stoppet ? "abonnementet stoppede" : "betalingen stoppede"}.
           </strong>{" "}
           Beskederne ligger og venter i din feedback-indbakke.
         </p>

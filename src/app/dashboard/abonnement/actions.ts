@@ -6,7 +6,9 @@ import {
   skiftTilAarsbetaling,
   type AarsSkifteFejl,
 } from "@/lib/aarsabonnement";
-import { COMPANY } from "@/lib/constants";
+import { COMPANY, aarsPris, getProduct } from "@/lib/constants";
+import { aarsskifteMail } from "@/lib/abonnementsmail";
+import { sendAbonnementsmail } from "@/lib/abonnementsmail-udsendelse";
 
 export interface AarsSkifteResultat {
   ok?: boolean;
@@ -49,6 +51,30 @@ export async function skiftTilAar(): Promise<AarsSkifteResultat> {
   const svar = await skiftTilAarsbetaling(user?.company);
 
   if (!svar.ok) return { fejlbesked: BESKEDER[svar.fejl ?? "stripe"] };
+
+  /*
+   * BEKRÆFTELSEN PÅ SKRIFT. Stripes kvittering viser et beløb på flere tusinde
+   * kroner med en linje, der hedder "Remaining time" — ikke hvad det dækker.
+   * Nøglen er abonnementet: det skifter kun til år én gang (den anden vej går
+   * gennem os), så to hurtige tryk kan ikke give to mails. Skiftet ER sket,
+   * så en mail, der fejler, må ikke gøre svaret til en fejl — den noteres.
+   */
+  const company = user!.company!;
+  const produkt = getProduct(company.product_slug!);
+  const aarPris = produkt ? aarsPris(produkt) : null;
+  if (produkt && aarPris !== null) {
+    await sendAbonnementsmail({
+      noegle: `aar:${company.stripe_subscription_id}`,
+      til: company.contact_email,
+      mail: aarsskifteMail({
+        firmanavn: company.name ?? null,
+        vare: produkt.name,
+        aarPris,
+        antal: svar.antal ?? 1,
+        naesteBetaling: svar.naesteBetaling ?? null,
+      }),
+    });
+  }
 
   revalidatePath("/dashboard/abonnement");
   return { ok: true };
