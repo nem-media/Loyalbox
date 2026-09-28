@@ -8,7 +8,10 @@ import { mailOmAbonnementet } from "@/lib/abonnementsmail-udsendelse";
 import { ordrevarsel, type Koebstype } from "@/lib/ordrevarsel";
 import { ordrebekraeftelse } from "@/lib/ordrebekraeftelse";
 import { erBetalende, erBetalingssag } from "@/lib/abonnement";
-import { startBetalingssag } from "@/lib/betalingsvarsler";
+import {
+  annullerAabneFakturaer,
+  startBetalingssag,
+} from "@/lib/betalingsvarsler";
 import { noterFejl, noterKoersel } from "@/lib/drift";
 import { traekLagerForOrdre } from "@/lib/lager";
 import { generateSlug } from "@/lib/utils";
@@ -671,6 +674,9 @@ export async function POST(request: NextRequest) {
               stripe_status: "active",
               suspenderet_siden: null,
               ophoert_den: null,
+              // En genoptagelse afslutter en gammel betalingssag (0048).
+              betaling_fejlet_siden: null,
+              betalingsvarsler_sendt: 0,
               sletning_bestilt_den: null,
               sletning_token: null,
               sletning_udfoeres_den: null,
@@ -965,6 +971,24 @@ export async function POST(request: NextRequest) {
          */
         if (erBetalingssag(sub.status)) {
           if (await startBetalingssag(firmaId, sub)) break;
+        }
+
+        /*
+         * STRIPE HAR LUKKET ABONNEMENTET: ingen åben faktura må blive stående.
+         * Linket i vores varsel peger på den, og en betaling af et lukket
+         * abonnement giver penge ud og ingen adgang. Vejen tilbage er
+         * "Genoptag abonnementet". Fejler det, noteres det — lukningen af
+         * adgangen nedenfor skal ske uanset.
+         */
+        if (event.type === "customer.subscription.deleted") {
+          try {
+            await annullerAabneFakturaer(sub);
+          } catch (err) {
+            await noterFejl(
+              "stripe-webhook",
+              `Kunne ikke annullere åbne fakturaer på ${sub.id}: ${(err as Error).message}`,
+            );
+          }
         }
 
         // SUSPENSION — ikke ophør. Adgangen til dashboardets indsigt falder til
