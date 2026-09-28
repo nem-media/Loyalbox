@@ -15,9 +15,10 @@ import {
   getProduct,
   arvetFra,
   aarsPris,
+  inklMoms,
 } from "@/lib/constants";
 import { toProductJsonLd, kanKoebesAarligt } from "@/lib/commerce";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatCurrencyOere } from "@/lib/utils";
 import { getSiteUrl, kortMetabeskrivelse } from "@/lib/site";
 import { QuantityOrder } from "@/components/quantity-order";
 import {
@@ -263,6 +264,21 @@ export default async function ProductPage({
                 aarPris={kanKoebesAarligt(product) ? aarsPris(product) : null}
               />
             </div>
+            {/*
+              PRISEN INKL. MOMS — KUN PÅ VAREN I GOOGLE SHOPPING. Google kræver
+              prisen inkl. moms i Danmark og afviser varen, hvis siden, den
+              linker til, ikke viser det samme beløb som feedet. Ex moms er
+              stadig hovedprisen; dette er den samme pris sagt på den anden
+              måde. Beløbet regnes af `inklMoms()`, som feedet også bruger.
+            */}
+            {product.shoppable && product.price > 0 ? (
+              <p className="mt-2 text-sm text-muted">
+                {formatCurrency(product.price)} ex moms pr. stander ·{" "}
+                <span className="font-medium text-foreground">
+                  {formatCurrencyOere(inklMoms(product.price))} inkl. moms
+                </span>
+              </p>
+            ) : null}
             <div className="mt-3">
               <Link href="/produkter" className="trykmaal text-sm font-medium text-accent">
                 Se alle produkter →

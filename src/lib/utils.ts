@@ -41,6 +41,20 @@ export function formatCurrency(amount: number, currency = "DKK"): string {
 }
 
 /**
+ * Som `formatCurrency`, men med øre. Til en pris inkl. moms, der skal stå
+ * PRÆCIS som i Google-feedet (623,75 og ikke 624) — ellers afviser Google
+ * varen for uoverensstemmende pris.
+ */
+export function formatCurrencyOere(amount: number, currency = "DKK"): string {
+  return new Intl.NumberFormat("da-DK", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
+
+/**
  * DATOER OG KLOKKESLÆT VISES I DANSK TID — ALTID, OG UANSET HVOR DE TEGNES.
  *
  * `Intl.DateTimeFormat` uden `timeZone` bruger den tidszone, koden tilfældigvis

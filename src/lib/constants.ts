@@ -466,6 +466,23 @@ export interface Product {
  * Globale handelsdata delt af hele kataloget — til Stripe-checkout og et kommende
  * Google Shopping-feed. Ét sted, så vi ikke gentager dem pr. produkt.
  */
+/**
+ * DANSK MOMS — ÉT TAL.
+ *
+ * Priserne på sitet er ex moms (vi sælger til virksomheder), og satsen lægges
+ * på ved betalingen af Stripes faste Tax Rate. Men GOOGLE KRÆVER PRISEN INKL.
+ * MOMS i Danmark, både i Merchant Center-feedet og på den side, varen linker
+ * til — og de to skal være ens, ellers afvises varen ("uoverensstemmende
+ * pris"). Derfor regnes den ét sted, og feedet, produktsiden og de
+ * strukturerede data spørger alle her.
+ */
+export const MOMS_PROCENT = 25;
+
+/** Beløbet inkl. dansk moms, afrundet til hele øre. */
+export function inklMoms(exMoms: number): number {
+  return Math.round(exMoms * (100 + MOMS_PROCENT)) / 100;
+}
+
 export const COMMERCE = {
   brand: SITE_NAME.replace(".dk", ""), // "LoyalSum"
   currency: "DKK",

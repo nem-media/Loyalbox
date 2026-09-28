@@ -10,6 +10,9 @@ import { erBetalende, erBetalingssag } from "@/lib/abonnement";
 import {
   COMMERCE,
   PRODUCTS,
+  COMPANY,
+  PRODUKT_FOTO,
+  inklMoms,
   abonnementsRang,
   getProduct,
   STRIPE_TAX_RATES,
@@ -410,6 +413,13 @@ export function toProductJsonLd(product: Product) {
   const base = getSiteUrl();
   /* Ingen engangspris at oplyse — så er månedsprisen den eneste sande. */
   const kunAbonnement = !product.price && !!product.monthlyPrice;
+  /*
+   * EN VARE I GOOGLE SHOPPING OPLYSER PRISEN INKL. MOMS — også her. Google
+   * sammenligner feedet med de strukturerede data på siden, og stod der 499
+   * her og 623,75 i feedet, ville varen blive afvist. De øvrige varer er ikke
+   * i feedet og beholder ex moms, som resten af sitet.
+   */
+  const medMoms = Boolean(product.shoppable) && !kunAbonnement;
   return {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -422,10 +432,24 @@ export function toProductJsonLd(product: Product) {
     category: product.productType,
     offers: {
       "@type": "Offer",
-      price: kunAbonnement ? product.monthlyPrice : product.price,
+      price: kunAbonnement
+        ? product.monthlyPrice
+        : medMoms
+          ? inklMoms(product.price)
+          : product.price,
       priceCurrency: COMMERCE.currency,
       availability: schemaAvailability(),
       url: `${base}/produkter/${product.slug}`,
+      ...(medMoms
+        ? {
+            priceSpecification: {
+              "@type": "PriceSpecification",
+              price: inklMoms(product.price),
+              priceCurrency: COMMERCE.currency,
+              valueAddedTaxIncluded: true,
+            },
+          }
+        : {}),
       ...(kunAbonnement
         ? {
             priceSpecification: {
@@ -447,23 +471,40 @@ export function toProductJsonLd(product: Product) {
 
 /**
  * Mapper et produkt til Google Shopping-attributter (Merchant Center-feedspec).
- * Ren funktion — klar til at blive serialiseret til XML/JSON, når feed-endpointet
- * engang bygges. Absolutte URL'er udledes fra site-URL'en.
+ * Ren funktion; `/merchant-feed.xml` serialiserer den. Absolutte URL'er
+ * udledes fra site-URL'en.
+ *
+ * TRE TING, GOOGLE AFVISER FOR, OG SOM DERFOR ER AFGJORT HER:
+ *
+ *   PRISEN ER INKL. MOMS. Kravet gælder i Danmark, og prisen skal stå SÅDAN
+ *   på produktsiden og i dens strukturerede data — `inklMoms()` regner den ét
+ *   sted for alle tre.
+ *
+ *   BILLEDET ER ET FOTO. `product.image` er en SVG-tegning, og Google tager
+ *   ikke imod SVG. `PRODUKT_FOTO` er det rigtige produktfoto (JPG); findes
+ *   der intet, er varen ikke klar til feedet, og `null` holder den ude.
+ *
+ *   FRAGTEN STÅR PÅ VAREN. Fri fragt i Danmark og leveringstiden fra
+ *   `COMPANY.deliveryDays` (3–5 hverdage) — samme løfte som på siden og i
+ *   handelsbetingelserne, så de ikke kan sige hver sit.
  */
 export function toGoogleShoppingItem(product: Product) {
   const base = getSiteUrl();
+  const foto = PRODUKT_FOTO[product.slug];
+  if (!foto || /\.svg$/i.test(foto)) return null;
   const hasIdentifier = Boolean(product.gtin) || Boolean(product.mpn);
+  const [minDage, maxDage] = (COMPANY.deliveryDays.match(/\d+/g) ?? ["3", "5"]).map(Number);
   return {
     id: product.slug,
-    title: product.name,
+    title: `${COMMERCE.brand} ${product.name} med QR og NFC`,
     description: product.description,
     link: `${base}/produkter/${product.slug}`,
-    image_link: `${base}${product.image}`,
-    additional_image_link: (product.additionalImages ?? []).map(
-      (src) => `${base}${src}`,
-    ),
+    image_link: `${base}${foto}`,
+    additional_image_link: (product.additionalImages ?? [])
+      .filter((src) => !/\.svg$/i.test(src))
+      .map((src) => `${base}${src}`),
     availability: COMMERCE.availability,
-    price: `${product.price}.00 ${COMMERCE.currency}`,
+    price: `${inklMoms(product.price).toFixed(2)} ${COMMERCE.currency}`,
     brand: COMMERCE.brand,
     condition: COMMERCE.condition,
     google_product_category: COMMERCE.googleProductCategory,
@@ -472,6 +513,13 @@ export function toGoogleShoppingItem(product: Product) {
     mpn: product.mpn,
     // Google kræver identifier_exists=no, når hverken GTIN eller brand+MPN findes.
     identifier_exists: hasIdentifier ? "yes" : "no",
+    shipping: {
+      country: "DK",
+      service: "Standard",
+      price: `0.00 ${COMMERCE.currency}`,
+      min_transit_time: minDage,
+      max_transit_time: maxDage,
+    },
   };
 }
 
