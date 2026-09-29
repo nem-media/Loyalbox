@@ -873,6 +873,28 @@ export const PRODUKT_FOTO: Record<string, string> = {
  * reviewstander på billedet. Teksten hører til BILLEDET og ikke til varen, så
  * den står her ved siden af filen.
  */
+/**
+ * FRITLAGTE PRODUKTBILLEDER — til de små billeder i produktstriben.
+ *
+ * Udklippet af det SAMME foto som `PRODUKT_FOTO`, så varen ser ens ud i
+ * striben og på produktsiden. Fritlagt 29. sep. 2026 med rembg: de hvide
+ * standere kræver `u2net` og udfyldte huller, for hvid akryl på lys baggrund
+ * læses ellers som baggrund, og kroppen bliver gennemsigtig.
+ *
+ * Reviewstander og Pro deler fil, fordi de deler foto. Kun PNG med alfa —
+ * billedet står på et kort og skal ikke have en firkant om sig.
+ */
+export const PRODUKT_FRITLAGT: Record<string, { src: string; w: number; h: number }> = {
+  reviewstander: { src: "/produkt-fritlagt/reviewstander.png", w: 191, h: 240 },
+  "reviewstander-pro": { src: "/produkt-fritlagt/reviewstander.png", w: 191, h: 240 },
+  "loyalsum-komplet": { src: "/produkt-fritlagt/loyalsum-komplet.png", w: 177, h: 240 },
+  "loyalsum-komplet-online": {
+    src: "/produkt-fritlagt/loyalsum-komplet-online.png",
+    w: 279,
+    h: 240,
+  },
+};
+
 export const PRODUKT_FOTO_ALT: Record<string, string> = {
   reviewstander:
     "LoyalSum reviewstander på disken i en butik, med QR-kode og NFC-felt",

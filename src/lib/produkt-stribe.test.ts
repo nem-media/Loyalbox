@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "node:fs";
-import { KATALOG } from "./constants";
+import { existsSync, readFileSync } from "node:fs";
+import { KATALOG, PRODUKT_FRITLAGT } from "./constants";
 
 /**
  * DEN KØBEKLARE SKAL IKKE LEDE.
@@ -86,5 +86,28 @@ describe("produkterne står lige efter hero", () => {
     /* Den svarer på "hvad koster de?", ikke på "hvad er forskellen?".
        Kataloget er stedet, hvor man sammenligner på indhold. */
     expect(kilde("src/components/produkt-stribe.tsx")).toContain('href="/produkter"');
+  });
+});
+
+describe("de små fritlagte billeder (29. sep. 2026)", () => {
+  const kilde = readFileSync(
+    new URL("../components/produkt-stribe.tsx", import.meta.url),
+    "utf8",
+  ).replace(/\/\*[\s\S]*?\*\//g, "");
+
+  it("vises KUN fra laptop — på mobil dækkede de prisen", () => {
+    const img = kilde.slice(kilde.indexOf("<Image"), kilde.indexOf("/>", kilde.indexOf("<Image")));
+    expect(img).toMatch(/\bhidden\b/);
+    expect(img).toContain("laptop:block");
+    expect(img).toContain('alt=""');
+  });
+
+  it("hver vare i kataloget har et fritlagt PNG, der findes", () => {
+    for (const p of KATALOG) {
+      const fri = PRODUKT_FRITLAGT[p.slug];
+      expect(fri, p.slug).toBeDefined();
+      expect(fri.src).toMatch(/\.png$/);
+      expect(existsSync(new URL(`../../public${fri.src}`, import.meta.url)), fri.src).toBe(true);
+    }
   });
 });

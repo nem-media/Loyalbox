@@ -1,5 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
-import { KATALOG, harFysiskSkilt } from "@/lib/constants";
+import { KATALOG, PRODUKT_FRITLAGT, harFysiskSkilt } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 
 /**
@@ -18,10 +19,16 @@ import { formatCurrency } from "@/lib/utils";
  * stempelkort. De fleste, der kommer fra søgning, er ikke købeklare endnu, og
  * de skal ikke betale for, at mindretallet er det.
  *
- * DERFOR ER DEN SKÅRET TIL ÉN LINJE PR. VARE: navn, hvad den er, prisen. Intet
- * billede — billederne er præcis dét, der gør kataloggitteret højt. Den, der
- * vil se produktet, klikker; den, der vil sammenligne på indhold, har
+ * DERFOR ER DEN SKÅRET TIL ÉN LINJE PR. VARE: navn, hvad den er, prisen. Den,
+ * der vil se produktet, klikker; den, der vil sammenligne på indhold, har
  * kataloget, som striben linker til.
+ *
+ * ET LILLE FRITLAGT BILLEDE — KUN PÅ DESKTOP (ejerens valg 29. sep. 2026).
+ * Fra `laptop`, hvor de fire kort står på én række, er der luft nederst til
+ * højre ved siden af prisen, og billedet koster ingen højde. Under den bredde
+ * er kortene to og to og smalle, og billedet dækkede prisen (set ved 390 px:
+ * "99 kr./md" lå under standeren). Dér er reglen stadig: intet billede. Det
+ * er dekoration — navnet står ved siden af — og derfor `alt=""`.
  *
  * `aktuel` er varen, siden selv handler om. Den fremhæves i stedet for at
  * linke til sig selv — et link, der fører hen, hvor man allerede er, er en
@@ -87,8 +94,19 @@ export function ProduktStribe({
               ? `${formatCurrency(p.price)}${p.monthlyPrice ? ` + ${formatCurrency(p.monthlyPrice)}/md` : ""}`
               : `${formatCurrency(p.monthlyPrice ?? 0)}/md`;
 
+            const fri = PRODUKT_FRITLAGT[p.slug];
             const indhold = (
               <>
+                {fri ? (
+                  <Image
+                    src={fri.src}
+                    width={fri.w}
+                    height={fri.h}
+                    alt=""
+                    sizes="80px"
+                    className="pointer-events-none absolute bottom-3 right-3.5 hidden h-16 w-auto drop-shadow-[0_4px_6px_rgba(6,35,46,0.18)] laptop:block"
+                  />
+                ) : null}
                 <span className="block text-sm font-bold tracking-tight">
                   {p.name}
                 </span>
@@ -107,7 +125,7 @@ export function ProduktStribe({
                 {erAktuel ? (
                   <div
                     aria-current="page"
-                    className="box-shape h-full border border-accent bg-card p-4 shadow-[var(--hoejde-2)] ring-1 ring-accent/15"
+                    className="box-shape relative h-full border border-accent bg-card p-4 shadow-[var(--hoejde-2)] ring-1 ring-accent/15"
                   >
                     {indhold}
                     <span className="mt-2 block text-xs font-medium text-accent">
@@ -117,7 +135,7 @@ export function ProduktStribe({
                 ) : (
                   <Link
                     href={`/produkter/${p.slug}`}
-                    className="box-shape flex h-full flex-col border border-border bg-card p-4 shadow-[var(--hoejde-1)] transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-[var(--hoejde-2)]"
+                    className="box-shape relative flex h-full flex-col border border-border bg-card p-4 shadow-[var(--hoejde-1)] transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-[var(--hoejde-2)]"
                   >
                     {indhold}
                     <span className="mt-2 block text-xs font-medium text-accent">
