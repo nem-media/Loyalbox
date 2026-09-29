@@ -876,22 +876,27 @@ export const PRODUKT_FOTO: Record<string, string> = {
 /**
  * FRITLAGTE PRODUKTBILLEDER — til de små billeder i produktstriben.
  *
- * Udklippet af det SAMME foto som `PRODUKT_FOTO`, så varen ser ens ud i
- * striben og på produktsiden. Fritlagt 29. sep. 2026 med rembg: de hvide
- * standere kræver `u2net` og udfyldte huller, for hvid akryl på lys baggrund
- * læses ellers som baggrund, og kroppen bliver gennemsigtig.
+ * SKARPHED ER HELE POINTEN (ejeren 29. sep. 2026: "utydelige"). Første
+ * udgave var klippet ud af et lille udsnit af et foto og blev derefter
+ * omkodet af next/image med standardkvaliteten — to gange tab på et billede,
+ * der vises 64 px højt. Nu er filerne FÆRDIGE: 192 px høje (3 × visningen),
+ * let skærpede efter nedskaleringen, og de vises `unoptimized`, så PNG'en når
+ * skærmen uændret.
  *
- * Reviewstander og Pro deler fil, fordi de deler foto. Kun PNG med alfa —
- * billedet står på et kort og skal ikke have en firkant om sig.
+ * Standeren er ejerens egen fritlagte fil ("Reviewstander_design_selv.png"
+ * i Dropbox/LoyalSum.dk), ikke et udklip af et foto — hvid akryl på lys
+ * baggrund kan ikke klippes rent ud automatisk. De tre varer med stander
+ * deler den; mærkatet på Komplet kan alligevel ikke ses i den størrelse.
+ * Online er klippet ud af sit produktfoto i fuld opløsning.
  */
 export const PRODUKT_FRITLAGT: Record<string, { src: string; w: number; h: number }> = {
-  reviewstander: { src: "/produkt-fritlagt/reviewstander.png", w: 191, h: 240 },
-  "reviewstander-pro": { src: "/produkt-fritlagt/reviewstander.png", w: 191, h: 240 },
-  "loyalsum-komplet": { src: "/produkt-fritlagt/loyalsum-komplet.png", w: 177, h: 240 },
+  reviewstander: { src: "/produkt-fritlagt/reviewstander.png?v=2", w: 152, h: 192 },
+  "reviewstander-pro": { src: "/produkt-fritlagt/reviewstander.png?v=2", w: 152, h: 192 },
+  "loyalsum-komplet": { src: "/produkt-fritlagt/reviewstander.png?v=2", w: 152, h: 192 },
   "loyalsum-komplet-online": {
-    src: "/produkt-fritlagt/loyalsum-komplet-online.png",
-    w: 279,
-    h: 240,
+    src: "/produkt-fritlagt/loyalsum-komplet-online.png?v=2",
+    w: 253,
+    h: 192,
   },
 };
 

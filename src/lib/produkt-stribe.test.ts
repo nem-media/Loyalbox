@@ -102,12 +102,18 @@ describe("de små fritlagte billeder (29. sep. 2026)", () => {
     expect(img).toContain('alt=""');
   });
 
+  it("vises uden omkodning — next/image gjorde dem slørede", () => {
+    const img = kilde.slice(kilde.indexOf("<Image"), kilde.indexOf("/>", kilde.indexOf("<Image")));
+    expect(img).toContain("unoptimized");
+  });
+
   it("hver vare i kataloget har et fritlagt PNG, der findes", () => {
     for (const p of KATALOG) {
       const fri = PRODUKT_FRITLAGT[p.slug];
       expect(fri, p.slug).toBeDefined();
-      expect(fri.src).toMatch(/\.png$/);
-      expect(existsSync(new URL(`../../public${fri.src}`, import.meta.url)), fri.src).toBe(true);
+      // `?v=N` bryder cachen på `public/`, når en fil skiftes ud.
+      expect(fri.src).toMatch(/\.png(\?v=\d+)?$/);
+      expect(existsSync(new URL(`../../public${fri.src.split("?")[0]}`, import.meta.url)), fri.src).toBe(true);
     }
   });
 });
