@@ -332,7 +332,15 @@ export function StanderDesigner({
           <div className="divide-y divide-border">
             {/* ---------------------------------------- standerens farve */}
             <fieldset className="pb-4">
-              <legend className="mb-2 text-sm font-medium">Vælg stander</legend>
+              <legend className="text-sm font-medium">
+                Vælg standerens farve
+              </legend>
+              {/* Farven her er STANDEREN (akrylen). Uden linjen tror kunden,
+                  at valget også er fronten — og at en farvet front ikke
+                  findes, fordi der kun står sort og hvid. */}
+              <p className="mt-0.5 mb-2 text-xs text-muted">
+                Du kan vælge en anden farve til fronten i et af de næste skridt.
+              </p>
               <div className="grid grid-cols-2 gap-3">
                 {STANDER_FARVER.map((f) => (
                   <label
