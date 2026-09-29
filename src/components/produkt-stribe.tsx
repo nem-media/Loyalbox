@@ -103,7 +103,7 @@ export function ProduktStribe({
                     width={fri.w}
                     height={fri.h}
                     alt=""
-                    sizes="80px"
+                    unoptimized
                     className="pointer-events-none absolute bottom-3 right-3.5 hidden h-16 w-auto drop-shadow-[0_4px_6px_rgba(6,35,46,0.18)] laptop:block"
                   />
                 ) : null}
