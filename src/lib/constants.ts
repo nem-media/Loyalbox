@@ -491,11 +491,17 @@ export const COMMERCE = {
   /** Google Shopping: lagerstatus (juster hvis den skal styres pr. produkt). */
   availability: "in_stock",
   /**
-   * Google Merchant produktkategori. Kvalificeret bud for en bord-/displaystander
-   * — verificér/justér i Merchant Center, når feedet oprettes.
+   * Google Merchant produktkategori — som ID-NUMMER og ikke som tekst.
+   *
+   * 976 = "Business & Industrial > Signage" / "Erhverv og industri >
+   * Skiltning". Her stod før teksten "... > Retail > Retail Display Props",
+   * som IKKE FINDES i taksonomien (den hedder "... Props & Models" og er
+   * mannequiner og rekvisitter). Merchant Center afviste den 29. sep. 2026:
+   * "Ugyldig produktkategori — begrænser synligheden i Danmark". Et ID kan
+   * hverken staves forkert eller komme i konflikt med feedets sprog (dansk).
+   * Opslag: google.com/basepages/producttype/taxonomy-with-ids.da-DK.txt
    */
-  googleProductCategory:
-    "Business & Industrial > Retail > Retail Display Props",
+  googleProductCategory: "976",
 } as const;
 
 // ===========================================================================

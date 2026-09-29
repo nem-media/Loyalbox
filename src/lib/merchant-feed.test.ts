@@ -48,6 +48,12 @@ describe("feedet", () => {
     expect(xml).toContain("<g:max_transit_time>5</g:max_transit_time>");
   });
 
+  it("kategorien er et gyldigt ID — teksten før fandtes ikke i taksonomien", async () => {
+    // 976 = Erhverv og industri > Skiltning. Merchant Center afviste den gamle
+    // tekst som "Ugyldig produktkategori" 29. sep. 2026.
+    expect(await feed()).toContain("<g:google_product_category>976</g:google_product_category>");
+  });
+
   it("har mærke og MPN, så Google ikke kræver en stregkode", async () => {
     const xml = await feed();
     expect(xml).toContain("<g:brand>LoyalSum</g:brand>");
