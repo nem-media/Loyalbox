@@ -129,6 +129,11 @@ export default async function DashboardLayout({
       items: [
         { href: "/dashboard/personale", label: "Personale", icon: "staff" },
         {
+          href: "/dashboard/integrationer",
+          label: "Integrationer",
+          icon: "integration",
+        },
+        {
           href: "/dashboard/profil",
           label: "Virksomhedsprofil",
           icon: "store",

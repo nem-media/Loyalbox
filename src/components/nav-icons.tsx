@@ -317,6 +317,24 @@ export function ReputationIcon(p: P) {
   );
 }
 
+/**
+ * Integrationer — et STIK.
+ *
+ * Silhuetten er to ben foroven, en afrundet krop og en ledning ned: ingen
+ * anden menuikon er lodret og åben i begge ender. Et tandhjul ville sige
+ * "indstillinger" om alt, og et kædeled er allerede destinationen
+ * (`LinkIcon`) — to ikoner for "forbindelse" ville ikke kunne skelnes.
+ */
+export function IntegrationIcon(p: P) {
+  return (
+    <Icon {...p} krop={<path d="M6.5 8h11v3.5a5.5 5.5 0 0 1-11 0Z" />}>
+      <path d="M9.5 3v5M14.5 3v5" />
+      <path d="M6.5 8h11v3.5a5.5 5.5 0 0 1-11 0Z" />
+      <path d="M12 17v4" />
+    </Icon>
+  );
+}
+
 export const NAV_ICONS = {
   overview: OverviewIcon,
   stand: StandIcon,
@@ -328,6 +346,7 @@ export const NAV_ICONS = {
   billing: BillingIcon,
   subscription: SubscriptionIcon,
   reputation: ReputationIcon,
+  integration: IntegrationIcon,
   help: HelpIcon,
 } as const;
 

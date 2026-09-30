@@ -1101,6 +1101,11 @@ export const KOMPLET_FUNKTIONER = [
     label: "Medarbejderadgang",
     help: "Giv dine ansatte adgang til at stemple og indløse — uden at dele din egen adgangskode.",
   },
+  {
+    rute: "integrationer",
+    label: "Webshopintegration",
+    help: "Forbind din webshop, så kunderne optjener point og stempler, når de handler online.",
+  },
 ] as const;
 
 /**
