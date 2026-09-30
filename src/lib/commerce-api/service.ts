@@ -8,7 +8,7 @@ import type { KundeAfhaengigheder } from "./customer";
 import { anvendStempelbidrag, type StempelAfhaengigheder } from "./stamps";
 import type { SynkAfhaengigheder, PointProgramInfo, StempelProgramInfo } from "./sync";
 import type { ContributionRow, IntegrationRow } from "./rows";
-import { krypter, noegleId, noeglering } from "./secret";
+import { krypterIntegrationsnoegle, noegleId, noeglering } from "./secret";
 
 /**
  * DE RIGTIGE AFHÆNGIGHEDER — Supabase med service-role.
@@ -65,7 +65,7 @@ export function authAfhaengigheder(db: CommerceDb = commerceDb()): AuthAfhaengig
         if (!gammel || noegleId(gammel) === ring.aktuel.id) return;
         await db
           .from("commerce_integrations")
-          .update({ secret_ciphertext: krypter(noegle, ring), updated_at: new Date().toISOString() })
+          .update({ secret_ciphertext: krypterIntegrationsnoegle(noegle, integration.id, ring), updated_at: new Date().toISOString() })
           .eq("id", integration.id)
           .eq("secret_ciphertext", gammel)
           .select("id");

@@ -113,10 +113,37 @@ export function nySigneringsnoegle(): string {
   return "lss_" + randomBytes(32).toString("base64url");
 }
 
+/**
+ * NØGLEN ER BUNDET TIL SIN INTEGRATION (AES-GCM AAD).
+ *
+ * Integrationens id indgår som "additional authenticated data": det krypteres
+ * ikke, men det er en del af GCM-mærket. En chiffertekst kopieret fra
+ * integration A til integration B — af en med skriveadgang til basen — kan
+ * derfor ikke dekrypteres som B's nøgle: mærket passer ikke, og intet
+ * klartekst kommer ud. Uden bindingen kunne en sådan ombytning få B til at
+ * acceptere signaturer lavet med A's nøgle.
+ *
+ * Konteksten er OBLIGATORISK — der er ingen variant uden. Den ændres aldrig:
+ * formen er `loyalsum:commerce-integration:<id>`.
+ */
+const UUID_FORM = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function kontekst(integrationId: string): Buffer {
+  if (!UUID_FORM.test(integrationId)) {
+    throw new Error("integrationens id skal være et UUID");
+  }
+  return Buffer.from(`loyalsum:commerce-integration:${integrationId.toLowerCase()}`, "utf8");
+}
+
 /** Krypterer med den AKTUELLE nøgle. Kaster `CommerceNoegleFejl`, hvis den mangler. */
-export function krypter(klartekst: string, ring: Noeglering = noeglering()): string {
+export function krypterIntegrationsnoegle(
+  klartekst: string,
+  integrationId: string,
+  ring: Noeglering = noeglering(),
+): string {
   const iv = randomBytes(12);
   const c = createCipheriv("aes-256-gcm", ring.aktuel.noegle, iv);
+  c.setAAD(kontekst(integrationId));
   const data = Buffer.concat([c.update(klartekst, "utf8"), c.final()]);
   return [
     ring.aktuel.id,
@@ -133,17 +160,24 @@ export function noegleId(chiffer: string): string | null {
 }
 
 /**
- * Dekrypterer med den nøgle, chifferteksten selv angiver. Null, hvis nøglen
- * ikke (længere) findes, eller teksten er ændret (GCM-mærket passer ikke).
- * Kaster `CommerceNoegleFejl`, hvis funktionen slet ikke er sat op.
+ * Dekrypterer med den nøgle, chifferteksten selv angiver, og med
+ * integrationens id som kontekst. Null — aldrig en undtagelse med indhold —
+ * hvis nøglen ikke (længere) findes, teksten er ændret, eller den tilhører en
+ * anden integration. Kaster `CommerceNoegleFejl`, hvis funktionen slet ikke er
+ * sat op.
  */
-export function dekrypter(chiffer: string, ring: Noeglering = noeglering()): string | null {
+export function dekrypterIntegrationsnoegle(
+  chiffer: string,
+  integrationId: string,
+  ring: Noeglering = noeglering(),
+): string | null {
   const dele = chiffer.split(".");
   if (dele.length !== 4) return null;
   const noegle = ring.alle.get(dele[0]);
   if (!noegle) return null;
   try {
     const d = createDecipheriv("aes-256-gcm", noegle, Buffer.from(dele[1], "base64url"));
+    d.setAAD(kontekst(integrationId));
     d.setAuthTag(Buffer.from(dele[2], "base64url"));
     return Buffer.concat([d.update(Buffer.from(dele[3], "base64url")), d.final()]).toString("utf8");
   } catch {

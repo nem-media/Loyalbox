@@ -5,8 +5,8 @@ import { join } from "node:path";
 import {
   CommerceNoegleFejl,
   commerceKrypteringKlar,
-  dekrypter,
-  krypter,
+  dekrypterIntegrationsnoegle as dekrypterMed,
+  krypterIntegrationsnoegle as krypterMed,
   laesNoegle,
   noegleId,
   noeglering,
@@ -25,6 +25,10 @@ import {
  */
 
 const b64 = (n = 32) => randomBytes(n).toString("base64");
+const A = "11111111-1111-4111-8111-111111111111";
+const B = "22222222-2222-4222-8222-222222222222";
+const krypter = (x: string, ring: ReturnType<typeof noeglering>) => krypterMed(x, A, ring);
+const dekrypter = (x: string, ring: ReturnType<typeof noeglering>) => dekrypterMed(x, A, ring);
 const miljoe = (over: Record<string, string | undefined> = {}) => ({ [NOEGLE_ENV]: b64(), ...over });
 
 describe("nøglens form", () => {
@@ -111,5 +115,48 @@ describe("kryptering og nøgle-id", () => {
     expect(() => noeglering(miljoe({ [NOEGLE_ID_ENV]: "v1" }))).toThrow(CommerceNoegleFejl);
     expect(() => noeglering(miljoe({ [TIDLIGERE_NOEGLER_ENV]: `k1:${b64()}` }))).toThrow(CommerceNoegleFejl);
     expect(() => noeglering(miljoe({ [NOEGLE_ID_ENV]: "k2", [TIDLIGERE_NOEGLER_ENV]: "k1:kort" }))).toThrow(CommerceNoegleFejl);
+  });
+});
+
+describe("nøglen er bundet til sin integration (AES-GCM AAD)", () => {
+  it("en chiffertekst til integration A kan ikke dekrypteres som B", () => {
+    const ring = noeglering(miljoe());
+    const c = krypterMed("lss_a", A, ring);
+    expect(dekrypterMed(c, A, ring)).toBe("lss_a");
+    expect(dekrypterMed(c, B, ring)).toBeNull();
+  });
+
+  it("ombytning i basen: B's række med A's chiffertekst giver ingen nøgle", () => {
+    const ring = noeglering(miljoe());
+    const raekker = { [A]: krypterMed("lss_a", A, ring), [B]: krypterMed("lss_b", B, ring) };
+    const byttet = { [A]: raekker[B], [B]: raekker[A] };
+    expect(dekrypterMed(byttet[B], B, ring)).toBeNull();
+    expect(dekrypterMed(byttet[A], A, ring)).toBeNull();
+  });
+
+  it("id'et er ikke valgfrit og skal være et UUID", () => {
+    const ring = noeglering(miljoe());
+    expect(() => krypterMed("x", "", ring)).toThrow();
+    expect(() => krypterMed("x", "ikke-et-uuid", ring)).toThrow();
+  });
+
+  it("rotation k1 → k2 bevarer bindingen: samme integration læser, en anden ikke", () => {
+    const k1 = b64();
+    const gammel = krypterMed("lss_a", A, noeglering({ [NOEGLE_ENV]: k1 }));
+    const ny = noeglering({ [NOEGLE_ENV]: b64(), [NOEGLE_ID_ENV]: "k2", [TIDLIGERE_NOEGLER_ENV]: `k1:${k1}` });
+    const klartekst = dekrypterMed(gammel, A, ny);
+    expect(klartekst).toBe("lss_a");
+    const omkrypteret = krypterMed(klartekst!, A, ny);
+    expect(noegleId(omkrypteret)).toBe("k2");
+    expect(dekrypterMed(omkrypteret, A, ny)).toBe("lss_a");
+    expect(dekrypterMed(omkrypteret, B, ny)).toBeNull();
+    expect(dekrypterMed(gammel, B, ny)).toBeNull();
+  });
+
+  it("en ødelagt chiffertekst giver null — aldrig en undtagelse med indhold", () => {
+    const ring = noeglering(miljoe());
+    for (const x of ["", "k1", "k1.a.b", "k9.a.b.c", "k1.!!.??.**"]) {
+      expect(dekrypterMed(x, A, ring)).toBeNull();
+    }
   });
 });

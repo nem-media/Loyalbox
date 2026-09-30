@@ -1,10 +1,11 @@
 import "server-only";
+import { randomUUID } from "node:crypto";
 import { commerceDb, type CommerceDb } from "./db";
 import { commerceIPlan } from "@/lib/loyalty/plan";
 import { valider, CONTRACT_VERSIONS } from "./contract";
 import {
   commerceKrypteringKlar,
-  krypter,
+  krypterIntegrationsnoegle,
   nyParringskode,
   nySigneringsnoegle,
   parringskodeHash,
@@ -124,20 +125,37 @@ export async function parButik(krop: unknown, db: CommerceDb = commerceDb()): Pr
     return { ok: false, kode: "entitlement_required", besked: "Webshopintegrationen kræver LoyalSum Komplet." };
   }
 
+  /*
+   * NØGLEN KRYPTERES TIL SIN INTEGRATION (AAD = integrationens id), så id'et
+   * skal kendes, før der krypteres. Første forsøg foreslår et nyt id; skal en
+   * eksisterende integration genbruges (genparring eller genforbindelse),
+   * svarer basen `ny_noegle_kraeves` med dens id — uden at bruge koden — og
+   * der krypteres én gang til. Begge forsøg er hver én transaktion.
+   */
   const noegle = nySigneringsnoegle();
-  const { data, error } = await db.rpc("commerce_par", {
-    p_code_hash: hash,
-    p_provider: store.provider,
-    p_external_store_id: store.external_store_id,
-    p_store_url: store.store_url,
-    p_store_name: store.name ?? null,
-    p_currency: store.currency,
-    p_adapter_version: store.adapter_version,
-    p_platform_version: store.platform_version ?? null,
-    p_secret_ciphertext: krypter(noegle),
-  });
-  if (error) throw new Error(`par: ${error.message}`);
-  const svar = data as { ok: boolean; fejl?: string; integration_id?: string };
+  let kandidat: string = randomUUID();
+  let svar: { ok: boolean; fejl?: string; integration_id?: string } = { ok: false };
+  for (let forsoeg = 0; forsoeg < 2; forsoeg++) {
+    const { data, error } = await db.rpc("commerce_par", {
+      p_code_hash: hash,
+      p_provider: store.provider,
+      p_external_store_id: store.external_store_id,
+      p_store_url: store.store_url,
+      p_store_name: store.name ?? null,
+      p_currency: store.currency,
+      p_adapter_version: store.adapter_version,
+      p_platform_version: store.platform_version ?? null,
+      p_secret_ciphertext: krypterIntegrationsnoegle(noegle, kandidat),
+      p_kandidat_id: kandidat,
+    });
+    if (error) throw new Error(`par: ${error.message}`);
+    svar = data as typeof svar;
+    if (svar.ok || svar.fejl !== "ny_noegle_kraeves" || !svar.integration_id) break;
+    kandidat = svar.integration_id;
+  }
+  // To samtidige genparringer af samme butik: koden er ikke brugt, og et
+  // genforsøg (500, retryable) lykkes.
+  if (!svar.ok && svar.fejl === "ny_noegle_kraeves") throw new Error("par: integrationen skiftede under parringen");
   if (!svar.ok) {
     const kodeFejl: Fejlkode =
       svar.fejl === "store_already_paired"

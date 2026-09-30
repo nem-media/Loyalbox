@@ -246,3 +246,28 @@ describe("krypteringsnøglen på serveren", () => {
     expect(genkrypter).not.toHaveBeenCalled();
   });
 });
+
+describe("en integrationsnøgle, der ikke kan læses", () => {
+  it("svarer credential_invalid (401, ingen genforsøg) og lækker hverken chiffertekst eller nøgle", async () => {
+    const d = deps({ hentIntegration: async () => ({ ...A, secret_ciphertext: "k1.oedelagt.chiffer.tekst" }) });
+    const advarsel = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const r = await godkendAnmodning(anmodning({}), d);
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.kode).toBe("credential_invalid");
+      const k = await r.svar.json();
+      expect(k).toMatchObject({ retryable: false, classification: "permanent" });
+      expect(JSON.stringify(k)).not.toContain("oedelagt");
+    }
+    const logget = advarsel.mock.calls.flat().join(" ");
+    expect(logget).not.toContain("oedelagt");
+    expect(logget).not.toContain(NOEGLE);
+    advarsel.mockRestore();
+  });
+
+  it("dekrypteringen får integrationens id som kontekst", async () => {
+    const dekrypter = vi.fn((c: string, id: string) => (c === "chiffer-a" && id === A.id ? NOEGLE : null));
+    expect(await kode(anmodning({}), deps({ dekrypter }))).toBe("ok");
+    expect(dekrypter).toHaveBeenCalledWith("chiffer-a", A.id);
+  });
+});

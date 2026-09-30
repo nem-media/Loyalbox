@@ -37,7 +37,7 @@ let adgang = true;
 
 vi.mock("@/lib/commerce-api/secret", async (orig) => ({
   ...(await orig<typeof import("@/lib/commerce-api/secret")>()),
-  dekrypter: (c: string) => (c === "chiffer" ? NOEGLE : null),
+  dekrypterIntegrationsnoegle: (c: string, id: string) => (c === "chiffer" && id === INTEGRATION.id ? NOEGLE : null),
 }));
 vi.mock("@/lib/commerce-api/service", () => ({
   authAfhaengigheder: () => ({

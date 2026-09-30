@@ -22,6 +22,8 @@ export const FEJLKODER = {
   request_expired: { status: 401, retryable: false },
   replay_detected: { status: 401, retryable: false },
   unknown_integration: { status: 401, retryable: false },
+  /** Integrationens gemte nøgle kan ikke læses — butikken skal parres igen. */
+  credential_invalid: { status: 401, retryable: false },
   integration_inactive: { status: 401, retryable: false },
   entitlement_required: { status: 403, retryable: false },
   contract_version_unsupported: { status: 400, retryable: false },

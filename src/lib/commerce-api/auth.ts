@@ -1,5 +1,5 @@
 import type { NextResponse } from "next/server";
-import { CommerceNoegleFejl, dekrypter } from "./secret";
+import { CommerceNoegleFejl, dekrypterIntegrationsnoegle } from "./secret";
 import {
   kanoniskStreng,
   sha256Hex,
@@ -51,7 +51,8 @@ export interface AuthAfhaengigheder {
     requestId: string,
   ): Promise<{ ok: true } | { ok: false; fejl: "replay_detected" | "rate_limited"; retryAfter?: number }>;
   harAdgang(companyId: string): Promise<boolean>;
-  dekrypter?(chiffer: string): string | null;
+  /** Dekrypterer integrationens nøgle — altid med integrationens id som kontekst. */
+  dekrypter?(chiffer: string, integrationId: string): string | null;
   /**
    * Krypterer nøglen om med den AKTUELLE krypteringsnøgle, hvis den er låst
    * med en tidligere. Kaldes kun efter et fuldt godkendt kald.
@@ -135,7 +136,7 @@ export async function godkendAnmodning(
   // 3) Signaturen — over den rå krop, før noget parses.
   let noegle: string | null;
   try {
-    noegle = (deps.dekrypter ?? dekrypter)(integration.secret_ciphertext);
+    noegle = (deps.dekrypter ?? dekrypterIntegrationsnoegle)(integration.secret_ciphertext, integration.id);
   } catch (e) {
     if (e instanceof CommerceNoegleFejl) {
       // Serveren er ikke sat op — ikke kaldets skyld, og et genforsøg kan
@@ -145,9 +146,12 @@ export async function godkendAnmodning(
     throw e;
   }
   if (!noegle) {
-    // Nøglen kan ikke læses (fx roteret hovednøgle). Det er ikke kaldets
-    // skyld, men et genforsøg hjælper heller ikke: butikken skal parres igen.
-    return afvis("invalid_signature", "Signaturen kunne ikke efterprøves. Forbind butikken igen.", iid, rid);
+    // Nøglen kan ikke læses: ændret, kopieret fra en anden integration, eller
+    // låst med en krypteringsnøgle, der ikke længere findes. Et genforsøg
+    // hjælper ikke — butikken skal parres igen. Hverken chifferteksten eller
+    // nøglen logges; kun integrationens id.
+    console.warn(`[commerce-api] integrationsnøglen kan ikke læses: ${iid}`);
+    return afvis("credential_invalid", "Integrationens nøgle kan ikke bruges. Forbind butikken igen fra LoyalSum.", iid, rid);
   }
   const forventet = signer(
     noegle,
