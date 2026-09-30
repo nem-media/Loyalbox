@@ -82,7 +82,7 @@ async function logAudit(
 ) {
   await admin.from("loyalty_audit_log").insert({
     company_id: access.companyId,
-    actor_user_id: access.actorUserId,
+    actor_user_id: access.system ? null : access.actorUserId,
     actor_employee_id: access.employeeId,
     action,
     target_type: targetType,
@@ -368,6 +368,7 @@ export async function giveStamp(params: GiveStampParams): Promise<StampResult> {
 export async function reverseStamp(
   access: CompanyAccess,
   transactionId: string,
+  reason: string = "Tilbageført af personale",
 ): Promise<SimpleResult> {
   if (!access.permissions.canStamp) {
     return { ok: false, error: "Du har ikke rettighed til at rette stempler." };
@@ -421,7 +422,7 @@ export async function reverseStamp(
       stamps: -(original.stamps ?? 0),
       source: "system",
       reversal_of: transactionId,
-      reason: "Tilbageført af personale",
+      reason,
     });
 
   if (indsaetFejl) {

@@ -32,6 +32,13 @@ export interface CompanyAccess {
    * skærmen, og et spor, der ikke påstår, at kunden selv gjorde det.
    */
   erSupport?: boolean;
+  /**
+   * Handlingen er udført af SYSTEMET og ikke af et menneske — i dag kun en
+   * webshopordre gennem Commerce API'et. Revisionsloggen skriver da ingen
+   * bruger som den handlende: at sætte ejerens id ville påstå, at ejeren
+   * selv gav stemplet.
+   */
+  system?: "commerce";
 }
 
 const FULL: LoyaltyPermissions = {

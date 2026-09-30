@@ -41,6 +41,26 @@ export async function stempelkortIPlan(companyId: string): Promise<boolean> {
 export async function pointprogramIPlan(companyId: string): Promise<boolean> {
   return stempelkortIPlan(companyId);
 }
+
+/**
+ * Må virksomheden forbinde en WEBSHOP (Commerce API)?
+ *
+ * SAMME SVAR SOM STEMPELKORTET: webshopintegrationen er en kanal til de
+ * samme loyalitetsprogrammer, og de følger LoyalSum Komplet og LoyalSum
+ * Komplet Online (`includesLoyalSum`). Reviewstander og Reviewstander Pro har
+ * intet program at forbinde en webshop til.
+ *
+ * NAVNET ER GENERISK — "commerce" og ikke "woocommerce" — fordi Shopify skal
+ * bruge præcis den samme adgang, når adapteren kommer.
+ *
+ * Suspension spærrer som ved stempelkortet: en butik i restance kan ikke
+ * parre en ny webshop, og API'et afviser nye kald med `entitlement_required`.
+ * Intet af det, kunderne har optjent, røres.
+ */
+export async function commerceIPlan(companyId: string): Promise<boolean> {
+  return stempelkortIPlan(companyId);
+}
+
 /**
  * Må virksomheden administrere MEDARBEJDERE?
  *

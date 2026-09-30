@@ -39,7 +39,9 @@ export type TxnSource =
   | "nfc"
   | "import"
   | "system"
-  | "feedback_recovery";
+  | "feedback_recovery"
+  /** Webshopordre via Commerce API v1 (migration 0049). */
+  | "commerce";
 export type DiscountType =
   | "fixed_amount"
   | "percent"
@@ -136,6 +138,7 @@ export const TXN_SOURCE_LABELS: Record<TxnSource, string> = {
   import: "Import",
   system: "System",
   feedback_recovery: "Feedback recovery",
+  commerce: "Webshop",
 };
 
 /** Hovednavigation for stempelkort-området (jf. spec, tilpasset dashboardet). */

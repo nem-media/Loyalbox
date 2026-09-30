@@ -5,6 +5,7 @@ import { noterKoersel, noterFejl } from "@/lib/drift";
 import { sendKundeMail } from "@/lib/mail";
 import { koerBetalingsvarsler } from "@/lib/betalingsvarsler";
 import { udfoertMail } from "@/lib/sletning";
+import { commerceDb } from "@/lib/commerce-api/db";
 
 /**
  * Den natlige oprydning. Tre skridt, i den rækkefølge:
@@ -158,6 +159,22 @@ export async function GET(request: NextRequest) {
    */
   const betalingssager = await koerBetalingsvarsler(toerloeb);
 
+  /*
+   * 7) Webshopintegrationen (0049): udløbne belønningsreservationer frigives,
+   *    og gamle request-id'er og hastighedsvinduer slettes. Tabellerne ryddes
+   *    også løbende ved hvert kald; dette er sikkerhedsnettet for de
+   *    integrationer, der er holdt op med at kalde. Samme PGRST202-hensyn
+   *    som ovenfor: koden kan stå i drift, før migrationen er kørt.
+   */
+  let webshop: unknown = null;
+  if (!toerloeb) {
+    const { data: w, error: webshopFejl } = await commerceDb().rpc("commerce_oprydning");
+    if (webshopFejl && webshopFejl.code !== "PGRST202") {
+      await noterFejl("oprydning", `webshop: ${webshopFejl.message}`);
+    }
+    webshop = w ?? null;
+  }
+
   const resultat = {
     ...(data as object),
     betalingssager,
@@ -168,6 +185,7 @@ export async function GET(request: NextRequest) {
     slettede_logoer: logoer,
     forladte_standere:
       (standere as { forladte?: number } | null)?.forladte ?? 0,
+    webshop,
   };
 
   // Også de gode kørsler noteres. Det er dét, der gør en STOPPET oprydning
