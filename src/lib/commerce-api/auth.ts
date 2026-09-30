@@ -1,5 +1,5 @@
 import type { NextResponse } from "next/server";
-import { dekrypter } from "./secret";
+import { CommerceNoegleFejl, dekrypter } from "./secret";
 import {
   kanoniskStreng,
   sha256Hex,
@@ -28,6 +28,9 @@ import type { IntegrationRow } from "./rows";
  *      ikke kan fylde gentagelsestabellen op.
  *   6. Virksomheden har stadig LoyalSum Komplet (eller Komplet Online).
  *
+ * Mangler krypteringsnøglen på serveren, svares `commerce_unavailable` (503):
+ * webshopfunktionen er slået fra, men intet andet i LoyalSum påvirkes.
+ *
  * Afhængighederne sprøjtes ind, så hver af de seks kan prøves alene uden en
  * database — se `auth.test.ts`.
  */
@@ -49,6 +52,11 @@ export interface AuthAfhaengigheder {
   ): Promise<{ ok: true } | { ok: false; fejl: "replay_detected" | "rate_limited"; retryAfter?: number }>;
   harAdgang(companyId: string): Promise<boolean>;
   dekrypter?(chiffer: string): string | null;
+  /**
+   * Krypterer nøglen om med den AKTUELLE krypteringsnøgle, hvis den er låst
+   * med en tidligere. Kaldes kun efter et fuldt godkendt kald.
+   */
+  genkrypter?(integration: IntegrationRow, noegle: string): Promise<void>;
   nuSekunder?(): number;
 }
 
@@ -125,7 +133,17 @@ export async function godkendAnmodning(
   }
 
   // 3) Signaturen — over den rå krop, før noget parses.
-  const noegle = (deps.dekrypter ?? dekrypter)(integration.secret_ciphertext);
+  let noegle: string | null;
+  try {
+    noegle = (deps.dekrypter ?? dekrypter)(integration.secret_ciphertext);
+  } catch (e) {
+    if (e instanceof CommerceNoegleFejl) {
+      // Serveren er ikke sat op — ikke kaldets skyld, og et genforsøg kan
+      // hjælpe, når nøglen er på plads. Ingen detaljer om nøglen i svaret.
+      return afvis("commerce_unavailable", "Webshopintegrationen er midlertidigt utilgængelig.", iid, rid);
+    }
+    throw e;
+  }
   if (!noegle) {
     // Nøglen kan ikke læses (fx roteret hovednøgle). Det er ikke kaldets
     // skyld, men et genforsøg hjælper heller ikke: butikken skal parres igen.
@@ -164,6 +182,8 @@ export async function godkendAnmodning(
   if (kraevAdgang && !harAdgang) {
     return afvis("entitlement_required", "Webshopintegrationen kræver LoyalSum Komplet.", iid, rid);
   }
+
+  if (deps.genkrypter) await deps.genkrypter(integration, noegle);
 
   return { ok: true, integration, requestId: rid, harAdgang };
 }

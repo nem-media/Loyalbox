@@ -3,6 +3,7 @@ import { commerceDb, type CommerceDb } from "./db";
 import { commerceIPlan } from "@/lib/loyalty/plan";
 import { valider, CONTRACT_VERSIONS } from "./contract";
 import {
+  commerceKrypteringKlar,
   krypter,
   nyParringskode,
   nySigneringsnoegle,
@@ -42,6 +43,10 @@ export async function opretParringskode(
   }
   if (!(await commerceIPlan(companyId))) {
     return { ok: false, fejl: "Webshopintegrationen følger med LoyalSum Komplet og LoyalSum Komplet Online." };
+  }
+  // En kode, der ikke kan indløses, er værre end ingen kode.
+  if (!commerceKrypteringKlar()) {
+    return { ok: false, fejl: "Webshopintegrationen er ikke sat op på serveren endnu. Kontakt LoyalSum." };
   }
 
   // Tidligere ubrugte koder holder op med at gælde.
@@ -88,6 +93,12 @@ export async function parButik(krop: unknown, db: CommerceDb = commerceDb()): Pr
   const v = valider("pair", krop);
   if (!v.ok) return { ok: false, kode: "invalid_request", besked: "Parringen følger ikke kontrakten.", detaljer: v.fejl };
   const { pairing_code, store } = krop as { pairing_code: string; store: CommerceStore };
+
+  // FEJLER LUKKET, FØR KODEN RØRES: uden krypteringsnøglen kan integrationens
+  // nøgle ikke gemmes, og koden må ikke brændes af et forsøg, der ikke kan lykkes.
+  if (!commerceKrypteringKlar()) {
+    return { ok: false, kode: "commerce_unavailable", besked: "Webshopintegrationen er midlertidigt utilgængelig." };
+  }
 
   if (!gyldigButiksadresse(store.store_url)) {
     return { ok: false, kode: "invalid_request", besked: "Butikkens adresse skal være https." };

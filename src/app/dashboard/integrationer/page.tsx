@@ -1,5 +1,6 @@
 import { getCurrentUser } from "@/lib/auth";
 import { commerceDb } from "@/lib/commerce-api/db";
+import { commerceKrypteringKlar } from "@/lib/commerce-api/secret";
 import type { PointEarnModel } from "@/lib/loyalty/point";
 import { IntegrationerVisning, type IntegrationVisning } from "./visning";
 
@@ -122,6 +123,7 @@ export default async function IntegrationerSide() {
           };
         }),
         harWebshopPoint: Boolean(webshopPoint),
+        commerceKlar: commerceKrypteringKlar(),
       }}
     />
   );

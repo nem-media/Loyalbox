@@ -8,6 +8,7 @@ import type { KundeAfhaengigheder } from "./customer";
 import { anvendStempelbidrag, type StempelAfhaengigheder } from "./stamps";
 import type { SynkAfhaengigheder, PointProgramInfo, StempelProgramInfo } from "./sync";
 import type { ContributionRow, IntegrationRow } from "./rows";
+import { krypter, noegleId, noeglering } from "./secret";
 
 /**
  * DE RIGTIGE AFHÆNGIGHEDER — Supabase med service-role.
@@ -50,6 +51,28 @@ export function authAfhaengigheder(db: CommerceDb = commerceDb()): AuthAfhaengig
       };
     },
     harAdgang: (companyId) => commerceIPlan(companyId),
+    /*
+     * LØBENDE OMKRYPTERING EFTER EN ROTATION. Er nøglen låst med en tidligere
+     * krypteringsnøgle, gemmes den igen med den aktuelle — BETINGET på, at
+     * rækken stadig har den gamle chiffertekst, så en samtidig genparring
+     * ikke overskrives. En fejl her må aldrig fælde kaldet: den gamle nøgle
+     * virker stadig, og næste kald prøver igen.
+     */
+    async genkrypter(integration, noegle) {
+      try {
+        const ring = noeglering();
+        const gammel = integration.secret_ciphertext;
+        if (!gammel || noegleId(gammel) === ring.aktuel.id) return;
+        await db
+          .from("commerce_integrations")
+          .update({ secret_ciphertext: krypter(noegle, ring), updated_at: new Date().toISOString() })
+          .eq("id", integration.id)
+          .eq("secret_ciphertext", gammel)
+          .select("id");
+      } catch (e) {
+        console.warn("[commerce-api] omkryptering sprunget over:", (e as Error).name);
+      }
+    },
   };
 }
 

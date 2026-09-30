@@ -60,6 +60,8 @@ export interface IntegrationerData {
     procent: string;
   }[];
   harWebshopPoint: boolean;
+  /** Er krypteringsnøglen sat op på serveren? Uden den kan intet parres. */
+  commerceKlar: boolean;
 }
 
 export function IntegrationerVisning({ d }: { d: IntegrationerData }) {
@@ -135,7 +137,14 @@ export function IntegrationerVisning({ d }: { d: IntegrationerData }) {
                 </p>
               ) : null}
 
-              <Parring forbundet={Boolean(woo)} />
+              {d.commerceKlar ? (
+                <Parring forbundet={Boolean(woo)} />
+              ) : (
+                <Besked slags="advarsel">
+                  Webshopintegrationen er ikke sat op på serveren endnu, så der
+                  kan ikke hentes en parringskode. Kontakt LoyalSum.
+                </Besked>
+              )}
               {woo ? <Afbryd integrationId={woo.id} /> : null}
             </CardBody>
           </Card>

@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { godkendAnmodning, type AuthAfhaengigheder } from "./auth";
 import { kanoniskStreng, sha256Hex, signer, signaturPasser } from "./hmac";
 import type { IntegrationRow } from "./rows";
+import { CommerceNoegleFejl } from "./secret";
 
 /**
  * SIKKERHEDEN PÅ HVERT SIGNERET KALD.
@@ -215,5 +216,33 @@ describe("godkendAnmodning", () => {
       expect(k.error).toBe("invalid_signature");
       expect(JSON.stringify(k)).not.toContain(NOEGLE);
     }
+  });
+});
+
+describe("krypteringsnøglen på serveren", () => {
+  it("mangler nøglen, svares commerce_unavailable (503, kan prøves igen) — ikke en signaturfejl", async () => {
+    const d = deps({
+      dekrypter: () => {
+        throw new CommerceNoegleFejl("LOYALSUM_COMMERCE_ENCRYPTION_KEY mangler");
+      },
+    });
+    const r = await godkendAnmodning(anmodning({}), d);
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.kode).toBe("commerce_unavailable");
+      expect(r.svar.status).toBe(503);
+      const k = await r.svar.json();
+      expect(k).toMatchObject({ retryable: true, classification: "transient" });
+      expect(JSON.stringify(k)).not.toContain("LOYALSUM_COMMERCE_ENCRYPTION_KEY");
+    }
+  });
+
+  it("en nøgle låst med en tidligere krypteringsnøgle krypteres om — kun efter et godkendt kald", async () => {
+    const genkrypter = vi.fn(async () => {});
+    expect(await kode(anmodning({}), deps({ genkrypter }))).toBe("ok");
+    expect(genkrypter).toHaveBeenCalledWith(A, NOEGLE);
+    genkrypter.mockClear();
+    await kode(anmodning({ noegle: "forkert" }), deps({ genkrypter }));
+    expect(genkrypter).not.toHaveBeenCalled();
   });
 });

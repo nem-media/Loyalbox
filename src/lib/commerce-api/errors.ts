@@ -39,6 +39,8 @@ export const FEJLKODER = {
   reservation_expired: { status: 410, retryable: false },
   reservation_state_conflict: { status: 409, retryable: false },
   rate_limited: { status: 429, retryable: true },
+  /** Webshopfunktionen er ikke sat op på serveren (krypteringsnøglen mangler). */
+  commerce_unavailable: { status: 503, retryable: true },
   internal_error: { status: 500, retryable: true },
 } as const satisfies Record<string, { status: number; retryable: boolean }>;
 
