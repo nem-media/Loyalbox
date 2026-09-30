@@ -168,7 +168,9 @@ describe.skipIf(!existsSync(KILDE))("kopien af kontrakten svarer til kilden", ()
     const kilde = filer(KILDE).sort();
     expect(filer(lokal).sort()).toEqual(kilde);
     for (const f of kilde) {
-      expect(readFileSync(join(lokal, f), "utf8"), f).toBe(readFileSync(join(KILDE, f), "utf8"));
+      // Linjeskift normaliseres: git (autocrlf) kan give CRLF i en checkout.
+      const laes = (p: string) => readFileSync(p, "utf8").split("\r\n").join("\n");
+      expect(laes(join(lokal, f)), f).toBe(laes(join(KILDE, f)));
     }
   });
 });
