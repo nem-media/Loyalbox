@@ -76,6 +76,20 @@ const TABELLER = [
   "eksterne_profiler",
   "omdoemme_snapshots",
   "admin_log",
+  // Webshopintegrationen (0049). Integrationen først — alt andet peger på
+  // den. Reservationerne til sidst: de peger på koblingen, medlemmet,
+  // pointprogrammet og ledgeren. Nøglen står KRYPTERET i
+  // commerce_integrations; uden service-role-nøglen er den ulæselig.
+  "commerce_integrations",
+  "commerce_pairing_codes",
+  "commerce_request_ids",
+  "commerce_rate_windows",
+  "commerce_program_channels",
+  "commerce_reward_channels",
+  "commerce_orders",
+  "commerce_order_contributions",
+  "commerce_customer_links",
+  "commerce_reward_reservations",
 ];
 
 const SIDE = 1000; // PostgREST leverer højst 1000 rækker ad gangen.
