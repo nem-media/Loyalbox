@@ -50,6 +50,10 @@ export interface PointSvar {
   navn?: string;
   status?: string;
   kraever?: number;
+  /** Point holdt af til en webshopkurv (0049). */
+  reserveret?: number;
+  /** Det, der kan trækkes lige nu, når et fradrag rammer en reservation. */
+  maks?: number;
 }
 
 export interface Database {

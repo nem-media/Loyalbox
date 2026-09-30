@@ -55,7 +55,11 @@ export function PointKort({
   paused?: boolean;
   className?: string;
 }) {
-  const naeste = naesteBeloenning(saldo, beloenninger);
+  // Reserverede point er lovet til en webshopordre; "næste belønning" og
+  // statusserne nedenfor regnes af det, der faktisk kan bruges nu — ellers
+  // siger kortet "point nok til alt" over en liste, der siger "mangler".
+  const brugbar = brugbarSaldo(saldo, reserveret);
+  const naeste = naesteBeloenning(brugbar, beloenninger);
 
   return (
     <div className={className}>
@@ -97,7 +101,7 @@ export function PointKort({
           <p className="text-sm font-medium">Belønninger</p>
           <ul className="mt-3 divide-y divide-border">
             {beloenninger.map((b) => {
-              const status = beloenningStatus(brugbarSaldo(saldo, reserveret), b.points_cost);
+              const status = beloenningStatus(brugbar, b.points_cost);
               return (
                 <li key={b.id} className="flex items-start justify-between gap-3 py-2.5">
                   <div className="min-w-0">

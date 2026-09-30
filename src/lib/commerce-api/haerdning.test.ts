@@ -5,7 +5,7 @@ import { valider, orderInvariants } from "./contract";
 import { beregnEligibleSpend } from "./eligible-spend";
 import { pointTarget, stempelTarget } from "./targets";
 import { STANDARD_VALUTA, UNDERSTOETTEDE_VALUTAER, erUnderstoettetValuta } from "./valuta";
-import { brugbarSaldo, beloenningStatus } from "@/lib/loyalty/point";
+import { brugbarSaldo, beloenningStatus, pointReserveretTekst } from "@/lib/loyalty/point";
 import type { CommerceOrder } from "./types";
 
 /**
@@ -150,5 +150,55 @@ describe("indløsningen ved disken — seneste definition af point_indloes", () 
     expect(seneste("commerce_reserver")).toMatch(/point_reserverede\(prog\.id, link\.member_id\)/);
     expect(seneste("commerce_commit")).toMatch(/point_reserverede\(res\.point_program_id, res\.member_id\) - res\.points_reserved/);
     expect(seneste("point_reserverede")).toMatch(/status = 'reserved' and expires_at > now\(\)/);
+  });
+});
+
+describe("alle fradrag går gennem reservationsreglen — seneste definitioner", () => {
+  const seneste = (navn: string) => {
+    let fundet = "";
+    for (const f of readdirSync("supabase/migrations").filter((x) => x.endsWith(".sql")).sort()) {
+      const t = readFileSync(`supabase/migrations/${f}`, "utf8");
+      const i = t.indexOf(`create or replace function public.${navn}(`);
+      if (i !== -1) fundet = t.slice(i, t.indexOf("$$;", i));
+    }
+    return fundet.replace(/--.*$/gm, "").replace(/\s+/g, " ");
+  };
+
+  it("personalets point_giv er point_bevaeg UDEN systemret", () => {
+    expect(seneste("point_giv")).toMatch(/return public\.point_bevaeg\(.*p_reason, false\)/);
+  });
+
+  it("point_bevaeg afviser et personalefradrag i det reserverede og frigiver ved systemtilbageførsel", () => {
+    const b = seneste("point_bevaeg");
+    expect(b).toMatch(/if not p_system and konto\.balance \+ p_points >= 0 and konto\.balance \+ p_points < reserveret then/);
+    expect(b).toMatch(/'point-reserveret'/);
+    expect(b).toMatch(/'maks', greatest\(konto\.balance - reserveret, 0\)/);
+    expect(b).toMatch(/status_reason = 'balance_reduced'/);
+    expect(b).toMatch(/order by created_at desc, id desc/);
+  });
+
+  it("annullering af en optjening respekterer reservationer", () => {
+    expect(seneste("point_annuller")).toMatch(/if org\.points > 0 then reserveret := public\.point_reserverede/);
+  });
+
+  it("LÅSERÆKKEFØLGE: reservationer før konto i systemtilbageførsel, bidrag, synk og commit", () => {
+    expect(seneste("point_bevaeg")).toMatch(/perform public\.point_reservationer_laas\(p_program, p_member\);.*konto := public\.point_konto_laast/);
+    expect(seneste("commerce_anvend_pointbidrag")).toMatch(/perform public\.point_reservationer_laas\(c\.point_program_id, c\.member_id\); konto := public\.point_konto_laast/);
+    const synk = seneste("commerce_synk_ordre");
+    expect(synk.indexOf("where member_id = o.member_id and status = 'reserved' order by id for update")).toBeGreaterThan(-1);
+    expect(synk.indexOf("for update;")).toBeLessThan(synk.indexOf("commerce_tilbagefoer_beloenninger"));
+    const commit = seneste("commerce_commit");
+    expect(commit.indexOf("status = 'committed' order by id for update")).toBeLessThan(commit.indexOf("point_konto_laast"));
+  });
+
+  it("webshoppens refundering bruger systemstien", () => {
+    expect(seneste("commerce_anvend_pointbidrag")).toMatch(/public\.point_bevaeg\(.*, true \)/);
+  });
+
+  it("personalets besked siger, hvor meget der kan trækkes", () => {
+    expect(pointReserveretTekst(120)).toBe(
+      "Kunden har point reserveret til en igangværende webshopordre. Der kan højst trækkes 120 point lige nu.",
+    );
+    expect(pointReserveretTekst(-5)).toContain("0 point");
   });
 });

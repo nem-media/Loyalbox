@@ -251,6 +251,14 @@ export const POINT_FEJL: Record<string, string> = {
     "Kunden har allerede brugt de point, der skulle trækkes tilbage. Ret det med en manuel justering i stedet.",
 };
 
+/**
+ * Et FRADRAG, der ville tage point holdt af til en webshopordre. Tallet er
+ * basens eget (`maks`), så personalet ser præcis det, der kan trækkes nu.
+ */
+export function pointReserveretTekst(maks: number): string {
+  return `Kunden har point reserveret til en igangværende webshopordre. Der kan højst trækkes ${pointTekst(Math.max(0, maks))} lige nu.`;
+}
+
 export function pointFejlTekst(kode: string | null | undefined): string {
   if (!kode) return "Handlingen kunne ikke gennemføres. Prøv igen.";
   return POINT_FEJL[kode] ?? "Handlingen kunne ikke gennemføres. Prøv igen.";

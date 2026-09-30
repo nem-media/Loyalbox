@@ -14,7 +14,7 @@ import {
   brugbarSaldo,
   POINT_TXN_LABELS,
 } from "@/lib/loyalty/point";
-import { Badge } from "@/components/ui/badge";
+import { PointSaldoHoved } from "@/components/loyalty/point-saldo-hoved";
 import {
   GivPointForm,
   IndloesKnap,
@@ -113,26 +113,12 @@ export async function PointPanel({
 
         return (
           <div key={program.id} className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted">
-                  {program.name}
-                </p>
-                <p className="text-2xl font-bold tracking-tight">
-                  {pointTekst(saldo)}
-                </p>
-                {reserveret > 0 ? (
-                  <p className="text-xs text-muted">
-                    Heraf {pointTekst(reserveret)} holdt af til en webshopordre
-                  </p>
-                ) : null}
-              </div>
-              {!aktiv ? (
-                <Badge tone="warning">
-                  {program.status === "paused" ? "På pause" : "Ikke aktivt"}
-                </Badge>
-              ) : null}
-            </div>
+            <PointSaldoHoved
+              navn={program.name}
+              saldo={saldo}
+              reserveret={reserveret}
+              status={program.status}
+            />
 
             {!aktiv ? (
               <p className="box-shape border border-border bg-muted-bg p-3 text-sm text-muted">

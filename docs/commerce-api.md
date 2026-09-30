@@ -18,6 +18,13 @@ den (HMAC), så den ligger AES-256-GCM-krypteret i
 | `LOYALSUM_COMMERCE_ENCRYPTION_KEY_ID` | dens id, standard `k1` |
 | `LOYALSUM_COMMERCE_ENCRYPTION_KEYS_RETIRED` | tidligere nøgler, der stadig skal kunne læses: `k1:<base64>` (kommasepareret) |
 
+- Chifferteksten er **bundet til sin integration**: integrationens id indgår
+  som AES-GCM *additional authenticated data*
+  (`loyalsum:commerce-integration:<id>`). En chiffertekst kopieret til en
+  anden række kan ikke dekrypteres; API'et svarer `credential_invalid` (401),
+  og butikken skal parres igen. Ved parringen foreslås et id, og genbruges en
+  eksisterende integration, svarer `commerce_par` med dens id uden at bruge
+  koden, så nøglen krypteres til det rigtige.
 - Nøglen er **uafhængig af `SUPABASE_SERVICE_ROLE_KEY`** — Supabase-nøglen kan
   roteres, uden at nogen butik skal parres igen.
 - **Mangler eller er den ugyldig**, svarer parring og API
@@ -35,10 +42,27 @@ brugbar = saldo − aktive reservationer (status reserved, ikke udløbet)
 ```
 
 Én definition i basen (`point_reserverede()` / `point_brugbar_saldo()`), brugt
-af webshoppens reservation og commit OG af indløsningen ved disken
-(`point_indloes()`, redefineret i 0049). Optjening påvirkes ikke. En rettelse
-(manuel fradrag, annullering) er ikke forbrug; den kan gå ned i det reserverede,
-og så afviser en senere commit med `insufficient_points`.
+af ALT, der sænker en saldo på personalets eller kundens foranledning:
+webshoppens reservation, indløsning ved disken (`point_indloes`), manuelt
+fradrag (`point_giv` → `point_bevaeg`) og annullering af en optjening
+(`point_annuller`). Et fradrag, der ville tage reserverede point, afvises med
+`point-reserveret` og det tal, der kan trækkes (`maks`). Optjening og tillæg
+påvirkes ikke.
+
+**Commit** bruger sine egne reserverede point og kan derfor ikke fejle, fordi
+andet forbrug er sket bagefter.
+
+**Systemtilbageførsel** (en webshopordre refunderes, og point, der aldrig
+skulle have været optjent, tages tilbage) har forrang: den må gå ned i det
+reserverede. Dækker saldoen så ikke længere reservationerne, frigives de
+nyeste — i samme transaktion — med `status_reason = 'balance_reduced'`. De kan
+ikke committes (`reservation_expired`, grund `balance_reduced`), så ingen
+reservation står og lover point, der ikke findes.
+
+**Låserækkefølge — overalt:** medlemmets aktive reservationer (efter id) →
+pointkontoen. Stier, der kun læser reservationssummen, behøver ikke låse
+reservationerne: en reservation kan kun oprettes og en commit kun ændre
+saldoen, mens kontoen er låst.
 
 ## Ventende webshopidentitet — 90 dage
 

@@ -21,6 +21,7 @@ import type { PointSvar } from "@/lib/types/database";
 import {
   beregnPoint,
   pointFejlTekst,
+  pointReserveretTekst,
   sorterBeloenninger,
   type PointEarnModel,
   type PointTxnType,
@@ -207,7 +208,14 @@ function tolk(svar: PointSvar | null, fejlbesked?: string): PointResultat {
       error: fejlbesked ?? "Handlingen kunne ikke gennemføres. Prøv igen.",
     };
   }
-  if (!svar.ok) return { ok: false, error: pointFejlTekst(svar.fejl) };
+  if (!svar.ok) {
+    // Et fradrag eller en annullering, der rammer en reservation, får tallet
+    // med; en indløsning ved disken får den faste tekst.
+    if (svar.fejl === "point-reserveret" && typeof svar.maks === "number") {
+      return { ok: false, error: pointReserveretTekst(svar.maks) };
+    }
+    return { ok: false, error: pointFejlTekst(svar.fejl) };
+  }
   return {
     ok: true,
     saldo: svar.saldo ?? 0,

@@ -621,10 +621,10 @@ describe("parring, gentagelser og hastighed", () => {
         `insert into commerce_pairing_codes (company_id, provider, code_hash, expires_at) values ($1, 'woocommerce', $2, now() + interval '15 minutes')`,
         [c, h],
       );
-    const par = (h: string, butik = "store-uuid-1") =>
+    const par = (h: string, butik = "store-uuid-1", kandidat = "aaaaaaaa-0000-4000-8000-000000000001") =>
       en<{ s: { ok: boolean; fejl?: string; integration_id?: string } }>(
-        `select public.commerce_par($1, 'woocommerce', $2, 'https://b.example', null, 'DKK', '0.1.0', null, 'k1.a.b.c') as s`,
-        [h, butik],
+        `select public.commerce_par($1, 'woocommerce', $2, 'https://b.example', null, 'DKK', '0.1.0', null, 'k1.a.b.c', $3) as s`,
+        [h, butik, kandidat],
       ).then((r) => r.s);
     const h1 = "1".repeat(64);
     await kode(h1);
@@ -656,7 +656,7 @@ describe("parring, gentagelser og hastighed", () => {
       [b, h],
     );
     const r = await en<{ s: { ok: boolean; fejl: string } }>(
-      `select public.commerce_par($1, 'woocommerce', $2, 'https://x', null, 'DKK', '0.1.0', null, 'k1.a.b.c') as s`,
+      `select public.commerce_par($1, 'woocommerce', $2, 'https://x', null, 'DKK', '0.1.0', null, 'k1.a.b.c', gen_random_uuid()) as s`,
       [h, butik],
     );
     expect(r.s).toMatchObject({ ok: false, fejl: "store_already_paired" });
@@ -672,7 +672,7 @@ describe("parring, gentagelser og hastighed", () => {
       [c, h],
     );
     const r = await en<{ s: { ok: boolean; fejl: string } }>(
-      `select public.commerce_par($1, 'woocommerce', 'ny-butik', 'https://x', null, 'DKK', '0.1.0', null, 'k1.a.b.c') as s`,
+      `select public.commerce_par($1, 'woocommerce', 'ny-butik', 'https://x', null, 'DKK', '0.1.0', null, 'k1.a.b.c', gen_random_uuid()) as s`,
       [h],
     );
     expect(r.s.fejl).toBe("invalid_pairing_code");
@@ -815,16 +815,21 @@ describe("brugbar saldo gælder AL pointforbrug — også ved disken", () => {
     expect(await k.brugbar()).toEqual({ saldo: 1500, reserveret: 0, brugbar: 1500 });
   });
 
-  it("en commit må ikke tage point, der er holdt af til en ANDEN kurv", async () => {
+  it("en commit bruger sine egne point — og et fradrag kan ikke tage en anden kurvs", async () => {
     const k = await kunde(1000);
     const a = await k.reserver("a");
     await k.reserver("b");
-    // En rettelse (ikke forbrug) må gerne gå ned i det reserverede …
-    await db.query(`select public.point_giv($1, $2, $3, -300, 'adjust_remove', null, null, null, null, 'rettelse')`, [k.c, k.p, k.m]);
-    // … men så kan A ikke committes uden at tage B's point.
-    const c = await en<{ s: { ok: boolean; fejl: string } }>(`select public.commerce_commit($1, $2, 'o-a') as s`, [k.i, a.reservation_id]);
-    expect(c.s).toMatchObject({ ok: false, fejl: "insufficient_points" });
-    expect((await k.brugbar()).saldo).toBe(700);
+    // Før denne hærdning kunne en manuel rettelse gå ned i de reserverede
+    // point, så A's commit måtte afvises for ikke at tage B's. Nu kan
+    // fradraget slet ikke ske: alt er reserveret.
+    const fradrag = await en<{ s: { ok: boolean; fejl: string; maks: number } }>(
+      `select public.point_giv($1, $2, $3, -300, 'adjust_remove', null, null, null, null, 'rettelse') as s`,
+      [k.c, k.p, k.m],
+    );
+    expect(fradrag.s).toMatchObject({ ok: false, fejl: "point-reserveret", maks: 0 });
+    const c = await en<{ s: { ok: boolean } }>(`select public.commerce_commit($1, $2, 'o-a') as s`, [k.i, a.reservation_id]);
+    expect(c.s.ok).toBe(true);
+    expect(await k.brugbar()).toEqual({ saldo: 500, reserveret: 500, brugbar: 0 });
   });
 
   it("indløsningen ved disken er stadig idempotent", async () => {
@@ -949,5 +954,250 @@ describe("ventende webshopidentitet: 90 dage fra seneste aktivitet", () => {
     await db.query(`select public.commerce_oprydning()`);
     expect(await alle(`select type, granted, withdrawn_at from consent_records where member_id = $1 order by granted_at`, [m])).toEqual(foer);
     expect(await saldo(p, m)).toBe(30);
+  });
+});
+
+// ===========================================================================
+// FINAL: manuelle fradrag respekterer reservationer; systemtilbageførsel
+// frigiver deterministisk
+// ===========================================================================
+
+describe("manuelle justeringer og reservationer", () => {
+  async function kunde(saldoPoint: number, reservation = 500) {
+    const c = await firma();
+    const p = await pointprogram(c, 10);
+    const i = await integration(c);
+    const m = await medlem(c, `j${Math.random()}@example.com`);
+    await db.query(`select public.point_giv($1, $2, $3, $4, 'adjust_add', null, null, null, null, 'start')`, [c, p, m, saldoPoint]);
+    const bel = await en<{ id: string }>(
+      `insert into loyalty_point_rewards (company_id, program_id, name, points_cost) values ($1, $2, 'Webshoprabat', $3) returning id`,
+      [c, p, reservation],
+    );
+    await db.query(
+      `insert into commerce_reward_channels (company_id, provider, point_reward_id, discount_type, amount_minor, currency) values ($1, 'woocommerce', $2, 'fixed_amount', 5000, 'DKK')`,
+      [c, bel.id],
+    );
+    const ref = "lc_" + Math.random().toString(16).slice(2).padEnd(32, "0").slice(0, 32);
+    await db.query(
+      `insert into commerce_customer_links (company_id, integration_id, external_customer_id, email_norm, member_id, customer_ref, status, link_method, verified_at)
+       values ($1, $2, '1', 'x@example.com', $3, $4, 'verified', 'verified_email', now())`,
+      [c, i, m, ref],
+    );
+    const reserver = async (kurv = "kurv") =>
+      (
+        await en<{ s: { ok: boolean; fejl?: string; reservation_id?: string } }>(
+          `select public.commerce_reserver($1, $2, $3, $4, 100000, 'DKK', 1800) as s`,
+          [i, ref, bel.id, kurv],
+        )
+      ).s;
+    const juster = async (point: number) =>
+      (
+        await en<{ s: { ok: boolean; fejl?: string; maks?: number } }>(
+          `select public.point_giv($1, $2, $3, $4, $5, null, null, null, null, 'rettelse') as s`,
+          [c, p, m, point, point < 0 ? "adjust_remove" : "adjust_add"],
+        )
+      ).s;
+    const brugbar = async () =>
+      (await en<{ s: { saldo: number; reserveret: number; brugbar: number } }>(`select public.point_brugbar_saldo($1, $2) as s`, [p, m])).s;
+    const commit = async (id: string, ordre = "o-1") =>
+      (await en<{ s: { ok: boolean; fejl?: string; grund?: string } }>(`select public.commerce_commit($1, $2, $3) as s`, [i, id, ordre])).s;
+    return { c, p, i, m, reserver, juster, brugbar, commit };
+  }
+
+  it("A: 620 point, 500 reserveret — et manuelt fradrag på 200 afvises med det, der kan trækkes", async () => {
+    const k = await kunde(620);
+    await k.reserver();
+    expect(await k.juster(-200)).toMatchObject({ ok: false, fejl: "point-reserveret", maks: 120 });
+    expect(await k.brugbar()).toEqual({ saldo: 620, reserveret: 500, brugbar: 120 });
+  });
+
+  it("B + C: et fradrag på 100 går igennem (520/500/20), og commit af 500 ender på 20", async () => {
+    const k = await kunde(620);
+    const res = await k.reserver();
+    expect((await k.juster(-100)).ok).toBe(true);
+    expect(await k.brugbar()).toEqual({ saldo: 520, reserveret: 500, brugbar: 20 });
+    expect((await k.commit(res.reservation_id!)).ok).toBe(true);
+    expect(await k.brugbar()).toEqual({ saldo: 20, reserveret: 0, brugbar: 20 });
+  });
+
+  it("D: et positivt tillæg er upåvirket af reservationer", async () => {
+    const k = await kunde(620);
+    await k.reserver();
+    expect((await k.juster(200)).ok).toBe(true);
+    expect(await k.brugbar()).toEqual({ saldo: 820, reserveret: 500, brugbar: 320 });
+  });
+
+  it("E: uden reservation er et fradrag som før — også 'for-faa-point' ved for stort", async () => {
+    const k = await kunde(300);
+    expect((await k.juster(-300)).ok).toBe(true);
+    expect(await k.juster(-1)).toMatchObject({ ok: false, fejl: "for-faa-point" });
+  });
+
+  it("F: disk, fradrag og reservation deler den samme brugbare saldo", async () => {
+    const k = await kunde(1000, 400);
+    await k.reserver();
+    const disk = await en<{ id: string }>(
+      `insert into loyalty_point_rewards (company_id, program_id, name, points_cost) values ($1, $2, 'Disk', 300) returning id`,
+      [k.c, k.p],
+    );
+    expect((await en<{ s: { ok: boolean } }>(`select public.point_indloes($1, $2, $3, $4) as s`, [k.c, k.p, k.m, disk.id])).s.ok).toBe(true);
+    // 700 − 400 reserveret = 300 brugbar
+    expect(await k.juster(-301)).toMatchObject({ ok: false, fejl: "point-reserveret", maks: 300 });
+    expect((await k.juster(-300)).ok).toBe(true);
+    expect(await k.reserver("kurv-2")).toMatchObject({ ok: false, fejl: "insufficient_points" });
+    expect(await k.brugbar()).toEqual({ saldo: 400, reserveret: 400, brugbar: 0 });
+  });
+
+  it("annullering af en optjening ved personalet respekterer også reservationer", async () => {
+    const k = await kunde(0);
+    const earn = await en<{ s: { txn: string } }>(`select public.point_giv($1, $2, $3, 600, 'earn') as s`, [k.c, k.p, k.m]);
+    await k.reserver();
+    const r = await en<{ s: { ok: boolean; fejl: string; maks: number } }>(`select public.point_annuller($1, $2) as s`, [k.c, earn.s.txn]);
+    expect(r.s).toMatchObject({ ok: false, fejl: "point-reserveret" });
+    expect((await k.brugbar()).saldo).toBe(600);
+  });
+});
+
+describe("systemtilbageførsel: regnskabet vinder, og reservationen frigives deterministisk", () => {
+  it("en refundering af en optjening, der går ned i det reserverede, frigiver reservationen med grunden 'balance_reduced'", async () => {
+    const c = await firma();
+    const p = await pointprogram(c, 10);
+    const i = await integration(c);
+    const m = await medlem(c, "refunder@example.com");
+    const o = ordre("sys-1", 60000);
+    await synk(i, o, { member: m, point: [{ id: p, earn_value: 10 }] }); // +60
+    await db.query(`select public.point_giv($1, $2, $3, 500, 'adjust_add')`, [c, p, m]); // 560
+    const bel = await en<{ id: string }>(
+      `insert into loyalty_point_rewards (company_id, program_id, name, points_cost) values ($1, $2, 'R', 540) returning id`,
+      [c, p],
+    );
+    await db.query(
+      `insert into commerce_reward_channels (company_id, provider, point_reward_id, discount_type, amount_minor, currency) values ($1, 'woocommerce', $2, 'fixed_amount', 5000, 'DKK')`,
+      [c, bel.id],
+    );
+    const ref = "lc_" + "c".repeat(32);
+    await db.query(
+      `insert into commerce_customer_links (company_id, integration_id, external_customer_id, email_norm, member_id, customer_ref, status, link_method, verified_at)
+       values ($1, $2, '1', 'refunder@example.com', $3, $4, 'verified', 'verified_email', now())`,
+      [c, i, m, ref],
+    );
+    const res = await en<{ s: { ok: boolean; reservation_id: string } }>(
+      `select public.commerce_reserver($1, $2, $3, 'kurv', 100000, 'DKK', 1800) as s`,
+      [i, ref, bel.id],
+    );
+    expect(res.s.ok).toBe(true);
+
+    // Ordren refunderes helt: 60 point skal tilbage, selv om 540 af 560 er reserveret.
+    const fuld = refunderet(o, 60000, "2026-09-30T10:00:00Z");
+    const r = await synk(i, fuld, { member: m, point: [{ id: p, earn_value: 10 }] });
+    expect(r.bidrag![0]).toMatchObject({ target: 0, foer: 60, efter: 0, status: "applied" });
+
+    const efter = await en<{ status: string; status_reason: string }>(
+      `select status, status_reason from commerce_reward_reservations where id = $1`,
+      [res.s.reservation_id],
+    );
+    expect(efter).toEqual({ status: "released", status_reason: "balance_reduced" });
+    const s = await en<{ s: { saldo: number; reserveret: number } }>(`select public.point_brugbar_saldo($1, $2) as s`, [p, m]);
+    expect(s.s).toMatchObject({ saldo: 500, reserveret: 0 });
+
+    const commit = await en<{ s: { ok: boolean; fejl: string; grund: string } }>(
+      `select public.commerce_commit($1, $2, 'sys-1-ny') as s`,
+      [i, res.s.reservation_id],
+    );
+    expect(commit.s).toEqual({ ok: false, fejl: "reservation_expired", grund: "balance_reduced" });
+  });
+
+  it("dækker saldoen stadig reservationerne, frigives intet", async () => {
+    const c = await firma();
+    const p = await pointprogram(c, 10);
+    const i = await integration(c);
+    const m = await medlem(c, "daekket@example.com");
+    const o = ordre("sys-2", 30000);
+    await synk(i, o, { member: m, point: [{ id: p, earn_value: 10 }] }); // 30
+    await db.query(`select public.point_giv($1, $2, $3, 1000, 'adjust_add')`, [c, p, m]); // 1030
+    const bel = await en<{ id: string }>(
+      `insert into loyalty_point_rewards (company_id, program_id, name, points_cost) values ($1, $2, 'R', 500) returning id`,
+      [c, p],
+    );
+    await db.query(
+      `insert into commerce_reward_channels (company_id, provider, point_reward_id, discount_type, amount_minor, currency) values ($1, 'woocommerce', $2, 'fixed_amount', 5000, 'DKK')`,
+      [c, bel.id],
+    );
+    await db.query(
+      `insert into commerce_customer_links (company_id, integration_id, external_customer_id, email_norm, member_id, customer_ref, status, link_method, verified_at)
+       values ($1, $2, '1', 'd@example.com', $3, $4, 'verified', 'verified_email', now())`,
+      [c, i, m, "lc_" + "d".repeat(32)],
+    );
+    const res = await en<{ s: { reservation_id: string } }>(
+      `select public.commerce_reserver($1, $2, $3, 'kurv', 100000, 'DKK', 1800) as s`,
+      [i, "lc_" + "d".repeat(32), bel.id],
+    );
+    await synk(i, refunderet(o, 30000, "2026-09-30T10:00:00Z"), { member: m, point: [{ id: p, earn_value: 10 }] });
+    const efter = await en<{ status: string }>(`select status from commerce_reward_reservations where id = $1`, [res.s.reservation_id]);
+    expect(efter.status).toBe("reserved");
+  });
+
+  it("regression: optjening, delvis og fuld refundering bogføres som før (ingen reservationer)", async () => {
+    const c = await firma();
+    const p = await pointprogram(c, 10);
+    const i = await integration(c);
+    const m = await medlem(c, "reg@example.com");
+    const o = ordre("reg-1", 75000);
+    await synk(i, o, { member: m, point: [{ id: p, earn_value: 10 }] });
+    const delvis = refunderet(o, 30000, "2026-09-30T10:00:00Z");
+    await synk(i, delvis, { member: m, point: [{ id: p, earn_value: 10 }] });
+    await synk(i, refunderet(delvis, 45000, "2026-09-30T11:00:00Z"), { member: m, point: [{ id: p, earn_value: 10 }] });
+    const linjer = await alle<{ type: string; points: number }>(
+      `select type, points from loyalty_point_transactions where member_id = $1 order by created_at`,
+      [m],
+    );
+    expect(linjer).toEqual([
+      { type: "earn", points: 75 },
+      { type: "adjust_remove", points: -30 },
+      { type: "adjust_remove", points: -45 },
+    ]);
+  });
+
+  it("regression: personalets annullering af en optjening og af en indløsning virker uden reservationer", async () => {
+    const c = await firma();
+    const p = await pointprogram(c, 10);
+    const m = await medlem(c, "ann@example.com");
+    const earn = await en<{ s: { txn: string } }>(`select public.point_giv($1, $2, $3, 300, 'earn') as s`, [c, p, m]);
+    const bel = await en<{ id: string }>(
+      `insert into loyalty_point_rewards (company_id, program_id, name, points_cost) values ($1, $2, 'Kaffe', 100) returning id`,
+      [c, p],
+    );
+    const ind = await en<{ s: { txn: string } }>(`select public.point_indloes($1, $2, $3, $4) as s`, [c, p, m, bel.id]);
+    expect((await en<{ s: { ok: boolean } }>(`select public.point_annuller($1, $2) as s`, [c, ind.s.txn])).s.ok).toBe(true);
+    expect(await saldo(p, m)).toBe(300);
+    expect((await en<{ s: { ok: boolean } }>(`select public.point_annuller($1, $2) as s`, [c, earn.s.txn])).s.ok).toBe(true);
+    expect(await saldo(p, m)).toBe(0);
+  });
+});
+
+describe("parring med nøgle bundet til integrationen", () => {
+  it("genforbindelse med et nyt kandidat-id svarer med den eksisterende integration — uden at bruge koden", async () => {
+    const c = await firma();
+    const h1 = "5".repeat(64);
+    const h2 = "6".repeat(64);
+    for (const h of [h1, h2]) {
+      await db.query(
+        `insert into commerce_pairing_codes (company_id, provider, code_hash, expires_at) values ($1, 'woocommerce', $2, now() + interval '15 minutes')`,
+        [c, h],
+      );
+    }
+    const par = (h: string, kandidat: string) =>
+      en<{ s: { ok: boolean; fejl?: string; integration_id?: string } }>(
+        `select public.commerce_par($1, 'woocommerce', 'kandidat-butik', 'https://k.example', null, 'DKK', '0.1.0', null, 'k1.a.b.c', $2) as s`,
+        [h, kandidat],
+      ).then((r) => r.s);
+    const foerste = "cccccccc-0000-4000-8000-000000000001";
+    expect(await par(h1, foerste)).toMatchObject({ ok: true, integration_id: foerste });
+
+    const anden = "cccccccc-0000-4000-8000-000000000002";
+    expect(await par(h2, anden)).toEqual({ ok: false, fejl: "ny_noegle_kraeves", integration_id: foerste });
+    const kode = await en<{ used_at: string | null }>(`select used_at from commerce_pairing_codes where code_hash = $1`, [h2]);
+    expect(kode.used_at).toBeNull();
+    expect(await par(h2, foerste)).toMatchObject({ ok: true, integration_id: foerste });
   });
 });

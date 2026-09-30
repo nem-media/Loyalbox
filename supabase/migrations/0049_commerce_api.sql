@@ -330,6 +330,11 @@ create table if not exists public.commerce_reward_reservations (
   currency          text not null check (currency ~ '^[A-Z]{3}$'),
   external_cart_ref text not null check (char_length(external_cart_ref) between 1 and 255),
   status            commerce_reservation_status not null default 'reserved',
+  -- HVORFOR en reservation ikke længere holder point. Maskinlæsbar, så
+  -- adapteren og support kan se forskel på en forladt kurv og en saldo, der
+  -- faldt under reservationen (en refundering af en tidligere optjening).
+  status_reason     text check (status_reason is null or status_reason in
+                      ('released_by_adapter','expired','integration_disconnected','balance_reduced')),
   expires_at        timestamptz not null,
   committed_at      timestamptz,
   released_at       timestamptz,
@@ -475,7 +480,13 @@ create or replace function public.commerce_par(
   p_currency          text,
   p_adapter_version   text,
   p_platform_version  text,
-  p_secret_ciphertext text
+  p_secret_ciphertext text,
+  -- NØGLEN ER BUNDET TIL SIN INTEGRATION (AES-GCM med integrationens id som
+  -- AAD, se secret.ts), så koden skal vide id'et, FØR den krypterer. Et nyt id
+  -- foreslås; genbruges en eksisterende integration, svarer funktionen
+  -- `ny_noegle_kraeves` med dens id UDEN at bruge koden, og koden krypterer
+  -- igen til det rigtige id.
+  p_kandidat_id       uuid
 )
 returns jsonb
 language plpgsql
@@ -514,6 +525,10 @@ begin
       -- dér først; ellers kunne en fremmed kode stjæle en butiks ordrer.
       raise exception using errcode = 'P0001', message = 'store_already_paired';
     end if;
+    if levende.id <> p_kandidat_id then
+      ny_id := levende.id;
+      raise exception using errcode = 'P0001', message = 'ny_noegle_kraeves';
+    end if;
     -- Samme virksomhed parrer igen (pluginet er geninstalleret og har mistet
     -- nøglen): ny nøgle, samme integration.
     update public.commerce_integrations
@@ -540,6 +555,10 @@ begin
      for update;
 
     if gammel.id is not null then
+      if gammel.id <> p_kandidat_id then
+        ny_id := gammel.id;
+        raise exception using errcode = 'P0001', message = 'ny_noegle_kraeves';
+      end if;
       update public.commerce_integrations
          set secret_ciphertext = p_secret_ciphertext,
              store_url = p_store_url,
@@ -557,10 +576,10 @@ begin
       ny_id := gammel.id;
     else
       insert into public.commerce_integrations (
-        company_id, provider, external_store_id, store_url, store_name,
+        id, company_id, provider, external_store_id, store_url, store_name,
         currency, adapter_version, platform_version, secret_ciphertext
       ) values (
-        kode.company_id, p_provider, p_external_store_id, p_store_url, p_store_name,
+        p_kandidat_id, kode.company_id, p_provider, p_external_store_id, p_store_url, p_store_name,
         p_currency, p_adapter_version, p_platform_version, p_secret_ciphertext
       ) returning id into ny_id;
     end if;
@@ -575,6 +594,9 @@ begin
 exception
   when raise_exception then
     -- Rul koden tilbage (hele blokken annulleres) og sig hvorfor.
+    if sqlerrm = 'ny_noegle_kraeves' then
+      return jsonb_build_object('ok', false, 'fejl', sqlerrm, 'integration_id', ny_id);
+    end if;
     return jsonb_build_object('ok', false, 'fejl', sqlerrm);
   when unique_violation then
     return jsonb_build_object('ok', false, 'fejl', 'store_already_paired');
@@ -609,7 +631,8 @@ begin
   end if;
 
   update public.commerce_reward_reservations
-     set status = 'released', released_at = now(), updated_at = now()
+     set status = 'released', status_reason = 'integration_disconnected',
+         released_at = now(), updated_at = now()
    where integration_id = p_integration and status = 'reserved';
 
   return jsonb_build_object('ok', true);
@@ -695,6 +718,8 @@ begin
       'Webshopkøb ' || o.external_order_number
     );
   else
+    -- LÅSERÆKKEFØLGE: reservationer → konto (se point_bevaeg).
+    perform public.point_reservationer_laas(c.point_program_id, c.member_id);
     konto := public.point_konto_laast(c.company_id, c.point_program_id, c.member_id);
     faktisk := greatest(delta, -konto.balance);
     if faktisk = 0 then
@@ -704,10 +729,15 @@ begin
       return jsonb_build_object('ok', true, 'foer', foer, 'efter', foer,
                                 'status', 'blocked', 'grund', 'saldo-raekker-ikke');
     end if;
-    svar := public.point_giv(
+    -- EN SYSTEMTILBAGEFØRSEL, IKKE ET FORBRUG: point, der aldrig skulle have
+    -- været optjent, tages tilbage, også hvis de er reserveret. Rækker saldoen
+    -- så ikke til reservationerne, frigiver `point_bevaeg` dem (nyeste
+    -- først) med grunden 'balance_reduced' — i samme transaktion.
+    svar := public.point_bevaeg(
       c.company_id, c.point_program_id, c.member_id, faktisk, 'adjust_remove',
       null, ref, null, null,
-      'Webshopordre ' || o.external_order_number || ' refunderet'
+      'Webshopordre ' || o.external_order_number || ' refunderet',
+      true
     );
   end if;
 
@@ -917,10 +947,17 @@ begin
     returning * into o;
   end if;
 
-  -- LÅSERÆKKEFØLGEN: reservationerne FØR pointkontoen. `commerce_commit()`
-  -- tager dem i samme rækkefølge (reservation → konto), så en commit og en
-  -- synkronisering af samme refunderede ordre ikke kan vente på hinanden i
-  -- ring (deadlock).
+  -- LÅSERÆKKEFØLGEN: reservationer → pointkonto, overalt. Medlemmets aktive
+  -- reservationer låses derfor HER, før tilbageførslen og bidragene kan låse
+  -- kontoen; `commerce_commit()` tager dem i samme rækkefølge, så de to ikke
+  -- kan vente på hinanden i ring (deadlock).
+  if o.member_id is not null then
+    perform 1 from public.commerce_reward_reservations
+      where member_id = o.member_id and status = 'reserved'
+      order by id
+      for update;
+  end if;
+
   if o.payment_status = 'refunded' then
     perform public.commerce_tilbagefoer_beloenninger(integ.id, o.external_order_id);
   end if;
@@ -1262,6 +1299,291 @@ end;
 $$;
 
 /**
+ * LÅSERÆKKEFØLGEN I POINTLEDGEREN — ÉN, OVERALT:
+ *
+ *     medlemmets aktive reservationer (efter id)  →  pointkontoen
+ *
+ * Reservation, indløsning, justering, annullering, commit og
+ * systemtilbageførsel følger den. En sti, der kun LÆSER reservationerne
+ * (summen), behøver ikke låse dem: en ny reservation kan kun oprettes, og en
+ * commit kan kun ændre saldoen, mens KONTOEN er låst — så summen, der tælles
+ * efter kontolåsen, står fast, til transaktionen er færdig. Kun den sti, der
+ * SKRIVER i reservationerne (systemtilbageførslen nedenfor), låser dem, og den
+ * gør det før kontoen.
+ */
+create or replace function public.point_reservationer_laas(p_program uuid, p_member uuid)
+returns void
+language sql
+as $$
+  select null::void from (
+    select id from public.commerce_reward_reservations
+     where point_program_id = p_program
+       and member_id = p_member
+       and status = 'reserved'
+     order by id
+     for update
+  ) x;
+$$;
+
+/**
+ * ÉN VEJ FOR ENHVER BEVÆGELSE AF POINT MED ET FORTEGN — 0044's `point_giv`,
+ * med reservationerne indbygget.
+ *
+ *   * Et PERSONALEFRADRAG (`p_system = false`) må aldrig tage point, der er
+ *     holdt af til en webshopkurv: saldo + fradrag ≥ aktive reservationer.
+ *     Svaret `point-reserveret` bærer `maks` — det, der kan trækkes lige nu.
+ *   * En SYSTEMTILBAGEFØRSEL (`p_system = true`, en refundering af en
+ *     webshopordre) tager pointene tilbage, også hvis de er reserveret, for
+ *     de skulle aldrig have været der. Rækker saldoen bagefter ikke til
+ *     reservationerne, FRIGIVES de nyeste, til den gør, med grunden
+ *     `balance_reduced`. De kan så ikke committes, og adapteren får det at
+ *     vide ved commit — ingen reservation står og lover point, der ikke er.
+ *
+ * Positive bevægelser røres ikke af reservationerne.
+ */
+create or replace function public.point_bevaeg(
+  p_company   uuid,
+  p_program   uuid,
+  p_member    uuid,
+  p_points    int,
+  p_type      point_txn_type,
+  p_purchase_amount numeric,
+  p_reference text,
+  p_employee  uuid,
+  p_user      uuid,
+  p_reason    text,
+  p_system    boolean
+)
+returns jsonb
+language plpgsql
+as $$
+declare
+  prog   public.loyalty_point_programs;
+  konto  public.loyalty_point_accounts;
+  ny_saldo int;
+  txn_id uuid;
+  eksisterende public.loyalty_point_transactions;
+  reserveret int := 0;
+  frigivne int := 0;
+  r record;
+begin
+  if p_points = 0 then
+    return jsonb_build_object('ok', false, 'fejl', 'nul-point');
+  end if;
+  if p_type not in ('earn','adjust_add','adjust_remove') then
+    return jsonb_build_object('ok', false, 'fejl', 'forkert-type');
+  end if;
+
+  select * into prog
+    from public.loyalty_point_programs
+   where id = p_program and company_id = p_company;
+  if not found then
+    return jsonb_build_object('ok', false, 'fejl', 'program-findes-ikke');
+  end if;
+  if prog.status <> 'active' then
+    return jsonb_build_object('ok', false, 'fejl', 'program-ikke-aktivt',
+                              'status', prog.status);
+  end if;
+
+  if p_points < 0 and p_system then
+    perform public.point_reservationer_laas(p_program, p_member);
+  end if;
+
+  konto := public.point_konto_laast(p_company, p_program, p_member);
+  if konto.id is null then
+    return jsonb_build_object('ok', false, 'fejl', 'konto-fejlede');
+  end if;
+
+  if p_points < 0 then
+    reserveret := public.point_reserverede(p_program, p_member);
+    if not p_system
+       and konto.balance + p_points >= 0
+       and konto.balance + p_points < reserveret then
+      return jsonb_build_object('ok', false, 'fejl', 'point-reserveret',
+                                'saldo', konto.balance,
+                                'reserveret', reserveret,
+                                'maks', greatest(konto.balance - reserveret, 0));
+    end if;
+  end if;
+
+  begin
+    update public.loyalty_point_accounts
+       set balance = balance + p_points,
+           updated_at = now()
+     where id = konto.id
+       and balance + p_points >= 0
+       and (p_system or p_points > 0 or balance + p_points >= reserveret)
+    returning balance into ny_saldo;
+
+    if ny_saldo is null then
+      return jsonb_build_object('ok', false, 'fejl', 'for-faa-point',
+                                'saldo', konto.balance);
+    end if;
+
+    insert into public.loyalty_point_transactions (
+      company_id, program_id, account_id, member_id, type, points,
+      balance_after, purchase_amount, performed_by, employee_id,
+      reference, reason
+    ) values (
+      p_company, p_program, konto.id, p_member, p_type, p_points,
+      ny_saldo, p_purchase_amount, p_user, p_employee,
+      p_reference, p_reason
+    ) returning id into txn_id;
+
+  exception when unique_violation then
+    select * into eksisterende
+      from public.loyalty_point_transactions
+     where account_id = konto.id and reference = p_reference;
+
+    return jsonb_build_object(
+      'ok', true, 'gentagelse', true,
+      'saldo', (select balance from public.loyalty_point_accounts where id = konto.id),
+      'txn', eksisterende.id,
+      'point', eksisterende.points
+    );
+  end;
+
+  if p_points < 0 and p_system and ny_saldo < reserveret then
+    for r in
+      select id, points_reserved from public.commerce_reward_reservations
+       where point_program_id = p_program and member_id = p_member
+         and status = 'reserved' and expires_at > now()
+       order by created_at desc, id desc
+    loop
+      exit when ny_saldo >= reserveret;
+      update public.commerce_reward_reservations
+         set status = 'released', status_reason = 'balance_reduced',
+             released_at = now(), updated_at = now()
+       where id = r.id;
+      reserveret := reserveret - r.points_reserved;
+      frigivne := frigivne + 1;
+    end loop;
+  end if;
+
+  return jsonb_build_object('ok', true, 'gentagelse', false,
+                            'saldo', ny_saldo, 'txn', txn_id,
+                            'point', p_points,
+                            'frigivne_reservationer', frigivne);
+end;
+$$;
+
+/**
+ * `point_giv` — 0044's indgang for personalet, uændret signatur. Den er nu en
+ * tynd indgang til `point_bevaeg` UDEN systemret: et manuelt fradrag
+ * respekterer reservationerne.
+ */
+create or replace function public.point_giv(
+  p_company   uuid,
+  p_program   uuid,
+  p_member    uuid,
+  p_points    int,
+  p_type      point_txn_type,
+  p_purchase_amount numeric default null,
+  p_reference text default null,
+  p_employee  uuid default null,
+  p_user      uuid default null,
+  p_reason    text default null
+)
+returns jsonb
+language plpgsql
+as $$
+begin
+  return public.point_bevaeg(p_company, p_program, p_member, p_points, p_type,
+                             p_purchase_amount, p_reference, p_employee,
+                             p_user, p_reason, false);
+end;
+$$;
+
+/**
+ * Annullering — 0044's funktion med ÉN ændring: annulleres en OPTJENING (så
+ * saldoen falder), må det ikke tage point, der er holdt af til en webshopkurv.
+ * Det er en personalehandling (en rettelse af en konkret linje), og den kan
+ * vente, til kurven er betalt eller forladt. Annulleres en INDLØSNING (så
+ * saldoen stiger — også webshoppens tilbageførsel af en belønning), gælder
+ * intet nyt.
+ */
+create or replace function public.point_annuller(
+  p_company  uuid,
+  p_txn      uuid,
+  p_employee uuid default null,
+  p_user     uuid default null,
+  p_reason   text default null
+)
+returns jsonb
+language plpgsql
+as $$
+declare
+  org    public.loyalty_point_transactions;
+  prog   public.loyalty_point_programs;
+  konto  public.loyalty_point_accounts;
+  ny_saldo int;
+  txn_id uuid;
+  reserveret int := 0;
+begin
+  select * into org
+    from public.loyalty_point_transactions
+   where id = p_txn and company_id = p_company;
+  if not found then
+    return jsonb_build_object('ok', false, 'fejl', 'transaktion-findes-ikke');
+  end if;
+  if org.type = 'reversal' then
+    return jsonb_build_object('ok', false, 'fejl', 'kan-ikke-annullere-modpost');
+  end if;
+
+  select * into prog
+    from public.loyalty_point_programs where id = org.program_id;
+  if prog.status <> 'active' then
+    return jsonb_build_object('ok', false, 'fejl', 'program-ikke-aktivt',
+                              'status', prog.status);
+  end if;
+
+  select * into konto
+    from public.loyalty_point_accounts where id = org.account_id for update;
+
+  if org.points > 0 then
+    reserveret := public.point_reserverede(org.program_id, org.member_id);
+    if konto.balance - org.points >= 0 and konto.balance - org.points < reserveret then
+      return jsonb_build_object('ok', false, 'fejl', 'point-reserveret',
+                                'saldo', konto.balance,
+                                'reserveret', reserveret,
+                                'maks', greatest(konto.balance - reserveret, 0));
+    end if;
+  end if;
+
+  begin
+    update public.loyalty_point_accounts
+       set balance = balance - org.points,
+           updated_at = now()
+     where id = konto.id
+       and balance - org.points >= 0
+       and (org.points <= 0 or balance - org.points >= reserveret)
+    returning balance into ny_saldo;
+
+    if ny_saldo is null then
+      return jsonb_build_object('ok', false, 'fejl', 'saldo-raekker-ikke',
+                                'saldo', konto.balance,
+                                'kraever', org.points);
+    end if;
+
+    insert into public.loyalty_point_transactions (
+      company_id, program_id, account_id, member_id, type, points,
+      balance_after, reward_id, reward_navn, reward_point,
+      reversal_of, performed_by, employee_id, reason
+    ) values (
+      p_company, org.program_id, konto.id, org.member_id, 'reversal', -org.points,
+      ny_saldo, org.reward_id, org.reward_navn, org.reward_point,
+      org.id, p_user, p_employee, p_reason
+    ) returning id into txn_id;
+
+  exception when unique_violation then
+    return jsonb_build_object('ok', false, 'fejl', 'allerede-annulleret');
+  end;
+
+  return jsonb_build_object('ok', true, 'saldo', ny_saldo, 'txn', txn_id);
+end;
+$$;
+
+/**
  * RESERVÉR EN BELØNNING TIL ÉN KURV.
  *
  * Kontoen LÅSES (samme lås som `point_giv()`), og først derefter tælles de
@@ -1336,7 +1658,7 @@ begin
 
   -- En udløbet reservation på samme kurv står i vejen for det unikke indeks.
   update public.commerce_reward_reservations
-     set status = 'expired', expired_at = now(), updated_at = now()
+     set status = 'expired', status_reason = 'expired', expired_at = now(), updated_at = now()
    where integration_id = integ.id and external_cart_ref = p_cart_ref
      and point_reward_id = p_reward and status = 'reserved' and expires_at <= now();
 
@@ -1405,13 +1727,14 @@ begin
   end if;
   if res.status = 'reserved' and res.expires_at <= now() then
     update public.commerce_reward_reservations
-       set status = 'expired', expired_at = now(), updated_at = now()
+       set status = 'expired', status_reason = 'expired', expired_at = now(), updated_at = now()
      where id = res.id;
     return jsonb_build_object('ok', true, 'status', 'expired');
   end if;
   if res.status = 'reserved' then
     update public.commerce_reward_reservations
-       set status = 'released', released_at = now(), updated_at = now()
+       set status = 'released', status_reason = 'released_by_adapter',
+           released_at = now(), updated_at = now()
      where id = res.id;
     return jsonb_build_object('ok', true, 'status', 'released');
   end if;
@@ -1461,12 +1784,28 @@ begin
 
   if res.status = 'reserved' and res.expires_at <= now() then
     update public.commerce_reward_reservations
-       set status = 'expired', expired_at = now(), updated_at = now()
+       set status = 'expired', status_reason = 'expired', expired_at = now(), updated_at = now()
      where id = res.id;
     return jsonb_build_object('ok', false, 'fejl', 'reservation_expired');
   end if;
   if res.status <> 'reserved' then
-    return jsonb_build_object('ok', false, 'fejl', 'reservation_expired');
+    return jsonb_build_object('ok', false, 'fejl', 'reservation_expired',
+                              'grund', res.status_reason);
+  end if;
+
+  -- LÅSERÆKKEFØLGE: reservationer → konto. Er ordren allerede refunderet,
+  -- skal dens committede reservationer røres nedenfor; de låses derfor HER,
+  -- før kontoen, og ikke bagefter.
+  if exists (select 1 from public.commerce_orders
+              where integration_id = p_integration
+                and external_order_id = p_external_order_id
+                and payment_status = 'refunded') then
+    perform 1 from public.commerce_reward_reservations
+      where integration_id = p_integration
+        and external_order_id = p_external_order_id
+        and status = 'committed'
+      order by id
+      for update;
   end if;
 
   konto := public.point_konto_laast(res.company_id, res.point_program_id, res.member_id);
@@ -1535,7 +1874,7 @@ declare
   koblinger int;
 begin
   update public.commerce_reward_reservations
-     set status = 'expired', expired_at = now(), updated_at = now()
+     set status = 'expired', status_reason = 'expired', expired_at = now(), updated_at = now()
    where status = 'reserved' and expires_at <= now();
   get diagnostics udloebne = row_count;
 
@@ -1618,7 +1957,7 @@ declare f text;
 begin
   foreach f in array array[
     'public.commerce_godkend(uuid,uuid,int,int,int)',
-    'public.commerce_par(text,commerce_provider,text,text,text,text,text,text,text)',
+    'public.commerce_par(text,commerce_provider,text,text,text,text,text,text,text,uuid)',
     'public.commerce_afbryd(uuid,uuid)',
     'public.commerce_anvend_pointbidrag(uuid)',
     'public.commerce_tilbagefoer_beloenninger(uuid,text)',
@@ -1628,6 +1967,10 @@ begin
     'public.point_brugbar_saldo(uuid,uuid)',
     'public.point_reserverede_for_medlem(uuid,uuid)',
     'public.point_indloes(uuid,uuid,uuid,uuid,text,uuid,uuid)',
+    'public.point_reservationer_laas(uuid,uuid)',
+    'public.point_bevaeg(uuid,uuid,uuid,int,point_txn_type,numeric,text,uuid,uuid,text,boolean)',
+    'public.point_giv(uuid,uuid,uuid,int,point_txn_type,numeric,text,uuid,uuid,text)',
+    'public.point_annuller(uuid,uuid,uuid,uuid,text)',
     'public.commerce_find_medlemmer(uuid,text)',
     'public.commerce_reserver(uuid,text,uuid,text,bigint,text,int)',
     'public.commerce_frigiv(uuid,uuid)',
