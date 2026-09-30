@@ -57,20 +57,22 @@ async function kanalensPointprogram(db: CommerceDb, integration: IntegrationRow)
   return (prog as { id: string; status: string } | null) ?? null;
 }
 
+/**
+ * Saldo, reserveret og BRUGBAR — fra `point_brugbar_saldo()` i basen, som er
+ * den ene definition, disken og webshoppen deler. Ingen regning her.
+ */
 async function saldo(db: CommerceDb, programId: string, memberId: string) {
-  const { data: konto } = await db
-    .from("loyalty_point_accounts")
-    .select("balance")
-    .eq("program_id", programId)
-    .eq("member_id", memberId)
-    .maybeSingle();
-  const { data: reserveret } = await db.rpc("commerce_reserverede_point", {
+  const { data, error } = await db.rpc("point_brugbar_saldo", {
     p_program: programId,
     p_member: memberId,
   });
-  const balance = Number(konto?.balance ?? 0);
-  const res = Number(reserveret ?? 0);
-  return { balance, reserveret: res, brugbar: Math.max(0, balance - res) };
+  if (error) throw new Error(`saldo: ${error.message}`);
+  const s = (data ?? {}) as { saldo?: number; reserveret?: number; brugbar?: number };
+  return {
+    balance: Number(s.saldo ?? 0),
+    reserveret: Number(s.reserveret ?? 0),
+    brugbar: Number(s.brugbar ?? 0),
+  };
 }
 
 export async function kundensLoyalitet(

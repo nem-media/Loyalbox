@@ -7,9 +7,11 @@ import {
   type PointProgram,
 } from "@/lib/loyalty/point-service";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { hentReserveredePoint } from "@/lib/loyalty/point-reservation";
 import {
   pointTekst,
   beloenningStatus,
+  brugbarSaldo,
   POINT_TXN_LABELS,
 } from "@/lib/loyalty/point";
 import { Badge } from "@/components/ui/badge";
@@ -60,7 +62,7 @@ export async function PointPanel({
    * gerne give det første point; kontoen oprettes af `point_giv`), og de
    * øvrige kun, hvis der ligger en saldo.
    */
-  const [aktive, alle, { data: konti }] = await Promise.all([
+  const [aktive, alle, { data: konti }, reserveretPrProgram] = await Promise.all([
     hentAktivePointProgrammer(companyId, admin),
     hentPointProgrammer(companyId, admin),
     admin
@@ -68,6 +70,7 @@ export async function PointPanel({
       .select("program_id, balance")
       .eq("member_id", memberId)
       .eq("company_id", companyId),
+    hentReserveredePoint(companyId, memberId, admin),
   ]);
 
   const saldoPrProgram = new Map(
@@ -100,6 +103,11 @@ export async function PointPanel({
     <div className="space-y-6">
       {programmer.map((program, i) => {
         const saldo = saldoPrProgram.get(program.id) ?? 0;
+        // RESERVEREDE POINT KAN IKKE BRUGES VED DISKEN — de er lovet til en
+        // webshopordre. Status og knapper regnes af den BRUGBARE saldo, så
+        // skærmen ikke tilbyder en indløsning, basen vil afvise.
+        const reserveret = reserveretPrProgram.get(program.id) ?? 0;
+        const brugbar = brugbarSaldo(saldo, reserveret);
         const beloenninger = beloenningerPrProgram[i] ?? [];
         const aktiv = program.status === "active";
 
@@ -113,6 +121,11 @@ export async function PointPanel({
                 <p className="text-2xl font-bold tracking-tight">
                   {pointTekst(saldo)}
                 </p>
+                {reserveret > 0 ? (
+                  <p className="text-xs text-muted">
+                    Heraf {pointTekst(reserveret)} holdt af til en webshopordre
+                  </p>
+                ) : null}
               </div>
               {!aktiv ? (
                 <Badge tone="warning">
@@ -152,7 +165,7 @@ export async function PointPanel({
                 </p>
                 <ul className="divide-y divide-border border-y border-border">
                   {beloenninger.map((b) => {
-                    const status = beloenningStatus(saldo, b.points_cost);
+                    const status = beloenningStatus(brugbar, b.points_cost);
                     return (
                       <li
                         key={b.id}

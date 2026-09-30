@@ -1381,6 +1381,15 @@ export interface Database {
         };
         Returns: PointSvar;
       };
+      /**
+       * Se 0049. Point holdt af til en webshopkurv pr. program for ét medlem,
+       * som `{ "<program_id>": antal }`. Samme definition som `point_indloes`
+       * afgør forbrug efter.
+       */
+      point_reserverede_for_medlem: {
+        Args: { p_company: string; p_member: string };
+        Returns: Record<string, number>;
+      };
       point_annuller: {
         Args: {
           p_company: string;

@@ -2,6 +2,7 @@ import { TIDSZONE } from "@/lib/dansk-dag";
 import {
   pointTekst,
   beloenningStatus,
+  brugbarSaldo,
   naesteBeloenning,
   POINT_TXN_KUNDETEKST,
   type PointTxnType,
@@ -38,6 +39,7 @@ export function PointKort({
   companyName,
   programName,
   saldo,
+  reserveret = 0,
   beloenninger,
   historik = [],
   paused = false,
@@ -46,6 +48,8 @@ export function PointKort({
   companyName: string;
   programName: string;
   saldo: number;
+  /** Point holdt af til en webshopkurv — de kan ikke bruges i butikken imens. */
+  reserveret?: number;
   beloenninger: PointKortBeloenning[];
   historik?: PointKortHistorik[];
   paused?: boolean;
@@ -64,6 +68,11 @@ export function PointKort({
           {pointTekst(saldo)}
         </p>
         <p className="mt-1 text-sm text-white/70">{companyName}</p>
+        {reserveret > 0 ? (
+          <p className="mt-1 text-xs text-white/70">
+            Heraf {pointTekst(reserveret)} holdt af til din webshopordre
+          </p>
+        ) : null}
 
         {paused ? (
           <p className="mt-3 text-sm text-white/80">
@@ -88,7 +97,7 @@ export function PointKort({
           <p className="text-sm font-medium">Belønninger</p>
           <ul className="mt-3 divide-y divide-border">
             {beloenninger.map((b) => {
-              const status = beloenningStatus(saldo, b.points_cost);
+              const status = beloenningStatus(brugbarSaldo(saldo, reserveret), b.points_cost);
               return (
                 <li key={b.id} className="flex items-start justify-between gap-3 py-2.5">
                   <div className="min-w-0">

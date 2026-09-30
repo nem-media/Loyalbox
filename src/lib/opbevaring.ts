@@ -43,6 +43,14 @@ export const FRISTER: Frist[] = [
       "Et stempelkort eller en pointsaldo er et løbende forhold. En kortere frist ville slette kunder, der handler få gange om året, eller en sæsonbutiks gæster. Aktivitet tæller BEGGE dele — et medlem, der kun samler point, er lige så aktivt som et, der samler stempler.",
   },
   {
+    hvad: "Webshopkøb, der endnu ikke er knyttet til et kort — kundens e-mail",
+    naar: "90 dage efter kundens seneste webshopkøb",
+    interval: "90 days",
+    sql: "frist_webshop_ventende",
+    hvorfor:
+      "E-mailen gemmes kun, så kunden kan få point og stempler for sine webshopkøb, når hun bekræfter sin e-mail. Tre måneder efter sidste køb er den ikke længere nødvendig; købet bliver stående uden e-mail, og der kan ikke længere gøres krav på det.",
+  },
+  {
     hvad: "Feedback — navn og e-mail",
     naar: "12 måneder",
     interval: "12 months",

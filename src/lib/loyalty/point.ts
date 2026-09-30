@@ -172,6 +172,16 @@ export interface BeloenningStatus {
   mangler: number;
 }
 
+/**
+ * Den BRUGBARE saldo til visning: saldo minus point, der er holdt af til en
+ * webshopkurv. Selve afgørelsen træffes i basen (`point_brugbar_saldo()`,
+ * `point_indloes()`); `reserveret` kommer derfra, og her trækkes der bare fra,
+ * så skærmen viser det samme, som disken vil sige.
+ */
+export function brugbarSaldo(saldo: number, reserveret: number = 0): number {
+  return Math.max(0, saldo - Math.max(0, reserveret));
+}
+
 /** Kan kunden få denne belønning — og hvis ikke, hvor langt er der? */
 export function beloenningStatus(
   saldo: number,
@@ -230,6 +240,8 @@ export const POINT_FEJL: Record<string, string> = {
   "beloenning-findes-ikke": "Belønningen blev ikke fundet.",
   "beloenning-ikke-aktiv": "Belønningen kan ikke bruges lige nu.",
   "for-faa-point": "Kunden har ikke point nok til den belønning.",
+  "point-reserveret":
+    "Kunden har pointene, men en del af dem er holdt af til en webshopordre. Når ordren er betalt eller kurven forladt, frigives de.",
   "konto-fejlede": "Kundens pointkonto kunne ikke åbnes. Prøv igen.",
   "transaktion-findes-ikke": "Transaktionen blev ikke fundet.",
   "kan-ikke-annullere-modpost":

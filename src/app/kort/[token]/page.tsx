@@ -212,6 +212,7 @@ export default async function CardPage({
             companyName={company?.name ?? "Butik"}
             programName={k.program.name}
             saldo={k.saldo}
+            reserveret={k.reserveret}
             beloenninger={pointBeloenninger[i] ?? []}
             historik={i === pointkonti.length - 1 ? pointHistorik : []}
             paused={k.program.status !== "active"}

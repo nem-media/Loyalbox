@@ -25,6 +25,7 @@ import {
   type PointEarnModel,
   type PointTxnType,
 } from "@/lib/loyalty/point";
+import { hentReserveredePoint } from "@/lib/loyalty/point-reservation";
 import { noterFejl } from "@/lib/drift";
 
 type Admin = ReturnType<typeof createAdminClient>;
@@ -377,7 +378,10 @@ export function previewPoint(
 export interface PointKonto {
   program: PointProgram;
   saldo: number;
+  /** Point, der er holdt af til en webshopkurv lige nu. */
+  reserveret: number;
 }
+
 
 /**
  * Kundens pointkonti i ÉN butik — én pr. program, hun er meldt ind i.
@@ -392,13 +396,14 @@ export async function hentMedlemsPointkonti(
   memberId: string,
   admin: Admin = createAdminClient(),
 ): Promise<PointKonto[]> {
-  const [programmer, { data: konti }] = await Promise.all([
+  const [programmer, { data: konti }, reserveret] = await Promise.all([
     hentPointProgrammer(companyId, admin),
     admin
       .from("loyalty_point_accounts")
       .select("program_id, balance")
       .eq("member_id", memberId)
       .eq("company_id", companyId),
+    hentReserveredePoint(companyId, memberId, admin),
   ]);
 
   const saldoPrProgram = new Map(
@@ -410,6 +415,7 @@ export async function hentMedlemsPointkonti(
     .map((program) => ({
       program,
       saldo: saldoPrProgram.get(program.id) ?? 0,
+      reserveret: reserveret.get(program.id) ?? 0,
     }));
 }
 
