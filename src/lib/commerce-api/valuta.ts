@@ -1,17 +1,30 @@
 /**
- * VALUTA: INGEN OMREGNING I V1.
+ * VALUTA: DKK I V1 — ÉT STED.
  *
- * Pointprogrammets `earn_value` og stempelkortets minimum er i KRONER, og
- * LoyalSum sælger til danske butikker. En webshop, der opkræver i en anden
- * valuta, kan derfor ikke optjene uden en omregning, V1 bevidst ikke har — den
- * afvises ved parringen og ved hver ordre med `unsupported_currency`, som er
- * permanent: et genforsøg ændrer ikke valutaen.
+ * Kontrakten kan bære enhver aktiv ISO 4217-valuta, men LoyalSum Commerce
+ * accepterer i første udgave KUN danske kroner. Det er en produktbeslutning,
+ * ikke en begrænsning i skemaet: pointprogrammets `earn_value` og
+ * stempelkortets minimum er i KRONER, og en omregning ville være en regel,
+ * ingen butik har valgt.
  *
- * Listen er stedet, en ny valuta slås til — og den kræver, at programmernes
- * værdier får en valuta med sig først.
+ * Hvor beslutningen bruges:
+ *   * parringen afviser en butik i en anden valuta (`unsupported_currency`);
+ *   * hver ordre og hver kurv skal være i butikkens valuta, og den skal stå her;
+ *   * dashboardet gemmer en fast rabat i `STANDARD_VALUTA`.
+ * Ingen anden fil sammenligner med en valutakode — `vagter.test.ts` spærrer
+ * for, at "DKK" skrives ud andre steder i webshopkoden.
+ *
+ * SENERE (EUR, SEK, NOK, GBP): tabellerne bærer allerede en valuta pr.
+ * integration, ordre, rabat og reservation, så der kræves ingen ny tabel.
+ * Det, der mangler, er, at programmernes kroneværdier får en valuta med sig
+ * — og så tilføjes koden her.
  */
 export const UNDERSTOETTEDE_VALUTAER = ["DKK"] as const;
+export type CommerceValuta = (typeof UNDERSTOETTEDE_VALUTAER)[number];
 
-export function erUnderstoettetValuta(kode: string): boolean {
+/** Valutaen, butikkens egne beløb (rabatter, minimum) er skrevet i. */
+export const STANDARD_VALUTA: CommerceValuta = UNDERSTOETTEDE_VALUTAER[0];
+
+export function erUnderstoettetValuta(kode: string): kode is CommerceValuta {
   return (UNDERSTOETTEDE_VALUTAER as readonly string[]).includes(kode);
 }

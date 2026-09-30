@@ -6,6 +6,7 @@ import { commerceIPlan } from "@/lib/loyalty/plan";
 import { commerceDb } from "@/lib/commerce-api/db";
 import { opretParringskode } from "@/lib/commerce-api/pairing";
 import { kronerTilOere } from "@/lib/commerce-api/targets";
+import { STANDARD_VALUTA } from "@/lib/commerce-api/valuta";
 
 /**
  * Integrationer — webshoppens forbindelse og hvilke programmer og belønninger,
@@ -159,7 +160,7 @@ export async function gemBeloenningskanal(
     if (!/^\d+(\.\d{1,2})?$/.test(beloeb) || kronerTilOere(beloeb) <= 0) {
       return { error: "Skriv rabatten i kroner inkl. moms, fx 50." };
     }
-    vaerdi = { discount_type: type, amount_minor: kronerTilOere(beloeb), currency: "DKK", percentage_bp: null };
+    vaerdi = { discount_type: type, amount_minor: kronerTilOere(beloeb), currency: STANDARD_VALUTA, percentage_bp: null };
   } else {
     if (!/^\d+(\.\d{1,2})?$/.test(procent)) return { error: "Skriv rabatten i procent, fx 10." };
     const bp = Math.round(Number(procent) * 100);
