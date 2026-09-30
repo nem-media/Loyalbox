@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loyalsum.dk/schemas/commerce/v1/common.schema.json",
+  "title": "LoyalSum Commerce v1 — fælles typer",
+  "description": "Byggeklodser, som alle Commerce v1-skemaer deler. $id er en identifikator og ikke en adresse, der kan hentes.",
+  "$defs": {
+    "provider": {
+      "title": "CommerceProvider",
+      "description": "Hvilken handelsplatform data kommer fra. At tilføje en ny værdi er en BAGUDKOMPATIBEL ændring af v1: forbrugere SKAL afvise en ukendt provider med en tydelig fejl og aldrig gætte. At fjerne eller omdøbe en værdi kræver v2.",
+      "type": "string",
+      "enum": ["woocommerce", "shopify"]
+    },
+    "order_status": {
+      "title": "CommerceOrderStatus",
+      "description": "Ordrens LIVSFORLØB — ikke dens økonomi. open: ordren er i gang og ikke afsluttet af butikken. completed: butikken har afsluttet ordren som gennemført (leveret/lukket). cancelled: ordren er annulleret eller rullet helt tilbage og gennemføres ikke. Loyalitet afgøres ALDRIG ud fra order_status alene — se payment_status. Platformens rå status oversættes i adapteren (docs/provider-guidelines.md).",
+      "type": "string",
+      "enum": ["open", "completed", "cancelled"]
+    },
+    "payment_status": {
+      "title": "CommercePaymentStatus",
+      "description": "Ordrens ØKONOMISKE tilstand — autoritativ for, om ordren kvalificerer til optjening. unpaid: betaling afventer eller er kun autoriseret, ikke hævet. paid: betalt (hævet), intet refunderet. partially_refunded: betalt, og en del af order_total_incl_tax er refunderet. refunded: hele order_total_incl_tax er refunderet. failed: betalingsforsøget fejlede, intet er betalt. voided: ordren blev aldrig betalt og bliver det ikke (annulleret autorisation eller annulleret ubetalt ordre). partially_refunded/refunded afledes af refunds[] — se docs/commerce-api-contract.md.",
+      "type": "string",
+      "enum": ["unpaid", "paid", "partially_refunded", "refunded", "failed", "voided"]
+    },
+    "external_id": {
+      "description": "Et id, som platformen har tildelt. Altid en streng, også når platformen bruger tal — et numerisk ordre-id og et GID skal kunne stå i samme felt.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "currency": {
+      "description": "Aktiv ISO 4217-valutakode med store bogstaver (fx DKK, EUR, SEK). Valutaen bestemmer, hvor mange decimaler 'mindste enhed' har (DKK/EUR/SEK: 2, JPY/ISK: 0, KWD/BHD: 3).",
+      "type": "string",
+      "enum": [
+        "AED", "AFN", "ALL", "AMD", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM", "BBD", "BDT", "BGN", "BHD", "BIF", "BMD",
+        "BND", "BOB", "BRL", "BSD", "BTN", "BWP", "BYN", "BZD", "CAD", "CDF", "CHF", "CLP", "CNY", "COP", "CRC", "CUP",
+        "CVE", "CZK", "DJF", "DKK", "DOP", "DZD", "EGP", "ERN", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL", "GHS", "GIP",
+        "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HTG", "HUF", "IDR", "ILS", "INR", "IQD", "IRR", "ISK", "JMD", "JOD",
+        "JPY", "KES", "KGS", "KHR", "KMF", "KPW", "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD",
+        "MAD", "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN", "MYR", "MZN", "NAD", "NGN",
+        "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN", "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB",
+        "RWF", "SAR", "SBD", "SCR", "SDG", "SEK", "SGD", "SHP", "SLE", "SOS", "SRD", "SSP", "STN", "SVC", "SYP", "SZL",
+        "THB", "TJS", "TMT", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX", "USD", "UYU", "UZS", "VED", "VES",
+        "VND", "VUV", "WST", "XAF", "XCD", "XCG", "XOF", "XPF", "YER", "ZAR", "ZMW", "ZWG"
+      ]
+    },
+    "minor_units": {
+      "description": "Et beløb i valutaens MINDSTE enhed som ikke-negativt heltal (øre for DKK: 19995 = 199,95 kr.). Aldrig kommatal: en float kan ikke repræsentere 0,1 præcist, og pointberegning på afrundede beløb giver point, ingen kan forklare. Antallet af decimaler følger ISO 4217 for valutaen. Øvre grænse = 2^53 − 1, så beløbet er eksakt i både PHP og JavaScript.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "timestamp": {
+      "description": "RFC 3339-tidspunkt med tidszone, fx 2026-09-29T10:15:00Z.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "email": {
+      "description": "Kundens e-mail. Bruges KUN til at genkende kunden i LoyalSum — ALDRIG som samtykke til markedsføring. Se docs/security.md.",
+      "type": "string",
+      "format": "email",
+      "maxLength": 254
+    },
+    "provider_metadata": {
+      "title": "provider_metadata",
+      "description": "Det ENESTE sted, platformspecifikke oplysninger må stå — og kun små tekniske referencer til fejlsøgning (fx platformens rå status, API-version, lagringsform). Flade nøgle/værdi-par, ingen indlejrede objekter. ALDRIG: hele originalordren, persondata (navn, e-mail, adresse, telefon, IP, fødselsdato), noter eller betalingsdata. Nøgler, der ligner persondata eller betalingsdata, afvises. LoyalSums loyalitetsregler må ALDRIG læse herfra.",
+      "type": "object",
+      "maxProperties": 20,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$",
+        "not": {
+          "pattern": "(^|_)(e_?mail|phone|mobile|address|addr|ip|first_name|last_name|full_name|customer_name|note|notes|billing|birth|birthday|birthdate|dob|card|pan|iban|cvc|cvv|password|secret)(_|$)"
+        }
+      },
+      "additionalProperties": {
+        "type": ["string", "number", "boolean", "null"],
+        "maxLength": 255
+      }
+    }
+  }
+}

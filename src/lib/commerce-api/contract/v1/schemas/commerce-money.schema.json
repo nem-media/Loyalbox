@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loyalsum.dk/schemas/commerce/v1/commerce-money.schema.json",
+  "title": "CommerceMoney",
+  "description": "Et beløb med sin valuta, som heltal i mindste enhed. Bruges, hvor beløbet står alene (fx værdien af en belønning), og er da INKL. moms, medmindre det bærende felt siger andet. I en ordre står valutaen én gang på ordren, og feltnavnene siger, om moms er med (_ex_tax / _incl_tax).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["amount_minor", "currency"],
+  "properties": {
+    "amount_minor": { "$ref": "common.schema.json#/$defs/minor_units" },
+    "currency": { "$ref": "common.schema.json#/$defs/currency" }
+  }
+}

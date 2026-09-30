@@ -1,0 +1,11 @@
+{
+  "reward_id": "rw_01",
+  "program_type": "points",
+  "title": "50 kr. rabat",
+  "cost": { "unit": "points", "amount": 250 },
+  "value": {
+    "type": "fixed_amount",
+    "money": { "amount_minor": 5000, "currency": "DKK" }
+  },
+  "available": true
+}

@@ -1,0 +1,11 @@
+{
+  "reservation_id": "rr_01",
+  "reward_id": "rw_01",
+  "provider": "woocommerce",
+  "external_store_id": "3f1c2d4e-8b7a-4c61-9d2e-5a6b7c8d9e01",
+  "external_cart_ref": "cart_7b2e",
+  "external_order_id": null,
+  "status": "reserved",
+  "expires_at": "2026-09-29T09:42:00Z",
+  "discount": { "amount_minor": 5000, "currency": "DKK" }
+}

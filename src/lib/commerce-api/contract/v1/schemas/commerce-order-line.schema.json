@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loyalsum.dk/schemas/commerce/v1/commerce-order-line.schema.json",
+  "title": "CommerceOrderLine",
+  "description": "Én varelinje, SOM SOLGT: beløbene reduceres ALDRIG af refunderinger — de står i refunds[]. Alle beløb er heltal i ordrens valutas mindste enhed. Suffikset siger, om moms er med: _ex_tax = uden moms, _tax = momsen alene. Butikker med priser inkl. moms normaliseres til ex moms + moms. Alle varerabatter — også en LoyalSum-belønning — er fordelt ud på linjerne. Invariant: total_ex_tax = subtotal_ex_tax − discount_ex_tax.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "external_line_id",
+    "external_product_id",
+    "external_variant_id",
+    "sku",
+    "quantity",
+    "subtotal_ex_tax",
+    "discount_ex_tax",
+    "total_ex_tax",
+    "total_tax"
+  ],
+  "properties": {
+    "external_line_id": {
+      "$ref": "common.schema.json#/$defs/external_id",
+      "description": "Linjens id på platformen. refunds[].line_items[].external_line_id peger hertil."
+    },
+    "external_product_id": { "$ref": "common.schema.json#/$defs/external_id" },
+    "external_variant_id": {
+      "description": "Variantens id på platformen. null for et produkt uden varianter.",
+      "oneOf": [{ "$ref": "common.schema.json#/$defs/external_id" }, { "type": "null" }]
+    },
+    "sku": { "oneOf": [{ "type": "string", "maxLength": 255 }, { "type": "null" }] },
+    "name": {
+      "type": "string",
+      "maxLength": 255,
+      "description": "Valgfri. Produktnavnet, til visning i LoyalSum. Ikke en persondata."
+    },
+    "quantity": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Solgt antal (efter eventuelle ordreredigeringer, FØR refunderinger)."
+    },
+    "subtotal_ex_tax": {
+      "$ref": "common.schema.json#/$defs/minor_units",
+      "description": "Stykpris × quantity FØR rabat, ex moms."
+    },
+    "discount_ex_tax": {
+      "$ref": "common.schema.json#/$defs/minor_units",
+      "description": "Summen af ALLE rabatter fordelt på linjen (kuponer, automatiske rabatter, LoyalSum-belønninger), ex moms."
+    },
+    "total_ex_tax": {
+      "$ref": "common.schema.json#/$defs/minor_units",
+      "description": "Linjens varebeløb EFTER rabat, ex moms = subtotal_ex_tax − discount_ex_tax."
+    },
+    "total_tax": {
+      "$ref": "common.schema.json#/$defs/minor_units",
+      "description": "Moms på total_ex_tax (altså EFTER rabat). total_ex_tax + total_tax = det, kunden betalte for linjen."
+    }
+  }
+}

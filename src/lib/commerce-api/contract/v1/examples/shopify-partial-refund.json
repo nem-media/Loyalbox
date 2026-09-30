@@ -1,0 +1,94 @@
+{
+  "schema": "commerce-order/v1",
+  "provider": "shopify",
+  "external_store_id": "gid://shopify/Shop/1000000001",
+  "external_order_id": "gid://shopify/Order/5000000000002",
+  "external_order_number": "#1002",
+  "order_status": "completed",
+  "payment_status": "partially_refunded",
+  "currency": "DKK",
+  "created_at": "2026-09-20T10:00:00Z",
+  "updated_at": "2026-09-28T16:30:05Z",
+  "paid_at": "2026-09-20T10:00:06Z",
+  "customer": {
+    "external_customer_id": "gid://shopify/Customer/7000000000001",
+    "email": "kunde@example.com"
+  },
+  "amounts": {
+    "items_subtotal_ex_tax": 80000,
+    "items_discount_ex_tax": 0,
+    "items_total_ex_tax": 80000,
+    "items_tax": 20000,
+    "shipping_ex_tax": 0,
+    "shipping_tax": 0,
+    "fees_incl_tax": 0,
+    "order_total_incl_tax": 100000
+  },
+  "line_items": [
+    {
+      "external_line_id": "gid://shopify/LineItem/9000000000010",
+      "external_product_id": "gid://shopify/Product/8000000000010",
+      "external_variant_id": "gid://shopify/ProductVariant/8100000000010",
+      "sku": "KVAERN-01",
+      "name": "Kaffekværn",
+      "quantity": 1,
+      "subtotal_ex_tax": 64000,
+      "discount_ex_tax": 0,
+      "total_ex_tax": 64000,
+      "total_tax": 16000
+    },
+    {
+      "external_line_id": "gid://shopify/LineItem/9000000000011",
+      "external_product_id": "gid://shopify/Product/8000000000001",
+      "external_variant_id": "gid://shopify/ProductVariant/8100000000001",
+      "sku": "KAFFE-1KG",
+      "name": "Kaffebønner 1 kg",
+      "quantity": 2,
+      "subtotal_ex_tax": 16000,
+      "discount_ex_tax": 0,
+      "total_ex_tax": 16000,
+      "total_tax": 4000
+    }
+  ],
+  "refunds": [
+    {
+      "external_refund_id": "gid://shopify/Refund/6000000000001",
+      "created_at": "2026-09-25T09:15:00Z",
+      "total_incl_tax": 20000,
+      "line_items": [
+        {
+          "external_line_id": "gid://shopify/LineItem/9000000000011",
+          "quantity": 2,
+          "total_ex_tax": 16000,
+          "total_tax": 4000
+        }
+      ],
+      "shipping_ex_tax": 0,
+      "shipping_tax": 0,
+      "fees_incl_tax": 0
+    },
+    {
+      "external_refund_id": "gid://shopify/Refund/6000000000002",
+      "created_at": "2026-09-28T16:30:00Z",
+      "total_incl_tax": 10000,
+      "line_items": [
+        {
+          "external_line_id": "gid://shopify/LineItem/9000000000010",
+          "quantity": 0,
+          "total_ex_tax": 8000,
+          "total_tax": 2000
+        }
+      ],
+      "shipping_ex_tax": 0,
+      "shipping_tax": 0,
+      "fees_incl_tax": 0
+    }
+  ],
+  "provider_metadata": {
+    "display_financial_status": "PARTIALLY_REFUNDED",
+    "display_fulfillment_status": "FULFILLED",
+    "closed": true,
+    "taxes_included": true,
+    "api_version": "2026-07"
+  }
+}

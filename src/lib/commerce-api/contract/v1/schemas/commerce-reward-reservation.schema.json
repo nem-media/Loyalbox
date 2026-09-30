@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loyalsum.dk/schemas/commerce/v1/commerce-reward-reservation.schema.json",
+  "title": "CommerceRewardReservation",
+  "description": "En belønning, der er holdt af til én kurv. Livsforløb: reserved → committed (ordren er betalt) eller released (kurven forladt / betaling fejlet) eller expired (tiden løb ud). Saldoen trækkes FØRST ved commit. Autorisation FEJLER LUKKET: kan LoyalSum ikke nås, gives ingen rabat.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["reservation_id", "reward_id", "provider", "external_store_id", "status", "expires_at", "discount"],
+  "properties": {
+    "reservation_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "reward_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "provider": { "$ref": "common.schema.json#/$defs/provider" },
+    "external_store_id": { "$ref": "common.schema.json#/$defs/external_id" },
+    "external_cart_ref": {
+      "description": "Adapterens reference til kurven/checkout-sessionen. Ingen persondata.",
+      "$ref": "common.schema.json#/$defs/external_id"
+    },
+    "external_order_id": {
+      "description": "Sættes ved commit.",
+      "oneOf": [{ "$ref": "common.schema.json#/$defs/external_id" }, { "type": "null" }]
+    },
+    "status": { "type": "string", "enum": ["reserved", "committed", "released", "expired"] },
+    "expires_at": { "$ref": "common.schema.json#/$defs/timestamp" },
+    "discount": { "$ref": "commerce-money.schema.json" }
+  }
+}

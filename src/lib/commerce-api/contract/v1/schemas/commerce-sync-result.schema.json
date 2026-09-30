@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loyalsum.dk/schemas/commerce/v1/commerce-sync-result.schema.json",
+  "title": "CommerceSyncResult",
+  "description": "LoyalSums svar på en ordresynkronisering. Viser regnestykket: forventet bidrag − allerede anvendt = delta. Et 'unchanged' med delta 0 er det normale svar på en dublet eller et genforsøg og er IKKE en fejl.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status", "external_order_id", "received_at", "contribution"],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["applied", "unchanged", "deferred", "rejected"],
+      "description": "applied: delta ≠ 0 blev anvendt. unchanged: intet at gøre. deferred: modtaget, behandles senere. rejected: ordren blev ikke accepteret (se reason)."
+    },
+    "external_order_id": { "$ref": "common.schema.json#/$defs/external_id" },
+    "received_at": { "$ref": "common.schema.json#/$defs/timestamp" },
+    "contribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected", "already_applied", "delta"],
+      "properties": {
+        "expected": { "$ref": "#/$defs/units" },
+        "already_applied": { "$ref": "#/$defs/units" },
+        "delta": { "$ref": "#/$defs/signed_units" }
+      }
+    },
+    "reason": {
+      "type": "string",
+      "enum": ["unknown_store", "customer_not_linked", "program_inactive", "currency_mismatch", "invalid_payload", "store_paused"]
+    }
+  },
+  "$defs": {
+    "units": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["points", "stamps"],
+      "properties": {
+        "points": { "type": "integer", "minimum": 0 },
+        "stamps": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "signed_units": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["points", "stamps"],
+      "description": "Kan være negativ: en refundering trækker point tilbage.",
+      "properties": {
+        "points": { "type": "integer" },
+        "stamps": { "type": "integer" }
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "provider": "woocommerce",
+  "external_store_id": "3f1c2d4e-8b7a-4c61-9d2e-5a6b7c8d9e01",
+  "store_url": "https://butik.example.com",
+  "name": "Eksempelbutikken",
+  "currency": "DKK",
+  "platform_version": "11.1.2",
+  "adapter_version": "0.1.0"
+}

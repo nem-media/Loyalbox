@@ -1,0 +1,61 @@
+{
+  "schema": "commerce-order/v1",
+  "provider": "shopify",
+  "external_store_id": "gid://shopify/Shop/1000000001",
+  "external_order_id": "gid://shopify/Order/5000000000001",
+  "external_order_number": "#1001",
+  "order_status": "open",
+  "payment_status": "paid",
+  "currency": "DKK",
+  "created_at": "2026-09-29T12:00:00Z",
+  "updated_at": "2026-09-29T12:00:09Z",
+  "paid_at": "2026-09-29T12:00:07Z",
+  "customer": {
+    "external_customer_id": "gid://shopify/Customer/7000000000001",
+    "email": "kunde@example.com"
+  },
+  "amounts": {
+    "items_subtotal_ex_tax": 27760,
+    "items_discount_ex_tax": 2776,
+    "items_total_ex_tax": 24984,
+    "items_tax": 6246,
+    "shipping_ex_tax": 3120,
+    "shipping_tax": 780,
+    "fees_incl_tax": 0,
+    "order_total_incl_tax": 35130
+  },
+  "line_items": [
+    {
+      "external_line_id": "gid://shopify/LineItem/9000000000001",
+      "external_product_id": "gid://shopify/Product/8000000000001",
+      "external_variant_id": "gid://shopify/ProductVariant/8100000000001",
+      "sku": "KAFFE-1KG",
+      "name": "Kaffebønner 1 kg",
+      "quantity": 2,
+      "subtotal_ex_tax": 23840,
+      "discount_ex_tax": 2384,
+      "total_ex_tax": 21456,
+      "total_tax": 5364
+    },
+    {
+      "external_line_id": "gid://shopify/LineItem/9000000000002",
+      "external_product_id": "gid://shopify/Product/8000000000002",
+      "external_variant_id": "gid://shopify/ProductVariant/8100000000002",
+      "sku": null,
+      "name": "Kaffefiltre",
+      "quantity": 1,
+      "subtotal_ex_tax": 3920,
+      "discount_ex_tax": 392,
+      "total_ex_tax": 3528,
+      "total_tax": 882
+    }
+  ],
+  "refunds": [],
+  "provider_metadata": {
+    "display_financial_status": "PAID",
+    "display_fulfillment_status": "UNFULFILLED",
+    "taxes_included": true,
+    "api_version": "2026-07",
+    "source_name": "web"
+  }
+}

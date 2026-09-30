@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loyalsum.dk/schemas/commerce/v1/commerce-refund.schema.json",
+  "title": "CommerceRefund",
+  "description": "Én refundering, som den står på platformen. refunds[] er den ENESTE kilde til refunderede beløb: ordrens og linjernes beløb står altid som solgt, og der findes ingen aggregerede refunderingsfelter, der kan trækkes fra en gang til. Ordren sendes med ALLE sine refunderinger hver gang. Opdeling: varer (line_items) + fragt (shipping_*) + gebyrer (fees_incl_tax) + ikke-allokeret rest = total_incl_tax. Den ikke-allokerede rest (fx et beløb refunderet uden at vælge varer) afledes og må ikke være negativ.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "external_refund_id",
+    "created_at",
+    "total_incl_tax",
+    "line_items",
+    "shipping_ex_tax",
+    "shipping_tax",
+    "fees_incl_tax"
+  ],
+  "properties": {
+    "external_refund_id": { "$ref": "common.schema.json#/$defs/external_id" },
+    "created_at": { "$ref": "common.schema.json#/$defs/timestamp" },
+    "total_incl_tax": {
+      "$ref": "common.schema.json#/$defs/minor_units",
+      "description": "Det samlede beløb, kunden fik tilbage i DENNE refundering, inkl. moms, fragt og gebyrer."
+    },
+    "line_items": {
+      "type": "array",
+      "maxItems": 500,
+      "description": "Den del af refunderingen, platformen har knyttet til bestemte varelinjer. Tom, hvis intet er knyttet til varer.",
+      "items": { "$ref": "#/$defs/refund_line" }
+    },
+    "shipping_ex_tax": {
+      "$ref": "common.schema.json#/$defs/minor_units",
+      "description": "Refunderet fragt, ex moms."
+    },
+    "shipping_tax": {
+      "$ref": "common.schema.json#/$defs/minor_units",
+      "description": "Refunderet moms på fragt."
+    },
+    "fees_incl_tax": {
+      "$ref": "common.schema.json#/$defs/minor_units",
+      "description": "Refunderede gebyrer inkl. moms."
+    }
+  },
+  "$defs": {
+    "refund_line": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["external_line_id", "quantity", "total_ex_tax", "total_tax"],
+      "properties": {
+        "external_line_id": {
+          "$ref": "common.schema.json#/$defs/external_id",
+          "description": "Skal pege på en linje i ordrens line_items."
+        },
+        "quantity": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Returneret antal. 0 = et beløb refunderet på linjen uden at varer returneres (fx kompensation)."
+        },
+        "total_ex_tax": {
+          "$ref": "common.schema.json#/$defs/minor_units",
+          "description": "Refunderet varebeløb på linjen, EFTER rabat, ex moms."
+        },
+        "total_tax": {
+          "$ref": "common.schema.json#/$defs/minor_units",
+          "description": "Refunderet moms på varebeløbet."
+        }
+      }
+    }
+  }
+}

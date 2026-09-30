@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loyalsum.dk/schemas/commerce/v1/commerce-customer-link.schema.json",
+  "title": "CommerceCustomerLink",
+  "description": "Koblingen mellem en webshopkunde og en LoyalSum-kunde. LoyalSum ejer koblingen og afgør, hvordan den bekræftes; adapteren gemmer kun loyalsum_customer_ref. En e-mail på en ordre er IKKE i sig selv en bekræftet kobling og ALDRIG et samtykke til markedsføring.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["provider", "external_store_id", "external_customer_id", "loyalsum_customer_ref", "link_method", "linked_at"],
+  "properties": {
+    "provider": { "$ref": "common.schema.json#/$defs/provider" },
+    "external_store_id": { "$ref": "common.schema.json#/$defs/external_id" },
+    "external_customer_id": {
+      "oneOf": [{ "$ref": "common.schema.json#/$defs/external_id" }, { "type": "null" }]
+    },
+    "loyalsum_customer_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "En uigennemsigtig reference, LoyalSum udsteder. Ikke kundens interne id."
+    },
+    "link_method": {
+      "type": "string",
+      "enum": ["verified_email", "loyalsum_login", "store_owner_confirmed"],
+      "description": "Hvordan koblingen er bekræftet."
+    },
+    "linked_at": { "$ref": "common.schema.json#/$defs/timestamp" }
+  }
+}

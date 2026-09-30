@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loyalsum.dk/schemas/commerce/v1/commerce-reward.schema.json",
+  "title": "CommerceReward",
+  "description": "En belønning, som LoyalSum tilbyder kunden i webshoppen. LoyalSum afgør, om den er tilgængelig — adapteren viser den og beder om en reservation, den beslutter intet selv.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["reward_id", "program_type", "title", "cost", "value", "available"],
+  "properties": {
+    "reward_id": { "type": "string", "minLength": 1, "maxLength": 64, "description": "LoyalSums id." },
+    "program_type": {
+      "type": "string",
+      "enum": ["points", "stamp_card"],
+      "description": "De to loyalitetsformer i LoyalSum."
+    },
+    "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "cost": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unit", "amount"],
+      "properties": {
+        "unit": { "type": "string", "enum": ["points", "stamps"] },
+        "amount": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "value": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "description": "Hvad belønningen giver i kurven. fixed_amount bærer et beløb INKL. moms (det, kunden ser); percentage bærer basispoint (1000 = 10 %) af varerne efter øvrige rabatter. Adapteren lægger rabatten ud på varelinjerne som discount_ex_tax (og lavere total_tax), så den endelige ordre viser, hvad kunden faktisk betalte.",
+      "properties": {
+        "type": { "type": "string", "enum": ["fixed_amount", "percentage", "free_product"] },
+        "money": { "$ref": "commerce-money.schema.json" },
+        "percentage_bp": { "type": "integer", "minimum": 1, "maximum": 10000 },
+        "external_product_id": { "$ref": "common.schema.json#/$defs/external_id" }
+      },
+      "allOf": [
+        { "if": { "properties": { "type": { "const": "fixed_amount" } } }, "then": { "required": ["money"] } },
+        { "if": { "properties": { "type": { "const": "percentage" } } }, "then": { "required": ["percentage_bp"] } },
+        { "if": { "properties": { "type": { "const": "free_product" } } }, "then": { "required": ["external_product_id"] } }
+      ]
+    },
+    "available": { "type": "boolean" },
+    "unavailable_reason": {
+      "type": "string",
+      "enum": ["insufficient_balance", "program_paused", "not_eligible", "already_reserved"]
+    }
+  }
+}

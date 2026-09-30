@@ -1,0 +1,10 @@
+{
+  "status": "unchanged",
+  "external_order_id": "1042",
+  "received_at": "2026-09-29T09:14:02Z",
+  "contribution": {
+    "expected": { "points": 31, "stamps": 1 },
+    "already_applied": { "points": 31, "stamps": 1 },
+    "delta": { "points": 0, "stamps": 0 }
+  }
+}

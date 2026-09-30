@@ -1,0 +1,123 @@
+{
+  "description": "Hvilket skema hvert eksempel skal validere mod. `valid` SKAL validere; `invalid` SKAL afvises af den angivne grund (`semantic: true` = består skemaet og falder på regnestykket). `eligible_spend` er de forventede værdier efter referenceformlen i docs/commerce-api-contract.md. `equivalent_orders` er par af ordrer fra forskellige platforme med samme økonomi — de SKAL give samme normaliserede økonomi og samme eligible spend. Køres af scripts/validate-contracts.mjs og i CI.",
+  "valid": {
+    "woocommerce-paid-order.json": "commerce-order.schema.json",
+    "woocommerce-pending-order.json": "commerce-order.schema.json",
+    "woocommerce-partial-refund.json": "commerce-order.schema.json",
+    "woocommerce-full-refund.json": "commerce-order.schema.json",
+    "woocommerce-loyalsum-reward-order.json": "commerce-order.schema.json",
+    "shopify-paid-order.json": "commerce-order.schema.json",
+    "shopify-partial-refund.json": "commerce-order.schema.json",
+    "sync-result-applied.json": "commerce-sync-result.schema.json",
+    "sync-result-unchanged.json": "commerce-sync-result.schema.json",
+    "store.json": "commerce-store.schema.json",
+    "reward-fixed-amount.json": "commerce-reward.schema.json",
+    "reward-reservation.json": "commerce-reward-reservation.schema.json",
+    "customer-link.json": "commerce-customer-link.schema.json"
+  },
+  "eligible_spend": {
+    "woocommerce-paid-order.json": { "earning_qualified": true, "eligible_spend_minor": 31230 },
+    "woocommerce-pending-order.json": { "earning_qualified": false, "eligible_spend_minor": 0 },
+    "woocommerce-partial-refund.json": { "earning_qualified": true, "eligible_spend_minor": 26820 },
+    "woocommerce-full-refund.json": { "earning_qualified": false, "eligible_spend_minor": 0 },
+    "woocommerce-loyalsum-reward-order.json": { "earning_qualified": true, "eligible_spend_minor": 45000 },
+    "shopify-paid-order.json": { "earning_qualified": true, "eligible_spend_minor": 31230 },
+    "shopify-partial-refund.json": { "earning_qualified": true, "eligible_spend_minor": 70000 }
+  },
+  "equivalent_orders": [
+    ["woocommerce-paid-order.json", "shopify-paid-order.json"]
+  ],
+  "invalid": {
+    "invalid/order-with-phone.json": {
+      "schema": "commerce-order.schema.json",
+      "reason": "Persondata ud over e-mail må ikke sendes (customer.phone)."
+    },
+    "invalid/order-with-woo-field-at-root.json": {
+      "schema": "commerce-order.schema.json",
+      "reason": "Platformfelter må kun stå i provider_metadata."
+    },
+    "invalid/order-with-float-amount.json": {
+      "schema": "commerce-order.schema.json",
+      "reason": "Beløb er heltal i mindste enhed, aldrig kommatal (31.2 i stedet for 3120)."
+    },
+    "invalid/order-with-negative-amount.json": {
+      "schema": "commerce-order.schema.json",
+      "reason": "Beløb er aldrig negative — en rabat er et positivt beløb, der trækkes fra."
+    },
+    "invalid/order-with-nested-metadata.json": {
+      "schema": "commerce-order.schema.json",
+      "reason": "provider_metadata er flad — ingen indlejrede objekter."
+    },
+    "invalid/order-with-pii-in-metadata.json": {
+      "schema": "commerce-order.schema.json",
+      "reason": "provider_metadata må ikke bære persondata eller noter (customer_note)."
+    },
+    "invalid/order-with-invalid-currency.json": {
+      "schema": "commerce-order.schema.json",
+      "reason": "Valuta skal være en aktiv ISO 4217-kode (DKR er ikke en)."
+    },
+    "invalid/order-with-unsupported-provider.json": {
+      "schema": "commerce-order.schema.json",
+      "reason": "Ukendt provider afvises — der gættes aldrig."
+    },
+    "invalid/order-with-invalid-payment-status.json": {
+      "schema": "commerce-order.schema.json",
+      "reason": "payment_status skal være en normaliseret værdi."
+    },
+    "invalid/order-with-invalid-order-status.json": {
+      "schema": "commerce-order.schema.json",
+      "reason": "order_status skal være open, completed eller cancelled."
+    },
+    "invalid/order-with-provider-order-status.json": {
+      "schema": "commerce-order.schema.json",
+      "reason": "Platformens rå ordrestatus (processing) må ikke stå i order_status."
+    },
+    "invalid/order-with-provider-payment-status.json": {
+      "schema": "commerce-order.schema.json",
+      "reason": "Platformens rå financial status (PAID) må ikke stå i payment_status."
+    },
+    "invalid/order-with-legacy-status-field.json": {
+      "schema": "commerce-order.schema.json",
+      "reason": "Der findes intet samlet status-felt — kun order_status og payment_status."
+    },
+    "invalid/order-with-aggregated-refund-fields.json": {
+      "schema": "commerce-order.schema.json",
+      "reason": "Refunderinger står KUN i refunds[] — aggregerede felter kunne trækkes fra to gange."
+    },
+    "invalid/order-totals-do-not-add-up.json": {
+      "schema": "commerce-order.schema.json",
+      "semantic": true,
+      "reason": "order_total_incl_tax skal være varer + moms + fragt + fragtmoms + gebyrer."
+    },
+    "invalid/order-paid-without-paid-at.json": {
+      "schema": "commerce-order.schema.json",
+      "semantic": true,
+      "reason": "payment_status paid kræver paid_at."
+    },
+    "invalid/order-paid-status-with-refund.json": {
+      "schema": "commerce-order.schema.json",
+      "semantic": true,
+      "reason": "En ordre med refunderinger kan ikke være paid — den er partially_refunded eller refunded."
+    },
+    "invalid/order-refunded-status-with-partial-refund.json": {
+      "schema": "commerce-order.schema.json",
+      "semantic": true,
+      "reason": "refunded kræver, at hele order_total_incl_tax er refunderet."
+    },
+    "invalid/order-unpaid-with-refund.json": {
+      "schema": "commerce-order.schema.json",
+      "semantic": true,
+      "reason": "En ubetalt ordre kan ikke have refunderinger."
+    },
+    "invalid/order-refund-exceeds-line.json": {
+      "schema": "commerce-order.schema.json",
+      "semantic": true,
+      "reason": "Der kan ikke refunderes flere stk. eller mere beløb, end linjen solgte."
+    },
+    "invalid/order-refund-parts-exceed-total.json": {
+      "schema": "commerce-order.schema.json",
+      "semantic": true,
+      "reason": "En refunderings varer + fragt + gebyrer kan ikke overstige dens total_incl_tax."
+    }
+  }
+}

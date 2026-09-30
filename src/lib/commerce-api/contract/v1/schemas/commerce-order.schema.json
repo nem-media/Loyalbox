@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loyalsum.dk/schemas/commerce/v1/commerce-order.schema.json",
+  "title": "CommerceOrder",
+  "description": "En ordres NUVÆRENDE tilstand, normaliseret fra enhver platform. Adapteren sender altid hele ordren, som den står nu — aldrig 'giv 30 point' og aldrig et færdigregnet optjeningsbeløb. LoyalSum afleder eligible spend af ordren, regner forventet bidrag, trækker det allerede anvendte fra og anvender forskellen. Derfor er dubletter, genforsøg, refunderinger og gensynkronisering idempotente. Beløb står SOM SOLGT; refunderinger står KUN i refunds[]. Platformspecifikke felter må KUN stå i provider_metadata. Semantikken er beskrevet i docs/commerce-api-contract.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "provider",
+    "external_store_id",
+    "external_order_id",
+    "external_order_number",
+    "order_status",
+    "payment_status",
+    "currency",
+    "created_at",
+    "updated_at",
+    "paid_at",
+    "customer",
+    "amounts",
+    "line_items",
+    "refunds"
+  ],
+  "properties": {
+    "schema": {
+      "description": "Kontraktens navn og hovedversion. Ændres KUN ved en brydende ændring (v2).",
+      "const": "commerce-order/v1"
+    },
+    "provider": { "$ref": "common.schema.json#/$defs/provider" },
+    "external_store_id": { "$ref": "common.schema.json#/$defs/external_id" },
+    "external_order_id": {
+      "$ref": "common.schema.json#/$defs/external_id",
+      "description": "Platformens interne, stabile ordre-id. Sammen med provider og external_store_id er det ordrens nøgle i LoyalSum."
+    },
+    "external_order_number": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "Det nummer, kunden ser (fx '1042' eller '#1042'). Kun til visning — aldrig en nøgle."
+    },
+    "order_status": { "$ref": "common.schema.json#/$defs/order_status" },
+    "payment_status": { "$ref": "common.schema.json#/$defs/payment_status" },
+    "currency": {
+      "$ref": "common.schema.json#/$defs/currency",
+      "description": "Den valuta, kunden blev opkrævet i. ALLE beløb i ordren er i denne valuta — aldrig blandet med butikkens basisvaluta."
+    },
+    "created_at": { "$ref": "common.schema.json#/$defs/timestamp" },
+    "updated_at": { "$ref": "common.schema.json#/$defs/timestamp" },
+    "paid_at": {
+      "description": "Hvornår betalingen blev hævet. Sat, når payment_status er paid, partially_refunded eller refunded; ellers null.",
+      "oneOf": [{ "$ref": "common.schema.json#/$defs/timestamp" }, { "type": "null" }]
+    },
+    "customer": { "$ref": "commerce-customer.schema.json" },
+    "amounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Ordrens beløb SOM SOLGT — før refunderinger. Heltal i mindste enhed. Invarianter: items_total_ex_tax = items_subtotal_ex_tax − items_discount_ex_tax; hver varesum = Σ linjerne; order_total_incl_tax = items_total_ex_tax + items_tax + shipping_ex_tax + shipping_tax + fees_incl_tax.",
+      "required": [
+        "items_subtotal_ex_tax",
+        "items_discount_ex_tax",
+        "items_total_ex_tax",
+        "items_tax",
+        "shipping_ex_tax",
+        "shipping_tax",
+        "fees_incl_tax",
+        "order_total_incl_tax"
+      ],
+      "properties": {
+        "items_subtotal_ex_tax": {
+          "$ref": "common.schema.json#/$defs/minor_units",
+          "description": "Varernes værdi FØR rabat, ex moms = Σ line_items[].subtotal_ex_tax."
+        },
+        "items_discount_ex_tax": {
+          "$ref": "common.schema.json#/$defs/minor_units",
+          "description": "Alle varerabatter (inkl. LoyalSum-belønninger), ex moms = Σ line_items[].discount_ex_tax. Fragtrabat hører IKKE til her — den er allerede trukket fra shipping_ex_tax."
+        },
+        "items_total_ex_tax": {
+          "$ref": "common.schema.json#/$defs/minor_units",
+          "description": "Varernes værdi EFTER rabat, ex moms = Σ line_items[].total_ex_tax."
+        },
+        "items_tax": {
+          "$ref": "common.schema.json#/$defs/minor_units",
+          "description": "Moms på varerne efter rabat = Σ line_items[].total_tax."
+        },
+        "shipping_ex_tax": {
+          "$ref": "common.schema.json#/$defs/minor_units",
+          "description": "Fragt efter eventuel fragtrabat, ex moms. Giver aldrig optjening."
+        },
+        "shipping_tax": {
+          "$ref": "common.schema.json#/$defs/minor_units",
+          "description": "Moms på fragten. Giver aldrig optjening."
+        },
+        "fees_incl_tax": {
+          "$ref": "common.schema.json#/$defs/minor_units",
+          "description": "Øvrige gebyrer (betalingsgebyr, indpakning, told m.m.) inkl. moms. Giver aldrig optjening."
+        },
+        "order_total_incl_tax": {
+          "$ref": "common.schema.json#/$defs/minor_units",
+          "description": "Det, kunden blev opkrævet i alt, inkl. moms, fragt og gebyrer — før refunderinger. Et gavekort brugt som BETALINGSMIDDEL reducerer ikke beløbet."
+        }
+      }
+    },
+    "line_items": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 500,
+      "items": { "$ref": "commerce-order-line.schema.json" }
+    },
+    "refunds": {
+      "type": "array",
+      "maxItems": 100,
+      "description": "ALLE ordrens refunderinger. Den eneste kilde til refunderede beløb.",
+      "items": { "$ref": "commerce-refund.schema.json" }
+    },
+    "provider_metadata": { "$ref": "common.schema.json#/$defs/provider_metadata" }
+  }
+}

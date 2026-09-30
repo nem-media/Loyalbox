@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loyalsum.dk/schemas/commerce/v1/commerce-customer.schema.json",
+  "title": "CommerceCustomer",
+  "description": "Kunden på en ordre — og INTET andet. Navn, adresse, telefon, IP, fødselsdato og noter er bevidst udeladt: loyalitet kræver kun, at kunden kan genkendes. additionalProperties=false gør, at et felt mere er en kontraktændring og ikke noget, en adapter kan sende i stilhed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["external_customer_id", "email"],
+  "properties": {
+    "external_customer_id": {
+      "description": "Platformens kunde-id. null for en gæsteordre.",
+      "oneOf": [{ "$ref": "common.schema.json#/$defs/external_id" }, { "type": "null" }]
+    },
+    "email": { "$ref": "common.schema.json#/$defs/email" }
+  }
+}

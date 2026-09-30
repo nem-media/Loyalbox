@@ -1,0 +1,8 @@
+{
+  "provider": "shopify",
+  "external_store_id": "gid://shopify/Shop/1000000001",
+  "external_customer_id": "gid://shopify/Customer/7000000000001",
+  "loyalsum_customer_ref": "lc_9f2a",
+  "link_method": "verified_email",
+  "linked_at": "2026-09-29T12:05:00Z"
+}

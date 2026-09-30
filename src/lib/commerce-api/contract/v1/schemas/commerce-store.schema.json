@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loyalsum.dk/schemas/commerce/v1/commerce-store.schema.json",
+  "title": "CommerceStore",
+  "description": "Én butik på én platform. Sendes ved parring og i health-kald. En butik parres med ÉN LoyalSum-virksomhed og får sine egne nøgler — se docs/security.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["provider", "external_store_id", "store_url", "currency", "adapter_version"],
+  "properties": {
+    "provider": { "$ref": "common.schema.json#/$defs/provider" },
+    "external_store_id": {
+      "$ref": "common.schema.json#/$defs/external_id",
+      "description": "Stabilt id for butikken. WooCommerce: et UUID, pluginet genererer ved første aktivering. Shopify: butikkens GID eller myshopify-domæne."
+    },
+    "store_url": { "type": "string", "format": "uri", "maxLength": 2048 },
+    "name": { "type": "string", "maxLength": 255 },
+    "currency": { "$ref": "common.schema.json#/$defs/currency" },
+    "platform_version": {
+      "type": "string",
+      "maxLength": 64,
+      "description": "Fx WooCommerce 11.1.2. Til support og kompatibilitet — aldrig til forretningsregler."
+    },
+    "adapter_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?$",
+      "description": "Adapterens egen SemVer-version, fx 0.1.0."
+    },
+    "provider_metadata": { "$ref": "common.schema.json#/$defs/provider_metadata" }
+  }
+}

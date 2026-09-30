@@ -1,0 +1,894 @@
+{
+  "openapi": "3.1.0",
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "info": {
+    "title": "LoyalSum Commerce API",
+    "version": "1.0.0-draft",
+    "summary": "Grænsefladen mellem commerce-adaptere (WooCommerce, Shopify, …) og LoyalSum core.",
+    "description": "KONTRAKT, IKKE IMPLEMENTERING. Endpoints her findes ikke i LoyalSum core endnu. Ingen adapter må tale med LoyalSum på nogen anden måde end denne API over HTTPS. Ordrer sendes som deres NUVÆRENDE, normaliserede tilstand (CommerceOrder v1): order_status beskriver livsforløbet, payment_status økonomien og er autoritativ for optjening; beløb er heltal i mindste enhed med eksplicit _ex_tax/_incl_tax; refunderinger står kun i refunds[]. Se docs/commerce-api-contract.md for semantikken (inkl. eligible spend) og docs/security.md for signering."
+  },
+  "servers": [
+    {
+      "url": "https://loyalsum.dk/api/v1/commerce",
+      "description": "Produktion (findes ikke endnu)"
+    },
+    {
+      "url": "http://localhost:3000/api/v1/commerce",
+      "description": "Lokal LoyalSum"
+    }
+  ],
+  "security": [
+    {
+      "loyalsumHmac": []
+    }
+  ],
+  "paths": {
+    "/integrations/pair": {
+      "post": {
+        "operationId": "pairIntegration",
+        "summary": "Par en butik med en LoyalSum-virksomhed med en engangskode fra LoyalSum-dashboardet.",
+        "description": "Det eneste kald uden HMAC-signatur: der findes ingen nøgle endnu. Parringskoden er kortlivet, bruges én gang og er bundet til én virksomhed. Svaret bærer integrationens hemmelighed ÉN gang.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "pairing_code",
+                  "store"
+                ],
+                "properties": {
+                  "pairing_code": {
+                    "type": "string",
+                    "minLength": 8,
+                    "maxLength": 64
+                  },
+                  "store": {
+                    "$ref": "./schemas/commerce-store.schema.json"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Parret.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "integration_id",
+                    "signing_secret",
+                    "contract_versions"
+                  ],
+                  "properties": {
+                    "integration_id": {
+                      "type": "string"
+                    },
+                    "signing_secret": {
+                      "type": "string",
+                      "description": "Vises én gang. Gemmes server-side i butikken, aldrig i browseren."
+                    },
+                    "contract_versions": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/integrations/health": {
+      "get": {
+        "operationId": "integrationHealth",
+        "summary": "Er forbindelsen i orden, og hvilke kontraktversioner forstår serveren?",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Integration"
+          },
+          {
+            "$ref": "#/components/parameters/Timestamp"
+          },
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/Signature"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "integration_id",
+                    "contract_versions",
+                    "server_time"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "active",
+                        "paused",
+                        "revoked"
+                      ]
+                    },
+                    "integration_id": {
+                      "type": "string"
+                    },
+                    "contract_versions": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "server_time": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/orders/sync": {
+      "post": {
+        "operationId": "syncOrder",
+        "summary": "Send en ordres NUVÆRENDE tilstand. LoyalSum regner delta.",
+        "description": "Idempotent: samme ordretilstand sendt to gange giver 'unchanged'. Adapteren sender aldrig et 'giv N point' og aldrig et færdigregnet optjeningsbeløb — LoyalSum afleder eligible spend af ordren (varer efter rabat inkl. moms − refunderede varer), og kun payment_status paid/partially_refunded kvalificerer.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Integration"
+          },
+          {
+            "$ref": "#/components/parameters/Timestamp"
+          },
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/Signature"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "order",
+                  "observed_at"
+                ],
+                "properties": {
+                  "order": {
+                    "$ref": "./schemas/commerce-order.schema.json"
+                  },
+                  "observed_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Hvornår adapteren læste ordren. En ÆLDRE tilstand end den seneste kendte ignoreres."
+                  }
+                }
+              },
+              "examples": {
+                "woocommerce_paid": {
+                  "summary": "WooCommerce: betalt ordre (processing → open + paid)",
+                  "value": {
+                    "order": {
+                      "schema": "commerce-order/v1",
+                      "provider": "woocommerce",
+                      "external_store_id": "3f1c2d4e-8b7a-4c61-9d2e-5a6b7c8d9e01",
+                      "external_order_id": "1042",
+                      "external_order_number": "1042",
+                      "order_status": "open",
+                      "payment_status": "paid",
+                      "currency": "DKK",
+                      "created_at": "2026-09-29T09:12:04Z",
+                      "updated_at": "2026-09-29T09:13:40Z",
+                      "paid_at": "2026-09-29T09:13:38Z",
+                      "customer": {
+                        "external_customer_id": "57",
+                        "email": "kunde@example.com"
+                      },
+                      "amounts": {
+                        "items_subtotal_ex_tax": 27760,
+                        "items_discount_ex_tax": 2776,
+                        "items_total_ex_tax": 24984,
+                        "items_tax": 6246,
+                        "shipping_ex_tax": 3120,
+                        "shipping_tax": 780,
+                        "fees_incl_tax": 0,
+                        "order_total_incl_tax": 35130
+                      },
+                      "line_items": [
+                        {
+                          "external_line_id": "311",
+                          "external_product_id": "88",
+                          "external_variant_id": "91",
+                          "sku": "KAFFE-1KG",
+                          "name": "Kaffebønner 1 kg",
+                          "quantity": 2,
+                          "subtotal_ex_tax": 23840,
+                          "discount_ex_tax": 2384,
+                          "total_ex_tax": 21456,
+                          "total_tax": 5364
+                        },
+                        {
+                          "external_line_id": "312",
+                          "external_product_id": "102",
+                          "external_variant_id": null,
+                          "sku": null,
+                          "name": "Kaffefiltre",
+                          "quantity": 1,
+                          "subtotal_ex_tax": 3920,
+                          "discount_ex_tax": 392,
+                          "total_ex_tax": 3528,
+                          "total_tax": 882
+                        }
+                      ],
+                      "refunds": [],
+                      "provider_metadata": {
+                        "wc_status": "processing",
+                        "hpos": true,
+                        "created_via": "checkout",
+                        "prices_include_tax": true
+                      }
+                    },
+                    "observed_at": "2026-09-29T09:13:41Z"
+                  }
+                },
+                "shopify_partial_refund": {
+                  "summary": "Shopify: to delvise refunderinger (100000 − 20000 − 10000 = 70000 eligible)",
+                  "value": {
+                    "order": {
+                      "schema": "commerce-order/v1",
+                      "provider": "shopify",
+                      "external_store_id": "gid://shopify/Shop/1000000001",
+                      "external_order_id": "gid://shopify/Order/5000000000002",
+                      "external_order_number": "#1002",
+                      "order_status": "completed",
+                      "payment_status": "partially_refunded",
+                      "currency": "DKK",
+                      "created_at": "2026-09-20T10:00:00Z",
+                      "updated_at": "2026-09-28T16:30:05Z",
+                      "paid_at": "2026-09-20T10:00:06Z",
+                      "customer": {
+                        "external_customer_id": "gid://shopify/Customer/7000000000001",
+                        "email": "kunde@example.com"
+                      },
+                      "amounts": {
+                        "items_subtotal_ex_tax": 80000,
+                        "items_discount_ex_tax": 0,
+                        "items_total_ex_tax": 80000,
+                        "items_tax": 20000,
+                        "shipping_ex_tax": 0,
+                        "shipping_tax": 0,
+                        "fees_incl_tax": 0,
+                        "order_total_incl_tax": 100000
+                      },
+                      "line_items": [
+                        {
+                          "external_line_id": "gid://shopify/LineItem/9000000000010",
+                          "external_product_id": "gid://shopify/Product/8000000000010",
+                          "external_variant_id": "gid://shopify/ProductVariant/8100000000010",
+                          "sku": "KVAERN-01",
+                          "name": "Kaffekværn",
+                          "quantity": 1,
+                          "subtotal_ex_tax": 64000,
+                          "discount_ex_tax": 0,
+                          "total_ex_tax": 64000,
+                          "total_tax": 16000
+                        },
+                        {
+                          "external_line_id": "gid://shopify/LineItem/9000000000011",
+                          "external_product_id": "gid://shopify/Product/8000000000001",
+                          "external_variant_id": "gid://shopify/ProductVariant/8100000000001",
+                          "sku": "KAFFE-1KG",
+                          "name": "Kaffebønner 1 kg",
+                          "quantity": 2,
+                          "subtotal_ex_tax": 16000,
+                          "discount_ex_tax": 0,
+                          "total_ex_tax": 16000,
+                          "total_tax": 4000
+                        }
+                      ],
+                      "refunds": [
+                        {
+                          "external_refund_id": "gid://shopify/Refund/6000000000001",
+                          "created_at": "2026-09-25T09:15:00Z",
+                          "total_incl_tax": 20000,
+                          "line_items": [
+                            {
+                              "external_line_id": "gid://shopify/LineItem/9000000000011",
+                              "quantity": 2,
+                              "total_ex_tax": 16000,
+                              "total_tax": 4000
+                            }
+                          ],
+                          "shipping_ex_tax": 0,
+                          "shipping_tax": 0,
+                          "fees_incl_tax": 0
+                        },
+                        {
+                          "external_refund_id": "gid://shopify/Refund/6000000000002",
+                          "created_at": "2026-09-28T16:30:00Z",
+                          "total_incl_tax": 10000,
+                          "line_items": [
+                            {
+                              "external_line_id": "gid://shopify/LineItem/9000000000010",
+                              "quantity": 0,
+                              "total_ex_tax": 8000,
+                              "total_tax": 2000
+                            }
+                          ],
+                          "shipping_ex_tax": 0,
+                          "shipping_tax": 0,
+                          "fees_incl_tax": 0
+                        }
+                      ],
+                      "provider_metadata": {
+                        "display_financial_status": "PARTIALLY_REFUNDED",
+                        "display_fulfillment_status": "FULFILLED",
+                        "closed": true,
+                        "taxes_included": true,
+                        "api_version": "2026-07"
+                      }
+                    },
+                    "observed_at": "2026-09-28T16:30:06Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Behandlet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas/commerce-sync-result.schema.json"
+                },
+                "examples": {
+                  "applied": {
+                    "summary": "Delta anvendt efter en refundering",
+                    "value": {
+                      "status": "applied",
+                      "external_order_id": "1043",
+                      "received_at": "2026-09-30T08:41:12Z",
+                      "contribution": {
+                        "expected": {
+                          "points": 26,
+                          "stamps": 1
+                        },
+                        "already_applied": {
+                          "points": 31,
+                          "stamps": 1
+                        },
+                        "delta": {
+                          "points": -5,
+                          "stamps": 0
+                        }
+                      }
+                    }
+                  },
+                  "unchanged": {
+                    "summary": "Dublet — intet at gøre",
+                    "value": {
+                      "status": "unchanged",
+                      "external_order_id": "1042",
+                      "received_at": "2026-09-29T09:14:02Z",
+                      "contribution": {
+                        "expected": {
+                          "points": 31,
+                          "stamps": 1
+                        },
+                        "already_applied": {
+                          "points": 31,
+                          "stamps": 1
+                        },
+                        "delta": {
+                          "points": 0,
+                          "stamps": 0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Modtaget, behandles senere (status deferred).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas/commerce-sync-result.schema.json"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/customers/link": {
+      "post": {
+        "operationId": "linkCustomer",
+        "summary": "Bed LoyalSum koble en webshopkunde til en LoyalSum-kunde.",
+        "description": "POST og ikke GET: e-mailen må aldrig stå i en URL, hvor den ender i logs. LoyalSum afgør, hvordan koblingen bekræftes.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Integration"
+          },
+          {
+            "$ref": "#/components/parameters/Timestamp"
+          },
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/Signature"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "./schemas/commerce-customer.schema.json"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Koblet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas/commerce-customer-link.schema.json"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Bekræftelse afventer kunden."
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/customer/loyalty": {
+      "get": {
+        "operationId": "customerLoyalty",
+        "summary": "Kundens saldo og status hos butikkens LoyalSum-virksomhed.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Integration"
+          },
+          {
+            "$ref": "#/components/parameters/Timestamp"
+          },
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/Signature"
+          },
+          {
+            "name": "loyalsum_customer_ref",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "description": "Aldrig e-mail i URL'en."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "loyalsum_customer_ref",
+                    "points",
+                    "stamp_cards"
+                  ],
+                  "properties": {
+                    "loyalsum_customer_ref": {
+                      "type": "string"
+                    },
+                    "points": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "stamp_cards": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "program_id",
+                          "stamps",
+                          "stamps_required"
+                        ],
+                        "properties": {
+                          "program_id": {
+                            "type": "string"
+                          },
+                          "stamps": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "stamps_required": {
+                            "type": "integer",
+                            "minimum": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/rewards": {
+      "get": {
+        "operationId": "listRewards",
+        "summary": "Belønninger, kunden kan bruge i denne butik.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Integration"
+          },
+          {
+            "$ref": "#/components/parameters/Timestamp"
+          },
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/Signature"
+          },
+          {
+            "name": "loyalsum_customer_ref",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "rewards"
+                  ],
+                  "properties": {
+                    "rewards": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "./schemas/commerce-reward.schema.json"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rewards/reserve": {
+      "post": {
+        "operationId": "reserveReward",
+        "summary": "Hold en belønning af til én kurv. Saldoen trækkes først ved commit.",
+        "description": "FEJLER LUKKET: kan LoyalSum ikke nås, eller svarer den ikke 201, gives der INGEN rabat. En almindelig checkout uden belønning må derimod aldrig blokeres.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Integration"
+          },
+          {
+            "$ref": "#/components/parameters/Timestamp"
+          },
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/Signature"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "reward_id",
+                  "loyalsum_customer_ref",
+                  "external_cart_ref",
+                  "cart_items_total_incl_tax"
+                ],
+                "properties": {
+                  "reward_id": {
+                    "type": "string"
+                  },
+                  "loyalsum_customer_ref": {
+                    "type": "string"
+                  },
+                  "external_cart_ref": {
+                    "type": "string"
+                  },
+                  "cart_items_total_incl_tax": {
+                    "$ref": "./schemas/commerce-money.schema.json",
+                    "description": "Kurvens varer EFTER øvrige rabatter, INKL. moms — samme grundlag som eligible spend. Fragt og gebyrer tæller ikke."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Reserveret.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas/commerce-reward-reservation.schema.json"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/rewards/release": {
+      "post": {
+        "operationId": "releaseReward",
+        "summary": "Frigiv en reservation (kurven forladt, betaling fejlet). Idempotent.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Integration"
+          },
+          {
+            "$ref": "#/components/parameters/Timestamp"
+          },
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/Signature"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "reservation_id"
+                ],
+                "properties": {
+                  "reservation_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Frigivet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas/commerce-reward-reservation.schema.json"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rewards/commit": {
+      "post": {
+        "operationId": "commitReward",
+        "summary": "Ordren er betalt: træk saldoen og bind reservationen til ordren. Idempotent.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Integration"
+          },
+          {
+            "$ref": "#/components/parameters/Timestamp"
+          },
+          {
+            "$ref": "#/components/parameters/RequestId"
+          },
+          {
+            "$ref": "#/components/parameters/Signature"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "reservation_id",
+                  "external_order_id"
+                ],
+                "properties": {
+                  "reservation_id": {
+                    "type": "string"
+                  },
+                  "external_order_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Committet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "./schemas/commerce-reward-reservation.schema.json"
+                }
+              }
+            }
+          },
+          "410": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "loyalsumHmac": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-LoyalSum-Signature",
+        "description": "HMAC-SHA256 over en kanonisk streng. Kræver også X-LoyalSum-Integration, X-LoyalSum-Timestamp og X-LoyalSum-Request-Id. Se docs/security.md."
+      }
+    },
+    "parameters": {
+      "Integration": {
+        "name": "X-LoyalSum-Integration",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "Timestamp": {
+        "name": "X-LoyalSum-Timestamp",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d{10}$"
+        },
+        "description": "Unix-sekunder. Afvises, hvis mere end 300 s fra serverens ur."
+      },
+      "RequestId": {
+        "name": "X-LoyalSum-Request-Id",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "description": "Unikt pr. anmodning. Genbrugt id inden for vinduet = gentagelse, afvises."
+      },
+      "Signature": {
+        "name": "X-LoyalSum-Signature",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^v1=[0-9a-f]{64}$"
+        }
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Fejl.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "error"
+              ],
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "description": "Maskinlæsbar kode, fx invalid_signature, unknown_integration, contract_version_unsupported."
+                },
+                "message": {
+                  "type": "string"
+                },
+                "retryable": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
