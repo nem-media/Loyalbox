@@ -2,6 +2,8 @@ import { getCurrentUser } from "@/lib/auth";
 import { commerceDb } from "@/lib/commerce-api/db";
 import { commerceKrypteringKlar } from "@/lib/commerce-api/secret";
 import type { PointEarnModel } from "@/lib/loyalty/point";
+import { kanHenteWooCommercePlugin } from "@/lib/woocommerce-plugin/adgang";
+import { WOOCOMMERCE_PLUGIN, WOOCOMMERCE_PLUGIN_DOWNLOAD_URL } from "@/lib/woocommerce-plugin/release";
 import { IntegrationerVisning, type IntegrationVisning } from "./visning";
 
 export const metadata = { title: "Integrationer" };
@@ -26,6 +28,7 @@ export default async function IntegrationerSide() {
     { data: stempelkort },
     { data: kanaler },
     { data: belKanaler },
+    kanHentePlugin,
   ] = await Promise.all([
     db
       .from("commerce_integrations")
@@ -65,6 +68,7 @@ export default async function IntegrationerSide() {
       .select("point_reward_id, enabled, discount_type, amount_minor, percentage_bp")
       .eq("company_id", companyId)
       .eq("provider", "woocommerce"),
+    kanHenteWooCommercePlugin(companyId),
   ]);
 
   const alle = (integrationer ?? []) as IntegrationVisning[];
@@ -124,6 +128,13 @@ export default async function IntegrationerSide() {
         }),
         harWebshopPoint: Boolean(webshopPoint),
         commerceKlar: commerceKrypteringKlar(),
+        plugin: {
+          navn: WOOCOMMERCE_PLUGIN.navn,
+          version: WOOCOMMERCE_PLUGIN.version,
+          downloadUrl: WOOCOMMERCE_PLUGIN_DOWNLOAD_URL,
+          // Kun et ja/nej til visningen — ruten afgør selv adgangen igen.
+          kanHente: kanHentePlugin,
+        },
       }}
     />
   );

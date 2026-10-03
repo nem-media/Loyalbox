@@ -94,7 +94,9 @@ export function ButtonLink({
 }: CommonProps &
   React.AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) {
   const classes = cn(base, variants[variant], sizes[size], className);
-  const isExternal = /^https?:\/\//.test(href);
+  // En fil (`download`) hentes med et almindeligt link: `next/link` ville
+  // forsøge at forhåndshente og klientnavigere til en rute, der ikke er en side.
+  const isExternal = /^https?:\/\//.test(href) || props.download !== undefined;
   if (isExternal) {
     return <a href={href} className={classes} {...props} />;
   }

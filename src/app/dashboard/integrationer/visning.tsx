@@ -2,6 +2,7 @@ import { PageHeader, Sektion } from "@/components/dashboard-shell";
 import { Card, CardBody } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Besked } from "@/components/ui/besked";
+import { ButtonLink } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/utils";
 import { earnValueLabel, type PointEarnModel } from "@/lib/loyalty/point";
 import { Afbryd, Beloenningskanal, Parring, Programkanal } from "./formularer";
@@ -62,6 +63,52 @@ export interface IntegrationerData {
   harWebshopPoint: boolean;
   /** Er krypteringsnøglen sat op på serveren? Uden den kan intet parres. */
   commerceKlar: boolean;
+  /**
+   * WooCommerce-pluginet til download. `kanHente` er `kanHenteWooCommercePlugin()`
+   * regnet ud på serveren — kun til visningen; downloadruten afgør selv adgangen.
+   */
+  plugin: { navn: string; version: string; downloadUrl: string; kanHente: boolean };
+}
+
+/**
+ * Pluginet: hent det, og sådan installeres det. Kun et link til downloadruten —
+ * filen selv har ingen offentlig adresse.
+ */
+function PluginDownload({ plugin, forbundet }: { plugin: IntegrationerData["plugin"]; forbundet: boolean }) {
+  if (!plugin.kanHente) {
+    return (
+      <Besked slags="info">
+        Pluginet kan hentes, når abonnementet er aktivt. WooCommerce-integrationen er
+        inkluderet i LoyalSum Komplet og LoyalSum Komplet Online.
+      </Besked>
+    );
+  }
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <ButtonLink
+          href={plugin.downloadUrl}
+          download
+          variant={forbundet ? "outline" : "primary"}
+          size="sm"
+        >
+          Download WooCommerce-plugin
+        </ButtonLink>
+        <span className="text-sm text-muted">
+          {plugin.navn} · Version {plugin.version}
+        </span>
+      </div>
+      {forbundet ? null : (
+        <ol className="list-decimal space-y-1 pl-5 text-sm leading-relaxed text-muted">
+          <li>Download pluginet.</li>
+          <li>I WordPress: Plugins → Tilføj plugin → Upload plugin, og vælg filen.</li>
+          <li>Aktivér LoyalSum for WooCommerce.</li>
+          <li>Hent en parringskode herunder.</li>
+          <li>Indsæt koden i WordPress under WooCommerce → LoyalSum.</li>
+        </ol>
+      )}
+    </div>
+  );
 }
 
 export function IntegrationerVisning({ d }: { d: IntegrationerData }) {
@@ -115,12 +162,21 @@ export function IntegrationerVisning({ d }: { d: IntegrationerData }) {
                 </dl>
               ) : (
                 <p className="max-w-prose text-sm leading-relaxed text-muted">
-                  Installér LoyalSum-pluginet i WordPress, hent en parringskode
-                  her, og skriv den i pluginet. Koden gælder et kvarter og kan
-                  bruges én gang.
+                  Forbind din WooCommerce-webshop med LoyalSum, og lad kunderne
+                  optjene og bruge deres LoyalSum-fordele direkte i webshoppen.
                   {tidligere?.disconnected_at
                     ? ` Forbindelsen blev afbrudt ${formatDateTime(tidligere.disconnected_at)}; kundernes point og historik er bevaret.`
                     : ""}
+                </p>
+              )}
+
+              <PluginDownload plugin={d.plugin} forbundet={Boolean(woo)} />
+
+              {woo ? null : (
+                <p className="max-w-prose text-sm leading-relaxed text-muted">
+                  <span className="font-medium text-dark">Har du allerede installeret pluginet?</span>{" "}
+                  Hent en parringskode, og skriv den i pluginet. Koden gælder et
+                  kvarter og kan bruges én gang.
                 </p>
               )}
 

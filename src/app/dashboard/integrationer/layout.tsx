@@ -38,7 +38,8 @@ export default async function IntegrationerLayout({
 
         <div className="box-shape max-w-2xl border border-border bg-card p-6">
           <h2 className="text-lg font-bold tracking-tight">
-            Webshopintegration er ikke med i dit abonnement
+            WooCommerce-integrationen er inkluderet i LoyalSum Komplet og
+            LoyalSum Komplet Online
           </h2>
           <p className="mt-2 leading-relaxed text-muted">
             Med LoyalSum Komplet kan dine kunder optjene point og stempler, når

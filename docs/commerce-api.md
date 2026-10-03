@@ -92,3 +92,22 @@ der faktisk er ændret på platformen, gør. Fristen står i `FRISTER` og vises 
   det er uden betydning for optjening, som kun læser `payment_status`.
 - **Kun point kan bruges i webshoppen** (fast beløb eller procent af kurven).
   Stempelkortets belønninger og gratis vare er ikke med i V1.
+
+## WooCommerce-pluginet til download
+
+Pluginet er inkluderet i LoyalSum Komplet og LoyalSum Komplet Online og hentes
+under **Integrationer → WooCommerce** i dashboardet.
+
+- **Adgang:** `kanHenteWooCommercePlugin()` = `commerceIPlan()` — samme regel
+  som parringen (aktivt abonnement på et produkt med `includesLoyalSum`), og
+  kun ejeren. Afgøres i ruten `GET /api/integrationer/woocommerce/download`
+  hver gang: 401 uden login, 403 `owner_only` / `woocommerce_plugin_not_in_plan`.
+  Virksomheden kommer fra sessionen, aldrig fra URL'en.
+- **Filen** ligger i den PRIVATE spand `loyalsum-releases` (migration 0050,
+  ingen policies — kun service-role læser). Ruten henter den selv og sender
+  bytene; der udleveres ingen URL. Den udleveres kun, hvis dens sha256 er
+  den i `src/lib/woocommerce-plugin/release.ts` — ellers 503.
+- **Ny version:** hent ZIP'en fra GitHub-releasen `woocommerce-vX.Y.Z`
+  (nem-media/loyalsum-integrations), tjek sha256 mod releasens `.sha256`,
+  upload den til `loyalsum-releases` på `woocommerce/<version>/<filnavn>`,
+  ret version, filnavn og sha256 i `release.ts`, og deploy — i den rækkefølge.
