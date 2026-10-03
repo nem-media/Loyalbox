@@ -531,6 +531,19 @@ TRE SKÆR, OG TEALEN FØRER NU AN.
               deler du selv via din hjemmeside, din webshop, dine mails eller
               en QR-kode.
             </p>
+            {/* DISKRET MED VILJE: WooCommerce er en integration, ikke forsidens
+                historie. Én linje under pakkerne, hvor den hører til. */}
+            <p className="mx-auto mt-2 max-w-xl text-center text-sm leading-relaxed text-muted">
+              Bruger du WooCommerce, kan LoyalSum Komplet og Komplet Online også
+              forbindes med webshoppen —{" "}
+              <Link
+                href="/woocommerce-loyalitetsprogram"
+                className="font-medium text-accent"
+              >
+                se loyalitetsprogrammet til WooCommerce
+              </Link>
+              .
+            </p>
           </div>
         </section>
 

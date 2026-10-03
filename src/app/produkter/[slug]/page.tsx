@@ -326,6 +326,16 @@ export default async function ProductPage({
                   dine bedste anmeldelser og statistik i realtid — sat op og klar
                   til disken.
                 </p>
+                <p className="mt-2 text-sm text-muted">
+                  Har du en WooCommerce-webshop, er integrationen inkluderet.{" "}
+                  <Link
+                    href="/woocommerce-loyalitetsprogram"
+                    className="font-medium text-accent"
+                  >
+                    Se, hvordan den virker
+                  </Link>
+                  .
+                </p>
               </div>
             ) : (
               <div className="mt-4 box-shape border border-border bg-card p-5">

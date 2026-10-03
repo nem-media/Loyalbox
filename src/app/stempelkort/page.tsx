@@ -297,7 +297,7 @@ const FAQ = [
      * derfor implicit, at man skulle have en.
      */
     q: "Kræver et digitalt stempelkort en fysisk stander?",
-    a: "Nej. Stempelkortet er en webside, og kunden kan komme ind ad enhver vej: en QR-kode på standeren, et link på din hjemmeside eller i din webshop, en mail eller et opslag. Med LoyalSum Komplet får du standeren med; med LoyalSum Komplet Online får du den samme platform uden — og deler selv dit link.",
+    a: "Nej. Stempelkortet er en webside, og kunden kan komme ind ad enhver vej: en QR-kode på standeren, et link på din hjemmeside eller i din webshop, en mail eller et opslag. Med LoyalSum Komplet får du standeren med; med LoyalSum Komplet Online får du den samme platform uden — og deler selv dit link. Bruger du WooCommerce, kan webshoppen også forbindes med LoyalSum, så hver betalt ordre giver ét stempel.",
   },
   {
     q: "Hvordan får kunden sit stempelkort?",
@@ -1108,6 +1108,18 @@ export default function StempelkortPage() {
                     Sammenlign alle priser
                   </ButtonLink>
                 </div>
+                {/* Én linje, ikke en sektion: WooCommerce er ikke stempelkortets
+                    historie, men en webshop kan give stempler for ordrer. */}
+                <p className="mt-4 text-sm text-muted">
+                  Driver du også webshop?{" "}
+                  <Link
+                    href="/woocommerce-loyalitetsprogram"
+                    className="font-medium text-accent hover:underline"
+                  >
+                    Se, hvordan LoyalSum fungerer med WooCommerce
+                  </Link>
+                  .
+                </p>
               </div>
             </div>
           </section>

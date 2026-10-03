@@ -655,6 +655,7 @@ export const PRODUCTS: Product[] = [
       "Scan-til-stempel over disken",
       "Opslag af dine bedste anmeldelser",
       "Kundeklub & belønninger",
+      "Integration med WooCommerce-webshop",
     ],
     shoppable: false,
     stripe: {
@@ -704,7 +705,7 @@ export const PRODUCTS: Product[] = [
      */
     slug: "loyalsum-komplet-online",
     metaDescription:
-      "Hele LoyalSum-platformen uden fysisk stander. Del dit loyalitetsprogram via hjemmeside, webshop, e-mail, QR-kode eller et direkte link.",
+      "Hele LoyalSum uden fysisk stander — med WooCommerce-plugin inkluderet. Del dit loyalitetsprogram via hjemmeside, webshop, e-mail eller QR-kode.",
     platform: "multi",
     name: "LoyalSum Komplet Online",
     keyword: "loyalitetsprogram til webshop",
@@ -718,7 +719,7 @@ export const PRODUCTS: Product[] = [
     kunDigital: true,
     tagline: "Hele platformen — uden fysisk stander",
     description:
-      "Hele LoyalSum-platformen uden en fysisk stander. Du får dit eget LoyalSum-link og en QR-kode, som du selv deler — på din hjemmeside, i din webshop, i mails eller hvor du ellers møder dine kunder. Softwaren er den samme som i LoyalSum Komplet: digitalt stempelkort, pointprogram, feedback, kundescore og opslag af dine bedste anmeldelser.",
+      "Hele LoyalSum-platformen uden en fysisk stander. Du får dit eget LoyalSum-link og en QR-kode, som du selv deler — på din hjemmeside, i din webshop, i mails eller hvor du ellers møder dine kunder. Softwaren er den samme som i LoyalSum Komplet: digitalt stempelkort, pointprogram, feedback, kundescore og opslag af dine bedste anmeldelser. Har du en WooCommerce-webshop, er pluginet inkluderet, så kunderne optjener og bruger deres point direkte i webshoppen.",
     /*
      * IKKE STANDER-MOCKUPPEN. `image` går i JSON-LD (og i Google Shopping-
      * feedet, hvis det bygges), og det lånte billede tegner en stander — altså
@@ -735,6 +736,7 @@ export const PRODUCTS: Product[] = [
     indeholder: "loyalsum-komplet",
     features: [
       "Dit eget LoyalSum-link og QR-kode",
+      "WooCommerce-plugin inkluderet — point og belønninger i webshoppen",
       "Digitalt stempelkort og pointprogram",
       "Feedback, kundescore og opslag",
       "Uden fysisk stander",
@@ -1025,6 +1027,7 @@ export const KORT_PUNKTER: Record<string, string[]> = {
     "Scan-til-stempel over disken",
     "Opslag af dine anmeldelser — klar til at dele",
     "Statistik og omdømme i realtid",
+    "Integration med WooCommerce",
   ],
   /*
    * ONLINE SIGER DET SAMME OM SOFTWAREN — og ét punkt om forskellen.
@@ -1035,6 +1038,7 @@ export const KORT_PUNKTER: Record<string, string[]> = {
    */
   "loyalsum-komplet-online": [
     "Alle funktioner fra LoyalSum Komplet",
+    "WooCommerce-plugin inkluderet",
     "Dit eget LoyalSum-link og QR-kode",
     "Digitalt stempelkort og pointprogram",
     "Feedback, statistik og omdømme i realtid",
@@ -1103,8 +1107,8 @@ export const KOMPLET_FUNKTIONER = [
   },
   {
     rute: "integrationer",
-    label: "Webshopintegration",
-    help: "Forbind din webshop, så kunderne optjener point og stempler, når de handler online.",
+    label: "Integration med WooCommerce",
+    help: "Forbind din WooCommerce-webshop, så kunderne optjener point og stempler på deres ordrer og kan bruge point i kurven.",
   },
 ] as const;
 

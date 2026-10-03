@@ -50,6 +50,14 @@ export const PLATFORM_VALG: {
    * findes, sammenligner ikke noget.
    */
   stander: string;
+  /**
+   * Kan webshoppen forbindes med LoyalSum (pluginet LoyalSum for WooCommerce)?
+   *
+   * SAMME VÆGT SOM DE ANDRE KOLONNER. Integrationen følger loyaliteten —
+   * `kanHenteWooCommercePlugin()` = `commerceIPlan()` — så svaret er det
+   * samme som i `loyalitet`: nej uden stempelkort og point, inkluderet med.
+   */
+  woocommerce: string;
 }[] = [
   {
     slug: "reviewstander",
@@ -61,6 +69,7 @@ export const PLATFORM_VALG: {
     skifte: "Nej — sættes ved bestillingen",
     loyalitet: "Nej",
     stander: "Ja",
+    woocommerce: "Nej",
   },
   {
     slug: "reviewstander-pro",
@@ -72,6 +81,7 @@ export const PLATFORM_VALG: {
     skifte: "Ja — når som helst",
     loyalitet: "Nej",
     stander: "Ja",
+    woocommerce: "Nej",
   },
   {
     slug: "loyalsum-komplet",
@@ -83,6 +93,7 @@ export const PLATFORM_VALG: {
     skifte: "Ja — når som helst",
     loyalitet: "Stempelkort og pointprogram",
     stander: "Ja",
+    woocommerce: "Inkluderet",
   },
   {
     /*
@@ -98,10 +109,11 @@ export const PLATFORM_VALG: {
     maerke: "Alt i Komplet — uden skilt",
     platformCelle: "Google, Trustpilot og Facebook — plus eget link",
     kundenSer: "Vælger — og kan samle stempler eller point",
-    note: "Præcis de samme funktioner som LoyalSum Komplet, men uden noget at stille på disken. Du får dit eget LoyalSum-link og en QR-kode, som du selv deler — på din hjemmeside, i din webshop eller i dine mails.",
+    note: "Præcis de samme funktioner som LoyalSum Komplet, men uden noget at stille på disken. Du får dit eget LoyalSum-link og en QR-kode, som du selv deler — på din hjemmeside, i din webshop eller i dine mails. Bruger du WooCommerce, er integrationen med.",
     skifte: "Ja — når som helst",
     loyalitet: "Stempelkort og pointprogram",
     stander: "Nej — du deler selv linket",
+    woocommerce: "Inkluderet",
   },
 ];
 

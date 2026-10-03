@@ -641,7 +641,8 @@ export default function ReviewstanderPage() {
                   Sammenligning af Reviewstander, Reviewstander Pro, LoyalSum
                   Komplet og LoyalSum Komplet Online: platforme, om
                   destinationen kan skiftes bagefter, loyalitet (stempelkort og
-                  pointprogram), fysisk skilt og pris.
+                  pointprogram), fysisk skilt, integration med WooCommerce og
+                  pris.
                 </caption>
                 <thead>
                   <tr className="border-b border-border bg-background text-left">
@@ -666,6 +667,9 @@ export default function ReviewstanderPage() {
                     </th>
                     <th scope="col" className="etiket px-4 py-3">
                       Fysisk skilt
+                    </th>
+                    <th scope="col" className="etiket px-4 py-3">
+                      WooCommerce
                     </th>
                     <th scope="col" className="etiket px-4 py-3">
                       Pris
@@ -698,6 +702,9 @@ export default function ReviewstanderPage() {
                         </td>
                         <td className="px-4 py-3 align-top text-muted">
                           {v.stander}
+                        </td>
+                        <td className="px-4 py-3 align-top text-muted">
+                          {v.woocommerce}
                         </td>
                         <td className="px-4 py-3 align-top whitespace-nowrap">
                           {prisTekst(v.slug)}

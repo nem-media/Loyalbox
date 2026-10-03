@@ -219,6 +219,10 @@ const FAQ = [
     a: "På én af tre måder, som du vælger: point efter beløb (fx 10 kr. = 1 point), et fast antal point pr. køb, eller manuel tildeling, hvor personalet selv skriver antallet. Ved point efter beløb rundes der altid ned, så 249 kr. ved 10 kr./point giver 24 point.",
   },
   {
+    q: "Kan kunder optjene point fra WooCommerce-køb?",
+    a: "Ja, hvis din webshop kører på WooCommerce og er forbundet med LoyalSum. Betalte ordrer giver point efter programmets regel, regnet af varerne inkl. moms efter rabat — fragt og gebyrer tæller ikke, og refunderede varer trækkes fra. Integrationen er inkluderet i LoyalSum Komplet og LoyalSum Komplet Online.",
+  },
+  {
     q: "Skal mine kunder hente en app?",
     a: "Nej. Kundens pointkort er en almindelig webside, hun får ved at scanne QR-koden på din stander. Der er ingen app og ingen konto, hun skal oprette først. Vil hun samle sine kort fra flere butikker ét sted, kan hun oprette en gratis LoyalSum-konto.",
   },
@@ -570,6 +574,31 @@ export default function LoyalitetsprogramPage() {
               className="trykmaal mt-4 inline-block font-medium text-accent hover:underline"
             >
               Se LoyalSum Komplet Online →
+            </Link>
+          </div>
+        </section>
+
+        {/* ------------------------------------- pointprogram til WooCommerce */}
+        {/* SEKUNDÆR SEKTION. Siden handler om pointprogrammet; WooCommerce er
+            én kanal ind til det. Detaljerne står på /woocommerce-loyalitetsprogram. */}
+        <section className="border-t border-border px-4 py-16 sm:py-20">
+          <div className="mx-auto max-w-3xl">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Pointprogram til WooCommerce
+            </h2>
+            <p className="mt-4 leading-relaxed text-muted">
+              Har du en webshop på WooCommerce, kan den forbindes med LoyalSum.
+              Så giver betalte webshopordrer point efter programmets egen regel
+              — de samme som i butikken — og kunder, der har bekræftet deres
+              e-mail, kan bruge en af dine pointbelønninger som rabat i kurven.
+              Integrationen er inkluderet i LoyalSum Komplet og LoyalSum
+              Komplet Online.
+            </p>
+            <Link
+              href="/woocommerce-loyalitetsprogram"
+              className="trykmaal mt-4 inline-block font-medium text-accent hover:underline"
+            >
+              Sådan virker pointprogrammet i WooCommerce →
             </Link>
           </div>
         </section>

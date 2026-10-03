@@ -394,17 +394,18 @@ describe("teksterne lover kun det, der findes", () => {
     "src/app/loyalitetsprogram/page.tsx",
     "src/app/stempelkort/page.tsx",
     "src/app/page.tsx",
+    "src/app/woocommerce-loyalitetsprogram/page.tsx",
     "src/lib/constants.ts",
   ];
 
   /*
-   * DER FINDES INGEN WEBSHOP-INTEGRATION. Ikke Shopify, ikke WooCommerce,
-   * ingen ordreimport og ingen automatisk pointtildeling. Produktet er DIGITAL
-   * ADGANG: et link og en QR-kode, butikken selv deler. En sætning om
-   * "integration" ville sælge noget, der ikke er bygget — og det er den slags,
-   * en kunde opdager efter købet.
+   * DER FINDES ÉN WEBSHOP-INTEGRATION: WOOCOMMERCE. Pluginet LoyalSum for
+   * WooCommerce (1.0.0) er inkluderet i Komplet og Komplet Online. Shopify,
+   * Magento og PrestaShop er IKKE integreret — dér er produktet stadig et link
+   * og en QR-kode, butikken selv deler. En sætning om "integration" med dem
+   * ville sælge noget, der ikke er bygget.
    */
-  it("ingen side påstår en integration med et webshopsystem", () => {
+  it("ingen side påstår en integration med andre webshopsystemer end WooCommerce", () => {
     for (const sti of SIDER) {
       const tekst = kilde(sti).toLowerCase();
 
@@ -416,12 +417,12 @@ describe("teksterne lover kun det, der findes", () => {
        * have godkendt "Integrér med Shopify" nederst, fordi der stod "ingen
        * integration" øverst.
        */
-      for (const ord of ["shopify", "woocommerce", "magento", "prestashop"]) {
+      for (const ord of ["shopify", "magento", "prestashop"]) {
         let fra = tekst.indexOf(ord);
         while (fra !== -1) {
           const foran = tekst.slice(Math.max(0, fra - 200), fra);
           expect(
-            /ingen integration|ikke integreret|uden integration/.test(foran),
+            /ingen integration|ikke integreret|uden integration|ikke det rette valg/.test(foran),
             `${sti} nævner ${ord} uden at sige, at vi ikke integrerer`,
           ).toBe(true);
           fra = tekst.indexOf(ord, fra + 1);
@@ -432,6 +433,22 @@ describe("teksterne lover kun det, der findes", () => {
         /integrer(et|es|ing|)? (direkte )?med (din |en )?webshop/.test(tekst),
         `${sti} påstår en webshop-integration`,
       ).toBe(false);
+    }
+  });
+
+  /*
+   * WOOCOMMERCE NÆVNES KUN SOM EN DEL AF KOMPLET OG KOMPLET ONLINE. En side,
+   * der nævner integrationen, skal også sige, hvilke pakker den følger med —
+   * ellers kan en Reviewstander-køber tro, at den er med.
+   */
+  it("en side, der nævner WooCommerce, siger, at det er Komplet/Komplet Online", () => {
+    for (const sti of SIDER) {
+      const tekst = kilde(sti);
+      if (!/woocommerce/i.test(tekst)) continue;
+      expect(
+        /Komplet Online|loyalsum-komplet-online|LoyalSum Komplet/.test(tekst),
+        `${sti} nævner WooCommerce uden pakkerne`,
+      ).toBe(true);
     }
   });
 

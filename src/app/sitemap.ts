@@ -81,6 +81,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
     },
     {
+      // Landingssiden for WooCommerce. Den svarer på "WooCommerce
+      // loyalitetsprogram" og WooCommerce-specifikke søgninger; den generelle
+      // "loyalitetsprogram til webshop" ejes fortsat af /loyalsum-komplet-online.
+      url: `${base}/woocommerce-loyalitetsprogram`,
+      changeFrequency: "monthly",
+      priority: 0.8,
+      lastModified,
+    },
+    {
       url: `${base}/bestil`,
       changeFrequency: "monthly",
       priority: 0.5,

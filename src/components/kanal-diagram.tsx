@@ -32,8 +32,8 @@ import {
  *
  * TEKSTEN ER SIDENS EGEN. Kanalnavnene og forklaringerne kommer fra `VEJE`
  * på siden og er ikke skrevet om — de er efterprøvet mod, hvad produktet
- * faktisk kan, og noten om, at der IKKE er en webshop-integration, står
- * stadig under diagrammet.
+ * faktisk kan. Noten under diagrammet skelner mellem WooCommerce, der kan
+ * forbindes direkte, og andre webshopsystemer, hvor man deler linket.
  */
 
 const IKONER: Record<

@@ -30,6 +30,7 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
       { href: "/stempelkort", label: "Digitalt stempelkort" },
       { href: "/loyalitetsprogram", label: "Loyalitetsprogram" },
       { href: "/loyalsum-komplet-online", label: "LoyalSum uden stander" },
+      { href: "/woocommerce-loyalitetsprogram", label: "LoyalSum til WooCommerce" },
       { href: "/reviewstander", label: "Reviewstander" },
       { href: "/#saadan", label: "Sådan virker det" },
     ],

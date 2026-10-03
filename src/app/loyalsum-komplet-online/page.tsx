@@ -21,6 +21,8 @@ import {
   PointDuo,
   KundeDuo,
   OpslagDuo,
+  WebshopDuo,
+  BeloenningDuo,
 } from "@/components/duotone-ikoner";
 import { IkonChip } from "@/components/ui/ikon-chip";
 import { ProduktStribe } from "@/components/produkt-stribe";
@@ -36,11 +38,14 @@ import { KanalDiagram } from "@/components/kanal-diagram";
  * feedback og kundescore, opslagene (`/dashboard/opslag`), det dynamiske link
  * og QR-koden (`/dashboard/standere/[id]`, `/r/<slug>`).
  *
- * SKRIV IKKE, AT LOYALSUM ER INTEGRERET MED EN WEBSHOP. Der findes ingen
- * Shopify- eller WooCommerce-integration, ingen ordreimport og ingen
- * automatisk pointtildeling fra et webshopkøb. Produktet er DIGITAL ADGANG:
- * kunden får et link og en QR-kode, som butikken selv deler. Formuleringen er
- * derfor altid "sammen med din webshop" og aldrig "integreret med".
+ * WOOCOMMERCE ER EN CENTRAL FUNKTION HER — og kun WooCommerce. Pluginet
+ * LoyalSum for WooCommerce er inkluderet (`kanHenteWooCommercePlugin` =
+ * `commerceIPlan`): betalte ordrer giver point efter programmets regel og ét
+ * stempel pr. ordre, og en bekræftet kunde kan bruge en pointbelønning i
+ * kurven. Se /woocommerce-loyalitetsprogram for de præcise regler. Der er
+ * INGEN integration med Shopify eller andre systemer — dér er produktet
+ * stadig et link og en QR-kode, butikken selv deler. Komplet Online må ikke
+ * reduceres til "vores WooCommerce-plugin": det er hele LoyalSum uden stander.
  *
  * OG SKRIV IKKE, AT VI PUBLICERER PÅ SOCIALE MEDIER. Opslagsværktøjet laver
  * billedet og teksten; butikken henter det og deler det selv.
@@ -48,7 +53,7 @@ import { KanalDiagram } from "@/components/kanal-diagram";
 
 const title = "LoyalSum Komplet Online — loyalitetsprogram uden stander";
 const description =
-  "Brug hele LoyalSum-platformen uden fysisk stander. Del dit loyalitetsprogram via hjemmeside, webshop, e-mail, QR-kode eller et direkte link.";
+  "Hele LoyalSum uden fysisk stander — med WooCommerce-plugin inkluderet. Del dit loyalitetsprogram via hjemmeside, webshop, e-mail eller QR-kode.";
 
 export const metadata: Metadata = {
   title,
@@ -93,6 +98,11 @@ const TRIN = [
     title: "Kunden åbner LoyalSum",
     body: "Kunden lander på din LoyalSum-side, kan give feedback, tilmelde sig dit stempelkort eller pointprogram og se sine belønninger. Uden app og uden at oprette noget.",
   },
+  {
+    Icon: WebshopDuo,
+    title: "Har du WooCommerce: forbind webshoppen",
+    body: "Hent pluginet i dashboardet, og forbind det med en parringskode. Så optjener kunderne point og stempler på deres betalte ordrer og kan bruge point i kurven.",
+  },
 ];
 
 /** Adgangsvejene — alle sammen det SAMME link. */
@@ -136,6 +146,30 @@ const FUNKTIONER = [
     title: "Kunder og medarbejdere",
     body: "Se dine kunder og deres aktivitet, og giv dine ansatte adgang til at stemple og indløse — uden at dele din egen kode.",
   },
+  {
+    Icon: WebshopDuo,
+    title: "Integration med WooCommerce",
+    body: "Pluginet er inkluderet: kunderne optjener på deres webshopordrer og bruger deres point som rabat i kurven.",
+  },
+];
+
+/** WooCommerce-afsnittet — de tre ting, integrationen gør. */
+const WOO = [
+  {
+    Icon: WebshopDuo,
+    title: "Forbind på få minutter",
+    body: "Hent pluginet i dashboardet, upload det i WordPress og forbind med en parringskode. Ingen udvikler, ingen kode.",
+  },
+  {
+    Icon: PointDuo,
+    title: "Point og stempler på ordrerne",
+    body: "Betalte ordrer giver point efter dit programs regel og ét stempel pr. ordre. Fragt og gebyrer tæller ikke, og refusioner trækkes fra.",
+  },
+  {
+    Icon: BeloenningDuo,
+    title: "Belønninger direkte i kurven",
+    body: "Kunder, der har bekræftet deres e-mail, kan vælge en af dine pointbelønninger i kurven og få rabatten på ordren.",
+  },
 ];
 
 const FAQ = [
@@ -148,12 +182,20 @@ const FAQ = [
     a: "Gennem dit LoyalSum-link eller din QR-kode. Du finder begge dele i dashboardet og deler dem, hvor du møder dine kunder — på hjemmesiden, i webshoppen, i mails eller på tryk. Kunden skal hverken hente en app eller oprette en konto først.",
   },
   {
-    q: "Er LoyalSum integreret med min webshop?",
-    a: "Nej. LoyalSum bruges sammen med din webshop, ikke inde i den: du lægger dit link eller din QR-kode dér, hvor kunderne ser det — for eksempel på kundesiden eller i ordrebekræftelsen. Der er ingen integration med Shopify, WooCommerce eller andre systemer, og ordrer overføres ikke automatisk.",
+    q: "Kan LoyalSum bruges med WooCommerce?",
+    a: "Ja. Med pluginet LoyalSum for WooCommerce optjener dine kunder point og stempler på deres betalte webshopordrer efter dine programmers regler, og kunder, der har bekræftet deres e-mail, kan bruge en pointbelønning som rabat i kurven. WooCommerce er det eneste webshopsystem, LoyalSum kan forbindes med i dag — bruger du et andet, deler du dit LoyalSum-link og din QR-kode i webshoppen i stedet.",
   },
   {
-    q: "Optjener mine kunder så point automatisk, når de handler i webshoppen?",
-    a: "Nej. Point og stempler gives af dig eller dine medarbejdere — ved disken eller fra dashboardet. Et køb i en webshop registreres ikke automatisk i LoyalSum.",
+    q: "Er WooCommerce-pluginet inkluderet?",
+    a: "Ja. Pluginet er inkluderet i LoyalSum Komplet Online og LoyalSum Komplet uden ekstra betaling. Du henter det i dit dashboard under Integrationer — det kan ikke hentes offentligt.",
+  },
+  {
+    q: "Hvordan forbindes WooCommerce med LoyalSum?",
+    a: "Du henter pluginet under Integrationer i dashboardet, uploader det i WordPress under Plugins og aktiverer det. Derefter henter du en parringskode i LoyalSum og indsætter den i WordPress under WooCommerce → LoyalSum. Til sidst vælger du, hvilke programmer og belønninger der skal gælde i webshoppen.",
+  },
+  {
+    q: "Kræver Komplet Online en fysisk stander?",
+    a: "Nej. Det er hele forskellen på Komplet og Komplet Online: der følger ingen stander med, og der er heller ingen engangspris for hardware. Kunderne finder vej via din webshop, dit link eller din QR-kode.",
   },
   {
     q: "Kan jeg få en fysisk stander senere?",
@@ -165,7 +207,7 @@ const FAQ = [
   },
   {
     q: "Hvem passer Komplet Online til?",
-    a: "Virksomheder, der møder deres kunder digitalt eller ikke har en disk at stille en stander på: webshops, onlineforretninger, bookingsider, portaler, klinikker med onlinetid og alle, der hellere vil dele et link end sætte et skilt op.",
+    a: "Virksomheder, der møder deres kunder digitalt eller ikke har en disk at stille en stander på: webshops — særligt på WooCommerce, hvor integrationen er med — onlineforretninger, bookingsider, portaler, klinikker med onlinetid og alle, der hellere vil dele et link end sætte et skilt op.",
   },
   {
     q: "Hvad koster det?",
@@ -242,6 +284,11 @@ export default function KompletOnlinePage() {
                 QR-kode eller et direkte link. Du får præcis den samme
                 platform som i LoyalSum Komplet — stempelkort, pointprogram,
                 feedback, kundescore og opslag — bare uden skiltet til disken.
+              </p>
+              <p className="mt-3 max-w-xl leading-relaxed text-white/80">
+                Har du en WooCommerce-webshop, er pluginet med: kunderne
+                optjener på deres ordrer og bruger deres point direkte i
+                kurven.
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <ButtonLink
@@ -354,6 +401,48 @@ export default function KompletOnlinePage() {
           </div>
         </section>
 
+        {/* ------------------------------------------------ WooCommerce */}
+        {/* CENTRAL FOR DENNE VARE: for en WooCommerce-webshop er integrationen
+            en hovedgrund til at vælge Komplet Online. Den står derfor tidligt
+            — men efter "hvad er produktet", så siden stadig sælger hele
+            LoyalSum og ikke kun et plugin. */}
+        <section className="sektion-skaer border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
+          <div className="mx-auto max-w-5xl">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Bruger du WooCommerce? Så er loyaliteten med i webshoppen
+            </h2>
+            <p className="mt-3 max-w-2xl leading-relaxed text-muted">
+              Komplet Online indeholder pluginet LoyalSum for WooCommerce. Det
+              forbinder din webshop med LoyalSum, så dine kunder optjener og
+              bruger deres fordele dér, hvor de handler — uden at du skal dele
+              et link først.
+            </p>
+            <div className="mt-8 grid gap-6 sm:grid-cols-3">
+              {WOO.map((w) => (
+                <div
+                  key={w.title}
+                  className="box-shape border border-border bg-card p-5 shadow-[var(--hoejde-1)]"
+                >
+                  <IkonChip icon={w.Icon} size="lg" />
+                  <p className="mt-3 font-medium">{w.title}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-muted">
+                    {w.body}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-6 text-sm text-muted">
+              Pluginet hentes i dit dashboard og er inkluderet i abonnementet.{" "}
+              <Link
+                href="/woocommerce-loyalitetsprogram"
+                className="font-medium text-accent hover:underline"
+              >
+                Se, hvordan loyalitetsprogrammet fungerer i WooCommerce →
+              </Link>
+            </p>
+          </div>
+        </section>
+
         {/* ----------------------------------------------- sådan fungerer det */}
         <section className="sektion-skaer border-t border-border bg-muted-bg px-4 py-16 sm:py-20">
           <div className="mx-auto max-w-5xl">
@@ -404,10 +493,16 @@ export default function KompletOnlinePage() {
               <KanalDiagram kanaler={VEJE} link="loyalsum.dk/r/din-butik" />
             </div>
             <p className="mt-6 max-w-2xl text-sm text-muted">
-              LoyalSum bruges <strong>sammen med</strong> din webshop — der er
-              ingen integration med Shopify, WooCommerce eller andre systemer,
-              og ordrer overføres ikke automatisk. Point og stempler gives af
-              dig eller dine medarbejdere.
+              Bruger du WooCommerce, kan webshoppen desuden{" "}
+              <Link
+                href="/woocommerce-loyalitetsprogram"
+                className="font-medium text-accent hover:underline"
+              >
+                forbindes direkte med LoyalSum
+              </Link>
+              . Med andre webshopsystemer deler du linket — dér er der ingen
+              integration, og point og stempler gives af dig eller dine
+              medarbejdere.
             </p>
           </div>
         </section>
@@ -452,6 +547,7 @@ export default function KompletOnlinePage() {
                   <li>✓ Alle funktioner i platformen</li>
                   <li>✓ Fysisk stander med QR og NFC</li>
                   <li>✓ Dit eget link og din QR-kode</li>
+                  <li>✓ Integration med WooCommerce</li>
                   <li>✓ Til disken, bordet eller receptionen</li>
                 </ul>
                 <Link
@@ -469,6 +565,7 @@ export default function KompletOnlinePage() {
                 <ul className="mt-4 space-y-2 text-sm">
                   <li>✓ Alle funktioner i platformen</li>
                   <li>✓ Dit eget link og din QR-kode</li>
+                  <li>✓ Integration med WooCommerce</li>
                   <li>✓ Til hjemmeside, webshop, mails og opslag</li>
                   <li className="text-muted">– Ingen fysisk stander</li>
                 </ul>
