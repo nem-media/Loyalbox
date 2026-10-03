@@ -168,3 +168,50 @@ describe("ingen offentlig vej til pluginfilen", () => {
     }
   });
 });
+
+describe("billederne af WooCommerce-integrationen", () => {
+  const FILER = [
+    "loyalsum-woocommerce-dashboard.png",
+    "loyalsum-woocommerce-beloenning-kurv.png",
+    "loyalsum-woocommerce-integration.png",
+  ];
+  const side = kode(SEO);
+
+  it("ligger i public med navne, der kan stå i en URL", () => {
+    for (const fil of FILER) {
+      expect(statSync(join(process.cwd(), "public", fil)).size, fil).toBeGreaterThan(10_000);
+      expect(fil).toMatch(/^[a-z0-9-]+\.png$/);
+    }
+  });
+
+  it("SEO-siden bruger alle tre — med alt-tekst, mål og billedtekst", () => {
+    for (const fil of FILER) expect(side, fil).toContain(`/${fil}`);
+    const billeder = udenKommentarer(side).match(/<Image[\s\S]*?\/>/g) ?? [];
+    expect(billeder).toHaveLength(3);
+    for (const b of billeder) {
+      expect(b).toMatch(/alt=\{WOO_BILLEDER\.\w+\.alt\}/);
+      expect(b).toMatch(/width=\{BREDDE\}/);
+      expect(b).toMatch(/height=\{HOEJDE\}/);
+      expect(b).toMatch(/sizes="/);
+    }
+    expect(billeder.filter((b) => /\bpriority\b/.test(b))).toHaveLength(1);
+    expect(tael(udenKommentarer(side), /<figcaption[^>]*>\s*Illustration/g)).toBe(3);
+  });
+
+  it("alt-teksterne beskriver og lover ikke mere end produktet", () => {
+    const alts = [...side.matchAll(/alt: "([^"]+)"/g)].map((m) => m[1]);
+    expect(alts).toHaveLength(3);
+    for (const a of alts) {
+      expect(a.length).toBeGreaterThan(30);
+      expect(a).toMatch(/^Illustration/);
+      expect(a).not.toMatch(/automatisk|download|gratis/i);
+    }
+  });
+
+  it("Komplet Online viser integrationen; de diskrete sider gør ikke", () => {
+    expect(kode("src/app/loyalsum-komplet-online/page.tsx")).toContain("/loyalsum-woocommerce-integration.png");
+    for (const sti of ["src/app/page.tsx", "src/app/loyalitetsprogram/page.tsx", "src/app/stempelkort/page.tsx", "src/app/produkter/[slug]/page.tsx"]) {
+      expect(kode(sti), sti).not.toMatch(/loyalsum-woocommerce-(dashboard|beloenning-kurv|integration)\.png/);
+    }
+  });
+});

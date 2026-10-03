@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -66,6 +67,35 @@ export const metadata: Metadata = {
     url: "/woocommerce-loyalitetsprogram",
   },
 };
+
+/* --------------------------------------------------------------- billeder */
+
+/*
+ * ILLUSTRATIONER, IKKE SKÆRMBILLEDER. De tre billeder er tegnede visualiseringer
+ * af integrationen, og enkelte detaljer svarer ikke til produktet (fx en
+ * download-knap inde i WordPress og et frit pointfelt i kurven — i virkeligheden
+ * hentes pluginet i LoyalSum-dashboardet, og kunden vælger en belønning).
+ * Derfor står "Illustration" i billedteksten, og alt-teksterne beskriver kun
+ * det, der er sandt. Erstat dem med rigtige skærmbilleder, når de findes.
+ */
+const WOO_BILLEDER = {
+  integration: {
+    src: "/loyalsum-woocommerce-integration.png",
+    alt: "Illustration: bærbar computer med LoyalSum for WooCommerce i WordPress — webshoppen er forbundet med LoyalSum, og kunderne optjener og bruger point",
+  },
+  dashboard: {
+    src: "/loyalsum-woocommerce-dashboard.png",
+    alt: "Illustration af LoyalSum for WooCommerce i WordPress-administrationen med status Forbundet",
+  },
+  kurv: {
+    src: "/loyalsum-woocommerce-beloenning-kurv.png",
+    alt: "Illustration af en WooCommerce-kurv, hvor en LoyalSum-belønning på 50 kr. er trukket fra totalen",
+  },
+} as const;
+
+/** Alle tre er 1448 × 1086 — filernes egne mål, så layoutet ikke hopper. */
+const BREDDE = 1448;
+const HOEJDE = 1086;
 
 /* ------------------------------------------------------------------ data */
 
@@ -186,7 +216,8 @@ export default function WooCommerceSide() {
                 "radial-gradient(50% 55% at 76% 22%, rgba(26,144,137,0.16), transparent 64%), radial-gradient(55% 60% at 88% 4%, rgba(217,164,65,0.14), transparent 62%)",
             }}
           />
-          <div className="mx-auto max-w-3xl">
+          <div className="mx-auto grid max-w-side gap-10 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+          <div>
             <p className="text-sm font-semibold uppercase tracking-wider text-white/60">
               LoyalSum for WooCommerce
             </p>
@@ -219,6 +250,24 @@ export default function WooCommerceSide() {
                 ex moms. Pluginet er med i prisen. Ingen binding.
               </p>
             ) : null}
+          </div>
+          {/* `priority`: over folden og sidens LCP-element. */}
+          <figure>
+            <div className="overflow-hidden rounded-[var(--radius-stor)] shadow-[var(--hoejde-foto)] ring-1 ring-white/12">
+              <Image
+                src={WOO_BILLEDER.integration.src}
+                alt={WOO_BILLEDER.integration.alt}
+                width={BREDDE}
+                height={HOEJDE}
+                sizes="(min-width: 1024px) 34rem, 92vw"
+                priority
+                className="h-auto w-full"
+              />
+            </div>
+            <figcaption className="mt-2 text-xs text-white/50">
+              Illustration af LoyalSum for WooCommerce.
+            </figcaption>
+          </figure>
           </div>
         </section>
 
@@ -285,6 +334,22 @@ export default function WooCommerceSide() {
                 </li>
               ))}
             </ol>
+            <figure className="mt-10">
+              <div className="overflow-hidden rounded-[var(--radius-stor)] border border-border shadow-[var(--hoejde-2)]">
+                <Image
+                  src={WOO_BILLEDER.dashboard.src}
+                  alt={WOO_BILLEDER.dashboard.alt}
+                  width={BREDDE}
+                  height={HOEJDE}
+                  sizes="(min-width: 1024px) 64rem, 92vw"
+                  className="h-auto w-full"
+                />
+              </div>
+              <figcaption className="mt-2 text-xs text-muted">
+                Illustration: pluginet i WordPress, når webshoppen er forbundet.
+                Selve pluginet hentes i dit LoyalSum-dashboard.
+              </figcaption>
+            </figure>
             <p className="mt-6 max-w-2xl text-sm leading-relaxed text-muted">
               Kassen venter aldrig på LoyalSum: ordrerne sendes i baggrunden
               efter købet, og fejler forbindelsen et øjeblik, prøver pluginet
@@ -420,6 +485,22 @@ export default function WooCommerceSide() {
               lægges på ordren, og pointene trækkes, når ordren er betalt. Indtil
               da er de kun sat af — bliver ordren annulleret, frigives de igen.
             </p>
+            <figure className="mt-6">
+              <div className="overflow-hidden rounded-[var(--radius-stor)] border border-border shadow-[var(--hoejde-2)]">
+                <Image
+                  src={WOO_BILLEDER.kurv.src}
+                  alt={WOO_BILLEDER.kurv.alt}
+                  width={BREDDE}
+                  height={HOEJDE}
+                  sizes="(min-width: 768px) 48rem, 92vw"
+                  className="h-auto w-full"
+                />
+              </div>
+              <figcaption className="mt-2 text-xs text-muted">
+                Illustration: en belønning trukket fra i kurven. I webshoppen
+                vælger kunden en af dine pointbelønninger.
+              </figcaption>
+            </figure>
 
             <h3 className="mt-8 text-lg font-semibold">
               Online betaling som standard

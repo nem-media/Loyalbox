@@ -417,6 +417,23 @@ export default function KompletOnlinePage() {
               bruger deres fordele dér, hvor de handler — uden at du skal dele
               et link først.
             </p>
+            {/* ILLUSTRATION, ikke et skærmbillede — se WOO_BILLEDER på
+                /woocommerce-loyalitetsprogram for hvorfor det står i teksten. */}
+            <figure className="mx-auto mt-8 max-w-3xl">
+              <div className="overflow-hidden rounded-[var(--radius-stor)] border border-border shadow-[var(--hoejde-2)]">
+                <Image
+                  src="/loyalsum-woocommerce-integration.png"
+                  alt="Illustration: bærbar computer med LoyalSum for WooCommerce i WordPress — webshoppen er forbundet med LoyalSum, og kunderne optjener og bruger point"
+                  width={1448}
+                  height={1086}
+                  sizes="(min-width: 768px) 48rem, 92vw"
+                  className="h-auto w-full"
+                />
+              </div>
+              <figcaption className="mt-2 text-center text-xs text-muted">
+                Illustration af LoyalSum for WooCommerce.
+              </figcaption>
+            </figure>
             <div className="mt-8 grid gap-6 sm:grid-cols-3">
               {WOO.map((w) => (
                 <div
