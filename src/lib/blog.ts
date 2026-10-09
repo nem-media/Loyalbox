@@ -2173,7 +2173,7 @@ export const POSTS: BlogPost[] = [
     image: "/blog/stempelkort-antal-stempler.svg",
     imageAlt:
       "Digitalt stempelkort med ti felter, hvor syv er stemplet og det tiende felt er belønningen",
-    related: ["stempelkort-app-eller-papkort", "kundeklub-uden-app-guide", "stempelkort-til-takeaway", "fastholde-medlemmer-fitness", "stempelkort-til-bageri"],
+    related: ["stempelkort-app-eller-papkort", "kundeklub-uden-app-guide", "stempelkort-til-takeaway", "fastholde-medlemmer-fitness", "stempelkort-til-bageri", "saadan-laver-du-et-pointprogram"],
     body: [
       {
         type: "p",
@@ -2310,7 +2310,7 @@ export const POSTS: BlogPost[] = [
     image: "/blog/kundeklub-uden-app.svg",
     imageAlt:
       "Skilt med QR-kode på en disk ved siden af en telefon, der viser kundens stempelkort i browseren",
-    related: ["stempelkort-app-eller-papkort", "hvor-mange-stempler-stempelkort", "fastholde-medlemmer-fitness"],
+    related: ["stempelkort-app-eller-papkort", "hvor-mange-stempler-stempelkort", "fastholde-medlemmer-fitness", "saadan-laver-du-et-pointprogram"],
     body: [
       {
         type: "p",
@@ -3550,6 +3550,328 @@ export const POSTS: BlogPost[] = [
             a: "Nej. Fra iPhone XR og XS og frem læses tags automatisk; iPhone 7, 8 og X kan læse dem via Kontrolcenter, og ældre modeller kan ikke. De fleste Androids i mellem- og topklassen har NFC, men det skal være slået til i indstillingerne.",
           },
         ],
+      },
+    ],
+  },
+  {
+    /*
+      GUIDEN TIL /loyalitetsprogram — OG DEN MÅ IKKE BLIVE DENS KONKURRENT.
+      Landingssiden svarer på "jeg vil have et pointprogram" og ejer ordene
+      pointprogram og loyalitetsprogram (se RESERVEREDE i blog.test.ts).
+      Artiklen svarer på "hvordan skruer jeg et sammen": optjening,
+      belønninger og regnestykket bag. Den fortæller derfor ikke, hvad et
+      pointprogram ER — det gør landingssiden — og den leder videre dertil.
+
+      Produktpåstandene er efterprøvet i koden (point.ts, guides.ts,
+      point-rapport.ts, REWARD_TYPE_LABELS) og følger landingssidens
+      forbudsliste: ingen kampagner, udløb, niveauer eller POS-integration.
+    */
+    slug: "saadan-laver-du-et-pointprogram",
+    title: "Sådan laver du et pointprogram, der får kunderne til at komme igen",
+    metaTitle: "Sådan laver du et pointprogram – med regneeksempler",
+    description:
+      "Sådan laver du et pointprogram: vælg optjening og belønninger, regn på dækningsbidraget, og få kunderne til at bruge det. Med eksempler i kroner.",
+    keyword: "lave pointprogram",
+    date: "2026-10-09",
+    readingMinutes: 10,
+    excerpt:
+      "Hvor mange point skal et køb give, hvad skal belønningen være, og hvad koster det dig? En praktisk guide med regneeksempler i kroner fra butik, café og salon.",
+    image: "/blog/saadan-laver-du-et-pointprogram.svg",
+    imageAlt:
+      "Regnestykke med 1 point pr. 10 kr. og 1.000 kr. i køb ved siden af et pointkort med 80 af 100 point og to belønninger",
+    related: [
+      "hvor-mange-stempler-stempelkort",
+      "kundeklub-uden-app-guide",
+      "stempelkort-til-cafe",
+    ],
+    body: [
+      {
+        type: "p",
+        html: "Et pointprogram er let at forklare for kunden: du handler, du samler point, og pointene kan byttes til noget, du gerne vil have. Det svære ligger hos dig. Hvor mange point skal et køb give? Hvad skal belønningen være? Og hvad koster det, når kunderne faktisk bruger deres point?",
+      },
+      {
+        type: "p",
+        html: "Denne guide tager beslutningerne i den rækkefølge, du bør tage dem, med regneeksempler i kroner fra en butik, en café og en salon. Den er skrevet til forretninger, hvor kunden står ved disken, men principperne gælder også, hvis du sælger online.",
+      },
+      {
+        type: "h2",
+        text: "Start med at definere, hvad pointprogrammet skal opnå",
+      },
+      {
+        type: "p",
+        html: "Et pointprogram er en rabat, du giver på forhånd i håb om at få noget igen. Derfor skal du vide, hvad det er, du vil have igen. De fleste forretninger har ét af fire mål:",
+      },
+      {
+        type: "ul",
+        items: [
+          "<strong>Flere genbesøg.</strong> Kunden kommer tilbage, før de ellers ville. Det typiske mål for en café, et bageri eller en frisør.",
+          "<strong>Højere købsfrekvens.</strong> Den faste kunde kommer hver uge i stedet for hver anden.",
+          "<strong>Større køb.</strong> Når pointene følger beløbet, kan det betale sig for kunden at tage én ting mere med.",
+          "<strong>Bedre fastholdelse.</strong> En saldo, kunden har sparet op, er en grund til at vælge dig frem for konkurrenten næste gang.",
+        ],
+      },
+      {
+        type: "p",
+        html: "Målet afgør resten. Vil du have flere besøg, skal programmet belønne besøget. Vil du have større køb, skal det belønne beløbet. Skriv målet ned, før du bestemmer et eneste tal — det er også dét, du senere skal måle programmet på.",
+      },
+      { type: "h2", text: "Beslut hvordan kunderne skal optjene point" },
+      {
+        type: "p",
+        html: "Der findes fire grundlæggende måder at give point på, og mange programmer kombinerer dem.",
+      },
+      {
+        type: "p",
+        html: "<strong>Point pr. krone.</strong> Kunden får et antal point for hver fulde X kroner. Det er den mest udbredte model, fordi den belønner den store handel uden at lukke den lille ude. Den passer, når kurven svinger meget — i en butik, på en restaurant eller i en salon, hvor en klipning og en farvning koster vidt forskelligt.",
+      },
+      {
+        type: "p",
+        html: "<strong>Faste point pr. køb.</strong> Hvert køb giver det samme antal point, uanset beløbet. Det minder om et stempelkort og belønner besøget frem for beløbet. Det passer, når købene ligner hinanden, eller når målet er flere besøg.",
+      },
+      {
+        type: "p",
+        html: "<strong>Point på bestemte varer.</strong> Ekstra point på en vare eller ydelse, du gerne vil sælge mere af. Det kan styre efterspørgslen, men det gør reglerne sværere at forklare ved disken.",
+      },
+      {
+        type: "p",
+        html: "<strong>Bonuspoint ved særlige lejligheder.</strong> Dobbelte point i en stille uge eller et antal point ved tilmelding. Bonuspoint virker bedst som en undtagelse; bliver de hverdag, holder kunderne op med at lægge mærke til dem.",
+      },
+      {
+        type: "p",
+        html: "Uanset model skal du afgøre én detalje på forhånd: hvordan der rundes. Giver 10 kr. ét point, kan et køb på 249 kr. give 24 eller 25 point. At runde ned — ét point for hver <em>fulde</em> ti kroner — er lettest at forklare og forsvare.",
+      },
+      {
+        type: "p",
+        html: "I LoyalSum vælger du mellem tre optjeningsmodeller: point efter beløb (fx 10 kr. = 1 point, og der rundes altid ned), faste point pr. køb eller helt manuel tildeling, hvor personalet selv taster antallet. Der er ingen automatiske kampagner som dobbeltpoint-dage eller point på bestemte varer. Vil du give ekstra point, kan en administrator lægge dem til manuelt — med en begrundelse, der bliver stående i historikken.",
+      },
+      {
+        type: "h2",
+        text: "Vælg belønninger, som kunderne har lyst til at optjene",
+      },
+      {
+        type: "p",
+        html: "Belønningen er det, kunden arbejder hen imod, så den skal være noget, kunden vil have — ikke noget, du gerne vil af med. De mest brugte typer er:",
+      },
+      {
+        type: "ul",
+        items: [
+          "<strong>Et gratis produkt</strong> — en kaffe, et stykke kage, en shampoo fra hylden. Kunden forstår værdien med det samme, og den koster dig kun din indkøbspris.",
+          "<strong>En fast rabat i kroner</strong> — fx 50 kr. fra næste køb. Let at holde op mod det, kunden har brugt.",
+          "<strong>En rabat i procent</strong> — fx 20 % på næste besøg. Kan blive dyr på et stort køb, så knyt den gerne til én vare eller én ydelse.",
+          "<strong>En ydelse</strong> — en gratis behandling, en ekstra service eller en opgradering.",
+        ],
+      },
+      {
+        type: "p",
+        html: "Med point behøver du ikke vælge én. Det er netop forskellen på et pointprogram og et stempelkort: kunden samler en saldo og vælger selv, hvad den skal bruges på. Har du både en lille belønning, der kan nås hurtigt, og en større, der er værd at spare op til, får både den hyppige og den sjældne kunde noget at gå efter.",
+      },
+      {
+        type: "p",
+        html: "To ting gør en belønning attraktiv. Den skal føles <strong>opnåelig</strong>: kunden skal kunne se sig selv nå den inden for en overskuelig tid. Og den skal føles <strong>værdifuld</strong>: 5 kr. i rabat efter tre måneders køb er ikke en grund til at komme igen, og det ved kunden godt.",
+      },
+      {
+        type: "p",
+        html: "I LoyalSum opretter du så mange belønninger, du vil, hver med sin egen pris i point: et gratis produkt, en fast rabat i kroner, en rabat i procent, en gratis behandling eller ydelse, en gave eller en belønning, du selv beskriver.",
+      },
+      { type: "h2", text: "Eksempel på et pointprogram i en butik" },
+      {
+        type: "p",
+        html: "Her er et regneeksempel på en enkel opsætning. Tallene er valgt, fordi de er lette at regne med — ikke fordi de er den rigtige model for netop din forretning.",
+      },
+      {
+        type: "table",
+        head: ["Regel", "Tal"],
+        rows: [
+          ["Optjening", "1 point pr. 10 kr."],
+          ["Belønning", "50 kr. i rabat for 100 point"],
+          ["Køb, der skal til", "1.000 kr."],
+          ["Belønningens værdi", "5 % af købsbeløbet"],
+        ],
+      },
+      {
+        type: "p",
+        html: "Kunden skal altså handle for 1.000 kr. for at få 50 kr. tilbage. For kunden er det 5 % i bonus. Men det er ikke 5 %, der er din udgift — og det er dér, mange regner forkert.",
+      },
+      {
+        type: "p",
+        html: "<strong>Regn på dækningsbidraget, ikke på omsætningen.</strong> Antag, at beløbene er inklusive moms, og at butikken har en dækningsgrad på 40 %. Så svarer 1.000 kr. til 800 kr. ekskl. moms og et dækningsbidrag på 320 kr. Rabatten på 50 kr. er 40 kr. ekskl. moms, og de går direkte fra dækningsbidraget. Programmet koster altså 40 af de 320 kr. — <strong>12,5 % af det, du tjener på kunden</strong>, selv om kunden kun oplever 5 %.",
+      },
+      {
+        type: "p",
+        html: "Det er ikke nødvendigvis for meget. Får programmet kunden til at handle for 1.000 kr. hos dig i stedet for 600 kr., har det betalt sig. Men regnestykket viser, hvorfor dækningsgraden skal på bordet, før du vælger tallene: med en dækningsgrad på 20 % ville det samme program koste en fjerdedel af dækningsbidraget.",
+      },
+      {
+        type: "p",
+        html: "<strong>Et gratis produkt er billigere end en rabat af samme værdi.</strong> Er belønningen i stedet en vare til 50 kr., som du køber ind for 20 kr., koster den dig 20 kr. og ikke 40. Kunden oplever den samme værdi.",
+      },
+      {
+        type: "p",
+        html: "<strong>Husk indløsningsgraden.</strong> Ikke alle point bliver brugt. Nogle kunder flytter, glemmer programmet eller stopper lige før målet, og det sænker den reelle udgift. Men læg ikke budgettet efter det. Et program, der kun hænger sammen, fordi kunderne ikke bruger det, er et program, der ikke virker — og når næsten ingen indløser, er det et tegn på, at belønningen er sat for langt væk.",
+      },
+      { type: "h2", text: "Hvor mange point skal kunderne have?" },
+      {
+        type: "p",
+        html: "Det rigtige antal point står ikke i et skema, men det kan regnes ud. Du skal balancere fire ting: hvor hurtigt kunden når en belønning, hvad belønningen er værd, hvad du tjener, og hvor ofte kunden handler. Tag dem i denne rækkefølge:",
+      },
+      {
+        type: "ol",
+        items: [
+          "Find ud af, hvor ofte en typisk kunde handler, og hvad de bruger pr. gang.",
+          "Vælg, hvor lang tid der højst må gå til den første belønning. For hyppige køb er en måned eller to et godt mål; for sjældne køb sjældent mere end et halvt år.",
+          "Regn ud, hvad kunden handler for i den periode.",
+          "Beslut, hvor stor en del af det beløb du vil give tilbage, og tjek den mod dit dækningsbidrag som i eksemplet ovenfor.",
+          "Sæt belønningens pris i point ud fra optjeningsreglen.",
+        ],
+      },
+      {
+        type: "p",
+        html: "Sådan kan det se ud i tre forskellige forretninger:",
+      },
+      {
+        type: "table",
+        head: ["", "Café", "Salon", "Butik"],
+        rows: [
+          ["<strong>Typisk køb</strong>", "55 kr.", "600 kr.", "300 kr."],
+          [
+            "<strong>Hvor ofte</strong>",
+            "3 gange om ugen",
+            "Hver 6. uge",
+            "Én gang om måneden",
+          ],
+          [
+            "<strong>Optjening</strong>",
+            "5 point pr. køb",
+            "1 point pr. 10 kr.",
+            "1 point pr. 10 kr.",
+          ],
+          [
+            "<strong>Belønning</strong>",
+            "Gratis kaffe for 50 point",
+            "100 kr. i rabat for 200 point",
+            "50 kr. i rabat for 100 point",
+          ],
+          [
+            "<strong>Tid til belønning</strong>",
+            "Godt 3 uger",
+            "Ca. 4 måneder",
+            "Ca. 3-4 måneder",
+          ],
+        ],
+      },
+      {
+        type: "p",
+        html: "Caféen bruger faste point pr. køb, fordi købene ligner hinanden, og fordi målet er flere besøg. Med point pr. krone ville et køb til 59 kr. give 5 point og et til 61 kr. give 6 — en forskel, ingen ved disken har lyst til at forklare. Salonen og butikken bruger point pr. krone, fordi beløbene svinger.",
+      },
+      {
+        type: "p",
+        html: "Læg mærke til salonen. Kunden er omkring fire måneder om at nå belønningen, og det er i den lange ende af, hvad der holder motivationen oppe. Derfor er det en god idé at have en mindre belønning ved fx 100 point — et produkt fra hylden — så kunden har noget inden for rækkevidde allerede efter to besøg. Samme tankegang ligger bag <a href=\"/blog/hvor-mange-stempler-stempelkort\">antallet af stempler på et stempelkort</a>.",
+      },
+      { type: "h2", text: "Gør pointprogrammet nemt at forstå" },
+      {
+        type: "p",
+        html: "Et pointprogram konkurrerer med alt det andet, kunden skal huske. Kan reglerne ikke siges i én sætning ved disken, bliver de ikke husket. „Du får ét point for hver tiende krone, og ved 100 point får du 50 kr. i rabat“ kan siges, mens kortet scannes. „Dobbelte point om tirsdagen, undtagen på tilbudsvarer, og bonuspoint ved køb over 300 kr.“ kan ikke.",
+      },
+      {
+        type: "p",
+        html: "Hold antallet af regler nede, og brug runde tal. Det er også en fordel, at kunden selv kan regne: når 100 point er 50 kr., forstår kunden, hvad hvert køb er værd, uden at du skal skrive det på et skilt.",
+      },
+      {
+        type: "p",
+        html: "Overvej også, om point skal udløbe. Udløb begrænser, hvor mange point du skylder væk, men det er en regel mere at forklare, og en kunde, der mister sine point, bliver sjældent mere loyal af det. Vælger du udløb, så sig det tydeligt allerede ved tilmeldingen. I LoyalSum udløber point ikke.",
+      },
+      {
+        type: "h2",
+        text: "Sådan får du kunderne til faktisk at bruge programmet",
+      },
+      {
+        type: "p",
+        html: "Det mest oversete trin kommer efter opsætningen. Et pointprogram, kunderne ikke kender til, giver hverken genbesøg eller viden om, hvad der virker.",
+      },
+      {
+        type: "p",
+        html: "<strong>Lad medarbejderne nævne det ved hvert køb.</strong> Et skilt bliver overset; et spørgsmål ved kassen — „Er du med i vores pointprogram?“ — gør ikke. Giv personalet én sætning, de kan sige, og gør den til en vane i de første uger.",
+      },
+      {
+        type: "p",
+        html: "<strong>Gør tilmeldingen hurtig.</strong> Hver ekstra oplysning, kunden skal give, og hver app, der skal hentes, koster tilmeldinger. Et navn og en e-mail eller et telefonnummer er nok.",
+      },
+      {
+        type: "p",
+        html: "<strong>Vis programmet, hvor kunden venter.</strong> Ved kassen, på bordet, i stolen hos frisøren — der, hvor kunden har et halvt minut og telefonen i hånden.",
+      },
+      {
+        type: "p",
+        html: "<strong>Lad kunden følge sin saldo.</strong> Fremgang motiverer. Kan kunden se, at der kun mangler 20 point til næste belønning, er det en grund til at komme igen i næste uge i stedet for næste måned.",
+      },
+      {
+        type: "p",
+        html: "I LoyalSum tilmelder kunden sig ved at scanne QR-koden på din stander — eller via dit link, hvis du sælger online — og skriver sin e-mail eller sit telefonnummer. Der er ingen app at hente. Kortet er en webside, der viser saldoen, alle dine belønninger og hvor mange point der mangler til den næste. Ved disken taster personalet købets beløb, og systemet regner pointene ud.",
+      },
+      {
+        type: "h2",
+        text: "Typiske fejl, når virksomheder laver pointprogrammer",
+      },
+      {
+        type: "p",
+        html: "De fleste pointprogrammer, der ikke virker, fejler på én af fem måder:",
+      },
+      {
+        type: "ul",
+        items: [
+          "<strong>Belønningen er for svær at nå.</strong> Kan kunden ikke se sig selv nå målet, begynder de ikke at samle. Når næsten ingen er nået frem efter et kvartal, er prisen sat for højt.",
+          "<strong>Reglerne er for komplicerede.</strong> Undtagelser, bonusregler og forskellige satser på forskellige varer gør programmet umuligt at forklare ved disken.",
+          "<strong>Belønningen er ikke attraktiv.</strong> Rabat på noget, kunden ikke plejer at købe, motiverer ikke. Den bedste belønning er som regel mere af det, kunden allerede kommer efter.",
+          "<strong>Programmet bliver ikke introduceret.</strong> Et skilt alene giver få tilmeldinger. Det er medarbejderen, der spørger, der gør forskellen.",
+          "<strong>Ingen følger op.</strong> Et program, du ikke måler på, er en rabat, du giver væk i blinde. Se mindst hvert kvartal på, hvor mange der er tilmeldt, hvor mange point der er optjent og brugt, og hvilke belønninger der bliver indløst.",
+        ],
+      },
+      {
+        type: "p",
+        html: "Den sidste fejl er lettest at undgå med et digitalt program. I LoyalSum kan du se antallet af medlemmer, optjente og brugte point, point i omløb, antallet af indløsninger og de mest brugte belønninger.",
+      },
+      {
+        type: "note",
+        title: "Giv aldrig point for en anmeldelse",
+        html: 'Mange udenlandske guides foreslår point for at skrive en anmeldelse. Lad være. Google forbyder belønninger for anmeldelser, og efter markedsføringsloven risikerer en belønnet anmeldelse at være vildledende — konsekvensen rammer din forretning. <a href="/blog/flere-trustpilot-anmeldelser">Læs mere om reglerne for anmeldelser</a>. Beløn køb og genbesøg, ikke det, kunden skriver om dig.',
+      },
+      { type: "h2", text: "Skal du bruge et digitalt pointprogram?" },
+      {
+        type: "p",
+        html: "Et pointprogram kan godt køre på papir eller i et regneark. Men point er sværere at holde styr på end stempler: der skal regnes på hvert køb, saldoen skal kunne ses, og en fejl skal kunne rettes, uden at nogen er i tvivl om, hvad der er rigtigt. Det er her, en digital løsning sparer mest tid.",
+      },
+      {
+        type: "p",
+        html: 'Med et digitalt pointprogram regner systemet pointene ud ved disken, kunden kan altid se sin saldo, og du kan se, om programmet virker. I LoyalSum står hver bevægelse som sin egen linje med dato og medarbejder, en fejl rettes med en modpost frem for en sletning, og du kan sætte programmet på pause, uden at kunderne mister deres point. Pointprogrammet er en del af LoyalSum Komplet og LoyalSum Komplet Online og kan køre side om side med et <a href="/stempelkort">digitalt stempelkort</a>.',
+      },
+      {
+        type: "p",
+        html: '<a href="/loyalitetsprogram">Se, hvordan LoyalSums digitale pointprogram fungerer</a>, og hvad det kræver at komme i gang.',
+      },
+      {
+        type: "faq",
+        items: [
+          {
+            q: "Hvor mange procent skal kunderne få tilbage i point?",
+            a: "Der findes ikke én rigtig procent. Regn baglæns fra dit dækningsbidrag: en belønning på 5 % af købsbeløbet koster en butik med 40 % i dækningsgrad 12,5 % af det, den tjener på kunden. Vælg den procent, din avance kan bære, og som stadig føles som en reel fordel for kunden.",
+          },
+          {
+            q: "Hvad er forskellen på point pr. krone og point pr. køb?",
+            a: "Point pr. krone belønner beløbet, så den store handel giver flere point end den lille. Point pr. køb belønner besøget, uanset beløbet. Vælg point pr. krone, når kurven svinger meget, og point pr. køb, når købene ligner hinanden, og målet er flere besøg.",
+          },
+          {
+            q: "Hvornår er et stempelkort bedre end et pointprogram?",
+            a: "Når købene ligner hinanden, og du kun har én belønning. Ti kaffe og så en gratis er lettere at forstå end en saldo. Et pointprogram er bedre, når beløbene svinger, eller når du vil tilbyde flere belønninger, kunden kan vælge imellem.",
+          },
+          {
+            q: "Kan jeg ændre reglerne, efter programmet er startet?",
+            a: "Ja, men lad det, kunderne allerede har optjent, beholde sin værdi. Sætter du prisen på en belønning op, bør det kun gælde fremad, og ændringen skal siges tydeligt. Et digitalt program gør det lettere, fordi der ikke ligger trykte kort med de gamle regler.",
+          },
+        ],
+      },
+      {
+        type: "cta",
+        text: "Klar til at sætte dit eget pointprogram op?",
+        href: "/loyalitetsprogram",
+        label: "Se LoyalSums pointprogram",
       },
     ],
   },
