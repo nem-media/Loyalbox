@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Digitalt pointkort med 80 af 100 point og en belønning på 50 kr. i rabat ved 100 point">
+  <rect width="1200" height="630" fill="#eff5f7"/>
+
+  <!-- Venstre: regnestykket, kassebon-agtigt -->
+  <rect x="120" y="150" width="380" height="330" rx="16" fill="#ffffff"/>
+  <rect x="120" y="150" width="380" height="330" rx="16" fill="none" stroke="#c5cdd0" stroke-width="2"/>
+
+  <text x="160" y="212" font-family="system-ui, sans-serif" font-size="22" fill="#06232e" opacity="0.6">Optjening</text>
+  <text x="160" y="250" font-family="system-ui, sans-serif" font-size="30" font-weight="700" fill="#06232e">1 point pr. 10 kr.</text>
+
+  <line x1="160" y1="282" x2="460" y2="282" stroke="#c5cdd0" stroke-width="2" stroke-dasharray="6 6"/>
+
+  <text x="160" y="330" font-family="system-ui, sans-serif" font-size="22" fill="#06232e" opacity="0.6">Køb i alt</text>
+  <text x="460" y="330" font-family="system-ui, sans-serif" font-size="24" font-weight="600" fill="#06232e" text-anchor="end">1.000 kr.</text>
+  <text x="160" y="374" font-family="system-ui, sans-serif" font-size="22" fill="#06232e" opacity="0.6">Optjent</text>
+  <text x="460" y="374" font-family="system-ui, sans-serif" font-size="24" font-weight="600" fill="#06232e" text-anchor="end">100 point</text>
+  <text x="160" y="418" font-family="system-ui, sans-serif" font-size="22" fill="#06232e" opacity="0.6">Belønning</text>
+  <text x="460" y="418" font-family="system-ui, sans-serif" font-size="24" font-weight="600" fill="#0f5b66" text-anchor="end">50 kr. rabat</text>
+
+  <!-- Pil mellem bon og kort -->
+  <path d="M540 315h70" stroke="#1a9089" stroke-width="5" stroke-linecap="round"/>
+  <path d="M600 298l20 17-20 17" fill="none" stroke="#1a9089" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Højre: kundens pointkort -->
+  <rect x="660" y="110" width="420" height="410" rx="20" fill="#06232e"/>
+
+  <rect x="704" y="156" width="130" height="12" rx="6" fill="#ffffff" opacity="0.35"/>
+  <text x="704" y="236" font-family="system-ui, sans-serif" font-size="64" font-weight="700" fill="#ffffff">80 point</text>
+
+  <!-- Fremdrift mod 100 -->
+  <rect x="704" y="266" width="332" height="16" rx="8" fill="#ffffff" opacity="0.15"/>
+  <rect x="704" y="266" width="266" height="16" rx="8" fill="#d9a441"/>
+  <text x="704" y="314" font-family="system-ui, sans-serif" font-size="20" fill="#ffffff" opacity="0.65">Mangler 20 point</text>
+
+  <!-- Belønninger -->
+  <line x1="704" y1="346" x2="1036" y2="346" stroke="#ffffff" stroke-opacity="0.12" stroke-width="2"/>
+  <circle cx="722" cy="384" r="14" fill="#1a9089"/>
+  <text x="752" y="392" font-family="system-ui, sans-serif" font-size="22" fill="#ffffff">Gratis kaffe</text>
+  <text x="1036" y="392" font-family="system-ui, sans-serif" font-size="22" fill="#ffffff" opacity="0.7" text-anchor="end">50 point</text>
+
+  <line x1="704" y1="420" x2="1036" y2="420" stroke="#ffffff" stroke-opacity="0.12" stroke-width="2"/>
+  <circle cx="722" cy="458" r="14" fill="none" stroke="#d9a441" stroke-width="3"/>
+  <text x="752" y="466" font-family="system-ui, sans-serif" font-size="22" fill="#ffffff">50 kr. rabat</text>
+  <text x="1036" y="466" font-family="system-ui, sans-serif" font-size="22" fill="#ffffff" opacity="0.7" text-anchor="end">100 point</text>
+</svg>

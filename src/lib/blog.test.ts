@@ -86,6 +86,13 @@ describe("blogindhold", () => {
     "digitalt stempelkort til virksomheder": "/stempelkort",
     reviewstander: "/reviewstander",
     anmeldelsesstander: "/reviewstander",
+    // Den kommercielle pointprogramside. Guiden "Sådan laver du et
+    // pointprogram" sigter med vilje efter at LAVE ét, ikke efter ordet selv.
+    pointprogram: "/loyalitetsprogram",
+    "digitalt pointprogram": "/loyalitetsprogram",
+    "pointprogram til virksomheder": "/loyalitetsprogram",
+    loyalitetsprogram: "/loyalitetsprogram",
+    "digitalt loyalitetsprogram": "/loyalitetsprogram",
   };
 
   it("har unikke søgeord, og ingen der tilhører en landingsside", () => {

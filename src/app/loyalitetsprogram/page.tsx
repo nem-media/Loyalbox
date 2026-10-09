@@ -515,7 +515,15 @@ export default function LoyalitetsprogramPage() {
             <p className="mt-3 max-w-2xl text-muted">
               Du opretter så mange, du vil, og sætter prisen i point på hver.
               Kunden ser dem billigst først og kan se, hvor mange point der
-              mangler til de næste.
+              mangler til de næste. I tvivl om, hvad en belønning skal koste?
+              Vores{" "}
+              <Link
+                href="/blog/saadan-laver-du-et-pointprogram"
+                className="font-medium text-accent hover:underline"
+              >
+                guide til at lave et pointprogram
+              </Link>{" "}
+              regner det igennem med eksempler i kroner.
             </p>
             <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {REWARDS.map((r) => (
