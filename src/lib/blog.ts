@@ -3591,7 +3591,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: "Denne guide tager beslutningerne i den rækkefølge, du bør tage dem, med regneeksempler i kroner fra en butik, en café og en salon. Den er skrevet til forretninger, hvor kunden står ved disken, men principperne gælder også, hvis du sælger online.",
+        html: "Når du skal lave et pointprogram, er der en fornuftig rækkefølge at tage beslutningerne i. Guiden her følger den, med regneeksempler i kroner fra en butik, en café og en salon. Den er skrevet til fysiske forretninger, men principperne gælder også, hvis du sælger online.",
       },
       {
         type: "h2",
@@ -3629,7 +3629,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: "<strong>Point på bestemte varer.</strong> Ekstra point på en vare eller ydelse, du gerne vil sælge mere af. Det kan styre efterspørgslen, men det gør reglerne sværere at forklare ved disken.",
+        html: "<strong>Point på bestemte varer.</strong> Ekstra point på en vare eller ydelse, du gerne vil sælge mere af. Det kan styre efterspørgslen, men det gør reglerne sværere at forklare.",
       },
       {
         type: "p",
@@ -3641,7 +3641,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: "I LoyalSum vælger du mellem tre optjeningsmodeller: point efter beløb (fx 10 kr. = 1 point, og der rundes altid ned), faste point pr. køb eller helt manuel tildeling, hvor personalet selv taster antallet. Der er ingen automatiske kampagner som dobbeltpoint-dage eller point på bestemte varer. Vil du give ekstra point, kan en administrator lægge dem til manuelt — med en begrundelse, der bliver stående i historikken.",
+        html: "I LoyalSum vælger du mellem tre optjeningsmodeller: point efter beløb (fx 10 kr. = 1 point, og der rundes altid ned), faste point pr. køb eller manuel tildeling, hvor personalet selv taster antallet. Ekstra point ud over reglen — fx som tak for tilmeldingen — lægger en administrator til manuelt, med en begrundelse, der bliver stående i historikken.",
       },
       {
         type: "h2",
@@ -3804,7 +3804,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: "I LoyalSum tilmelder kunden sig ved at scanne QR-koden på din stander — eller via dit link, hvis du sælger online — og skriver sin e-mail eller sit telefonnummer. Der er ingen app at hente. Kortet er en webside, der viser saldoen, alle dine belønninger og hvor mange point der mangler til den næste. Ved disken taster personalet købets beløb, og systemet regner pointene ud.",
+        html: "I LoyalSum tilmelder kunden sig ved at scanne QR-koden på din stander — eller via dit link, hvis du sælger online — og skriver sin e-mail eller sit telefonnummer. Der er ingen app at hente. Kortet er en webside, der viser saldoen, alle dine belønninger og hvor mange point der mangler til den næste. Når kunden betaler, taster personalet købets beløb, og systemet regner pointene ud.",
       },
       {
         type: "h2",
@@ -3818,7 +3818,7 @@ export const POSTS: BlogPost[] = [
         type: "ul",
         items: [
           "<strong>Belønningen er for svær at nå.</strong> Kan kunden ikke se sig selv nå målet, begynder de ikke at samle. Når næsten ingen er nået frem efter et kvartal, er prisen sat for højt.",
-          "<strong>Reglerne er for komplicerede.</strong> Undtagelser, bonusregler og forskellige satser på forskellige varer gør programmet umuligt at forklare ved disken.",
+          "<strong>Reglerne er for komplicerede.</strong> Undtagelser, bonusregler og forskellige satser på forskellige varer gør programmet umuligt at forklare på få sekunder.",
           "<strong>Belønningen er ikke attraktiv.</strong> Rabat på noget, kunden ikke plejer at købe, motiverer ikke. Den bedste belønning er som regel mere af det, kunden allerede kommer efter.",
           "<strong>Programmet bliver ikke introduceret.</strong> Et skilt alene giver få tilmeldinger. Det er medarbejderen, der spørger, der gør forskellen.",
           "<strong>Ingen følger op.</strong> Et program, du ikke måler på, er en rabat, du giver væk i blinde. Se mindst hvert kvartal på, hvor mange der er tilmeldt, hvor mange point der er optjent og brugt, og hvilke belønninger der bliver indløst.",
@@ -3840,7 +3840,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: 'Med et digitalt pointprogram regner systemet pointene ud ved disken, kunden kan altid se sin saldo, og du kan se, om programmet virker. I LoyalSum står hver bevægelse som sin egen linje med dato og medarbejder, en fejl rettes med en modpost frem for en sletning, og du kan sætte programmet på pause, uden at kunderne mister deres point. Pointprogrammet er en del af LoyalSum Komplet og LoyalSum Komplet Online og kan køre side om side med et <a href="/stempelkort">digitalt stempelkort</a>.',
+        html: 'Med et digitalt pointprogram regner systemet pointene ud ved hvert køb, kunden kan altid se sin saldo, og du kan se, om programmet virker. I LoyalSum står hver bevægelse som sin egen linje med dato og medarbejder, en fejl rettes med en modpost frem for en sletning, og du kan sætte programmet på pause, uden at kunderne mister deres point. Pointprogrammet er en del af LoyalSum Komplet og LoyalSum Komplet Online og kan køre side om side med et <a href="/stempelkort">digitalt stempelkort</a>.',
       },
       {
         type: "p",
