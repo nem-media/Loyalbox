@@ -133,10 +133,68 @@ describe("serveren holder samme regel", () => {
   });
 });
 
+/**
+ * OG TO TIL (godkendt 12. okt. 2026): "Antal stempler pr. optjening" og
+ * "Medarbejder skal bekræfte hvert stempel". Ingen af dem læses af
+ * stemplingen (`giveStamp`, `stampByToken`, commerce) — et tryk giver ét
+ * stempel, og personalet bekræfter ved at trykke. To eksisterende kladder
+ * står med 6 og 10 pr. optjening; de værdier skal blive stående.
+ */
+describe("stempler pr. optjening og medarbejderbekræftelse", () => {
+  const wizard = kilde(WIZARD);
+  const s = kilde(ACTIONS);
+
+  it("wizarden har ingen felter til dem — hverken ved oprettelse eller redigering", () => {
+    expect(wizard).not.toMatch(/name="stamps_per_earn"/);
+    expect(wizard).not.toMatch(/name="require_staff_confirm"/);
+  });
+
+  it("et nyt kort får databasens standard, uanset hvad requesten sender", () => {
+    const create = funktion(s, "createProgram");
+    expect(create).toMatch(/stamps_per_earn:\s*1,/);
+    expect(create).toMatch(/require_staff_confirm:\s*true,/);
+    expect(create).not.toMatch(/formData\.get\("stamps_per_earn"\)/);
+    expect(create).not.toMatch(/formData\.get\("require_staff_confirm"\)/);
+  });
+
+  it("en redigering overskriver ikke de gemte værdier", () => {
+    const update = funktion(s, "updateProgram");
+    expect(update).not.toMatch(/stamps_per_earn/);
+    expect(update).not.toMatch(/require_staff_confirm/);
+  });
+
+  it("stemplingen læser stadig ingen af dem — ellers er det en ny beslutning", () => {
+    for (const sti of [
+      "src/lib/loyalty/service.ts",
+      "src/app/kort/actions.ts",
+      "src/lib/commerce-api/service.ts",
+    ]) {
+      const k = kilde(sti);
+      expect(k, sti).not.toMatch(/stamps_per_earn|require_staff_confirm/);
+    }
+  });
+
+  it("et kort med en gemt værdi over 1 får den forklaret i wizarden", () => {
+    expect(wizard).toMatch(/gemtPrOptjening > 1/);
+  });
+
+  it("detaljesiden viser ikke længere 'X stempel/optjening'", () => {
+    const d = kilde("src/app/dashboard/loyalitet/programmer/[id]/page.tsx");
+    expect(d).not.toMatch(/stempel\/optjening/);
+  });
+});
+
 describe("databasefelterne er bevaret", () => {
   it("typerne kender stadig kolonnerne", () => {
     const t = readFileSync(join(process.cwd(), "src/lib/types/database.ts"), "utf8");
-    for (const felt of ["stamps_expire", "stamp_expiry_days", "amount_per_stamp", "earn_model"]) {
+    for (const felt of [
+      "stamps_expire",
+      "stamp_expiry_days",
+      "amount_per_stamp",
+      "earn_model",
+      "stamps_per_earn",
+      "require_staff_confirm",
+    ]) {
       expect(t, felt).toContain(felt);
     }
   });

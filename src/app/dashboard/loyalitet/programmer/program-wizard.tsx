@@ -79,7 +79,6 @@ export function ProgramWizard({
   const [startDate, setStartDate] = useState(initial?.startDate ?? "");
   const [endDate, setEndDate] = useState(initial?.endDate ?? "");
   const [earnModel, setEarnModel] = useState<EarnModel>(initial?.earnModel ?? "per_purchase");
-  const [stampsPerEarn, setStampsPerEarn] = useState(initial?.stampsPerEarn ?? "1");
   const [rewardType, setRewardType] = useState<RewardType>(initial?.rewardType ?? "free_product");
   const [rewardName, setRewardName] = useState(initial?.rewardName ?? "");
   const [requiredStamps, setRequiredStamps] = useState(initial?.requiredStamps ?? "10");
@@ -93,7 +92,6 @@ export function ProgramWizard({
   const [maxPerTxn, setMaxPerTxn] = useState(initial?.maxPerTxn ?? "1");
   const [maxPerDay, setMaxPerDay] = useState(initial?.maxPerDay ?? "");
   const [minMinutes, setMinMinutes] = useState(initial?.minMinutes ?? "0");
-  const [requireStaffConfirm, setRequireStaffConfirm] = useState(initial?.requireStaffConfirm ?? true);
   const [publishNow, setPublishNow] = useState(false);
 
   /*
@@ -110,6 +108,10 @@ export function ProgramWizard({
     ? [...VALGBARE_EARN_MODELS, udgaaetModel]
     : [...VALGBARE_EARN_MODELS];
   const harGemtUdloeb = Boolean(initial?.stampsExpire);
+  // "Antal stempler pr. optjening" er også taget ud: ét tryk giver altid ét
+  // stempel. Står et kort med en anden gemt værdi, forklares den og gemmes
+  // uændret (`updateProgram` skriver ikke feltet).
+  const gemtPrOptjening = parseInt(initial?.stampsPerEarn ?? "1", 10) || 1;
 
   function applyTemplate(key: string) {
     const t = PROGRAM_TEMPLATES.find((x) => x.key === key);
@@ -229,11 +231,17 @@ export function ProgramWizard({
           ) : (
             <p className="text-sm text-muted">{EARN_MODEL_HELP[earnModel]}</p>
           )}
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Antal stempler pr. optjening">
-              <Input type="number" min={1} name="stamps_per_earn" value={stampsPerEarn} onChange={(e) => setStampsPerEarn(e.target.value)} />
-            </Field>
-          </div>
+          <p className="text-sm text-muted">
+            Personalet giver stemplerne: ét tryk på kundens kort giver ét
+            stempel, og fra kundeoversigten kan du give flere på én gang.
+          </p>
+          {gemtPrOptjening > 1 ? (
+            <p className="box-shape border border-border bg-muted-bg/40 p-3 text-sm text-muted">
+              Dette kort har en gammel indstilling på {gemtPrOptjening} stempler
+              pr. optjening. Den bruges ikke — hvert tryk giver ét stempel — og
+              den gemmes uændret.
+            </p>
+          ) : null}
         </div>
 
         {/* Trin 3 — Belønning */}
@@ -310,10 +318,6 @@ export function ProgramWizard({
           <Field label="Minimumstid mellem stempler (minutter)" hint="Beskytter mod misbrug. 0 = ingen grænse.">
             <Input type="number" min={0} name="min_minutes_between" value={minMinutes} onChange={(e) => setMinMinutes(e.target.value)} />
           </Field>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" name="require_staff_confirm" checked={requireStaffConfirm} onChange={(e) => setRequireStaffConfirm(e.target.checked)} className="h-4 w-4 accent-[var(--accent)]" />
-            Medarbejder skal bekræfte hvert stempel (anbefalet)
-          </label>
           {/* Intet "Stempler udløber"-felt: udløb håndhæves ikke. Et kort, der
               allerede har indstillingen gemt, får den forklaret — og den
               gemmes uændret, fordi `updateProgram` ikke skriver felterne. */}

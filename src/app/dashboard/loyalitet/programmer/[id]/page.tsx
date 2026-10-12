@@ -97,8 +97,10 @@ export default async function ProgramDetailPage({
                 <div>
                   <dt className="text-muted">Optjening</dt>
                   <dd className="font-medium">
-                    {EARN_MODEL_LABELS[program.earn_model]} ·{" "}
-                    {program.stamps_per_earn} stempel/optjening
+                    {/* "X stempel/optjening" er taget ud: feltet læses ikke af
+                        stemplingen, og to kort viste 6 og 10, hvor hvert tryk
+                        giver ét. Værdien står stadig i basen. */}
+                    {EARN_MODEL_LABELS[program.earn_model]}
                   </dd>
                 </div>
                 <div>

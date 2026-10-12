@@ -119,7 +119,6 @@ export async function createProgram(
   if (requiredStamps < 1) {
     return { error: "Antal stempler til belønning skal være mindst 1." };
   }
-  const stampsPerEarn = Math.max(1, int(formData.get("stamps_per_earn"), 1));
   // Et NYT kort kan kun få de modeller, stemplingen faktisk følger — se
   // `VALGBARE_EARN_MODELS`. Wizarden viser ikke de andre, og en håndlavet
   // POST med "per_amount" eller "campaign" falder tilbage på "pr. køb".
@@ -140,7 +139,10 @@ export async function createProgram(
       description: str(formData.get("description")) || null,
       status,
       earn_model: earnModel,
-      stamps_per_earn: stampsPerEarn,
+      // Ingen af de to læses af stemplingen (ét tryk = ét stempel, og
+      // personalet bekræfter ved selv at trykke). Et nyt kort får derfor
+      // databasens standard, uanset hvad formularen sender.
+      stamps_per_earn: 1,
       amount_per_stamp:
         earnModel === "per_amount" ? numOrNull(formData.get("amount_per_stamp")) : null,
       start_date: str(formData.get("start_date")) || null,
@@ -153,7 +155,7 @@ export async function createProgram(
       max_stamps_per_txn: Math.max(1, int(formData.get("max_stamps_per_txn"), 1)),
       max_stamps_per_day: numOrNull(formData.get("max_stamps_per_day")) ?? null,
       min_minutes_between: Math.max(0, int(formData.get("min_minutes_between"), 0)),
-      require_staff_confirm: bool(formData.get("require_staff_confirm")),
+      require_staff_confirm: true,
       // Udløb af stempler håndhæves ikke (intet læser felterne), så et nyt
       // kort får det aldrig — uanset hvad formularen sender.
       stamps_expire: false,
@@ -251,7 +253,6 @@ export async function updateProgram(
       internal_name: str(formData.get("internal_name")) || null,
       card_text: begraens(formData.get("card_text"), TEKST_MAKS.kortTekst) || null,
       earn_model: earnModel,
-      stamps_per_earn: Math.max(1, int(formData.get("stamps_per_earn"), 1)),
       amount_per_stamp: earnModel === "per_amount" ? nu.amount_per_stamp : null,
       start_date: str(formData.get("start_date")) || null,
       end_date: str(formData.get("end_date")) || null,
@@ -262,10 +263,11 @@ export async function updateProgram(
       max_stamps_per_txn: Math.max(1, int(formData.get("max_stamps_per_txn"), 1)),
       max_stamps_per_day: numOrNull(formData.get("max_stamps_per_day")) ?? null,
       min_minutes_between: Math.max(0, int(formData.get("min_minutes_between"), 0)),
-      require_staff_confirm: bool(formData.get("require_staff_confirm")),
-      // `stamps_expire` og `stamp_expiry_days` skrives BEVIDST ikke: feltet er
-      // taget ud af wizarden, og et kort, der allerede står med dem, skal
-      // beholde dem uændret frem for at blive nulstillet af en redigering.
+      // `stamps_per_earn`, `require_staff_confirm`, `stamps_expire` og
+      // `stamp_expiry_days` skrives BEVIDST ikke: felterne er taget ud af
+      // wizarden, fordi stemplingen ikke læser dem, og et kort, der allerede
+      // står med en værdi, skal beholde den uændret frem for at blive
+      // nulstillet af en redigering.
       updated_at: new Date().toISOString(),
     })
     .eq("id", id)
