@@ -3573,6 +3573,7 @@ export const POSTS: BlogPost[] = [
       "Sådan laver du et pointprogram: vælg optjening og belønninger, regn på dækningsbidraget, og få kunderne til at bruge det. Med eksempler i kroner.",
     keyword: "lave pointprogram",
     date: "2026-10-09",
+    updated: "2026-10-12",
     readingMinutes: 10,
     excerpt:
       "Hvor mange point skal et køb give, hvad skal belønningen være, og hvad koster det dig? En praktisk guide med regneeksempler i kroner fra butik, café og salon.",
@@ -3832,7 +3833,7 @@ export const POSTS: BlogPost[] = [
       {
         type: "note",
         title: "Giv aldrig point for en anmeldelse",
-        html: 'Mange udenlandske guides foreslår point for at skrive en anmeldelse. Lad være. Google forbyder belønninger for anmeldelser, og efter markedsføringsloven risikerer en belønnet anmeldelse at være vildledende — konsekvensen rammer din forretning. <a href="/blog/flere-trustpilot-anmeldelser">Læs mere om reglerne for anmeldelser</a>. Beløn køb og genbesøg, ikke det, kunden skriver om dig.',
+        html: 'Mange udenlandske guides foreslår point for at skrive en anmeldelse. Lad være. Google forbyder belønninger for anmeldelser af din virksomhed på Google Maps og Google Business Profile, og efter markedsføringsloven risikerer en belønnet anmeldelse at være vildledende — konsekvensen rammer din forretning. <a href="/blog/flere-trustpilot-anmeldelser">Læs mere om reglerne for anmeldelser</a>. Beløn køb og genbesøg, ikke det, kunden skriver om dig.',
       },
       { type: "h2", text: "Skal du bruge et digitalt pointprogram?" },
       {
@@ -3886,7 +3887,9 @@ export const POSTS: BlogPost[] = [
 
       KONKURRENTTAL ER EFTERPRØVET 12. okt. 2026 og dateret i teksten:
       priser fra leverandørernes egne prissider, dansk oversættelse fra
-      translate.wordpress.org (WPLoyalty 0 %, WP Swings 0 %, myCred 7 %),
+      translate.wordpress.org (WPLoyalty 0 godkendte af 1.450 — men 1.450
+      forslag venter; WP Swings 0 af 1.228; myCred 186 af 2.646, som siden
+      selv runder til 8 %). Derfor ord og ikke procenter i tabellen.
       Smile.io = ingen WooCommerce (deres egen hjælpeside). YITH's pris kunne
       ikke efterprøves og står derfor ikke der. Ret tallene, når de ældes —
       eller fjern dem; et forkert konkurrenttal er værre end intet.
@@ -3956,47 +3959,47 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: "Der findes snesevis af plugins til point og belønninger. Tabellen viser de mest udbredte, med de priser og oversættelser, der kunne efterprøves hos leverandørerne i oktober 2026. Priserne er årlige licenser til én webshop, i dollars og uden moms.",
+        html: "Der findes snesevis af plugins til point og belønninger. Tabellen viser de mest udbredte. Prisen er den billigste årlige licens til én webshop, som den stod på leverandørens egen prisside den 12. oktober 2026, i dollars og uden moms. Oversættelsen er status på translate.wordpress.org samme dag. Priser og oversættelser ændrer sig, så tjek dem, før du køber.",
       },
       {
         type: "table",
-        head: ["Plugin", "Model", "Pris (1 webshop)", "Dansk oversættelse"],
+        head: ["Plugin", "Model", "Årlig licens, 1 webshop", "Dansk oversættelse"],
         rows: [
           [
             "<strong>WPLoyalty</strong> (Flycart)",
             "Gratis + Pro",
-            "Pro fra 84 $ om året",
-            "Ingen (0 %)",
+            "84 $ (tilbud; normalpris 105 $)",
+            "Ingen godkendt",
           ],
           [
             "<strong>Points and Rewards for WooCommerce</strong> (WP Swings)",
             "Gratis + Pro",
-            "Pro 99 $ om året",
-            "Ingen (0 %)",
+            "99 $",
+            "Ingen",
           ],
           [
             "<strong>myCred</strong>",
             "Gratis + betalte tilføjelser",
-            "Fra 99 $ om året",
-            "Delvis (7 %)",
+            "99 $",
+            "Under en tiendedel af teksterne",
           ],
           [
             "<strong>YITH WooCommerce Points and Rewards</strong>",
             "Kun betalt",
-            "Ikke efterprøvet",
-            "Kun engelsk, italiensk og spansk garanteret",
+            "Ikke verificeret",
+            "Ikke verificeret",
           ],
           [
             "<strong>WooCommerce Points and Rewards</strong> (officiel)",
             "Kun betalt",
-            "179 $ om året",
-            "—",
+            "179 $",
+            "Ikke verificeret",
           ],
         ],
       },
       {
         type: "p",
-        html: "Oversættelsen er målt på translate.wordpress.org, hvor frivillige oversætter plugins til dansk. Tallet gælder pluginets egne tekster — altså også det, kunden ser i kurven og under Min konto.",
+        html: "translate.wordpress.org er stedet, hvor frivillige oversætter plugins til dansk, og en oversættelse tæller først med, når den er godkendt. Det gælder pluginets egne tekster — altså også det, kunden ser i kurven og under Min konto. Mangler oversættelsen, kan du selv oversætte teksterne, men det er dit arbejde at holde dem ved lige.",
       },
       {
         type: "p",
@@ -4013,7 +4016,7 @@ export const POSTS: BlogPost[] = [
       {
         type: "note",
         title: "Point for anmeldelser er en fælde i Danmark",
-        html: 'Flere af pluginsene kan give point for en anmeldelse — det står i Pro-versionen af WPLoyalty, hos YITH og i det officielle plugin. Slå det fra. Forbrugerombudsmandens retningslinjer opfordrer til forsigtighed med at belønne anmeldelser, fordi det kan trække bedømmelserne op, og Google tillader ikke belønnede anmeldelser på din Google-profil. <a href="/blog/flere-trustpilot-anmeldelser">Læs mere om reglerne for anmeldelser</a>.',
+        html: 'Flere af pluginsene kan give point for en anmeldelse — det står i Pro-versionen af WPLoyalty, hos YITH og i det officielle plugin. Slå det fra. Forbrugerombudsmandens retningslinjer opfordrer til forsigtighed med at belønne anmeldelser, fordi det kan trække bedømmelserne op, og Google forbyder belønninger for anmeldelser af din virksomhed på Google Maps og Google Business Profile. <a href="/blog/flere-trustpilot-anmeldelser">Læs mere om reglerne for anmeldelser</a>.',
       },
       {
         type: "h2",
@@ -4057,10 +4060,10 @@ export const POSTS: BlogPost[] = [
         type: "p",
         html: "Ingen af modellerne er bedst i alle tilfælde. Spørgsmålet er, om du har brug for én funktion i webshoppen eller et loyalitetsprogram, der rækker ud over den.",
       },
-      { type: "h2", text: "Sådan fungerer LoyalSum med WooCommerce" },
+      { type: "h2", text: "Sådan fungerer LoyalSums WooCommerce-plugin" },
       {
         type: "p",
-        html: "LoyalSum er en dansk loyalitetsplatform med sit eget WooCommerce-plugin, LoyalSum for WooCommerce. Pluginets brugerflade er på dansk. For kunden ser forløbet sådan ud:",
+        html: "LoyalSum er en loyalitetsplatform udviklet i Danmark, og WooCommerce-pluginet, LoyalSum for WooCommerce, er udviklet af det samme hold. Pluginets brugerflade er på dansk fra start, support foregår på dansk på hverdage, og data behandles i EU med en databehandleraftale, der indgås ved købet. For kunden ser forløbet sådan ud:",
       },
       {
         type: "ol",
@@ -4077,7 +4080,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: "Der er også begrænsninger, som er værd at kende på forhånd: webshoppen skal bruge danske kroner, priserne skal være indtastet inkl. moms, for at belønninger kan bruges i kurven, og WooCommerce er det eneste webshopsystem, LoyalSum kan forbindes med i dag. Nye versioner af pluginet hentes i LoyalSum-dashboardet. <a href=\"/woocommerce-loyalitetsprogram\">Se hele gennemgangen af LoyalSum til WooCommerce</a>.",
+        html: "Der er også krav, som er værd at kende på forhånd. Den nuværende WooCommerce-integration kræver, at webshoppen bruger danske kroner, og at priserne er indtastet inkl. moms, for at belønninger kan bruges i kurven. Og WooCommerce er det eneste webshopsystem, LoyalSum kan forbindes med i dag. Nye versioner af pluginet hentes i LoyalSum-dashboardet. <a href=\"/woocommerce-loyalitetsprogram\">Se hele gennemgangen af LoyalSum til WooCommerce</a>.",
       },
       {
         type: "h2",
@@ -4144,7 +4147,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: "Og omvendt: Har du brug for at give point for henvisninger eller fødselsdage, eller sælger du i euro, er LoyalSum ikke det rigtige valg i dag.",
+        html: "Og omvendt: Har du brug for at give point for henvisninger eller fødselsdage, er LoyalSum ikke det rigtige valg i dag. Det samme gælder, hvis din WooCommerce-webshop sælger i en anden valuta end danske kroner — den nuværende integration kræver DKK.",
       },
       { type: "h2", text: "Kom i gang med LoyalSum til WooCommerce" },
       {
@@ -4160,7 +4163,7 @@ export const POSTS: BlogPost[] = [
           },
           {
             q: "Findes der WooCommerce-plugins til point på dansk?",
-            a: "Sjældent. På translate.wordpress.org var hverken WPLoyalty eller Points and Rewards for WooCommerce oversat til dansk i oktober 2026, og myCred kun delvist. LoyalSum for WooCommerce har en dansk brugerflade fra start.",
+            a: "Sjældent. På translate.wordpress.org havde hverken WPLoyalty eller Points and Rewards for WooCommerce en godkendt dansk oversættelse den 12. oktober 2026, og myCred var kun delvist oversat. LoyalSum for WooCommerce har en dansk brugerflade fra start.",
           },
           {
             q: "Kan kunder optjene point uden at oprette en konto?",
