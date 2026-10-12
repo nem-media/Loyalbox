@@ -233,7 +233,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: "Vil du alligevel have et kort, så knyt det til noget hyppigere end reparationer — dækskift, vask eller olieskift — og hold antallet nede på tre til fire felter.",
+        html: "Vil du alligevel have et kort, så knyt det til noget hyppigere end reparationer — dækskift, vask eller olieskift — og hold antallet nede på tre til fire felter. I <a href=\"/stempelkort\">det digitale stempelkort</a> vælger du selv antallet.",
       },
       {
         type: "faq",
@@ -391,7 +391,7 @@ export const POSTS: BlogPost[] = [
       {
         type: "ul",
         items: [
-          "<strong>Hyppige, små køb</strong> — bager, blomster, dyrefoder, kiosk: stempelkort passer godt, typisk otte til ti felter.",
+          "<strong>Hyppige, små køb</strong> — bager, blomster, dyrefoder, kiosk: stempelkort passer godt, typisk otte til ti felter, og <a href=\"/stempelkort\">et kort uden app</a> er let at komme i gang med.",
           "<strong>Sjældne, store køb</strong> — møbler, elektronik, cykler: et kort giver ikke mening. Kunden når aldrig i mål.",
           "<strong>Midt imellem</strong> — tøj, bøger, isenkram: overvej et kort med få felter og en belønning, der er værd at komme efter.",
         ],
@@ -945,7 +945,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: "En gæst, der kommer en til to gange om måneden, fylder <strong>otte felter</strong> på et halvt til et helt år. Ti ville være for langt. Belønningen bør være noget, der trækker et <em>nyt</em> besøg med sig: en dessert eller en velkomstdrink koster dig lidt i indkøb og kræver, at gæsten kommer og spiser.",
+        html: "En gæst, der kommer en til to gange om måneden, fylder <strong>otte felter</strong> på et halvt til et helt år. Ti ville være for langt. Belønningen bør være noget, der trækker et <em>nyt</em> besøg med sig: en dessert eller en velkomstdrink koster dig lidt i indkøb og kræver, at gæsten kommer og spiser. Med <a href=\"/stempelkort\">et stempelkort på mobilen</a> kan du samtidig se, hvilke gæster der er tæt på belønningen.",
       },
       {
         type: "note",
@@ -1132,7 +1132,7 @@ export const POSTS: BlogPost[] = [
       { type: "h2", text: "Genbesøg og forløb" },
       {
         type: "p",
-        html: "Klinikken kommer sjældnest af alle fire brancher: typisk hver anden til tredje måned. Det betyder <strong>fem felter</strong> på et stempelkort — mere ville tage over et år, og så begynder ingen.",
+        html: "Klinikken kommer sjældnest af alle fire brancher: typisk hver anden til tredje måned. Det betyder <strong>fem felter</strong> på et <a href=\"/stempelkort\">stempelkort</a> — mere ville tage over et år, og så begynder ingen.",
       },
       {
         type: "p",
@@ -1183,11 +1183,14 @@ export const POSTS: BlogPost[] = [
     slug: "stempelkort-til-bageri",
     title:
       "Stempelkort til bageri: rundstykket og kransekagen er ikke det samme køb",
-    metaTitle: "Stempelkort til bageri — pr. køb eller efter beløb?",
+    metaTitle: "Stempelkort til bageri — stempel pr. køb eller point?",
     description:
-      "I bageriet svinger kurven fra 12 til 350 kroner i samme kø. Her er valget mellem stempel pr. køb og stempel efter beløb, og hvorfor lørdag morgen afgør det.",
+      "I bageriet svinger kurven fra 12 til 350 kroner i samme kø. Her er valget mellem et stempel pr. køb og point efter beløb, og hvorfor lørdag morgen afgør det.",
     keyword: "stempelkort til bageri",
     date: "2026-09-17",
+    // Rettet: artiklen lovede "1 stempel for hvert beløb", som stempelkortet
+    // ikke regner ud (beløbet gemmes kun). Efter beløb er pointprogrammet.
+    updated: "2026-10-12",
     readingMinutes: 7,
     excerpt:
       "Et bageri har caféens hyppighed, men ikke dens ensartede kurv. Det ene valg, der afgør, om kortet føles fair — og hvorfor det skal træffes med lørdag morgen for øje.",
@@ -1209,38 +1212,42 @@ export const POSTS: BlogPost[] = [
         html: "Men der er én forskel, og den afgør, hvordan kortet skal sættes op. I en café koster næsten alt det samme. I et bageri står den samme kunde i den samme kø og køber ét rundstykke til tolv kroner om torsdagen og en kransekage til tre hundrede om lørdagen. Samme kunde, samme disk — og to køb, der ikke har noget med hinanden at gøre.",
       },
 
-      { type: "h2", text: "Pr. køb eller efter beløb?" },
+      { type: "h2", text: "Stempel pr. køb eller point efter beløb?" },
       {
         type: "p",
         html: "Det er valget. Alt andet i opsætningen kan rettes bagefter, uden at nogen opdager det; det her mærker kunden med det samme.",
       },
       {
+        type: "p",
+        html: 'Et stempelkort giver ét stempel pr. køb: ekspedienten trykker én gang, uanset hvad der ligger i posen. Skal belønningen i stedet følge beløbet, er det et <a href="/loyalitetsprogram">pointprogram</a>: beløbet tastes, og systemet regner pointene ud. Begge dele følger med i LoyalSum og kan køre side om side.',
+      },
+      {
         type: "table",
-        head: ["", "Pr. køb", "Efter beløb"],
+        head: ["", "Stempel pr. køb", "Point efter beløb"],
         rows: [
           [
             "Sådan virker det",
             "1 køb giver 1 stempel",
-            "1 stempel for hvert bestemt beløb, fx 100 kr.",
+            "Fx 1 point for hver 10 kr.",
           ],
-          ["Rundstykket til 12 kr.", "Et stempel", "Intet stempel"],
-          ["Kransekagen til 350 kr.", "Et stempel", "Tre stempler"],
+          ["Rundstykket til 12 kr.", "Et stempel", "1 point"],
+          ["Kransekagen til 350 kr.", "Et stempel", "35 point"],
           ["Ved disken", "Ét tryk, uanset hvad", "Beløbet skal tastes"],
           ["Belønner", "At komme ofte", "At købe for meget"],
         ],
       },
       {
         type: "p",
-        html: "<strong>Vælg pr. køb, hvis du sælger morgenbrød.</strong> Det er hverdagskunden, der bærer et bageri, og hende belønner du for at komme — ikke for at fylde posen. Hun kommer måske fire gange om ugen med en kurv på tyve kroner. Efter beløb ville hun samle sit første stempel efter fem besøg.",
+        html: "<strong>Vælg pr. køb, hvis du sælger morgenbrød.</strong> Det er hverdagskunden, der bærer et bageri, og hende belønner du for at komme — ikke for at fylde posen. Hun kommer måske fire gange om ugen med en kurv på tyve kroner. Efter beløb vejer hendes besøg det samme som en tiendedel af en kransekage, og hun venter længe på sin første belønning.",
       },
       {
         type: "p",
-        html: "<strong>Vælg efter beløb, hvis kagerne fylder mest.</strong> Har du overvægt af fødselsdagskager, bestillinger og det store weekendindkøb, er kurven det, der betyder noget — og så bliver pr. køb urimeligt den anden vej: kransekagen tæller som rundstykket.",
+        html: "<strong>Vælg point efter beløb, hvis kagerne fylder mest.</strong> Har du overvægt af fødselsdagskager, bestillinger og det store weekendindkøb, er kurven det, der betyder noget — og så bliver et stempel pr. køb urimeligt den anden vej: kransekagen tæller som rundstykket. Med point regnes det ud efter beløbet, og kunden vælger selv mellem dine belønninger.",
       },
       {
         type: "note",
         title: "Du behøver ikke gætte",
-        html: "Kig i kassen på en helt almindelig uge. Ligger de fleste bonner under halvtreds kroner, er svaret pr. køb. Er der en tydelig hale af store bonner, der bærer omsætningen, er det efter beløb. Det tager et kvarter og er mere værd end en mavefornemmelse.",
+        html: "Kig i kassen på en helt almindelig uge. Ligger de fleste bonner under halvtreds kroner, er svaret et stempel pr. køb. Er der en tydelig hale af store bonner, der bærer omsætningen, er det point efter beløb. Det tager et kvarter og er mere værd end en mavefornemmelse.",
       },
 
       { type: "h2", text: "Lørdag morgen er prøven" },
@@ -1254,7 +1261,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: "<strong>Selve stemplet</strong> er ét tryk og koster ingenting, hvis du har valgt pr. køb. Har du valgt efter beløb, skal beløbet tastes, og det er præcis dét, der er svært at nå lørdag morgen. Det er en grund mere til, at et morgenbrødsbageri skal vælge pr. køb.",
+        html: "<strong>Selve stemplet</strong> er ét tryk og koster ingenting. Med point efter beløb skal beløbet tastes, og det er præcis dét, der er svært at nå lørdag morgen. Det er en grund mere til, at et morgenbrødsbageri skal vælge stempelkortet.",
       },
 
       { type: "h2", text: "Hvad belønningen må koste" },
@@ -1277,7 +1284,7 @@ export const POSTS: BlogPost[] = [
         items: [
           "Højst ét stempel pr. kunde pr. dag. Så tæller to ture til bageriet samme morgen som én.",
           "En mindste tid mellem to stempler. Fanger det samme, når to ekspedienter står ved hver sin kasse.",
-          "Højst et bestemt antal stempler pr. køb. Vigtigst hvis du har valgt efter beløb, hvor en enkelt stor bestilling ellers kan fylde kortet på én gang.",
+          "Højst et bestemt antal stempler pr. køb. Vigtigst hvis du af og til giver flere stempler på én gang fra dashboardet — fx for en stor bestilling — så ét køb ikke kan fylde hele kortet.",
         ],
       },
       {
@@ -1289,7 +1296,7 @@ export const POSTS: BlogPost[] = [
       {
         type: "ol",
         items: [
-          "Kig i kassen på en almindelig uge, og beslut pr. køb eller efter beløb.",
+          "Kig i kassen på en almindelig uge, og beslut stempel pr. køb eller point efter beløb — eller begge.",
           "Opret kortet. Start fra caféskabelonen — ti felter og et gratis produkt — og ret antal og belønning til dit eget.",
           "Sæt de tre grænser ovenfor.",
           "Stil skiltet, hvor der er ventetid, og ikke kun ved kassen.",
@@ -1305,8 +1312,8 @@ export const POSTS: BlogPost[] = [
         type: "faq",
         items: [
           {
-            q: "Pr. køb eller efter beløb i et bageri?",
-            a: "Pr. køb, hvis morgenbrødet bærer butikken — så belønner du hverdagskunden for at komme ofte, og ekspedienten skal kun trykke én gang. Efter beløb, hvis kager og bestillinger fylder mest, for så er det kurven og ikke besøget, der betyder noget.",
+            q: "Stempel pr. køb eller point efter beløb i et bageri?",
+            a: "Stempel pr. køb, hvis morgenbrødet bærer butikken — så belønner du hverdagskunden for at komme ofte, og ekspedienten skal kun trykke én gang. Point efter beløb, hvis kager og bestillinger fylder mest, for så er det kurven og ikke besøget, der betyder noget. Begge dele er med i samme abonnement.",
           },
           {
             q: "Hvor mange felter skal et bageris stempelkort have?",
@@ -1314,11 +1321,11 @@ export const POSTS: BlogPost[] = [
           },
           {
             q: "Sinker et stempelkort køen lørdag morgen?",
-            a: "Selve stemplet er ét tryk og koster ingenting, hvis du har valgt pr. køb. Det er tilmeldingen, der tager tid, fordi kunden skal scanne og skrive sin mail eller sit telefonnummer — så stil skiltet, hvor der er ventetid, frem for kun ved kassen.",
+            a: "Selve stemplet er ét tryk og koster ingenting. Det er tilmeldingen, der tager tid, fordi kunden skal scanne og skrive sin mail eller sit telefonnummer — så stil skiltet, hvor der er ventetid, frem for kun ved kassen.",
           },
           {
             q: "Hvad hvis kunden mister linket til sit kort?",
-            a: 'Kortet hænger på den mail eller det telefonnummer, kunden skrev ved tilmeldingen, så det kan findes frem igen på <a href="/kort/find">find dit stempelkort</a>. Derfor kræver tilmeldingen en af delene — et kort uden nøgle kan ikke hentes tilbage.',
+            a: 'Kortet hænger på den mail eller det telefonnummer, kunden skrev ved tilmeldingen. Med mailen kan kunden få linket tilsendt på <a href="/kort/find">find dit stempelkort</a>; med telefonnummeret scanner hun koden i bageriet igen og skriver det samme nummer. Derfor kræver tilmeldingen en af delene — et kort uden nøgle kan ikke hentes tilbage.',
           },
         ],
       },
@@ -1648,7 +1655,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: 'Læg mærke til, hvorfor frisøren skal have færre felter: seks besøg er allerede næsten et år. Ti ville være halvandet, og så begynder ingen. <a href="/blog/hvor-mange-stempler-stempelkort">Regnemetoden bag tallet står her</a>.',
+        html: 'Læg mærke til, hvorfor frisøren skal have færre felter: seks besøg er allerede næsten et år. Ti ville være halvandet, og så begynder ingen. <a href="/blog/hvor-mange-stempler-stempelkort">Regnemetoden bag tallet står her</a>, og <a href="/stempelkort">LoyalSums stempelkort</a> har en færdig frisørskabelon med seks felter.',
       },
       {
         type: "faq",
@@ -1941,6 +1948,9 @@ export const POSTS: BlogPost[] = [
       "Papkortet bliver væk, appen bliver aldrig hentet. Her er den reelle forskel på de tre slags stempelkort, hvad de koster i drift, og hvornår et stempelkort tjener sig hjem.",
     keyword: "stempelkort app",
     date: "2026-08-02",
+    // Wallet-afsnittet kom til: det er konkurrenternes hovedargument, og
+    // spørgsmålet blev ikke besvaret nogen steder på sitet.
+    updated: "2026-10-12",
     readingMinutes: 9,
     excerpt:
       "De fleste vælger stempelkort efter, hvad der er billigst at starte. Det er sjældent det billigste at drive. Her er regnestykket og de tre løsningers reelle styrker.",
@@ -2051,6 +2061,16 @@ export const POSTS: BlogPost[] = [
       {
         type: "p",
         html: "Og du får det, papkortet aldrig kunne give dig: hvor mange der er tilmeldt, hvor mange stempler der gives, hvor mange der når belønningen, og om folk faktisk kommer oftere. Det er de tal, der afgør, om programmet skal justeres eller droppes.",
+      },
+
+      { type: "h2", text: "Hvad med Apple Wallet og Google Wallet?" },
+      {
+        type: "p",
+        html: "Flere udbydere lægger stempelkortet i Apple Wallet eller Google Wallet. Så ligger kortet i telefonens egen kortmappe og kan vises på låseskærmen. Det kræver heller ingen app, men kunden skal godkende, at kortet lægges i Wallet, og løsningen er bundet til de to platforme.",
+      },
+      {
+        type: "p",
+        html: 'Et kort i browseren er en almindelig webside, som kunden åbner fra et link eller lægger på hjemmeskærmen. Begge dele virker uden download — spørg leverandøren, hvilken af dem du får. LoyalSums <a href="/stempelkort">stempelkort</a> ligger i browseren og kan ikke lægges i Apple Wallet eller Google Wallet.',
       },
 
       { type: "h2", text: "Hvad koster det — og hvornår tjener det sig hjem?" },

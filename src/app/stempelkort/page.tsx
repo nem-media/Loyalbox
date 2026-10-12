@@ -41,14 +41,32 @@ import { ProduktStribe } from "@/components/produkt-stribe";
  * selvtilmelding (`/kort/tilmeld/[slug]`) og stempel-/indløsningsflowet
  * (`src/lib/loyalty/service.ts`).
  *
- * Skriv IKKE noget om Apple/Google Wallet, kassesystem-integration, MobilePay,
- * push-beskeder, SMS, e-mailmarketing, automatisk stempling uden personale
- * eller flere afdelinger pr. konto. Intet af det findes.
+ * Skriv IKKE noget om kassesystem-integration, MobilePay, push-beskeder, SMS,
+ * e-mailmarketing, automatisk stempling uden personale eller flere afdelinger
+ * pr. konto. Intet af det findes. Apple/Google Wallet nævnes KUN i FAQ'en, og
+ * kun som noget kortet IKKE kan — køberne spørger, fordi konkurrenterne
+ * sælger på det, og et ærligt nej er bedre end en kunde, der opdager det selv.
+ *
+ * TRE INDSTILLINGER I WIZARDEN GØR INTET, OG SIDEN MÅ IKKE SÆLGE DEM
+ * (gennemgået 12. okt. 2026): `stamps_expire`/`stamp_expiry_days` gemmes, men
+ * intet lader stempler udløbe; optjeningsmodellerne `per_amount` og
+ * `campaign` er etiketter — beløbet gemmes på transaktionen, men antallet
+ * tastes af personalet eller er 1 (`stampByToken`). Bygges de en dag, kan de
+ * komme tilbage på siden. Kundens kortside opdaterer heller ikke af sig selv:
+ * et nyt stempel ses, når kortet åbnes eller genindlæses.
  */
 
-const title = "Digitalt stempelkort til virksomheder";
+/*
+ * METADATA ER SKREVET TIL SØGERESULTATET (12. okt. 2026). Siden stod i snit
+ * på plads 8,2 for "digitalt stempelkort" over 28 dage med 0 klik, mens
+ * konkurrenterne omkring den sælger på Wallet og pris. Titlen bærer derfor
+ * det, folk spørger om først ("uden app"), og beskrivelsen siger, hvordan
+ * stemplet gives, og at pointprogrammet følger med — to ting, de billigste
+ * stempelkort ikke har. Titlen er ≤ 65 tegn MED " — LoyalSum.dk".
+ */
+const title = "Digitalt stempelkort til virksomheder – uden app";
 const description =
-  "Få et digitalt stempelkort, der får kunderne til at komme igen. Kunden samler stempler på mobilen uden app, og du bestemmer antal og belønning.";
+  "Digitalt stempelkort uden app: kunden samler stempler på mobilen, og personalet stempler med ét scan. Pointprogram følger med i prisen. Ingen binding.";
 
 export const metadata: Metadata = {
   title,
@@ -68,7 +86,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/stempelkort" },
   openGraph: {
     type: "website",
-    title: `${title} — få kunderne til at komme igen`,
+    title: "Digitalt stempelkort til virksomheder — få kunderne til at komme igen",
     description,
     url: "/stempelkort",
   },
@@ -86,12 +104,12 @@ const STEPS = [
   {
     Icon: ScanIcon,
     title: "Kunden får sit kort ved at scanne",
-    body: "Gæsten scanner QR-koden på din stander og opretter kortet på få sekunder. Kortet er en helt almindelig webside — der er ingen app at hente og ingen konto, kunden skal oprette først. Kortet hænger på kundens e-mail, så det kan altid findes frem igen.",
+    body: "Gæsten scanner QR-koden på din stander og opretter kortet på få sekunder. Kortet er en helt almindelig webside — der er ingen app at hente og ingen konto, kunden skal oprette først. Kortet hænger på kundens e-mail eller telefonnummer, så kunden kan få det tilbage med alle stempler, hvis linket bliver væk.",
   },
   {
     Icon: StampIcon,
     title: "Personalet giver et stempel",
-    body: "Kunden viser sit kort, personalet åbner det og trykker én gang. Stemplet lander med det samme, og kunden ser fremgangen på sin egen skærm. Kun personale med adgang til din forretning kan stemple.",
+    body: "Kunden viser QR-koden på sit kort. Personalet scanner den med kameraet på sin egen telefon og trykker én gang — eller finder kunden på navn eller telefonnummer. Stemplet er registreret med det samme, og kunden ser det næste gang, kortet åbnes. Kun personale med adgang til din forretning kan stemple.",
   },
   {
     Icon: RewardIcon,
@@ -152,24 +170,24 @@ const REWARDS = [
   },
 ];
 
-/** Optjeningsmodellerne i den rækkefølge, wizarden viser dem. */
-const EARN_MODELS: EarnModel[] = [
-  "per_purchase",
-  "per_visit",
-  "per_amount",
-  "manual",
-  "campaign",
-];
+/**
+ * KUN DE MODELLER, DER GØR NOGET. Wizarden viser også `per_amount` og
+ * `campaign`, men ingen af dem ændrer antallet af stempler — se hovedet
+ * øverst. De tre her svarer til, hvad stemplingen faktisk gør: ét tryk = ét
+ * stempel (pr. køb eller pr. besøg), eller et antal, personalet selv taster.
+ */
+const EARN_MODELS: EarnModel[] = ["per_purchase", "per_visit", "manual"];
 
 /**
- * Spærrerne mod misbrug. Alle fem er faktiske felter på et program — se
- * `program-wizard.tsx` og FAQ'en længere nede, som beskriver de samme fem.
+ * Spærrerne mod misbrug. Alle fem håndhæves i `src/lib/loyalty/service.ts`
+ * (`giveStamp`) og ved indløsningen — ikke kun gemt i et felt. Stempeludløb
+ * stod her før og er taget ud: indstillingen findes, men intet håndhæver den.
  */
 const REGLER = [
   "Højst et bestemt antal stempler pr. køb",
   "Højst et bestemt antal stempler pr. kunde pr. dag",
   "En mindste tid mellem to stempler",
-  "Stempler kan udløbe efter et antal dage",
+  "Kun personale med adgang kan give stempler",
   "Kortet nulstilles — eller overskydende stempler følger med videre",
 ];
 
@@ -214,24 +232,41 @@ const EKSEMPLER: {
   },
 ];
 
-/** Brancheeksempler. Tallene er de faktiske skabeloner i produktet. */
+/**
+ * Brancheeksempler. Tallene er de faktiske skabeloner i produktet.
+ *
+ * `guide` peger på blogguiden for branchen, hvor der findes en. Siden er den
+ * kommercielle side for "digitalt stempelkort"; guiderne tager det
+ * branchespecifikke ("stempelkort til café" osv.), og linket herfra er det,
+ * der binder de to sammen i stedet for at lade dem konkurrere. Ankerteksterne
+ * er bevidst forskellige og ikke "digitalt stempelkort" igen.
+ */
 const INDUSTRIES: {
   name: string;
   branche: Branche;
   body: string;
   template: string;
+  guide?: { href: string; label: string };
 }[] = [
   {
     name: "Café og kaffebar",
     branche: "cafe",
     body: "Et køb giver et stempel, og det tiende er gratis. Den klassiske kaffeaftale, bare uden papkort der falder fra hinanden i lommen.",
     template: "1 køb = 1 stempel · 10 stempler = gratis kaffe",
+    guide: {
+      href: "/blog/stempelkort-til-cafe",
+      label: "Guide: stempelkort til café",
+    },
   },
   {
     name: "Restaurant og takeaway",
     branche: "restaurant",
     body: "Et besøg giver et stempel. Efter otte besøg står der en dessert eller en ret klar til gæsten.",
     template: "1 besøg = 1 stempel · 8 stempler = gratis dessert",
+    guide: {
+      href: "/blog/stempelkort-til-takeaway",
+      label: "Sådan bruger takeaway og pizzeria kortet",
+    },
   },
   {
     name: "Frisør og barber",
@@ -248,7 +283,7 @@ const INDUSTRIES: {
   {
     name: "Butik",
     branche: "butik",
-    body: "Beløn dem, der handler hos dig igen og igen. Du kan lade et stempel følge et køb, et besøg eller et beløb, kunden handler for.",
+    body: "Beløn dem, der handler hos dig igen og igen: et stempel pr. køb eller pr. besøg. Svinger kurven meget i størrelse, kan pointprogrammet køre ved siden af.",
     template: "Du sætter selv antal og belønning",
   },
   {
@@ -256,6 +291,10 @@ const INDUSTRIES: {
     branche: "vaerksted",
     body: "Alt hvor den samme kunde kommer tilbage med jævne mellemrum. Er der genbesøg i din forretning, er der en grund til et stempelkort.",
     template: "Du sætter selv antal og belønning",
+    guide: {
+      href: "/blog/fastholde-medlemmer-fitness",
+      label: "Fitness: beløn fremmødet",
+    },
   },
 ];
 
@@ -291,21 +330,40 @@ const FAQ = [
   },
   {
     /*
+     * ÆRLIGT NEJ — og ikke solgt som en fordel. Der findes ingen pkpass- eller
+     * Wallet-kode (efterprøvet 12. okt. 2026). Svaret beskriver de veje,
+     * kortet FAKTISK findes frem ad: hjemmeskærmen (`PwaInstall`), den
+     * frivillige konto (`/mine-kort`) og `/kort/find`. Kommer Wallet en dag,
+     * skal svaret skrives om samme dag.
+     */
+    q: "Kan kortet ligge i Apple Wallet eller Google Wallet?",
+    a: "Nej, ikke i dag. LoyalSums stempelkort er en webside og kan ikke lægges i Apple Wallet eller Google Wallet. Kunden åbner kortet fra sit link, og kortet kan lægges på telefonens hjemmeskærm, så det åbner med ét tryk ligesom en app. Opretter kunden en gratis konto, ligger kortene samlet under Mine fordele og kan åbnes fra enhver telefon. Et mistet link kan kunden få tilsendt på loyalsum.dk/kort/find.",
+  },
+  {
+    /*
      * SPØRGSMÅLET KOM MED DEN DIGITALE UDGAVE. Stempelkortet har aldrig
      * KRÆVET en stander — kortet er en webside — men indtil LoyalSum Komplet
      * Online fandtes, var standeren den eneste vej ind, og teksten her lovede
      * derfor implicit, at man skulle have en.
      */
     q: "Kræver et digitalt stempelkort en fysisk stander?",
-    a: "Nej. Stempelkortet er en webside, og kunden kan komme ind ad enhver vej: en QR-kode på standeren, et link på din hjemmeside eller i din webshop, en mail eller et opslag. Med LoyalSum Komplet får du standeren med; med LoyalSum Komplet Online får du den samme platform uden — og deler selv dit link. Bruger du WooCommerce, kan webshoppen også forbindes med LoyalSum, så hver betalt ordre giver ét stempel.",
+    a: "Nej. Stempelkortet er en webside, og kunden kan komme ind ad enhver vej: en QR-kode på standeren, et link på din hjemmeside eller i din webshop, en mail eller et opslag. Med LoyalSum Komplet får du standeren med; med LoyalSum Komplet Online får du den samme platform uden — og deler selv dit link. Bruger du WooCommerce, kan webshoppen også forbindes med LoyalSum, så hver betalt ordre giver ét stempel. Stempelkortets belønning indløses i butikken; i webshoppen kan kunden kun bruge pointbelønninger.",
   },
   {
     q: "Hvordan får kunden sit stempelkort?",
     a: "Kunden scanner QR-koden på standeren og opretter kortet på få sekunder. Du kan også oprette en kunde manuelt fra dit dashboard, hvis det passer bedre til situationen — for eksempel når nogen står ved disken uden telefonen fremme.",
   },
   {
+    /*
+     * SÅDAN SOM DET FAKTISK FOREGÅR (efterprøvet i koden 12. okt. 2026):
+     * kortet viser en QR-kode, personalet scanner den med telefonens
+     * kamera — der er ingen indbygget scanner — og er de logget ind med
+     * stempelret, åbner kortet i personaletilstand med en stempelknap
+     * (`stampByToken`, altid 1). Uden telefon: søgning på navn eller telefon
+     * på /personale. Flere stempler på én gang kun fra ejerens dashboard.
+     */
     q: "Hvordan giver jeg et stempel?",
-    a: "Kunden viser sit kort, du åbner det og trykker én gang. Kun personale, der er logget ind med adgang til din forretning, kan give stempler — kunden kan altså ikke stemple sig selv.",
+    a: "Kunden viser QR-koden på sit kort. Du scanner den med kameraet på din egen telefon, og fordi du er logget ind med adgang til butikken, åbner kortet med en stempelknap: ét tryk giver ét stempel. Har kunden ikke telefonen fremme, finder du kortet ved at søge på navn eller telefonnummer. Der skal ikke bruges en scanner, en tablet eller et kassesystem. Kun personale med adgang til din forretning kan give stempler — kunden kan altså ikke stemple sig selv.",
   },
   {
     q: "Kan jeg selv vælge antal stempler og belønningen?",
@@ -317,7 +375,7 @@ const FAQ = [
   },
   {
     q: "Hvad forhindrer, at nogen samler stempler uden at købe noget?",
-    a: "Du sætter reglerne: hvor mange stempler der højst må gives pr. køb, hvor mange en kunde kan få på én dag, og hvor lang tid der mindst skal gå mellem to stempler. Du kan også lade stempler udløbe efter et antal dage. Reglerne håndhæves af systemet, ikke af hukommelsen hos den, der står ved kassen.",
+    a: "Du sætter reglerne: hvor mange stempler der højst må gives pr. køb, hvor mange en kunde kan få på én dag, og hvor lang tid der mindst skal gå mellem to stempler. Og kun personale, der er logget ind med adgang til din forretning, kan stemple. Reglerne håndhæves af systemet, ikke af hukommelsen hos den, der står ved kassen.",
   },
   {
     q: "Hvad sker der, når stempelkortet er fuldt?",
@@ -325,7 +383,7 @@ const FAQ = [
   },
   {
     q: "Kan jeg have flere stempelkort samtidig?",
-    a: "Ja. Du kan oprette flere programmer i din forretning, for eksempel et almindeligt kort og et til en kampagne, og sætte dem aktive eller på pause hver for sig.",
+    a: "Ja. Du kan oprette flere stempelkort i din forretning og sætte dem aktive eller på pause hver for sig. Kunder, der tilmelder sig på standeren, kommer på dit første aktive stempelkort; på et ekstra kort tilmelder du dem fra dit dashboard.",
   },
   {
     q: "Hvad sker der, hvis kunden skifter telefon?",
@@ -342,7 +400,7 @@ const FAQ = [
   },
   {
     q: "Hvad koster et digitalt stempelkort?",
-    a: "Stempelkortet er en del af LoyalSum Komplet — og pointprogrammet følger med i samme pris, så du kan køre den ene form, den anden eller begge. Du betaler for standeren én gang og et fast månedligt abonnement — se de aktuelle priser på produktsiden. Der er ingen binding: du kan opsige når som helst fra dit dashboard.",
+    a: "Stempelkortet er en del af LoyalSum Komplet og LoyalSum Komplet Online — og pointprogrammet følger med i samme pris, så du kan køre den ene form, den anden eller begge. Med Komplet betaler du for standeren én gang og et fast månedligt abonnement; Komplet Online er kun abonnementet, uden stander. Reviewstander og Reviewstander Pro har ikke stempelkort. Se de aktuelle priser i prisafsnittet ovenfor. Der er ingen binding: du kan opsige når som helst fra dit dashboard.",
   },
 ];
 
@@ -350,6 +408,7 @@ const FAQ = [
 
 export default function StempelkortPage() {
   const komplet = getProduct("loyalsum-komplet");
+  const online = getProduct("loyalsum-komplet-online");
   const base = getSiteUrl();
 
   const jsonLd = [
@@ -803,7 +862,15 @@ export default function StempelkortPage() {
             <p className="mt-6 max-w-2xl text-sm text-muted">
               Har din forretning få genbesøg og ingen interesse i tallene
               bagved, gør papkortet det fint. Det digitale kort betaler sig, når
-              kunderne kommer igen — og du vil vide hvor mange.
+              kunderne kommer igen — og du vil vide hvor mange. Regnestykket
+              står i{" "}
+              <Link
+                href="/blog/stempelkort-app-eller-papkort"
+                className="font-medium text-accent hover:underline"
+              >
+                sammenligningen af papkort, app og digitalt kort
+              </Link>
+              .
             </p>
 
             {/* DEN TREDJE MULIGHED HØRER TIL HER. Afsnittet stiller papkortet
@@ -897,6 +964,25 @@ export default function StempelkortPage() {
                   </li>
                 ))}
               </ul>
+
+              {/* SVARET PÅ "KAN DET GÅ EFTER BELØB?" — det spørgsmål stiller
+                  alle med store og små køb, og siden lovede før en model, der
+                  ikke regner noget ud. Beløbet KAN noteres i dashboardet, men
+                  antallet vælger personalet; det automatiske svar er point. */}
+              <p className="mt-6 max-w-2xl text-sm leading-relaxed text-muted">
+                Stemplerne gives altid af personalet: ét tryk på kundens kort
+                giver ét stempel, og fra kundeoversigten i dit dashboard kan du
+                give flere på én gang. Købsbeløbet kan noteres, men
+                omregnes ikke selv til stempler. Skal belønningen følge beløbet,
+                regner pointprogrammet det ud — se,{" "}
+                <Link
+                  href="/blog/stempelkort-til-bageri"
+                  className="font-medium text-accent hover:underline"
+                >
+                  hvordan et bageri med små og store køb vælger
+                </Link>
+                .
+              </p>
             </div>
 
             {/* Spærrerne står i et MØRKT felt, og det er ikke pynt: afsnittet
@@ -998,6 +1084,14 @@ export default function StempelkortPage() {
                   <p className="mt-4 text-xs font-medium text-accent">
                     {b.template}
                   </p>
+                  {b.guide ? (
+                    <Link
+                      href={b.guide.href}
+                      className="trykmaal mt-3 self-start text-sm font-medium text-accent hover:underline"
+                    >
+                      {b.guide.label} →
+                    </Link>
+                  ) : null}
                 </div>
               ))}
             </div>
@@ -1055,18 +1149,24 @@ export default function StempelkortPage() {
               <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
                 Hvad koster et digitalt stempelkort?
               </h2>
+              {/* HVAD MAN FÅR, HVAD DET KOSTER, OG HVAD DER IKKE ER MED.
+                  Stempelkortet sælges ikke alene: det er en del af platformen,
+                  og prisen skal læses sådan — ikke sammenlignes med et rent
+                  stempelkort til 99 kr. Begge varer med stempelkort står her,
+                  og tallene slås op i kataloget og skrives aldrig af. */}
               <p className="mt-4 max-w-2xl leading-relaxed text-foreground/90">
                 Stempelkortet får du med <strong>{komplet.name}</strong>, som
-                samler stempelkort, pointprogram, anmeldelser og opslag på én
-                stander. Begge loyalitetsformer er med i prisen — du vælger selv
-                den ene, den anden eller begge.
+                samler stempelkort, pointprogram, feedback og opslag af dine
+                bedste anmeldelser — med en stander med QR og NFC til disken.
+                Begge loyalitetsformer er med i prisen — du vælger selv den ene,
+                den anden eller begge.
               </p>
 
 
               <div className="mt-4 box-shape border border-border bg-card p-6">
                 <dl className="grid gap-4 sm:grid-cols-3">
                   <div>
-                    <dt className="text-sm text-muted">Stander</dt>
+                    <dt className="text-sm text-muted">Stander (engangsbeløb)</dt>
                     <dd className="text-xl font-bold">
                       {formatCurrency(komplet.price)}
                     </dd>
@@ -1099,6 +1199,24 @@ export default function StempelkortPage() {
                 <p className="mt-4 text-sm text-muted">
                   Alle priser er ex moms. Køber du flere standere, falder prisen
                   pr. stk. Ingen binding.
+                </p>
+                {online?.monthlyPrice ? (
+                  <p className="mt-4 border-t border-border pt-4 text-sm leading-relaxed">
+                    <strong>Uden stander:</strong>{" "}
+                    <Link
+                      href={`/produkter/${online.slug}`}
+                      className="font-medium text-accent hover:underline"
+                    >
+                      {online.name}
+                    </Link>{" "}
+                    har den samme platform for{" "}
+                    {formatCurrency(online.monthlyPrice)}/md ex moms og ingen
+                    engangsbeløb — du deler selv dit link og din QR-kode.
+                  </p>
+                ) : null}
+                <p className="mt-3 text-sm text-muted">
+                  Reviewstander og Reviewstander Pro samler anmeldelser, men har
+                  hverken stempelkort eller pointprogram.
                 </p>
                 <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                   <ButtonLink href={`/produkter/${komplet.slug}`} size="lg">
