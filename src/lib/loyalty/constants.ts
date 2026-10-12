@@ -84,6 +84,44 @@ export const EARN_MODEL_LABELS: Record<EarnModel, string> = {
   campaign: "Kampagne",
 };
 
+/**
+ * DE MODELLER, ET NYT STEMPELKORT KAN FÅ.
+ *
+ * `per_amount` og `campaign` findes i enum'en og i `EARN_MODEL_LABELS`, men
+ * stemplingen læser dem ikke: beløbet gemmes kun på transaktionen, og
+ * antallet tastes af personalet eller er 1 (`stampByToken`). En butik, der
+ * vælger "1 stempel pr. 100 kr." eller "dobbelt om tirsdagen", får derfor
+ * noget andet, end skærmen lovede. De er taget ud af VALGET 12. okt. 2026 —
+ * IKKE af databasen: felter, enum og etiketter bliver, så et kort, der
+ * allerede står med en af dem, stadig kan vises og redigeres
+ * (`vaelgEarnModel`). Bygges modellerne færdige, flyttes de tilbage her.
+ */
+export const VALGBARE_EARN_MODELS: readonly EarnModel[] = [
+  "per_purchase",
+  "per_visit",
+  "manual",
+];
+
+export function earnModelErValgbar(m: EarnModel): boolean {
+  return VALGBARE_EARN_MODELS.includes(m);
+}
+
+/**
+ * Hvilken model der må GEMMES. En valgbar model gemmes altid. En udgået
+ * model gemmes kun, hvis kortet ALLEREDE står med netop den — så en
+ * redigering af navn eller farve ikke stille skifter et eksisterende kort
+ * over på noget andet. Alt andet (et nyt kort, eller et forsøg på at skifte
+ * TIL en udgået model) falder tilbage på "pr. køb".
+ */
+export function vaelgEarnModel(
+  indsendt: EarnModel,
+  eksisterende: EarnModel | null,
+): EarnModel {
+  if (earnModelErValgbar(indsendt)) return indsendt;
+  if (eksisterende && indsendt === eksisterende) return indsendt;
+  return "per_purchase";
+}
+
 export const EARN_MODEL_HELP: Record<EarnModel, string> = {
   per_purchase: "1 køb giver 1 stempel.",
   per_visit: "1 besøg giver 1 stempel.",

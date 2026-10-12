@@ -10,6 +10,8 @@ import {
   EARN_MODEL_HELP,
   REWARD_TYPE_LABELS,
   PROGRAM_TEMPLATES,
+  VALGBARE_EARN_MODELS,
+  earnModelErValgbar,
   type EarnModel,
   type RewardType,
 } from "@/lib/loyalty/constants";
@@ -77,8 +79,6 @@ export function ProgramWizard({
   const [startDate, setStartDate] = useState(initial?.startDate ?? "");
   const [endDate, setEndDate] = useState(initial?.endDate ?? "");
   const [earnModel, setEarnModel] = useState<EarnModel>(initial?.earnModel ?? "per_purchase");
-  const [stampsPerEarn, setStampsPerEarn] = useState(initial?.stampsPerEarn ?? "1");
-  const [amountPerStamp, setAmountPerStamp] = useState(initial?.amountPerStamp ?? "");
   const [rewardType, setRewardType] = useState<RewardType>(initial?.rewardType ?? "free_product");
   const [rewardName, setRewardName] = useState(initial?.rewardName ?? "");
   const [requiredStamps, setRequiredStamps] = useState(initial?.requiredStamps ?? "10");
@@ -92,10 +92,26 @@ export function ProgramWizard({
   const [maxPerTxn, setMaxPerTxn] = useState(initial?.maxPerTxn ?? "1");
   const [maxPerDay, setMaxPerDay] = useState(initial?.maxPerDay ?? "");
   const [minMinutes, setMinMinutes] = useState(initial?.minMinutes ?? "0");
-  const [requireStaffConfirm, setRequireStaffConfirm] = useState(initial?.requireStaffConfirm ?? true);
-  const [stampsExpire, setStampsExpire] = useState(initial?.stampsExpire ?? false);
-  const [stampExpiryDays, setStampExpiryDays] = useState(initial?.stampExpiryDays ?? "");
   const [publishNow, setPublishNow] = useState(false);
+
+  /*
+   * UDGÅEDE VALG (12. okt. 2026). "Efter beløb", "Kampagne" og "Stempler
+   * udløber" blev gemt, men intet i stemplingen fulgte dem — se
+   * `VALGBARE_EARN_MODELS`. Et NYT kort kan derfor ikke vælge dem. Står et
+   * EKSISTERENDE kort med en af dem, vises den stadig (og forklares), så en
+   * redigering ikke stille skifter kortet over på noget andet; serveren
+   * (`vaelgEarnModel`, `updateProgram`) holder den samme regel.
+   */
+  const udgaaetModel =
+    initial && !earnModelErValgbar(initial.earnModel) ? initial.earnModel : null;
+  const modelValg: EarnModel[] = udgaaetModel
+    ? [...VALGBARE_EARN_MODELS, udgaaetModel]
+    : [...VALGBARE_EARN_MODELS];
+  const harGemtUdloeb = Boolean(initial?.stampsExpire);
+  // "Antal stempler pr. optjening" er også taget ud: ét tryk giver altid ét
+  // stempel. Står et kort med en anden gemt værdi, forklares den og gemmes
+  // uændret (`updateProgram` skriver ikke feltet).
+  const gemtPrOptjening = parseInt(initial?.stampsPerEarn ?? "1", 10) || 1;
 
   function applyTemplate(key: string) {
     const t = PROGRAM_TEMPLATES.find((x) => x.key === key);
@@ -196,22 +212,36 @@ export function ProgramWizard({
         <div hidden={step !== 1} className="space-y-5">
           <Field label="Hvordan optjener kunden stempler?">
             <select className={selectClass} value={earnModel} onChange={(e) => setEarnModel(e.target.value as EarnModel)}>
-              {(Object.keys(EARN_MODEL_LABELS) as EarnModel[]).map((m) => (
-                <option key={m} value={m}>{EARN_MODEL_LABELS[m]}</option>
+              {modelValg.map((m) => (
+                <option key={m} value={m}>
+                  {m === udgaaetModel
+                    ? `${EARN_MODEL_LABELS[m]} (udgået)`
+                    : EARN_MODEL_LABELS[m]}
+                </option>
               ))}
             </select>
           </Field>
-          <p className="text-sm text-muted">{EARN_MODEL_HELP[earnModel]}</p>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Antal stempler pr. optjening">
-              <Input type="number" min={1} name="stamps_per_earn" value={stampsPerEarn} onChange={(e) => setStampsPerEarn(e.target.value)} />
-            </Field>
-            {earnModel === "per_amount" ? (
-              <Field label="Beløb pr. stempel (kr.)" hint="Fx 100 = 1 stempel pr. 100 kr.">
-                <Input type="number" min={1} name="amount_per_stamp" value={amountPerStamp} onChange={(e) => setAmountPerStamp(e.target.value)} />
-              </Field>
-            ) : null}
-          </div>
+          {earnModel === udgaaetModel ? (
+            <p className="box-shape border border-border bg-muted-bg/40 p-3 text-sm text-muted">
+              Dette kort står med en optjeningsmodel, der ikke længere kan
+              vælges til nye kort. Den beregner ikke stempler selv — personalet
+              giver stemplerne, præcis som nu — og kortet virker uændret. Vælger
+              du en anden model og gemmer, kan du ikke skifte tilbage.
+            </p>
+          ) : (
+            <p className="text-sm text-muted">{EARN_MODEL_HELP[earnModel]}</p>
+          )}
+          <p className="text-sm text-muted">
+            Personalet giver stemplerne: ét tryk på kundens kort giver ét
+            stempel, og fra kundeoversigten kan du give flere på én gang.
+          </p>
+          {gemtPrOptjening > 1 ? (
+            <p className="box-shape border border-border bg-muted-bg/40 p-3 text-sm text-muted">
+              Dette kort har en gammel indstilling på {gemtPrOptjening} stempler
+              pr. optjening. Den bruges ikke — hvert tryk giver ét stempel — og
+              den gemmes uændret.
+            </p>
+          ) : null}
         </div>
 
         {/* Trin 3 — Belønning */}
@@ -288,18 +318,16 @@ export function ProgramWizard({
           <Field label="Minimumstid mellem stempler (minutter)" hint="Beskytter mod misbrug. 0 = ingen grænse.">
             <Input type="number" min={0} name="min_minutes_between" value={minMinutes} onChange={(e) => setMinMinutes(e.target.value)} />
           </Field>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" name="require_staff_confirm" checked={requireStaffConfirm} onChange={(e) => setRequireStaffConfirm(e.target.checked)} className="h-4 w-4 accent-[var(--accent)]" />
-            Medarbejder skal bekræfte hvert stempel (anbefalet)
-          </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" name="stamps_expire" checked={stampsExpire} onChange={(e) => setStampsExpire(e.target.checked)} className="h-4 w-4 accent-[var(--accent)]" />
-            Stempler udløber
-          </label>
-          {stampsExpire ? (
-            <Field label="Udløb efter (dage)">
-              <Input type="number" min={1} name="stamp_expiry_days" value={stampExpiryDays} onChange={(e) => setStampExpiryDays(e.target.value)} />
-            </Field>
+          {/* Intet "Stempler udløber"-felt: udløb håndhæves ikke. Et kort, der
+              allerede har indstillingen gemt, får den forklaret — og den
+              gemmes uændret, fordi `updateProgram` ikke skriver felterne. */}
+          {harGemtUdloeb ? (
+            <p className="box-shape border border-border bg-muted-bg/40 p-3 text-sm text-muted">
+              Dette kort har en gammel indstilling om, at stempler udløber
+              {initial?.stampExpiryDays ? ` efter ${initial.stampExpiryDays} dage` : ""}.
+              Udløb af stempler er ikke aktivt i LoyalSum, så kundernes
+              stempler udløber ikke. Indstillingen gemmes uændret.
+            </p>
           ) : null}
         </div>
 
