@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="En betalt WooCommerce-ordre på 640 kr. giver 64 point, som lægges på kundens LoyalSum-kort, der kan bruges som rabat i kurven">
+  <rect width="1200" height="630" fill="#eff5f7"/>
+
+  <!-- Venstre: webshopordren -->
+  <rect x="90" y="140" width="400" height="350" rx="16" fill="#ffffff"/>
+  <rect x="90" y="140" width="400" height="350" rx="16" fill="none" stroke="#c5cdd0" stroke-width="2"/>
+  <rect x="90" y="140" width="400" height="56" rx="16" fill="#0f5b66"/>
+  <rect x="90" y="176" width="400" height="20" fill="#0f5b66"/>
+  <text x="122" y="176" font-family="system-ui, sans-serif" font-size="22" font-weight="600" fill="#ffffff">Webshopordre · betalt</text>
+
+  <text x="122" y="246" font-family="system-ui, sans-serif" font-size="22" fill="#06232e" opacity="0.6">Varer inkl. moms</text>
+  <text x="458" y="246" font-family="system-ui, sans-serif" font-size="24" font-weight="600" fill="#06232e" text-anchor="end">640 kr.</text>
+  <text x="122" y="290" font-family="system-ui, sans-serif" font-size="22" fill="#06232e" opacity="0.6">Fragt</text>
+  <text x="458" y="290" font-family="system-ui, sans-serif" font-size="24" fill="#06232e" opacity="0.45" text-anchor="end">tæller ikke</text>
+
+  <line x1="122" y1="322" x2="458" y2="322" stroke="#c5cdd0" stroke-width="2" stroke-dasharray="6 6"/>
+
+  <text x="122" y="366" font-family="system-ui, sans-serif" font-size="22" fill="#06232e" opacity="0.6">Regel</text>
+  <text x="458" y="366" font-family="system-ui, sans-serif" font-size="24" font-weight="600" fill="#06232e" text-anchor="end">1 point pr. 10 kr.</text>
+  <text x="122" y="430" font-family="system-ui, sans-serif" font-size="22" fill="#06232e" opacity="0.6">Optjent</text>
+  <text x="458" y="432" font-family="system-ui, sans-serif" font-size="32" font-weight="700" fill="#1a9089" text-anchor="end">+64 point</text>
+
+  <!-- Pil -->
+  <path d="M530 315h70" stroke="#1a9089" stroke-width="5" stroke-linecap="round"/>
+  <path d="M590 298l20 17-20 17" fill="none" stroke="#1a9089" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Højre: kundens kort med saldo og belønning -->
+  <rect x="650" y="110" width="460" height="410" rx="20" fill="#06232e"/>
+  <rect x="694" y="156" width="130" height="12" rx="6" fill="#ffffff" opacity="0.35"/>
+  <text x="694" y="236" font-family="system-ui, sans-serif" font-size="64" font-weight="700" fill="#ffffff">164 point</text>
+  <text x="694" y="276" font-family="system-ui, sans-serif" font-size="20" fill="#ffffff" opacity="0.65">Kundens LoyalSum-kort</text>
+
+  <line x1="694" y1="312" x2="1066" y2="312" stroke="#ffffff" stroke-opacity="0.12" stroke-width="2"/>
+  <text x="694" y="352" font-family="system-ui, sans-serif" font-size="20" fill="#ffffff" opacity="0.65">I kurven</text>
+
+  <rect x="694" y="372" width="372" height="104" rx="14" fill="#ffffff" fill-opacity="0.06" stroke="#d9a441" stroke-width="2"/>
+  <circle cx="730" cy="424" r="16" fill="#d9a441"/>
+  <path d="M722 424l6 6 11-12" fill="none" stroke="#06232e" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="762" y="416" font-family="system-ui, sans-serif" font-size="24" font-weight="600" fill="#ffffff">50 kr. rabat</text>
+  <text x="762" y="446" font-family="system-ui, sans-serif" font-size="20" fill="#ffffff" opacity="0.65">for 100 point</text>
+  <text x="1046" y="432" font-family="system-ui, sans-serif" font-size="24" font-weight="700" fill="#d9a441" text-anchor="end">−50 kr.</text>
+</svg>

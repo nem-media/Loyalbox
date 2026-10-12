@@ -2310,7 +2310,7 @@ export const POSTS: BlogPost[] = [
     image: "/blog/kundeklub-uden-app.svg",
     imageAlt:
       "Skilt med QR-kode på en disk ved siden af en telefon, der viser kundens stempelkort i browseren",
-    related: ["stempelkort-app-eller-papkort", "hvor-mange-stempler-stempelkort", "fastholde-medlemmer-fitness", "saadan-laver-du-et-pointprogram"],
+    related: ["stempelkort-app-eller-papkort", "hvor-mange-stempler-stempelkort", "fastholde-medlemmer-fitness", "saadan-laver-du-et-pointprogram", "dansk-woocommerce-loyalitetsplugin"],
     body: [
       {
         type: "p",
@@ -3583,6 +3583,7 @@ export const POSTS: BlogPost[] = [
       "hvor-mange-stempler-stempelkort",
       "kundeklub-uden-app-guide",
       "stempelkort-til-cafe",
+      "dansk-woocommerce-loyalitetsplugin",
     ],
     body: [
       {
@@ -3872,6 +3873,310 @@ export const POSTS: BlogPost[] = [
         text: "Klar til at sætte dit eget pointprogram op?",
         href: "/loyalitetsprogram",
         label: "Se LoyalSums pointprogram",
+      },
+    ],
+  },
+  {
+    /*
+      VALGGUIDEN — IKKE EN KOPI AF /woocommerce-loyalitetsprogram.
+      Landingssiden sælger LoyalSum til WooCommerce og ejer "WooCommerce
+      loyalitetsprogram", "WooCommerce pointprogram" og "WooCommerce
+      loyalitetsplugin" (se RESERVEREDE i blog.test.ts). Artiklen svarer på
+      "hvilket plugin skal jeg vælge?" og sammenligner løsningsmodeller.
+
+      KONKURRENTTAL ER EFTERPRØVET 12. okt. 2026 og dateret i teksten:
+      priser fra leverandørernes egne prissider, dansk oversættelse fra
+      translate.wordpress.org (WPLoyalty 0 %, WP Swings 0 %, myCred 7 %),
+      Smile.io = ingen WooCommerce (deres egen hjælpeside). YITH's pris kunne
+      ikke efterprøves og står derfor ikke der. Ret tallene, når de ældes —
+      eller fjern dem; et forkert konkurrenttal er værre end intet.
+
+      LOYALSUM-PÅSTANDENE følger landingssidens kommentar (Commerce API +
+      pluginet 1.0.0): brugerfladen er kun dansk (ingen oversættelser i
+      pakken), gæstekøb optjener på faktureringsmailen, men at BRUGE point
+      kræver login + bekræftelse, kun pointbelønninger i kurven, som standard
+      kun online betaling, kun DKK og priser inkl. moms. Ingen automatisk
+      opdatering: nye versioner hentes i dashboardet.
+    */
+    slug: "dansk-woocommerce-loyalitetsplugin",
+    title: "Dansk WooCommerce-plugin til point og kundeloyalitet",
+    metaTitle: "WooCommerce-plugin til point: dansk eller udenlandsk?",
+    description:
+      "Hvilket WooCommerce-plugin til point og belønninger skal du vælge? Sammenligning af WPLoyalty, WP Swings, myCred og en dansk platform — pris, sprog og funktioner.",
+    keyword: "woocommerce plugin point",
+    date: "2026-10-12",
+    readingMinutes: 9,
+    excerpt:
+      "Internationale plugins er billige, men sjældent på dansk. En samlet platform koster mere, men kan mere. Sådan vælger du det rigtige loyalitetsplugin til din WooCommerce-webshop.",
+    image: "/blog/dansk-woocommerce-loyalitetsplugin.svg",
+    imageAlt:
+      "En betalt webshopordre med varer for 640 kr. giver 64 point efter reglen 1 point pr. 10 kr., og kundens kort med 164 point bruger 100 af dem på 50 kr. rabat i kurven",
+    related: [
+      "saadan-laver-du-et-pointprogram",
+      "kundeklub-uden-app-guide",
+      "flere-trustpilot-anmeldelser",
+    ],
+    body: [
+      {
+        type: "p",
+        html: "En kunde, der har handlet hos dig én gang, er den billigste kunde at få til at handle igen. Hun kender din webshop, hun har allerede tastet sit kort ind, og hun ved, at varen kom. Et pointprogram giver hende en grund til at vælge dig næste gang i stedet for at søge forfra.",
+      },
+      {
+        type: "p",
+        html: "WooCommerce har ikke et pointprogram indbygget, så du skal bruge et plugin. Søger du efter et, finder du mest engelske produktsider, oversatte lister og priser i dollars. Denne guide gennemgår, hvad et loyalitetsplugin til WooCommerce skal kunne, hvad de udbredte plugins koster og kan, og hvornår en dansk løsning giver mening — og hvornår den ikke gør.",
+      },
+      {
+        type: "h2",
+        text: "Hvad skal et loyalitetsplugin til WooCommerce kunne?",
+      },
+      {
+        type: "p",
+        html: "Næsten alle plugins kan give point for et køb. Forskellene ligger i detaljerne, og det er dem, du mærker, når programmet har kørt et halvt år. Gå listen igennem, før du sammenligner priser:",
+      },
+      {
+        type: "ul",
+        items: [
+          "<strong>Pointoptjening.</strong> Kan du styre, hvad der giver point? Tæller fragt med? Hvad sker der med pointene, når en ordre refunderes?",
+          "<strong>Belønninger.</strong> Bliver pointene til en rabatkode, kunden skal kopiere, eller trækkes rabatten direkte i kurven? Kan du have flere belønninger med hver sin pris?",
+          "<strong>Kundens overblik.</strong> Kan kunden se sin saldo, og hvad der mangler til næste belønning, uden at skrive til dig?",
+          "<strong>Gæstekøb.</strong> Mange danske webshops lader kunderne handle uden konto. Nogle plugins giver kun point til kunder med en konto.",
+          "<strong>Administration.</strong> Kan du rette en fejl i en kundes saldo, og kan du se, om programmet bliver brugt?",
+          "<strong>Kompatibilitet.</strong> Virker det med WooCommerces blokbaserede kurv og kasse og med den nye ordrelagring (HPOS)?",
+          "<strong>Pris over tid.</strong> En årlig licens, et månedligt abonnement eller gratis — og hvad koster opdateringerne?",
+          "<strong>Support og vedligeholdelse.</strong> Hvem svarer, når noget ikke virker, og hvor ofte bliver pluginet opdateret?",
+        ],
+      },
+      {
+        type: "p",
+        html: "Har du ikke lagt reglerne for selve programmet endnu, så start dér. Pluginet er værktøjet; hvor mange point et køb skal give, og hvad det koster dig, er en beslutning, du skal træffe uanset hvad. <a href=\"/blog/saadan-laver-du-et-pointprogram\">Sådan laver du et pointprogram</a> gennemgår regnestykket i kroner.",
+      },
+      {
+        type: "h2",
+        text: "De udbredte WooCommerce-plugins til point",
+      },
+      {
+        type: "p",
+        html: "Der findes snesevis af plugins til point og belønninger. Tabellen viser de mest udbredte, med de priser og oversættelser, der kunne efterprøves hos leverandørerne i oktober 2026. Priserne er årlige licenser til én webshop, i dollars og uden moms.",
+      },
+      {
+        type: "table",
+        head: ["Plugin", "Model", "Pris (1 webshop)", "Dansk oversættelse"],
+        rows: [
+          [
+            "<strong>WPLoyalty</strong> (Flycart)",
+            "Gratis + Pro",
+            "Pro fra 84 $ om året",
+            "Ingen (0 %)",
+          ],
+          [
+            "<strong>Points and Rewards for WooCommerce</strong> (WP Swings)",
+            "Gratis + Pro",
+            "Pro 99 $ om året",
+            "Ingen (0 %)",
+          ],
+          [
+            "<strong>myCred</strong>",
+            "Gratis + betalte tilføjelser",
+            "Fra 99 $ om året",
+            "Delvis (7 %)",
+          ],
+          [
+            "<strong>YITH WooCommerce Points and Rewards</strong>",
+            "Kun betalt",
+            "Ikke efterprøvet",
+            "Kun engelsk, italiensk og spansk garanteret",
+          ],
+          [
+            "<strong>WooCommerce Points and Rewards</strong> (officiel)",
+            "Kun betalt",
+            "179 $ om året",
+            "—",
+          ],
+        ],
+      },
+      {
+        type: "p",
+        html: "Oversættelsen er målt på translate.wordpress.org, hvor frivillige oversætter plugins til dansk. Tallet gælder pluginets egne tekster — altså også det, kunden ser i kurven og under Min konto.",
+      },
+      {
+        type: "p",
+        html: "<strong>WPLoyalty</strong> har en brugbar gratisversion med point for køb, rabatkuponer og udløb af point. Point for tilmelding, fødselsdage, henvisninger og anmeldelser samt VIP-niveauer kræver Pro. <strong>Points and Rewards for WooCommerce</strong> fra WP Swings giver mere i gratisversionen — blandt andet henvisninger, point ved tilmelding og point til gæster, som dog først kan bruges, når kunden opretter en konto.",
+      },
+      {
+        type: "p",
+        html: "<strong>myCred</strong> er en generel pointmotor til WordPress med badges og rangtrin, hvor WooCommerce er én af mange anvendelser. Det giver stor fleksibilitet, men også mere opsætning, og dele af webshopfunktionerne — for eksempel rabatkuponer — ligger i betalte tilføjelser. <strong>YITH</strong> findes kun som betalt plugin og har en bred funktionsliste med niveauer, udløb og ekstra point. Det <strong>officielle plugin fra WooCommerce</strong> er det dyreste i tabellen og kræver, at kunderne har en konto, så gæstekøb giver ingen point.",
+      },
+      {
+        type: "p",
+        html: "Der findes også abonnementstjenester, der kører uden for webshoppen. Vær opmærksom på, at flere kendte navne slet ikke understøtter WooCommerce — Smile.io virker for eksempel kun med Shopify og BigCommerce.",
+      },
+      {
+        type: "note",
+        title: "Point for anmeldelser er en fælde i Danmark",
+        html: 'Flere af pluginsene kan give point for en anmeldelse — det står i Pro-versionen af WPLoyalty, hos YITH og i det officielle plugin. Slå det fra. Forbrugerombudsmandens retningslinjer opfordrer til forsigtighed med at belønne anmeldelser, fordi det kan trække bedømmelserne op, og Google tillader ikke belønnede anmeldelser på din Google-profil. <a href="/blog/flere-trustpilot-anmeldelser">Læs mere om reglerne for anmeldelser</a>.',
+      },
+      {
+        type: "h2",
+        text: "Fordele ved et danskudviklet WooCommerce-plugin",
+      },
+      {
+        type: "p",
+        html: "\"Dansk\" bliver brugt om flere forskellige ting, og de følges ikke altid ad. Hold dem adskilt, når du vurderer en løsning:",
+      },
+      {
+        type: "ul",
+        items: [
+          "<strong>Danskudviklet</strong> siger, hvor koden er skrevet — ikke i sig selv noget om, hvad kunden ser.",
+          "<strong>Dansk brugerflade</strong> er det, der betyder mest for dine kunder: knapperne i kurven, teksten under Min konto og de mails, kunden får. Et engelsk plugin i en dansk webshop kan oversættes, men det er dit arbejde, og det skal gøres om, når pluginet ændrer sine tekster.",
+          "<strong>Dansk dokumentation</strong> er vejledninger, du kan læse uden at oversætte i hovedet.",
+          "<strong>Dansk support</strong> er et menneske, der svarer på dansk inden for en dansk arbejdsdag.",
+          "<strong>Danske forretningsbehov</strong> er alt det, en udenlandsk leverandør ikke tænker på: priser inklusive moms, danske kroner, kunder der handler som gæst, og en databehandleraftale, der holder efter dansk og europæisk ret.",
+        ],
+      },
+      {
+        type: "p",
+        html: "Et udenlandsk plugin kan godt opfylde flere af punkterne. Mange internationale plugins er gennemprøvede, har tusindvis af installationer og opdateres jævnligt. Men et plugin, hvor ingen af teksterne er oversat, betyder, at enten du eller dine kunder møder engelsk midt i et dansk køb.",
+      },
+      {
+        type: "h2",
+        text: "Internationale plugins eller en dansk loyalitetsplatform?",
+      },
+      {
+        type: "p",
+        html: "Det egentlige valg står ikke mellem et dansk og et udenlandsk plugin, men mellem to måder at bygge et loyalitetsprogram på.",
+      },
+      {
+        type: "p",
+        html: "<strong>Et plugin, der lever i webshoppen.</strong> Point, regler og belønninger ligger i WordPress-databasen. Det er billigt, du har fuld kontrol, og det er det rigtige valg, hvis du kun sælger online og blot vil give point for køb. Til gengæld findes programmet kun dér: kunder, der handler i en fysisk butik, på et marked eller i et showroom, er ikke med.",
+      },
+      {
+        type: "p",
+        html: "<strong>En platform, hvor webshoppen er én kanal.</strong> Programmet ligger uden for webshoppen, og WooCommerce sender ordrerne dertil. Det koster et løbende abonnement, og du er afhængig af en leverandør. Til gengæld kan det samme program bruges i flere kanaler, og platformen kan rumme mere end point — for eksempel stempelkort og kundefeedback.",
+      },
+      {
+        type: "p",
+        html: "Ingen af modellerne er bedst i alle tilfælde. Spørgsmålet er, om du har brug for én funktion i webshoppen eller et loyalitetsprogram, der rækker ud over den.",
+      },
+      { type: "h2", text: "Sådan fungerer LoyalSum med WooCommerce" },
+      {
+        type: "p",
+        html: "LoyalSum er en dansk loyalitetsplatform med sit eget WooCommerce-plugin, LoyalSum for WooCommerce. Pluginets brugerflade er på dansk. For kunden ser forløbet sådan ud:",
+      },
+      {
+        type: "ol",
+        items: [
+          "Kunden handler i din webshop — med eller uden konto.",
+          "Når ordren er betalt, får kunden point efter dit programs regel. Point regnes af varernes pris inkl. moms efter rabat; fragt og gebyrer tæller ikke med, og refunderede varer trækkes fra igen.",
+          "For at bruge sine point logger kunden ind under Min konto og bekræfter sin e-mail én gang. Point optjent inden da gemmes i op til 90 dage og lægges på kortet ved bekræftelsen.",
+          "I kurven vælger kunden en af dine pointbelønninger — et fast beløb eller en procentdel — og rabatten trækkes direkte fra ordren.",
+        ],
+      },
+      {
+        type: "p",
+        html: "Kunden får én belønning pr. ordre, og belønninger kan som standard kun bruges med online betaling. Bankoverførsel og efterkrav er slået fra for ordrer med en belønning, så pointene ikke bliver brugt, før pengene er kommet. Pluginet virker med både den klassiske og den blokbaserede kurv og kasse og understøtter HPOS.",
+      },
+      {
+        type: "p",
+        html: "Der er også begrænsninger, som er værd at kende på forhånd: webshoppen skal bruge danske kroner, priserne skal være indtastet inkl. moms, for at belønninger kan bruges i kurven, og WooCommerce er det eneste webshopsystem, LoyalSum kan forbindes med i dag. Nye versioner af pluginet hentes i LoyalSum-dashboardet. <a href=\"/woocommerce-loyalitetsprogram\">Se hele gennemgangen af LoyalSum til WooCommerce</a>.",
+      },
+      {
+        type: "h2",
+        text: "Kan samme loyalitetsprogram bruges i webshop og fysisk butik?",
+      },
+      {
+        type: "p",
+        html: "Med de fleste plugins: nej. Pointene ligger i webshoppen, og kassen i butikken ved intet om dem.",
+      },
+      {
+        type: "p",
+        html: "Med LoyalSum er det det samme program. Kunden har ét kort hos dig, og point optjent i butikken og i webshoppen står på samme saldo, når det er det samme pointprogram, der er slået til begge steder. I butikken tilmelder kunden sig ved at scanne QR-koden på din stander, og personalet giver point ved disken. Der er ingen integration med kassesystemer — point i butikken gives af personalet i LoyalSum.",
+      },
+      {
+        type: "p",
+        html: "Derfor findes LoyalSum i to udgaver med WooCommerce-pluginet:",
+      },
+      {
+        type: "ul",
+        items: [
+          '<strong><a href="/loyalsum-komplet-online">LoyalSum Komplet Online</a></strong> er til webshops uden en disk. Du får hele platformen uden fysisk stander, med dit eget link og en QR-kode, du kan bruge i nyhedsbreve og på kvitteringer.',
+          "<strong>LoyalSum Komplet</strong> er til forretninger med både butik og webshop. Det er den samme platform og det samme plugin plus en fysisk stander med QR og NFC til disken.",
+        ],
+      },
+      {
+        type: "h2",
+        text: "Hvad koster et WooCommerce-loyalitetsplugin?",
+      },
+      {
+        type: "p",
+        html: "Prisen afhænger af modellen, og den rigtige sammenligning er prisen pr. år — ikke prisen på forsiden.",
+      },
+      {
+        type: "p",
+        html: "<strong>Gratis plugins</strong> koster ingenting at installere. Gratisversionerne af WPLoyalty og WP Swings dækker det mest basale: point for køb og point brugt som rabat. Prisen er din tid, når teksterne skal oversættes, og når noget skal sættes op, som gratisversionen ikke kan.",
+      },
+      {
+        type: "p",
+        html: "<strong>Betalte licenser</strong> koster typisk 80-180 dollars om året for én webshop og giver opdateringer og support, så længe licensen løber.",
+      },
+      {
+        type: "p",
+        html: "<strong>Abonnementsplatforme</strong> koster et fast beløb om måneden og rummer mere end pointdelen. LoyalSum Komplet Online koster 399 kr. om måneden ex moms uden binding, og WooCommerce-pluginet er inkluderet — det sælges ikke for sig. Betaler du for et år ad gangen, koster det 4.389 kr. ex moms. LoyalSum Komplet koster det samme om måneden plus 499 kr. ex moms én gang for standeren.",
+      },
+      {
+        type: "p",
+        html: "Det er altså dyrere end en pluginlicens, hvis du kun skal bruge point i webshoppen. Prisforskellen giver først mening, hvis du også får brug for resten: stempelkort, et program, der gælder i butikken, kundefeedback og en dansk brugerflade fra start.",
+      },
+      {
+        type: "h2",
+        text: "Hvilket WooCommerce-plugin skal du vælge?",
+      },
+      {
+        type: "p",
+        html: "<strong>Vælg et gratis eller billigt plugin</strong>, hvis du kun sælger online, kun vil give point for køb, og har tid til selv at oversætte og vedligeholde det. WPLoyalty og WP Swings er de oplagte steder at begynde, og gratisversionerne er gode nok til at finde ud af, om dine kunder overhovedet bruger point.",
+      },
+      {
+        type: "p",
+        html: "<strong>Vælg et betalt plugin</strong>, hvis du har brug for niveauer, udløb, fødselsdagspoint eller henvisninger og kan leve med en engelsk brugerflade eller oversætte den selv.",
+      },
+      {
+        type: "p",
+        html: "<strong>Vælg en platform som LoyalSum</strong>, hvis du har eller planlægger en fysisk butik, vil have ét program på tværs af kanaler, ønsker stempelkort og point i samme løsning, eller vil have en dansk brugerflade og dansk support uden selv at oversætte noget. Er du ren webshop, er det stadig et godt valg, hvis det er helheden og ikke kun pointene, du betaler for.",
+      },
+      {
+        type: "p",
+        html: "Og omvendt: Har du brug for at give point for henvisninger eller fødselsdage, eller sælger du i euro, er LoyalSum ikke det rigtige valg i dag.",
+      },
+      { type: "h2", text: "Kom i gang med LoyalSum til WooCommerce" },
+      {
+        type: "p",
+        html: "Pluginet hentes i LoyalSum-dashboardet under Integrationer, når du har LoyalSum Komplet Online eller LoyalSum Komplet. Du uploader det i WordPress, forbinder webshoppen med en engangskode og slår det pointprogram til, der skal gælde online. Det kræver ingen udvikler. Har du spørgsmål om din webshop, før du går i gang, kan du <a href=\"/kontakt\">skrive til os</a> — vi svarer på dansk.",
+      },
+      {
+        type: "faq",
+        items: [
+          {
+            q: "Findes der et gratis WooCommerce-plugin til point?",
+            a: "Ja. WPLoyalty og Points and Rewards for WooCommerce fra WP Swings har begge gratisversioner, der giver point for køb og lader kunden bruge dem som rabat. Funktioner som niveauer, fødselsdagspoint og flere belønningstyper kræver som regel den betalte version.",
+          },
+          {
+            q: "Findes der WooCommerce-plugins til point på dansk?",
+            a: "Sjældent. På translate.wordpress.org var hverken WPLoyalty eller Points and Rewards for WooCommerce oversat til dansk i oktober 2026, og myCred kun delvist. LoyalSum for WooCommerce har en dansk brugerflade fra start.",
+          },
+          {
+            q: "Kan kunder optjene point uden at oprette en konto?",
+            a: "Det afhænger af pluginet. Det officielle WooCommerce-plugin kræver en konto. I LoyalSum optjener en gæst point på e-mailadressen fra ordren, men for at bruge pointene skal kunden logge ind og bekræfte sin e-mail.",
+          },
+          {
+            q: "Er LoyalSums WooCommerce-plugin gratis?",
+            a: "Det koster ikke noget ekstra, men det sælges ikke for sig. Pluginet er inkluderet i LoyalSum Komplet Online og LoyalSum Komplet og hentes i dashboardet under Integrationer.",
+          },
+        ],
+      },
+      {
+        type: "cta",
+        text: "Vil du se, hvordan LoyalSum virker i en WooCommerce-webshop?",
+        href: "/woocommerce-loyalitetsprogram",
+        label: "Se LoyalSum til WooCommerce",
       },
     ],
   },
