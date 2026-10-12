@@ -93,6 +93,13 @@ describe("blogindhold", () => {
     "pointprogram til virksomheder": "/loyalitetsprogram",
     loyalitetsprogram: "/loyalitetsprogram",
     "digitalt loyalitetsprogram": "/loyalitetsprogram",
+    // WooCommerce-landingssiden. Valgguiden "Dansk WooCommerce-plugin til
+    // point" sigter efter at VÆLGE et plugin, ikke efter at købe programmet.
+    "woocommerce loyalitetsprogram": "/woocommerce-loyalitetsprogram",
+    "loyalitetsprogram woocommerce": "/woocommerce-loyalitetsprogram",
+    "woocommerce pointprogram": "/woocommerce-loyalitetsprogram",
+    "pointprogram til woocommerce": "/woocommerce-loyalitetsprogram",
+    "woocommerce loyalitetsplugin": "/woocommerce-loyalitetsprogram",
   };
 
   it("har unikke søgeord, og ingen der tilhører en landingsside", () => {
