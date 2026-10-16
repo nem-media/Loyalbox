@@ -1531,6 +1531,7 @@ export const POSTS: BlogPost[] = [
     related: [
       "saadan-faar-du-flere-google-anmeldelser",
       "flere-trustpilot-anmeldelser",
+      "stempelkort-til-frisoerer",
     ],
     body: [
       {
@@ -1655,7 +1656,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: 'Læg mærke til, hvorfor frisøren skal have færre felter: seks besøg er allerede næsten et år. Ti ville være halvandet, og så begynder ingen. <a href="/blog/hvor-mange-stempler-stempelkort">Regnemetoden bag tallet står her</a>, og <a href="/stempelkort">LoyalSums stempelkort</a> har en færdig frisørskabelon med seks felter.',
+        html: 'Læg mærke til, hvorfor frisøren skal have færre felter: seks besøg er allerede næsten et år. Ti ville være halvandet, og så begynder ingen. <a href="/blog/stempelkort-til-frisoerer">Guiden til stempelkort for frisører</a> regner antal, belønning og pris igennem, og <a href="/stempelkort">LoyalSums stempelkort</a> har en færdig frisørskabelon med seks felter.',
       },
       {
         type: "faq",
@@ -4200,6 +4201,301 @@ export const POSTS: BlogPost[] = [
         text: "Vil du se, hvordan LoyalSum virker i en WooCommerce-webshop?",
         href: "/woocommerce-loyalitetsprogram",
         label: "Se LoyalSum til WooCommerce",
+      },
+    ],
+  },
+  {
+    /*
+      FRISØRENS STEMPELKORT — IKKE EN KOPI AF /stempelkort ELLER AF
+      ANMELDELSESARTIKLEN. Landingssiden ejer "stempelkort" og "digitalt
+      stempelkort"; artiklen sigter efter branchen ("stempelkort til frisør").
+      "flere-anmeldelser-frisor" handler om at blive VALGT første gang; den her
+      handler om genbesøget. Branchens egen økonomiske forskel er, at
+      belønningen koster STOLETID og ikke råvarer, og at besøgsintervallet
+      (4-8 uger) presser antallet af felter ned.
+
+      PRODUKTPÅSTANDE EFTERPRØVET I KODEN 16. okt. 2026: frisørskabelonen
+      (1 pr. besøg, 6 stempler, 20 %) i `PROGRAM_TEMPLATES`; ét tryk = ét
+      stempel (`stampByToken`); flere på én gang kun fra kundeoversigten og
+      højst `max_stamps_per_txn`; belønningen udstedes ved sidste stempel og
+      indløses af personalet fra kortet; `keep_overflow` afgør, om et stempel
+      givet FØR indløsningen overlever nulstillingen (`redemptionStampDelta`).
+      Ingen booking- eller kasseintegration, ingen Wallet, intet automatisk
+      stempel efter beløb, intet udløb.
+
+      REGNEEKSEMPLET er illustrativt og skal blive ved med at gå op:
+      6 × 350 = 2.100; 100/2.100 = 4,8 %; 100 inkl. moms = 80 ekskl.;
+      140/80 = 1,75; 8 × 140 = 1.120 = 14 × 80; 280/80 = 3,5.
+    */
+    slug: "stempelkort-til-frisoerer",
+    title: "Stempelkort til frisører – sådan får du kunderne til at komme igen",
+    metaTitle: "Stempelkort til frisør — antal klip, belønning og pris",
+    description:
+      "Hvor mange klip skal give en belønning, hvad må den koste, og hvornår skal den bruges? Stempelkort i frisørsalonen med regneeksempel i kroner.",
+    keyword: "stempelkort til frisør",
+    date: "2026-10-16",
+    readingMinutes: 9,
+    excerpt:
+      "En frisørkunde kommer hver fjerde til ottende uge, og belønningen koster salonen tid i stolen, ikke råvarer. Derfor skal kortet sættes anderledes op end caféens.",
+    image: "/blog/stempelkort-frisoer.svg",
+    imageAlt:
+      "Saks, kam og en flaske hårprodukt på en disk ved siden af en telefon med et stempelkort med seks felter, hvor fire er stemplet. Over dem en tidslinje med seks besøg og seks uger mellem hvert",
+    related: [
+      "hvor-mange-stempler-stempelkort",
+      "flere-anmeldelser-frisor",
+      "saadan-laver-du-et-pointprogram",
+    ],
+    body: [
+      {
+        type: "p",
+        html: "Kunden var glad for klipningen og sagde det endda i spejlet. Alligevel sidder hun næste gang i en anden stol, fordi den anden salon havde en ledig tid om tirsdagen, eller fordi en veninde nævnte den. Der var ikke noget galt. Der var bare ingen særlig grund til at vælge jer igen.",
+      },
+      {
+        type: "p",
+        html: "Et stempelkort giver kunden noget at miste ved at gå et andet sted hen. Her er, hvordan du sætter det op til en salon og ikke til en café.",
+      },
+
+      { type: "h2", text: "Hvorfor giver stempelkort mening hos en frisør?" },
+      {
+        type: "p",
+        html: "Håret vokser, uanset hvad du gør. Kunden skal klippes igen om nogle uger, og spørgsmålet er kun hvor. Du skal altså ikke skabe et behov, kun sørge for, at det lander hos dig.",
+      },
+      {
+        type: "ul",
+        items: [
+          "<strong>Besøget gentages med et fast interval.</strong> Derfor kan du regne præcist på, hvor lang tid kortet tager at fylde.",
+          "<strong>Den faste kunde er mange besøg værd.</strong> Omkring otte klip om året à 350 kr. er 2.800 kr. fra én kunde. At beholde hende vejer tungere end ethvert enkelt besøg.",
+          "<strong>Det må ikke forlænge betalingen.</strong> Stemplet gives, mens kunden alligevel står ved disken, og skal tage sekunder, ikke minutter.",
+        ],
+      },
+      {
+        type: "p",
+        html: "Én ting skal siges først: den vane, der binder flest kunder til en salon, er at booke næste tid inden de går. Et stempelkort erstatter ikke det. Det virker oveni — som en grund til at sige ja til tiden, og til at vende tilbage, når kunden ikke bookede.",
+      },
+
+      { type: "h2", text: "Hvor mange klipninger skal give en belønning?" },
+      {
+        type: "p",
+        html: "Det er det vigtigste valg på kortet, og det afgøres af ét tal: hvor mange uger der går mellem kundens besøg. Ti felter er normalt i en café, fordi ti kaffe er en måned. Hos en frisør er ti besøg et år eller mere, og så langt ude motiverer en belønning ikke.",
+      },
+      {
+        type: "p",
+        html: "Tabellen viser, hvor lang tid der går, før kunden har sit sidste stempel, ved to besøgsintervaller. Der er regnet med, at det første stempel gives samme dag, kunden tilmelder sig. Intervallerne er eksempler; find dit eget i kalenderen.",
+      },
+      {
+        type: "table",
+        head: ["Antal stempler", "Kunde hver 4. uge", "Kunde hver 8. uge"],
+        rows: [
+          ["<strong>5</strong>", "16 uger (ca. 4 mdr.)", "32 uger (ca. 7 mdr.)"],
+          ["<strong>6</strong>", "20 uger (ca. 5 mdr.)", "40 uger (ca. 9 mdr.)"],
+          ["<strong>8</strong>", "28 uger (ca. 6 mdr.)", "56 uger (ca. 13 mdr.)"],
+          ["<strong>10</strong>", "36 uger (ca. 8 mdr.)", "72 uger (ca. 17 mdr.)"],
+        ],
+      },
+      {
+        type: "p",
+        html: "<strong>Fem eller seks felter</strong> passer til de fleste saloner: den hyppige kunde når målet på et halvt år, og den, der kommer hver anden måned, inden for et år. Otte kan fungere i en ren herresalon med besøg hver tredje eller fjerde uge. Ti felter hører ikke hjemme i en frisørsalon.",
+      },
+      {
+        type: "p",
+        html: 'Har du både herreklip og farvebehandlinger, så regn på intervallet hos den kunde, du helst vil beholde. <a href="/blog/hvor-mange-stempler-stempelkort">Metoden til at vælge antallet af stempler</a> er den samme i alle brancher; frisøren ender bare i den lave ende.',
+      },
+      {
+        type: "note",
+        title: "Seks felter er skabelonen",
+        html: "LoyalSums stempelkort har en frisørskabelon med ét stempel pr. besøg, seks stempler og 20 % rabat som belønning. Antal og belønning retter du til, før kortet åbnes for kunderne.",
+      },
+
+      { type: "h2", text: "Hvilke belønninger fungerer hos en frisør?" },
+      {
+        type: "p",
+        html: "Det mest oplagte, en gratis klipning, er sjældent det bedste. Den koster en hel tid i kalenderen og sætter en pris på kortet, som er svær at komme ned fra igen.",
+      },
+      {
+        type: "table",
+        head: ["Belønning", "Det koster salonen", "Bemærk"],
+        rows: [
+          [
+            "<strong>Rabat på næste klipning</strong>, fx 100 kr.",
+            "Rabatten — ingen ekstra tid",
+            "Let at forstå, og den trækker selv kunden tilbage",
+          ],
+          [
+            "<strong>Gratis hårkur</strong>",
+            "Produktet og lidt ekstra tid i stolen",
+            "Føles som forkælelse; tiden skal med i planlægningen",
+          ],
+          [
+            "<strong>Stylingprodukt med hjem</strong>",
+            "Indkøbsprisen",
+            "Ingen tid i kalenderen, og kunden lærer produktet at kende",
+          ],
+          [
+            "<strong>Ekstra behandling</strong>, fx vask og føn",
+            "Tid i kalenderen",
+            "Billig, når der er huller i kalenderen; dyr, når der ikke er",
+          ],
+          [
+            "<strong>Gratis klipning</strong>",
+            "En hel tid og hele prisen",
+            "Den mest generøse og den dyreste",
+          ],
+        ],
+      },
+      {
+        type: "p",
+        html: "Læg mærke til den midterste kolonne. I en café koster belønningen råvarer. I en salon koster den oftest <strong>tid</strong>: minutter i stolen, som ellers kunne være solgt. Derfor er belønninger uden ekstra tid i stolen — et produkt med hjem eller en rabat på et besøg, der alligevel skulle finde sted — ofte billigere, end de ser ud. Om en bestemt belønning giver flere bookinger, kan ingen love på forhånd; hvad den koster, kan du regne ud.",
+      },
+
+      { type: "h2", text: "Regneeksempel – hvad koster et stempelkort salonen?" },
+      {
+        type: "p",
+        html: "Tallene er valgt, fordi de er lette at regne med. De er ikke branchetal, så sæt dine egne ind.",
+      },
+      {
+        type: "ul",
+        items: [
+          "<strong>Klipning:</strong> 350 kr. inkl. moms (280 kr. ekskl. moms)",
+          "<strong>Optjening:</strong> 1 stempel pr. besøg, belønning efter 6",
+          "<strong>Belønning:</strong> 100 kr. i rabat på næste klipning",
+          "<strong>Kunden kommer:</strong> hver 6. uge",
+        ],
+      },
+      {
+        type: "p",
+        html: "<strong>Sjette eller syvende besøg?</strong> Belønningen er optjent, når det sjette stempel gives, og står derefter klar på kundens kort; personalet kan indløse den med det samme. Her er den lovet som rabat på <em>næste</em> klipning, så kunden betaler fuld pris seks gange og får rabatten på det syvende besøg. Det er et bevidst valg: en belønning, der først kan bruges næste gang, er i sig selv en grund til at komme igen.",
+      },
+      {
+        type: "ol",
+        items: [
+          "<strong>Det kunden betaler for de seks besøg, der optjener belønningen:</strong> 6 × 350 kr. = 2.100 kr.",
+          "<strong>Belønningen i forhold til det beløb:</strong> 100 kr. af 2.100 kr. = 4,8 %.",
+          "<strong>Det koster salonen:</strong> 100 kr. inkl. moms svarer til 80 kr. ekskl. moms i mindre omsætning. Tid og materialer er uændrede, for det syvende besøg tager lige så lang tid som de andre.",
+        ],
+      },
+      {
+        type: "p",
+        html: "<strong>Hvad skal kortet så opveje?</strong> Antag, at der efter materialer og den del af lønnen, der følger klipningen, er 140 kr. ekskl. moms tilbage i dækningsbidrag pr. klipning. Så betaler ét ekstra besøg rabatten for næsten to fyldte kort (140 ÷ 80 = 1,75). Holder kortet én fast kunde fra at skifte salon, er det omkring otte klip om året og 1.120 kr. i dækningsbidrag — rabatten for fjorten fyldte kort.",
+      },
+      {
+        type: "p",
+        html: "Sammenlign med to andre belønninger på det samme kort:",
+      },
+      {
+        type: "ul",
+        items: [
+          "<strong>Gratis klipning:</strong> salonen mister 280 kr. ekskl. moms i omsætning og bruger stadig tiden og materialerne. Er kalenderen fuld, kunne tiden desuden være solgt til en anden. Det er tre og en halv gang så dyrt som rabatten.",
+          "<strong>Produkt med hjem:</strong> et produkt, der sælges for 150 kr., og som salonen køber ind for fx 60 kr. ekskl. moms, koster 60 kr. og ingen tid. Kunden oplever en værdi på 150 kr.",
+        ],
+      },
+      {
+        type: "note",
+        title: "Det, regnestykket ikke viser",
+        html: "Moms, husleje, løn og kapacitet afgør, hvad netop din salon kan bære. En rabat på et besøg, der alligevel skulle finde sted, er billig, uanset om kalenderen er fuld. En ekstra behandling er det modsatte: næsten gratis i en stille uge, dyr i december. Regn på dit eget dækningsbidrag, før du vælger.",
+      },
+
+      { type: "h2", text: "Sådan fungerer et digitalt stempelkort i salonen" },
+      {
+        type: "ol",
+        items: [
+          "<strong>Du opretter kortet</strong> i dashboardet, fra frisørskabelonen eller fra bunden, og vælger antal stempler, belønning og regler.",
+          "<strong>Kunden tilmelder sig</strong> ved at scanne QR-koden på standeren ved disken og skrive sin e-mail eller sit telefonnummer. Der er ingen app at hente.",
+          "<strong>Kunden viser QR-koden på sit kort</strong>, når hun betaler.",
+          "<strong>Personalet scanner koden</strong> med kameraet på deres egen telefon. Er de logget ind med adgang til salonen, åbner kortet med en stempelknap, og ét tryk giver ét stempel. Har kunden ikke telefonen fremme, kan kortet findes på navn eller telefonnummer.",
+          "<strong>Kunden ser sin fremgang</strong>, når hun åbner kortet. Det er en webside, som kan lægges på hjemmeskærmen og åbnes med ét tryk.",
+          "<strong>Belønningen står klar på kortet</strong>, når det sidste stempel er givet, og personalet indløser den fra kundens kort, når hun bruger den.",
+        ],
+      },
+      {
+        type: "p",
+        html: "Kortet er ikke forbundet med salonens bookingsystem eller kasse. Kunden booker, som hun plejer, og stemplet gives ved betalingen med et scan og et tryk.",
+      },
+      {
+        type: "note",
+        title: "Bruges belønningen næste gang? Slå én indstilling til",
+        html: "Kunden, der bruger sin rabat på syvende besøg, skal også have et stempel for netop det besøg. Er kortet sat til at nulstilles ved indløsning, forsvinder et stempel, der er givet <em>før</em> indløsningen. Vælg derfor <em>Behold overskydende stempler</em> under belønningen, når du opretter kortet. Så starter det nye kort med besøgets stempel, uanset hvilken rækkefølge det sker i ved disken.",
+      },
+      {
+        type: "p",
+        html: 'Papkortet virker, og mange kunder kender det. Men det skal overleve seks uger i en pung mellem hvert besøg, og salonen kan ikke se, hvor mange der når belønningen. Det digitale kort kan ikke blive væk — har kunden mistet linket, kan hun få det sendt på <a href="/kort/find">loyalsum.dk/kort/find</a> — og du kan se, hvor mange der faktisk samler.',
+      },
+
+      { type: "h2", text: "Sådan får du kunderne til at bruge stempelkortet" },
+      {
+        type: "ul",
+        items: [
+          "<strong>Introducér kortet, når kunden har set resultatet.</strong> Er hun glad for klipningen, er et kort til næste gang et naturligt emne.",
+          "<strong>Brug ventetiden.</strong> Mens farven trækker, er der tid til at scanne koden og skrive en e-mail.",
+          "<strong>Sig præcis, hvad hun får.</strong> „Seks besøg, og så får du 100 kr. i rabat på det næste“ kan huskes. „Du samler stempler til en belønning“ kan ikke.",
+          "<strong>Giv det første stempel samme dag.</strong> Et tomt kort er en opgave; et kort med ét stempel er en start.",
+          "<strong>Sørg for, at hele teamet kender reglerne.</strong> Stempler én frisør og glemmer en anden det, holder kunden op med at tro på kortet.",
+          "<strong>Gør kortet synligt.</strong> Standeren ved disken gør det meste; et lille skilt ved spejlene minder kunden om det, mens hun sidder.",
+        ],
+      },
+      {
+        type: "p",
+        html: 'Hold kortet adskilt fra anmeldelser: et stempel eller en rabat må aldrig gives for at skrive en anmeldelse. <a href="/blog/flere-anmeldelser-frisor">Hvordan salonen får flere anmeldelser på den lovlige måde</a> står i en guide for sig.',
+      },
+
+      { type: "h2", text: "Stempelkort eller pointprogram til frisørsalonen?" },
+      {
+        type: "p",
+        html: "Et stempelkort tæller besøg: herreklippet til 300 kr. og farven til 1.200 kr. giver begge ét stempel. Det er enkelt og passer, når målet er, at kunden kommer igen.",
+      },
+      {
+        type: "p",
+        html: 'Vil du hellere belønne efter, hvad kunden lægger i salonen, er det et <a href="/loyalitetsprogram">pointprogram</a>: personalet taster beløbet, og systemet regner pointene ud. Stempelkortet giver ikke selv stempler efter beløb. Begge dele er med i LoyalSum og kan køre side om side, og <a href="/blog/saadan-laver-du-et-pointprogram">pointguiden har et regneeksempel fra en salon</a>.',
+      },
+
+      {
+        type: "h2",
+        text: "Kom i gang med digitalt stempelkort til din frisørsalon",
+      },
+      {
+        type: "ol",
+        items: [
+          "Find dine kunders typiske interval i kalenderen, og vælg fem eller seks stempler ud fra tabellen ovenfor.",
+          "Vælg en belønning, regn den igennem med dine egne priser, og beslut, om den bruges på sidste besøg eller det næste.",
+          "Opret kortet fra frisørskabelonen, og slå <em>Behold overskydende stempler</em> til.",
+          "Stil standeren ved disken, og giv alle i salonen den samme sætning om kortet.",
+          "Kig efter et kvartal på, hvor mange der er tilmeldt, og hvor langt de er nået.",
+        ],
+      },
+      {
+        type: "p",
+        html: 'LoyalSums <a href="/stempelkort">digitale stempelkort</a> kører i kundens browser uden app, personalet stempler med ét scan, og pointprogrammet følger med i samme abonnement.',
+      },
+
+      {
+        type: "faq",
+        items: [
+          {
+            q: "Hvor mange stempler bør et frisørstempelkort have?",
+            a: "Fem eller seks i de fleste saloner. Med et besøg hver sjette uge tager seks stempler knap syv måneder at samle; ti ville tage over et år, og så mister kunden interessen undervejs. En ren herresalon med besøg hver tredje til fjerde uge kan gå op til otte.",
+          },
+          {
+            q: "Skal kunderne downloade en app?",
+            a: "Nej. Kunden scanner QR-koden ved disken, skriver sin e-mail eller sit telefonnummer, og kortet åbner i telefonens browser. Det kan lægges på hjemmeskærmen, men det kan ikke lægges i Apple Wallet eller Google Wallet.",
+          },
+          {
+            q: "Kan flere frisører i salonen give stempler?",
+            a: "Ja. Ejeren inviterer medarbejderne, og hver får sit eget login med de rettigheder, ejeren vælger, fx at give stempler og indløse belønninger. Kunden kan ikke stemple sig selv; det kan kun personale, der er logget ind med adgang til salonen.",
+          },
+          {
+            q: "Kan salonen give stempler efter købsbeløb?",
+            a: "Ikke automatisk. Et stempelkort giver ét stempel pr. tryk, uanset beløbet. Fra kundeoversigten i dashboardet kan du give flere stempler på én gang, hvis kortets regler tillader det, men det er et manuelt valg. Skal optjeningen følge beløbet, er det pointprogrammet, hvor personalet taster beløbet, og pointene regnes ud.",
+          },
+          {
+            q: "Kan stempelkortet bruges sammen med vores bookingsystem?",
+            a: "Det kører ved siden af. LoyalSum er ikke forbundet med bookingsystemet eller kassen: kunden booker, som hun plejer, og stemplet gives ved betalingen med et scan af kortet. Der skal ikke installeres noget i salonens andre systemer.",
+          },
+        ],
+      },
+      {
+        type: "cta",
+        text: "Se, hvordan det digitale stempelkort fungerer, uden app og uden kassesystem.",
+        href: "/stempelkort",
+        label: "Se stempelkortet",
       },
     ],
   },

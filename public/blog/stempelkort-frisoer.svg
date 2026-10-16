@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Saks, kam og en flaske hårprodukt på en disk ved siden af en telefon med et stempelkort med seks felter, hvor fire er stemplet. Over dem en tidslinje med seks besøg og seks uger mellem hvert">
+  <rect width="1200" height="630" fill="#eff5f7"/>
+
+  <!-- Diskplade -->
+  <rect x="70" y="500" width="1060" height="16" rx="8" fill="#06232e" opacity="0.18"/>
+  <rect x="70" y="516" width="1060" height="10" rx="5" fill="#06232e" opacity="0.08"/>
+
+  <!-- ===================== Tidslinje: seks besoeg med seks uger imellem -->
+  <g>
+    <line x1="130" y1="150" x2="660" y2="150" stroke="#06232e" stroke-width="4" stroke-linecap="round" opacity="0.15"/>
+    <g fill="#0f5b66">
+      <circle cx="130" cy="150" r="18"/>
+      <circle cx="236" cy="150" r="18"/>
+      <circle cx="342" cy="150" r="18"/>
+      <circle cx="448" cy="150" r="18"/>
+    </g>
+    <circle cx="554" cy="150" r="18" fill="#eff5f7" stroke="#06232e" stroke-width="3" opacity="0.35"/>
+    <circle cx="660" cy="150" r="20" fill="#eff5f7" stroke="#f59e0b" stroke-width="3"/>
+    <path d="M660 139 l4.2 8.6 9.5 1.4 -6.9 6.7 1.6 9.5 -8.4 -4.4 -8.4 4.4 1.6 -9.5 -6.9 -6.7 9.5 -1.4 z" fill="#f59e0b"/>
+    <g font-family="system-ui, sans-serif" font-size="17" fill="#06232e" opacity="0.55" text-anchor="middle">
+      <text x="183" y="198">6 uger</text>
+      <text x="289" y="198">6 uger</text>
+      <text x="395" y="198">6 uger</text>
+      <text x="501" y="198">6 uger</text>
+      <text x="607" y="198">6 uger</text>
+    </g>
+  </g>
+
+  <!-- ============================================================ Saks -->
+  <g>
+    <!-- Klinger -->
+    <path d="M284 404 L428 330 L433 340 L292 414 z" fill="#06232e" opacity="0.55"/>
+    <path d="M290 414 L436 352 L436 363 L294 422 z" fill="#06232e" opacity="0.4"/>
+    <!-- Greb -->
+    <path d="M214 434 L286 408" stroke="#06232e" stroke-width="10" stroke-linecap="round" opacity="0.7"/>
+    <path d="M266 452 L291 416" stroke="#06232e" stroke-width="10" stroke-linecap="round" opacity="0.7"/>
+    <!-- Ringe -->
+    <circle cx="192" cy="448" r="25" fill="none" stroke="#06232e" stroke-width="10" opacity="0.7"/>
+    <circle cx="256" cy="470" r="22" fill="none" stroke="#06232e" stroke-width="10" opacity="0.7"/>
+    <!-- Skrue -->
+    <circle cx="288" cy="411" r="7" fill="#ffffff" stroke="#06232e" stroke-width="3" opacity="0.9"/>
+  </g>
+
+  <!-- ============================================================= Kam -->
+  <g>
+    <rect x="318" y="474" width="196" height="18" rx="6" fill="#0f5b66" opacity="0.85"/>
+    <g stroke="#0f5b66" stroke-width="4" stroke-linecap="round" opacity="0.85">
+      <line x1="330" y1="474" x2="330" y2="452"/>
+      <line x1="342" y1="474" x2="342" y2="452"/>
+      <line x1="354" y1="474" x2="354" y2="452"/>
+      <line x1="366" y1="474" x2="366" y2="452"/>
+      <line x1="378" y1="474" x2="378" y2="452"/>
+      <line x1="390" y1="474" x2="390" y2="452"/>
+      <line x1="402" y1="474" x2="402" y2="452"/>
+      <line x1="414" y1="474" x2="414" y2="452"/>
+      <line x1="426" y1="474" x2="426" y2="458"/>
+      <line x1="438" y1="474" x2="438" y2="458"/>
+      <line x1="450" y1="474" x2="450" y2="458"/>
+      <line x1="462" y1="474" x2="462" y2="458"/>
+      <line x1="474" y1="474" x2="474" y2="458"/>
+      <line x1="486" y1="474" x2="486" y2="458"/>
+      <line x1="498" y1="474" x2="498" y2="458"/>
+    </g>
+  </g>
+
+  <!-- ================================== Flaske med hårprodukt (beloenning) -->
+  <g>
+    <rect x="566" y="350" width="34" height="30" rx="6" fill="#06232e" opacity="0.7"/>
+    <rect x="548" y="376" width="70" height="116" rx="16" fill="#ffffff"/>
+    <rect x="548" y="376" width="70" height="116" rx="16" fill="none" stroke="#06232e" stroke-width="3" opacity="0.2"/>
+    <rect x="560" y="414" width="46" height="40" rx="6" fill="#1a9089" opacity="0.25"/>
+    <rect x="568" y="426" width="30" height="6" rx="3" fill="#06232e" opacity="0.35"/>
+    <rect x="568" y="438" width="20" height="6" rx="3" fill="#06232e" opacity="0.2"/>
+  </g>
+
+  <!-- ============================ Telefon med stempelkort (seks felter) -->
+  <g>
+    <rect x="754" y="128" width="242" height="372" rx="30" fill="#06232e"/>
+    <rect x="768" y="146" width="214" height="336" rx="18" fill="#ffffff"/>
+    <rect x="836" y="138" width="78" height="7" rx="3.5" fill="#ffffff" opacity="0.5"/>
+
+    <!-- Salonens navn -->
+    <rect x="792" y="176" width="112" height="14" rx="7" fill="#06232e" opacity="0.75"/>
+    <rect x="792" y="200" width="72" height="10" rx="5" fill="#06232e" opacity="0.25"/>
+
+    <!-- Seks felter: fire stemplet, det sjette er beloenningen -->
+    <g>
+      <g fill="none" stroke="#06232e" stroke-width="2.5" opacity="0.22">
+        <circle cx="812" cy="270" r="22"/>
+        <circle cx="874" cy="270" r="22"/>
+        <circle cx="936" cy="270" r="22"/>
+        <circle cx="812" cy="336" r="22"/>
+        <circle cx="874" cy="336" r="22"/>
+      </g>
+      <g fill="#0f5b66">
+        <circle cx="812" cy="270" r="16"/>
+        <circle cx="874" cy="270" r="16"/>
+        <circle cx="936" cy="270" r="16"/>
+        <circle cx="812" cy="336" r="16"/>
+      </g>
+      <circle cx="936" cy="336" r="22" fill="none" stroke="#f59e0b" stroke-width="3"/>
+      <path d="M936 325 l4.2 8.6 9.5 1.4 -6.9 6.7 1.6 9.5 -8.4 -4.4 -8.4 4.4 1.6 -9.5 -6.9 -6.7 9.5 -1.4 z" fill="#f59e0b"/>
+    </g>
+
+    <rect x="792" y="390" width="158" height="11" rx="5.5" fill="#06232e" opacity="0.15"/>
+    <rect x="792" y="412" width="110" height="11" rx="5.5" fill="#06232e" opacity="0.1"/>
+  </g>
+</svg>
