@@ -4350,14 +4350,14 @@ export const POSTS: BlogPost[] = [
       { type: "h2", text: "Regneeksempel – hvad koster et stempelkort salonen?" },
       {
         type: "p",
-        html: "Tallene er valgt, fordi de er lette at regne med. De er ikke branchetal, så sæt dine egne ind.",
+        html: "Tallene er valgt, fordi de er lette at regne med. Det er en illustration — ikke branchetal og ikke en måling af, hvad et stempelkort giver. Sæt dine egne tal ind.",
       },
       {
         type: "ul",
         items: [
           "<strong>Klipning:</strong> 350 kr. inkl. moms (280 kr. ekskl. moms)",
           "<strong>Optjening:</strong> 1 stempel pr. besøg, belønning efter 6",
-          "<strong>Belønning:</strong> 100 kr. i rabat på næste klipning",
+          "<strong>Belønning:</strong> 100 kr. i rabat på næste klipning. Det er valgt til eksemplet; LoyalSums frisørskabelon starter med 20 % rabat, som du selv kan ændre",
           "<strong>Kunden kommer:</strong> hver 6. uge",
         ],
       },
@@ -4375,7 +4375,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: "<strong>Hvad skal kortet så opveje?</strong> Antag, at der efter materialer og den del af lønnen, der følger klipningen, er 140 kr. ekskl. moms tilbage i dækningsbidrag pr. klipning. Så betaler ét ekstra besøg rabatten for næsten to fyldte kort (140 ÷ 80 = 1,75). Holder kortet én fast kunde fra at skifte salon, er det omkring otte klip om året og 1.120 kr. i dækningsbidrag — rabatten for fjorten fyldte kort.",
+        html: "<strong>Hvad skal kortet så opveje?</strong> Antag, at der efter materialer og den del af lønnen, der følger klipningen, er 140 kr. ekskl. moms tilbage i dækningsbidrag pr. klipning. Med de tal ville ét ekstra besøg dække rabatten for næsten to fyldte kort (140 ÷ 80 = 1,75), og én fast kunde, der ellers var skiftet salon, ville med omkring otte klip om året stå for 1.120 kr. i dækningsbidrag — rabatten for fjorten fyldte kort. Det er et regnestykke over, hvor lidt kortet skal flytte for at løbe rundt, ikke et løfte om, at det skaffer ekstra besøg; det afhænger af salonen og kunderne.",
       },
       {
         type: "p",
@@ -4412,8 +4412,8 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "note",
-        title: "Bruges belønningen næste gang? Slå én indstilling til",
-        html: "Kunden, der bruger sin rabat på syvende besøg, skal også have et stempel for netop det besøg. Er kortet sat til at nulstilles ved indløsning, forsvinder et stempel, der er givet <em>før</em> indløsningen. Vælg derfor <em>Behold overskydende stempler</em> under belønningen, når du opretter kortet. Så starter det nye kort med besøgets stempel, uanset hvilken rækkefølge det sker i ved disken.",
+        title: "Syvende besøg: indløs først, stempl bagefter",
+        html: "Kunden, der bruger sin rabat på syvende besøg, skal også have et stempel for netop det besøg. Den sikre rækkefølge ved disken er: <strong>1)</strong> indløs belønningen, <strong>2)</strong> giv stemplet for dagens besøg. Så starter det nye kort med ét stempel. Bliver det gjort omvendt, og er kortet sat til at nulstilles ved indløsning, forsvinder dagens stempel med nulstillingen. Slå derfor også <em>Behold overskydende stempler</em> til under belønningen — så bevares stemplet, selv hvis rækkefølgen bliver byttet om.",
       },
       {
         type: "p",
