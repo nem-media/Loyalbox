@@ -101,6 +101,11 @@ export function kanAktiveres(
 export const KODE_MINIMUM = 6;
 export const KODE_FEJL = `Adgangskoden skal være mindst ${KODE_MINIMUM} tegn.`;
 
+/** Hjælpeteksten over kodefeltet — uden løfte om en stander til en digital vare. */
+export function aktiveringHjaelp(digital: boolean): string {
+  return digital ? AKTIVERING_TEKSTER.hjaelpDigital : AKTIVERING_TEKSTER.hjaelp;
+}
+
 export function erGyldigKode(kode: string | null | undefined): boolean {
   return (kode ?? "").length >= KODE_MINIMUM;
 }
@@ -130,6 +135,14 @@ export const AKTIVERING_TEKSTER = {
   overskrift: "Vælg en adgangskode, så er du i gang",
   hjaelp:
     "Din stander er oprettet og venter kun på, hvor QR-koden skal føre hen. Det tager et minut.",
+  /*
+   * KOMPLET ONLINE HAR INGEN STANDER. Teksten ovenfor lovede en stander, der
+   * aldrig kommer, til en kunde, der netop har valgt varen UDEN. Kunden
+   * lander det samme sted (QR-adressen), men skal have at vide, hvad der
+   * venter dér — ikke et skilt.
+   */
+  hjaelpDigital:
+    "Din konto er klar. Når du har valgt en adgangskode, kommer du direkte ind og kan sætte dit link, dit stempelkort og dit pointprogram op.",
   alleredeAktiveret:
     "Den her konto er allerede oprettet. Log ind med din e-mail og adgangskode.",
   udloebet:

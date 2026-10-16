@@ -9,7 +9,9 @@ import {
   AKTIVERING_DAGE,
   KODE_MINIMUM,
   AKTIVERING_TEKSTER,
+  aktiveringHjaelp,
 } from "./aktivering";
+import { getProduct, harFysiskSkilt } from "./constants";
 import { EMAIL_HAR_KONTO } from "./bestilling-uden-konto";
 
 /**
@@ -297,5 +299,17 @@ describe("bestilling med en e-mail, der har en konto", () => {
   it("siger, hvad kunden så skal gøre", () => {
     expect(EMAIL_HAR_KONTO).toMatch(/log ind/i);
     expect(EMAIL_HAR_KONTO).toMatch(/bestil/i);
+  });
+});
+
+describe("hjælpeteksten følger varen", () => {
+  it("lover ingen stander til en digital vare", () => {
+    const online = getProduct("loyalsum-komplet-online")!;
+    expect(harFysiskSkilt(online)).toBe(false);
+    expect(aktiveringHjaelp(true)).not.toMatch(/stander|skilt/i);
+  });
+
+  it("nævner stadig standeren, når der er en", () => {
+    expect(aktiveringHjaelp(false)).toMatch(/stander/i);
   });
 });
