@@ -6,6 +6,7 @@ import { findKonto } from "@/lib/konto-opslag";
 import { aktiverFraToken } from "@/app/aktiver/actions";
 import { AktiverForm, AktiveringSpaerret } from "@/components/aktiver-form";
 import { PRIVAT_SIDE } from "@/lib/site";
+import { getProduct, harFysiskSkilt } from "@/lib/constants";
 
 export const metadata = { title: "Opret din adgang", ...PRIVAT_SIDE };
 
@@ -32,7 +33,7 @@ export default async function AktiverPage({
   const { data: firma } = await createAdminClient()
     .from("companies")
     .select(
-      "name, contact_email, user_id, aktivering_token, aktivering_udloeber",
+      "name, contact_email, user_id, aktivering_token, aktivering_udloeber, product_slug",
     )
     .eq("aktivering_token", token)
     .maybeSingle();
@@ -53,6 +54,7 @@ export default async function AktiverPage({
    * lave et opslag for hvert gæt på adressen.
    */
   const konto = spaerre ? null : await findKonto(firma?.contact_email);
+  const vare = firma?.product_slug ? getProduct(firma.product_slug) : undefined;
 
   return (
     <>
@@ -70,6 +72,7 @@ export default async function AktiverPage({
             skjultFelt={{ navn: "token", vaerdi: token }}
             form={konto ? "eksisterende-konto" : "ny-konto"}
             email={firma?.contact_email}
+            digital={vare ? !harFysiskSkilt(vare) : false}
           />
         )}
       </main>

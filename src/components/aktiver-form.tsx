@@ -7,6 +7,7 @@ import { Input, Field } from "@/components/ui/input";
 import {
   AKTIVERING_TEKSTER,
   KODE_MINIMUM,
+  aktiveringHjaelp,
   type AktiveringSpaerre,
   type AktiveringsForm,
 } from "@/lib/aktivering";
@@ -37,6 +38,7 @@ export function AktiverForm({
   skjultFelt,
   form = "ny-konto",
   email,
+  digital = false,
 }: {
   action: (
     prev: AktiveringResultat,
@@ -48,6 +50,8 @@ export function AktiverForm({
   form?: AktiveringsForm;
   /** Vises, så kunden kan se HVILKEN konto købet lander på. */
   email?: string | null;
+  /** Varen er uden fysisk skilt (Komplet Online) — så nævnes ingen stander. */
+  digital?: boolean;
 }) {
   const [state, formAction, pending] = useActionState<
     AktiveringResultat,
@@ -66,7 +70,7 @@ export function AktiverForm({
       <p className="mt-1 text-sm leading-relaxed text-muted">
         {eksisterende
           ? AKTIVERING_TEKSTER.eksisterendeHjaelp
-          : AKTIVERING_TEKSTER.hjaelp}
+          : aktiveringHjaelp(digital)}
       </p>
 
       {eksisterende && email ? (
