@@ -4144,7 +4144,7 @@ export const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        html: "<strong>Abonnementsplatforme</strong> koster et fast beløb om måneden og rummer mere end pointdelen. LoyalSum Komplet Online koster 399 kr. om måneden ex moms uden binding, og WooCommerce-pluginet er inkluderet — det sælges ikke for sig. Betaler du for et år ad gangen, koster det 4.389 kr. ex moms. LoyalSum Komplet koster det samme om måneden plus 499 kr. ex moms én gang for standeren.",
+        html: "<strong>Abonnementsplatforme</strong> koster et fast beløb om måneden og rummer mere end pointdelen. LoyalSum Komplet Online koster 399 kr. om måneden ex moms uden binding, og WooCommerce-pluginet er inkluderet — det sælges ikke for sig. Betaler du for et år ad gangen, koster det 4.389 kr. ex moms. LoyalSum Komplet koster det samme om måneden plus 299 kr. ex moms én gang for standeren.",
       },
       {
         type: "p",
