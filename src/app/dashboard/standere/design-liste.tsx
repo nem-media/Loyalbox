@@ -64,7 +64,7 @@ export async function DesignListe({ companyId }: { companyId: string }) {
           <p className="max-w-2xl text-sm text-muted">
             Dit design bliver gemt automatisk, første gang du bestiller en
             stander med logo og farve. Bagefter kan du bestille flere af det
-            uden at vælge forfra — og uden at betale for farven igen.
+            uden at vælge forfra.
           </p>
         </CardBody>
       </Card>
@@ -105,9 +105,11 @@ export async function DesignListe({ companyId }: { companyId: string }) {
 
               {front.egen ? (
                 <Badge tone={d.frontfarve_betalt ? "success" : "neutral"}>
-                  {d.frontfarve_betalt
-                    ? "Egen farve — betalt"
-                    : `Egen farve — ${EGEN_FRONTFARVE_PRIS} kr. ved første bestilling`}
+                  {EGEN_FRONTFARVE_PRIS === 0
+                    ? "Egen farve"
+                    : d.frontfarve_betalt
+                      ? "Egen farve — betalt"
+                      : `Egen farve — ${EGEN_FRONTFARVE_PRIS} kr. ved første bestilling`}
                 </Badge>
               ) : null}
 

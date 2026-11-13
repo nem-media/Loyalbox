@@ -194,11 +194,10 @@ export default async function ProductPage({
               </p>
             ) : null}
             {/*
-              FARVETEKSTEN HØRER TIL TRYKKET. Den lover et gratis farvevalg på
-              stjernerne og en egen baggrundsfarve mod tillæg — altså to valg,
-              man træffer om et SKILT. På LoyalSum Komplet Online er der intet
-              at trykke, så linjen ville sælge et tilvalg, varen ikke har, og
-              oven i købet et der koster penge.
+              FARVETEKSTEN HØRER TIL TRYKKET. Den lover farvevalg på stjernerne
+              og baggrunden — altså valg, man træffer om et SKILT. På LoyalSum
+              Komplet Online er der intet at trykke, så linjen ville sælge et
+              tilvalg, varen ikke har.
             */}
             {harFysiskSkilt(product) ? (
               <p className="mt-2 text-sm text-muted">{FOTO_FARVETEKST}</p>

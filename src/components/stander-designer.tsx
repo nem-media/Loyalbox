@@ -495,11 +495,13 @@ export function StanderDesigner({
         {/* Det med småt stod før under knappen i den klæbende spalte, hvor
             det skubbede "Gå til betaling" ud over skærmkanten. Her kan det
             læses uden at koste plads dér, hvor der skal trykkes. */}
-        <p className="text-xs leading-relaxed text-muted">
-          Tillægget på {EGEN_FRONTFARVE_PRIS} kr. betales kun første gang et
-          design med egen farve bestilles. Genbestiller du samme design, koster
-          farven ikke noget.
-        </p>
+        {EGEN_FRONTFARVE_PRIS > 0 ? (
+          <p className="text-xs leading-relaxed text-muted">
+            Tillægget på {EGEN_FRONTFARVE_PRIS} kr. betales kun første gang et
+            design med egen farve bestilles. Genbestiller du samme design,
+            koster farven ikke noget.
+          </p>
+        ) : null}
       </div>
 
       {/* =============================================== højre: resultatet */}

@@ -77,7 +77,7 @@ export const GUIDES: Guide[] = [
     steps: [
       "Vælg løsningen og hvor mange skilte, du skal bruge. Køber du flere, falder prisen pr. stk.",
       "Vælg standerens farve, og læg dit logo op. Logoet trykkes på skiltet, som du ser det — vi retter ikke i det, så tjek at det står rent på baggrunden.",
-      "Vil du have din egen farve på fronten, kan du vælge den. Det er et fast tillæg, der lægges til én gang — også selv om du bestiller flere skilte.",
+      "Vil du have din egen farve på fronten, kan du vælge den. Det koster ikke ekstra — hverken den eller standerens farve.",
       "Køber du uden abonnement, skal du oplyse, hvor QR-koden skal føre hen. Det trykkes fast på skiltet og kan ikke ændres bagefter.",
       "Accepter betingelserne og betal. Så går skiltet i produktion.",
     ],

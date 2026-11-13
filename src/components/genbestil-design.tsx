@@ -16,7 +16,11 @@ import {
   priceFor,
   type Product,
 } from "@/lib/constants";
-import { FRONT_TEKSTER, farveTillaegNote } from "@/lib/stander-tilvalg";
+import {
+  EGEN_FRONTFARVE_PRIS,
+  FRONT_TEKSTER,
+  farveTillaegNote,
+} from "@/lib/stander-tilvalg";
 import { DesignPreview } from "@/components/design-preview";
 import { formatCurrency } from "@/lib/utils";
 
@@ -240,7 +244,9 @@ export function GenbestilDesign({
           {/* Det betalte tillæg siges HØJT frem for bare at være væk. En kunde,
               der husker at have betalt for farven, skal kunne se hvorfor de
               ikke gør det igen. */}
-          {design.egen_frontfarve && design.frontfarve_betalt ? (
+          {design.egen_frontfarve &&
+          design.frontfarve_betalt &&
+          EGEN_FRONTFARVE_PRIS > 0 ? (
             <div className="flex justify-between text-accent">
               <dt>{FRONT_TEKSTER.tilvalg}</dt>
               <dd>Betalt · 0 kr.</dd>

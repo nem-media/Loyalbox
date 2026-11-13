@@ -8,7 +8,12 @@ import {
   PRODUKT_FOTO,
   PRODUKT_FOTO_TEKST,
 } from "./constants";
-import { ACCENT_TEKSTER, FRONT_TEKSTER } from "./stander-tilvalg";
+import {
+  ACCENT_TEKSTER,
+  EGEN_FRONTFARVE_PRIS,
+  FRONT_TEKSTER,
+  SORT_STANDER_TILLAEG,
+} from "./stander-tilvalg";
 
 describe("produktfoto og billedtekst", () => {
   it("hver vare i kataloget har en billedtekst", () => {
@@ -76,13 +81,24 @@ describe("produktfoto og billedtekst", () => {
     expect(pro).toMatch(/menukort|booking/i);
   });
 
-  it("farveteksten siger BÅDE hvad der er gratis, og hvad der koster", () => {
-    // Accenten er uden beregning, baggrundsfarven er et selvstændigt tryk og
-    // koster pr. ordre (se stander-tilvalg.ts). Nævnes kun den gratis, læses
-    // hele linjen som gratis — og så er prisen en overraskelse i kurven.
+  it("farveteksten siger det, priserne siger", () => {
+    // Nævnes kun det gratis valg, mens et andet koster, læses hele linjen som
+    // gratis — og så er prisen en overraskelse i kurven. Og omvendt: står der
+    // "tillæg", mens alt er gratis (fra 2026-11-13), lover vi en dårligere
+    // handel end den, kunden får.
     expect(FOTO_FARVETEKST).toContain(ACCENT_TEKSTER.pris);
-    expect(FOTO_FARVETEKST).toMatch(/tillæg/i);
-    expect(FRONT_TEKSTER.prisNote).toMatch(/pr\. ordre/i);
+    const noget_koster = EGEN_FRONTFARVE_PRIS > 0 || SORT_STANDER_TILLAEG > 0;
+    if (noget_koster) {
+      expect(FOTO_FARVETEKST).toMatch(/tillæg/i);
+    } else {
+      expect(FOTO_FARVETEKST).not.toMatch(/tillæg|kr\./i);
+    }
+    if (EGEN_FRONTFARVE_PRIS > 0) {
+      expect(FRONT_TEKSTER.prisNote).toMatch(/pr\. ordre/i);
+    } else {
+      expect(FRONT_TEKSTER.pris).toMatch(/uden beregning/i);
+      expect(FRONT_TEKSTER.prisNote).not.toMatch(/pris|kr\./i);
+    }
   });
 
   it("hver vare har korte punkter til kortet", () => {

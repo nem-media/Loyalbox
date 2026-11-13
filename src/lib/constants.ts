@@ -960,14 +960,13 @@ export const KOMMENDE_FOTO_ALT: Record<string, string> = {
  * Det, man kan vælge på selve SKILTET. Gælder alle tre varer, fordi standeren
  * er den samme — derfor står linjen ét sted og ikke i hver billedtekst.
  *
- * Ordlyden følger `ACCENT_TEKSTER`/`FRONT_TEKSTER` i stander-tilvalg.ts:
- * accenten farver stjernerne og "Scan eller tap" og koster ikke ekstra, mens
- * en egen baggrundsfarve er et selvstændigt tryk og koster pr. ordre. Begge
- * halvdele skal med — en gratis farve nævnt uden den, der koster, læses som
- * om begge er gratis.
+ * Ordlyden følger `ACCENT_TEKSTER`/`FRONT_TEKSTER` i stander-tilvalg.ts. Fra
+ * 2026-11-13 er alle farvevalg gratis — sort/hvid, accent og egen front. Får
+ * et af dem en pris igen, SKAL linjen sige det: en gratis farve nævnt ved
+ * siden af en, der koster, læses som om begge er gratis.
  */
 export const FOTO_FARVETEKST =
-  "Vælg selv farve på stjernerne uden beregning — og evt. din egen baggrundsfarve mod tillæg.";
+  "Vælg sort eller hvid stander, og giv stjernerne og baggrunden dine egne farver — alt sammen uden beregning.";
 
 /**
  * Modstykket til FOTO_FARVETEKST på varen UDEN skilt.

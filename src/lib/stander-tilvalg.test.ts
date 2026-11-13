@@ -166,11 +166,18 @@ describe("tillægget for sort stander", () => {
       );
     }
 
-    const en = priceFor(stander, 1, { standerFarve: "sort" });
-    const tyve = priceFor(stander, 20, { standerFarve: "sort" });
-    expect(tyve.standTotal - priceFor(stander, 20).standTotal).toBeGreaterThan(
-      en.standTotal - priceFor(stander, 1).standTotal,
-    );
+    // Kun meningsfuldt, mens sort koster noget (gratis fra 2026-11-13).
+    if (SORT_STANDER_TILLAEG > 0) {
+      const en = priceFor(stander, 1, { standerFarve: "sort" });
+      const tyve = priceFor(stander, 20, { standerFarve: "sort" });
+      expect(
+        tyve.standTotal - priceFor(stander, 20).standTotal,
+      ).toBeGreaterThan(en.standTotal - priceFor(stander, 1).standTotal);
+    } else {
+      expect(priceFor(stander, 20, { standerFarve: "sort" }).standTotal).toBe(
+        priceFor(stander, 20, { standerFarve: "hvid" }).standTotal,
+      );
+    }
   });
 
   it("får samme mængderabat som standeren selv", () => {
@@ -221,10 +228,16 @@ describe("tillægget for sort stander", () => {
 
   it("siger sin pris ved valget — også når den er nul", () => {
     // Står der ingenting ved hvid, ligner tillægget ved sort en fejl.
-    expect(farveTillaegTekst("sort")).toContain(String(SORT_STANDER_TILLAEG));
-    expect(farveTillaegTekst("hvid")).not.toContain(
-      String(SORT_STANDER_TILLAEG),
-    );
+    if (SORT_STANDER_TILLAEG > 0) {
+      expect(farveTillaegTekst("sort")).toContain(String(SORT_STANDER_TILLAEG));
+      expect(farveTillaegTekst("hvid")).not.toContain(
+        String(SORT_STANDER_TILLAEG),
+      );
+    } else {
+      // Begge gratis: de to valg skal sige det samme, og ingen af dem en pris.
+      expect(farveTillaegTekst("sort")).toBe(farveTillaegTekst("hvid"));
+      expect(farveTillaegTekst("sort")).not.toMatch(/\+|kr\./);
+    }
     expect(farveTillaegTekst("hvid")).toBeTruthy();
   });
 });

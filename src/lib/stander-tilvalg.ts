@@ -11,10 +11,11 @@
  * findes: den ene funktion afgør resultatet, så brugerfladen ikke kan komme
  * til at vise én farve og fakturere en anden.
  *
- * DE TO FARVER KOSTER IKKE DET SAMME. Hvid er standeren i sin grundudgave;
- * sort akryl er et tillæg pr. stander. Det er en EMNEpris og ikke en
- * opsætning, og derfor opfører den sig modsat frontfarven: den ganges med
- * antallet og får mængderabat, præcis som standeren selv.
+ * DE TO FARVER KOSTER DET SAMME (fra 2026-11-13; før kostede sort 49 kr. pr.
+ * stander). Maskineriet til et tillæg er bevaret: SKULLE sort igen koste
+ * ekstra, er det en EMNEpris og ikke en opsætning, og den opfører sig modsat
+ * frontfarven: den ganges med antallet og får mængderabat. Sæt bare
+ * `SORT_STANDER_TILLAEG` — teksterne nedenfor følger tallet af sig selv.
  */
 
 export const STANDER_FARVER = [
@@ -27,9 +28,9 @@ export type StanderFarve = (typeof STANDER_FARVER)[number]["vaerdi"];
 /**
  * Farven kunden møder, hvis de ikke rører vælgeren.
  *
- * HVID ER STANDARD, fordi den er grundudgaven uden tillæg. En standardfarve,
- * der koster ekstra, ville stille lægge 49 kr. pr. stander på hver eneste
- * ordre fra en kunde, der bare klikkede videre.
+ * HVID ER STANDARD. Den var grundudgaven, dengang sort kostede et tillæg, og
+ * den bliver stående: kommer et tillæg tilbage, må det aldrig ramme den
+ * kunde, der bare klikkede videre.
  */
 export const STANDARD_STANDERFARVE: StanderFarve = "hvid";
 
@@ -41,7 +42,7 @@ export const STANDARD_STANDERFARVE: StanderFarve = "hvid";
  * standerprisen. Derfor lægges den til `standUnitBase` i `priceFor()` frem
  * for at stå som en selvstændig linje.
  */
-export const SORT_STANDER_TILLAEG = 49;
+export const SORT_STANDER_TILLAEG = 0;
 
 /** Tillæg pr. stander for en given farve. Hvid er grundudgaven og koster 0. */
 export function standerTillaeg(farve: StanderFarve): number {
@@ -54,8 +55,11 @@ export function standerTillaeg(farve: StanderFarve): number {
  *
  * Af samme grund gives der ingen mængderabat på den: rabatten hører til
  * enheden, og der er kun én opsætning.
+ *
+ * GRATIS FRA 2026-11-13 (før 49 kr.). Checkout lægger kun en linje på, når
+ * beløbet er over nul, og teksterne nedenfor siger selv "uden beregning".
  */
-export const EGEN_FRONTFARVE_PRIS = 49;
+export const EGEN_FRONTFARVE_PRIS = 0;
 
 /**
  * LoyalSums egen farve på skiltet. Det er den, designet er tegnet med.
@@ -67,10 +71,7 @@ export const EGEN_FRONTFARVE_PRIS = 49;
  * må derfor ikke nævnes i det, kunden får at vide — den ville love en farve
  * på noget, de aldrig kommer til at se. Se `logoLag()` i skilt.ts.
  *
- * ACCENTEN ER GRATIS AT SKIFTE, i modsætning til frontfarven. Det er ikke en
- * venlighed, men en konsekvens: accenten er den samme trykfil med en anden
- * farvekode, mens baggrunden er et selvstændigt tryk. Prisen følger, hvad der
- * faktisk koster noget.
+ * ACCENTEN ER GRATIS AT SKIFTE — og det er frontfarven også (fra 2026-11-13).
  *
  * BEMÆRK at det ikke er sitets accentfarve (#0f5b66). Skiltet er tegnet i
  * logoets lysere turkis, som holder på både sort og hvid bund.
@@ -157,7 +158,9 @@ export const FARVE_TEKSTER = {
   tillaegKort: `+${SORT_STANDER_TILLAEG} kr./stk.`,
   gratis: "Ingen tillægspris",
   prisNote:
-    "Tillægget er pr. stander og får samme mængderabat som standeren selv.",
+    SORT_STANDER_TILLAEG > 0
+      ? "Tillægget for sort er pr. stander og får samme mængderabat som standeren selv."
+      : "Sort og hvid koster det samme.",
 } as const;
 
 /**
@@ -179,8 +182,14 @@ export function farveTillaegTekst(farve: StanderFarve): string {
 
 export const FRONT_TEKSTER = {
   tilvalg: "Egen farve på fronten",
-  pris: `+${EGEN_FRONTFARVE_PRIS} kr. ex moms`,
+  pris:
+    EGEN_FRONTFARVE_PRIS > 0
+      ? `+${EGEN_FRONTFARVE_PRIS} kr. ex moms`
+      : "uden beregning",
   forklaring:
     "Kun den printede front ændrer farve. Sider, bagside og fod beholder standerens valgte farve.",
-  prisNote: "Prisen er pr. ordre — ikke pr. stander.",
+  prisNote:
+    EGEN_FRONTFARVE_PRIS > 0
+      ? "Prisen er pr. ordre — ikke pr. stander."
+      : "Den koster ikke ekstra.",
 } as const;
