@@ -327,11 +327,11 @@ export interface StripeIds {
    *
    * MÅLT 2026-09-16: prisobjekterne i testtilstand står på **399 kr**, mens
    * kataloget — og den offentlige produktside, og det kunden opkræves — står
-   * på **499 kr**. Tallet i Stripe er efterladt fra dengang standeren kostede
+   * på **299 kr** (499 indtil 2026-11-13). Tallet i Stripe er efterladt fra dengang standeren kostede
    * 399, og det er harmløst netop så længe ingen tager det i brug.
    *
    * SKIFTER NOGEN LINJEN TIL `price: ids.priceId`, ville hver eneste kunde
-   * blive opkrævet 100 kr for lidt, uden at noget som helst fejlede.
+   * blive opkrævet et forkert beløb, uden at noget som helst fejlede.
    * `pris-graenseflade.test.ts` er sat til at fange præcis dét.
    *
    * `monthlyPriceId` er en anden sag: den BRUGES, og live-priserne er
@@ -557,7 +557,7 @@ export const PRODUCTS: Product[] = [
       den er et engangskøb. Det står nu først.
     */
     metaTitle: "Reviewstander uden abonnement — vælg selv linket",
-    price: 499,
+    price: 299,
     interval: "one_time",
     includesLoyalSum: false,
     tagline: "Selvvalgt anmeldelseslink",
@@ -594,7 +594,7 @@ export const PRODUCTS: Product[] = [
     // 80 tegn med sitenavnet var for langt: Google klipper omkring 60, og
     // "& dynamiske links" forsvandt alligevel. Det står i beskrivelsen.
     metaTitle: "Reviewstander Pro — din egen anmeldelsesside",
-    price: 499,
+    price: 299,
     interval: "one_time",
     monthlyPrice: 99,
     includesLoyalSum: false,
@@ -639,7 +639,7 @@ export const PRODUCTS: Product[] = [
     // titlen, fordi det er den halvdel af forskellen, teksten tav om — se
     // punktet om de to loyalitetsformer i AGENTS.md.
     metaTitle: "LoyalSum Komplet — stempelkort, point & anmeldelser",
-    price: 499,
+    price: 299,
     interval: "one_time",
     monthlyPrice: 399,
     includesLoyalSum: true,
@@ -691,7 +691,7 @@ export const PRODUCTS: Product[] = [
      * forvejen: det slår farvevalg, logo-upload og leveringsadresse fra. Indtil
      * nu var der ingen vare, der brugte det.
      *
-     * PRISEN ER SOFTWAREPRISEN FRA KOMPLET. Komplet er 499 kr. for standeren
+     * PRISEN ER SOFTWAREPRISEN FRA KOMPLET. Komplet er 299 kr. for standeren
      * (engangs) + 399 kr./md. for platformen. Uden stander står månedsprisen
      * alene — den er ikke gættet, den er den samme linje.
      *
@@ -791,7 +791,7 @@ export const PRODUCTS: Product[] = [
     platform: "multi",
     name: "Ekstra stander",
     keyword: "ekstra reviewstander",
-    price: 499,
+    price: 299,
     interval: "one_time",
     addon: true,
     tagline: "Endnu et skilt til disken",
