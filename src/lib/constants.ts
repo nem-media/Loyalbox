@@ -330,6 +330,11 @@ export interface StripeIds {
    * på **299 kr** (499 indtil 2026-11-13). Tallet i Stripe er efterladt fra dengang standeren kostede
    * 399, og det er harmløst netop så længe ingen tager det i brug.
    *
+   * I LIVE ER DE BRAGT I TAKT 2026-11-13: nye engangspriser på 299 kr. for
+   * alle fire standervarer, og de gamle (499 og 399) er arkiveret. Testtil-
+   * standens objekter er IKKE rettet. Advarslen nedenfor gælder stadig: en
+   * mængderabat eller et farvetillæg kan ikke bæres af et fast prisobjekt.
+   *
    * SKIFTER NOGEN LINJEN TIL `price: ids.priceId`, ville hver eneste kunde
    * blive opkrævet et forkert beløb, uden at noget som helst fejlede.
    * `pris-graenseflade.test.ts` er sat til at fange præcis dét.
@@ -578,7 +583,7 @@ export const PRODUCTS: Product[] = [
       },
       live: {
         productId: "prod_V60HuKNAn27bkH",
-        priceId: "price_1UFJN52LQpGDZNEW0uyF2OfU",
+        priceId: "price_1UbMeO2LQpGDZNEWuSPMtJGN",
       },
     },
     mpn: "LS-REVIEW",
@@ -619,7 +624,7 @@ export const PRODUCTS: Product[] = [
       },
       live: {
         productId: "prod_V60HMfPVGevsVG",
-        priceId: "price_1UFJN62LQpGDZNEWpXFjR4qA",
+        priceId: "price_1UbMeP2LQpGDZNEWu06RgJ36",
         monthlyPriceId: "price_1U5tg72LQpGDZNEW8omPhStB",
         yearlyPriceId: "price_1UIDUo2LQpGDZNEWXaVCzaFO",
       },
@@ -667,7 +672,7 @@ export const PRODUCTS: Product[] = [
       },
       live: {
         productId: "prod_V60HgN0EFCzxre",
-        priceId: "price_1UFJN72LQpGDZNEWsbEPIvRG",
+        priceId: "price_1UbMeP2LQpGDZNEWYQgP6wvZ",
         monthlyPriceId: "price_1U5tg82LQpGDZNEWTFSgdiEe",
         yearlyPriceId: "price_1UIDTW2LQpGDZNEWQ6RmdT1H",
       },
@@ -818,7 +823,7 @@ export const PRODUCTS: Product[] = [
       // sit eget prod_-id, modsat de tre andre, hvor test og live deler.
       live: {
         productId: "prod_VFp1tICwfO2AW2",
-        priceId: "price_1UFJN82LQpGDZNEWM0USmnER",
+        priceId: "price_1UbMeN2LQpGDZNEWmNntF9GT",
       },
     },
   },
