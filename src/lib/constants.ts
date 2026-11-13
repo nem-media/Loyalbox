@@ -332,7 +332,7 @@ export interface StripeIds {
    *
    * I LIVE ER DE BRAGT I TAKT 2026-11-13: nye engangspriser på 299 kr. for
    * alle fire standervarer, og de gamle (499 og 399) er arkiveret. Testtil-
-   * standens objekter er IKKE rettet. Advarslen nedenfor gælder stadig: en
+   * standen er bragt i takt samme dag. Advarslen nedenfor gælder stadig: en
    * mængderabat eller et farvetillæg kan ikke bæres af et fast prisobjekt.
    *
    * SKIFTER NOGEN LINJEN TIL `price: ids.priceId`, ville hver eneste kunde
@@ -579,7 +579,7 @@ export const PRODUCTS: Product[] = [
     stripe: {
       test: {
         productId: "prod_V60HuKNAn27bkH",
-        priceId: "price_1U5oH7Rr2uZmH0wdNTNoPm6T",
+        priceId: "price_1UbMiNRr2uZmH0wdWy0NDsVp",
       },
       live: {
         productId: "prod_V60HuKNAn27bkH",
@@ -618,7 +618,7 @@ export const PRODUCTS: Product[] = [
     stripe: {
       test: {
         productId: "prod_V60HMfPVGevsVG",
-        priceId: "price_1U5oH8Rr2uZmH0wdDsW9uYPy",
+        priceId: "price_1UbMiORr2uZmH0wdN4bBsHkK",
         monthlyPriceId: "price_1U5oH8Rr2uZmH0wdyDTaXF1J",
         yearlyPriceId: "price_1UICdYRr2uZmH0wdEbrYYXgI",
       },
@@ -666,7 +666,7 @@ export const PRODUCTS: Product[] = [
     stripe: {
       test: {
         productId: "prod_V60HgN0EFCzxre",
-        priceId: "price_1U5oH9Rr2uZmH0wdOE6p6lJ1",
+        priceId: "price_1UbMiPRr2uZmH0wdhQHnL7WB",
         monthlyPriceId: "price_1U5oH9Rr2uZmH0wdVzW1v3Wc",
         yearlyPriceId: "price_1UICdZRr2uZmH0wdvvUQWmwz",
       },
@@ -814,7 +814,7 @@ export const PRODUCTS: Product[] = [
     stripe: {
       test: {
         productId: "prod_V77rcHM3RsTaUq",
-        priceId: "price_1U6tc6Rr2uZmH0wddf9e17pl",
+        priceId: "price_1UbMiPRr2uZmH0wd3i4DiA8z",
       },
       // OPRETTET 2026-09-13 med live-nøglen. Tilkøbet var den ENESTE vare
       // uden live-id'er, og uden dem ville "Ekstra stander" have været
