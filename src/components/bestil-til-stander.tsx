@@ -146,9 +146,7 @@ export async function BestilTilStander({
           */}
           <p className="mt-1.5 text-sm leading-relaxed text-muted">
             Samme udseende og <strong>samme QR-kode</strong> som ovenfor, så
-            skiltet fører hen til den side, du allerede har sat op. Har du
-            betalt for en egen frontfarve på designet, betaler du ikke for den
-            igen.
+            skiltet fører hen til den side, du allerede har sat op.
           </p>
 
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
